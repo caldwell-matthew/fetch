@@ -1,24 +1,24 @@
 {
-    "test_name": "000.000.000 QUICK_RUN",
+    "test_name": "001.001.001 Active_Admin",
     "details": {
-        "created_at": "2024-01-10T22:23:30.818426+00:00",
-        "modified_at": "2024-02-15T22:11:23.156364+00:00",
+        "created_at": "2024-01-04T18:37:14.672992+00:00",
+        "modified_at": "2024-02-14T22:27:43.525160+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 137565390,
-        "public_id": "776-xcj-gk7",
+        "monitor_id": 137240241,
+        "public_id": "rns-zhp-egi",
         "status": "paused",
         "steps": [
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "001.002.002 Login",
+                "name": "001.002 ADMIN_Deactivate_Admin",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "tty-83s-i9y",
+                    "subtestPublicId": "izf-d9u-wrp",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -26,17 +26,35 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "001.003.003 Mk_RWX_Role (cloned-testing fetch.py)",
+                "name": "Test SMCT_ADD 'https://{{ MENTOR_ENV }}.mentorapm.com/health_v2/smct_add'",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "uk9-xa3-xkk",
-                    "playingTabId": -1
+                    "request": {
+                        "options": {
+                            "httpVersion": "any"
+                        },
+                        "config": {
+                            "assertions": [
+                                {
+                                    "operator": "is",
+                                    "type": "statusCode",
+                                    "target": 200
+                                }
+                            ],
+                            "request": {
+                                "method": "GET",
+                                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/health_v2/smct_add"
+                            }
+                        },
+                        "subtype": "http"
+                    }
                 },
-                "type": "playSubTest"
+                "type": "runApiTest"
             }
         ],
         "tags": [
-            "ADMIN"
+            "ADMIN",
+            "USER"
         ],
         "config": {
             "assertions": [],
@@ -50,17 +68,10 @@
             "set_cookie": "",
             "variables": [
                 {
-                    "example": "dev@smct.com ",
-                    "pattern": "dev@smct.com ",
+                    "example": "dev",
+                    "pattern": "dev",
                     "secure": false,
-                    "name": "TEST_USR",
-                    "type": "text"
-                },
-                {
-                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
-                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
-                    "secure": false,
-                    "name": "TEST_PASS",
+                    "name": "MENTOR_ENV",
                     "type": "text"
                 }
             ],
@@ -73,8 +84,8 @@
         "locations": [
             "aws:us-west-1"
         ],
-        "message": "`000.000.000 QUICK_RUN`\n- Wrapper to run individual specific tests.",
-        "name": "000.000.000 QUICK_RUN",
+        "message": "`001.001.001 Active_Admin`\nTest generates \"Synthetic Monitoring\" user SMCTUSER1 with full admin permissions.\n- This user and all requisite data should be deleted after the end of all tests. \n- User SMCTUSER1 is deleted if exists when this test is run.\n- To delete user, see `001.001.002`.",
+        "name": "001.001.001 Active_Admin",
         "options": {
             "enableProfiling": false,
             "enableSecurityTesting": false,

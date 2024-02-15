@@ -1,24 +1,24 @@
 {
-    "test_name": "000.000.000 QUICK_RUN",
+    "test_name": "003.001.001 Active_Inventory",
     "details": {
-        "created_at": "2024-01-10T22:23:30.818426+00:00",
-        "modified_at": "2024-02-15T22:11:23.156364+00:00",
+        "created_at": "2024-02-06T21:27:28.448041+00:00",
+        "modified_at": "2024-02-13T00:48:33.852053+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 137565390,
-        "public_id": "776-xcj-gk7",
+        "monitor_id": 139080499,
+        "public_id": "cqs-44p-uw9",
         "status": "paused",
         "steps": [
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "001.002.002 Login",
+                "name": "005.001.002 Mk_Material",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "tty-83s-i9y",
+                    "subtestPublicId": "y97-cjg-kff",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -26,17 +26,18 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "001.003.003 Mk_RWX_Role (cloned-testing fetch.py)",
+                "name": "005.001.003 Mk_Storeroom",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "uk9-xa3-xkk",
+                    "subtestPublicId": "ccd-kaa-ye2",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
             }
         ],
         "tags": [
-            "ADMIN"
+            "ADMIN",
+            "INV"
         ],
         "config": {
             "assertions": [],
@@ -50,31 +51,22 @@
             "set_cookie": "",
             "variables": [
                 {
-                    "example": "dev@smct.com ",
-                    "pattern": "dev@smct.com ",
-                    "secure": false,
-                    "name": "TEST_USR",
-                    "type": "text"
-                },
-                {
-                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
-                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
-                    "secure": false,
-                    "name": "TEST_PASS",
-                    "type": "text"
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
                 }
             ],
             "request": {
                 "headers": {},
                 "method": "GET",
-                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/apm"
             }
         },
         "locations": [
-            "aws:us-west-1"
+            "aws:us-east-1"
         ],
-        "message": "`000.000.000 QUICK_RUN`\n- Wrapper to run individual specific tests.",
-        "name": "000.000.000 QUICK_RUN",
+        "message": "`003.001.001 Active_Inventory`\n- To make material, see `003.001.002`.\n- To make storeroom, see `003.001.003`.",
+        "name": "003.001.001 Active_Inventory",
         "options": {
             "enableProfiling": false,
             "enableSecurityTesting": false,
@@ -97,7 +89,7 @@
             "rum_settings": {
                 "is_enabled": false
             },
-            "tick_every": 300
+            "tick_every": 3600
         },
         "type": "browser"
     }

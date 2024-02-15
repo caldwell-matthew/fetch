@@ -1,15 +1,15 @@
 {
-    "test_name": "001.002.002 Login",
+    "test_name": "001.002.002 Login-2",
     "details": {
-        "created_at": "2024-01-04T22:52:22.451134+00:00",
-        "modified_at": "2024-02-13T00:32:32.303781+00:00",
+        "created_at": "2024-02-12T16:41:39.861913+00:00",
+        "modified_at": "2024-02-12T22:36:14.683845+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 137254856,
-        "public_id": "tty-83s-i9y",
+        "monitor_id": 139388776,
+        "public_id": "dsz-fgq-9b7",
         "status": "paused",
         "steps": [
             {
@@ -18,7 +18,7 @@
                 "name": "Type text on input \"email\"",
                 "no_screenshot": false,
                 "params": {
-                    "value": "{{ TEST_USR  }}",
+                    "value": "matthew.caldwell@mentorapm.com",
                     "element": {
                         "url": "https://dev.mentorapm.com/login",
                         "userLocator": {
@@ -31,7 +31,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@name=\"email\" and @value=\"\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" required \")]",
                             "co": "[{\"text\":\"please enter your email\",\"textType\":\"innerText\"}]",
@@ -61,7 +61,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" login-btn \")]",
                             "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
@@ -69,67 +69,6 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" login-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"login-btn\" type=\"submit\">Next&nbsp;<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"sign-in-alt\" class=\"svg-inline--fa fa-sign-in-alt fa-w-16 \" role=\"img\" xmlns=\"h"
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Type text on input \"password\"",
-                "no_screenshot": false,
-                "params": {
-                    "value": "{{ TEST_PASS  }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@name=\"password\" and @type=\"password\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" input-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" required \")][2]",
-                            "co": "[{\"text\":\"password\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@name=\"password\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" input-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" required \")][2]"
-                        },
-                        "targetOuterHTML": "<input name=\"password\" type=\"password\" autocomplete=\"current-password\" data-testid=\"password-input\" class=\"required\" required=\"\">"
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Click on button \"Submit\"",
-                "no_screenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" login-btn \")]",
-                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" login-btn \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" login-btn \")]"
-                        },
-                        "targetOuterHTML": "<button class=\"login-btn\" type=\"submit\">Submit&nbsp;<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"sign-in-alt\" class=\"svg-inline--fa fa-sign-in-alt fa-w-16 \" role=\"img\" xmlns="
                     }
                 },
                 "type": "click"
@@ -154,10 +93,10 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"ol\"][1]/*[local-name()=\"li\"][1]/*[local-name()=\"strong\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"ol\"][1]/*[local-name()=\"li\"][1]/*[local-name()=\"strong\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMBreadcrumbs \")]/*[local-name()=\"li\"][1]/*[local-name()=\"strong\"][1]",
-                            "co": "[{\"text\":\"home\",\"textType\":\"directText\"},{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"notificationsdrag widget\",\"textType\":\"innerText\"}]",
+                            "co": "[{\"text\":\"home\",\"textType\":\"directText\"},{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"homesynthetic monitoringsmct\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"strong\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMBreadcrumbs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"home\"]]"
                         },
@@ -206,7 +145,7 @@
             "aws:us-west-1"
         ],
         "message": "`001.002.002 Login`\n- Test logs into MentorAPM via SMCTUSER1.",
-        "name": "001.002.002 Login",
+        "name": "001.002.002 Login-2",
         "options": {
             "enableProfiling": false,
             "enableSecurityTesting": false,

@@ -2,10 +2,10 @@
 # Fetch.py
 #   Created By  : Matthew Caldwell
 #   Created On  : 20240214
-#   Description : Script to "fetch and return" tests from DataDog
+#   Description : Script to "fetch, return, and bulk edit" tests from DataDog
 #   Changelog   :
 #     20240214  MAT     INIT
-#     20240215  MAT     Able to fetch/throw tests       
+#     20240215  MAT     Able to fetch/throw tests, formatting       
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient, Configuration
@@ -36,43 +36,57 @@ def process_to_json(data, file_name):
         file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from JSON files (by test name)
-def extract_json(file_name):
+# Extract data from a singular JSON file by test file name
+def extract_single_json(file_name):
     with open("./tests/" + file_name + ".json", 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Bulk traversal/edit of every JSON file in ./tests 
+def bulk_traversal_edit_json():
+    for file in os.listdir("./tests"):
+        file_path = os.path.join("./tests", file)
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        bulk_edit(data)
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+
+def bulk_edit(data):
+    print(data["details"])
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 def fetch():
+    print("\nFetching tests...")
     with ApiClient(configuration) as api_client:
-        print("\nFetching tests...")
         API = SyntheticsApi(api_client)
 
-        # Only fetch/process new tests that do not exist
-        all_tests = API.list_tests().to_dict()["tests"]
-        existing_files = [file[:-5] for file in os.listdir("./tests")]
-        tests = [test for test in all_tests if test["name"] not in existing_files]
+    # Only fetch/process new tests that do not exist
+    all_tests = API.list_tests().to_dict()["tests"]
+    existing_files = [file[:-5] for file in os.listdir("./tests")]
+    tests = [test for test in all_tests if test["name"] not in existing_files]
 
-        # Convert to JSON
-        if tests:
-            for test in tests:
-                t_name = test["name"]
-                t_id = test["public_id"]
-                t_details = API.get_browser_test(t_id).to_dict()
-                formatted_test = {
-                    "test_name": t_name, 
-                    "details": t_details
-                }
-                process_to_json(formatted_test, f"{t_name}.json")
-                print("Caught: " + formatted_test["test_name"])
-        else: 
-            print("No new tests to fetch...") 
+    # Convert to JSON
+    if tests:
+        for test in tests:
+            t_name = test["name"]
+            t_id = test["public_id"]
+            t_details = API.get_browser_test(t_id).to_dict()
+            formatted_test = {
+                "test_name": t_name, 
+                "details": t_details
+            }
+            process_to_json(formatted_test, f"{t_name}.json")
+            print("Caught: " + formatted_test["test_name"])
+    else: 
+        print("No new tests to fetch...") 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 def throw(t_file):
     print("\nThrowing "+ t_file + "...")
-    data = extract_json(t_file)
+    data = extract_single_json(t_file)
     modify_test = {
         "name": data["name"],
         "config": data["config"],
@@ -84,20 +98,21 @@ def throw(t_file):
     }
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
-        try:
-            API.update_browser_test(data["public_id"], modify_test)
-            print(modify_test["name"] + " modified!")
-        except:
-            API.create_synthetics_browser_test(modify_test)
-            print(modify_test["name"] + " created!")
+    try:
+        API.update_browser_test(data["public_id"], modify_test)
+        print(modify_test["name"] + " modified!")
+    except:
+        API.create_synthetics_browser_test(modify_test)
+        print(modify_test["name"] + " created!")
     fetch()
-  
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 def main():
     if validate_api():
         fetch()
         throw("Example-Synthetic")
+        bulk_traversal_edit_json()
 
 if __name__ == "__main__":
     main()
