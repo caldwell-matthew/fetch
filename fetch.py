@@ -29,17 +29,16 @@ def validate_api():
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Process data into JSON files
-def process_to_json(data, dir, file_name):
-    file_path = os.path.join(dir, file_name)
+def process_to_json(data, file_name):
+    file_path = os.path.join("./tests/", file_name)
     json_data = json.dumps(data, indent=4)
     with open(file_path, "w") as file:
         file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from JSON files
+# Extract data from JSON files (by test name)
 def extract_json(file_name):
-    file_path = "./tests/" + file_name + ".json"
-    with open(file_path, 'r') as file:
+    with open("./tests/" + file_name + ".json", 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -64,7 +63,7 @@ def fetch():
                     "test_name": t_name, 
                     "details": t_details
                 }
-                process_to_json(formatted_test, "./tests", f"{t_name}.json")
+                process_to_json(formatted_test, f"{t_name}.json")
                 print("Caught: " + formatted_test["test_name"])
         else: 
             print("No new tests to fetch...") 
