@@ -12,6 +12,7 @@ from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 import json
 import os
+import requests
 
 # Config Keys
 configuration = Configuration()
@@ -30,26 +31,48 @@ def process_to_multiple_json(data, dir, file_name):
     with open(file_path, "w") as file:
         file.write(json_data)
 
-# Fetch all DataDog tests and convert into JSON files
-def fetch_tests(api_client):
+# Extract data from JSON files
+def extract_json(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)["details"]
+
+# Fetch all DataDog tests and convert into raw JSON
+def fetch_all_tests(api_client):
     API = SyntheticsApi(api_client)
     t = API.list_tests()
-
     for test in t.to_dict()["tests"]:
         t_name = test["name"]
         t_id = test["public_id"]
         t_details = API.get_browser_test(t_id).to_dict()
-
-        test_with_steps = {
-            "test_name": t_name,
-            "public_id": t_id,
-            "details": t_details,
+        formatted_test = {
+            "test_name": t_name + ' | ' + t_id,
+            "details": t_details
         }
-
         f_name = (f"{t_name}.json")
         clean_f_name = "".join(c if c.isalnum() or c in ['.', '_', '-'] else ' ' for c in f_name)
-        process_to_multiple_json(test_with_steps, "./tests", clean_f_name)
+        process_to_multiple_json(formatted_test, "./tests", clean_f_name)
 
+# Throw (edit or create) a DataDog test from JSON
+def throw_test(api_client):
+    t_file = "./tests/Example-Synthetic-2.json"
+    data = extract_json(t_file)
+    modify_test = {
+        "name": data["name"],
+        "config": data["config"],
+        "message": data["message"],
+        "options": data["options"],
+        "type": data["type"],
+        "locations": data["locations"],
+        "steps": data["steps"]
+    }
+    API = SyntheticsApi(api_client)
+    try:
+        API.update_browser_test('7dp-9jk-4pn', modify_test)
+    except:
+        API.create_synthetics_browser_test(modify_test)
+  
 with ApiClient(configuration) as api_client:
     if (validate_api(api_client)):
-        fetch_tests(api_client)
+        print("API Working...")
+        fetch_all_tests(api_client)
+        throw_test(api_client)
