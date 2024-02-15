@@ -13,6 +13,7 @@ from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 import json
 import os
+import re
 
 # Config/Setup
 configuration = Configuration()
@@ -42,18 +43,35 @@ def extract_single_json(file_name):
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Bulk traversal/edit of every JSON file in ./tests 
-def bulk_traversal_edit_json():
-    for file in os.listdir("./tests"):
-        file_path = os.path.join("./tests", file)
+# Bulk traversal/edit of every JSON file in a directory (default to ./tests)
+def bulk_traversal_edit_json(dir = "./tests-copy"):
+    for file in os.listdir(dir):
+        file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
             data = json.load(file)
         bulk_edit(data)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
+        
+        break # just do one first
 
 def bulk_edit(data):
-    print(data["details"])
+    for step in data["details"]["steps"]:
+        user_specified_locator = step["params"]["element"]["userLocator"]["values"]
+        for USL in user_specified_locator:
+            if USL["type"] == "xpath":
+                xpath = USL["value"]
+                print("MATCH! : " + xpath) #DEBUGSTUFF (REMOVE)
+
+                # Convert @data-tip -> contains()
+                if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
+                    re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
+                    location = re_match_location.group(1)
+                    print("LOCATION! : " + location) #DEBUGSTUFF (REMOVE)
+                    USL["value"] = f"//a[contains(., \"{location}\")]"
+
+        break # just do one first
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
@@ -110,8 +128,9 @@ def throw(t_file):
 # Main
 def main():
     if validate_api():
-        fetch()
-        throw("Example-Synthetic")
+        #fetch()
+        #throw("Example-Synthetic")
+        #throw("001.004.001 Mk_SL")
         bulk_traversal_edit_json()
 
 if __name__ == "__main__":
