@@ -20,8 +20,9 @@ configuration.api_key["apiKeyAuth"] = "7014e4144493a636642d6d2b8c4a7b45"
 configuration.api_key["appKeyAuth"] = "e9971fad36b67e5684b45e767156e6c764c51c14" 
 
 # Validate API is connected/working, should return 'True'
-def validate_api(api_client):
-    return AuthenticationApi(api_client).validate()
+def validate_api():
+    with ApiClient(configuration) as api_client:
+        return AuthenticationApi(api_client).validate()
 
 # Process data into JSON files
 def process_to_multiple_json(data, dir, file_name):
@@ -36,25 +37,34 @@ def extract_json(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)["details"]
 
-# Fetch all DataDog tests and convert into raw JSON
-def fetch_all_tests(api_client):
-    API = SyntheticsApi(api_client)
-    t = API.list_tests()
-    for test in t.to_dict()["tests"]:
-        t_name = test["name"]
-        t_id = test["public_id"]
-        t_details = API.get_browser_test(t_id).to_dict()
-        formatted_test = {
-            "test_name": t_name + ' | ' + t_id,
-            "details": t_details
-        }
-        f_name = (f"{t_name}.json")
-        clean_f_name = "".join(c if c.isalnum() or c in ['.', '_', '-'] else ' ' for c in f_name)
-        process_to_multiple_json(formatted_test, "./tests", clean_f_name)
+# Fetch DataDog tests and convert into JSON
+def fetch(t_name=None, t_id=None):
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+        
+        # Fetch all tests if no specific test is specified
+        if t_name is None and t_id is None:
+            tests = API.list_tests().to_dict()["tests"]
+
+        # Else fetch only a specified test 
+        else: 
+            tests = [{"name": t_name, "public_id": t_id}]
+        
+        # Process into JSON
+        for test in tests:
+            t_name = test["name"]
+            t_id = test["public_id"]
+            t_details = API.get_browser_test(t_id).to_dict()
+            formatted_test = {
+                "test_name": t_name + ' | ' + t_id,
+                "details": t_details
+            }
+            f_name = f"{t_name}.json"
+            clean_f_name = "".join(c if c.isalnum() or c in ['.', '_', '-'] else ' ' for c in f_name)
+            process_to_multiple_json(formatted_test, "./tests", clean_f_name)
 
 # Throw (edit or create) a DataDog test from JSON
-def throw_test(api_client):
-    t_file = "./tests/Example-Synthetic-2.json"
+def throw(t_file):
     data = extract_json(t_file)
     modify_test = {
         "name": data["name"],
@@ -65,14 +75,22 @@ def throw_test(api_client):
         "locations": data["locations"],
         "steps": data["steps"]
     }
-    API = SyntheticsApi(api_client)
-    try:
-        API.update_browser_test('7dp-9jk-4pn', modify_test)
-    except:
-        API.create_synthetics_browser_test(modify_test)
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+        try:
+            API.update_browser_test(data["public_id"], modify_test)
+            print("Test '" + modify_test["name"] + "' modified!")
+        except:
+            API.create_synthetics_browser_test(modify_test)
+            print("Test '" + modify_test["name"] + "' created!")
+        fetch()
   
-with ApiClient(configuration) as api_client:
-    if (validate_api(api_client)):
+def main():
+    if validate_api():
         print("API Working...")
-        fetch_all_tests(api_client)
-        throw_test(api_client)
+        #fetch()
+        #fetch("Example-Synthetic-55552", "9fm-q8m-3fj")
+        throw("./tests/Example-Synthetic.json")
+
+if __name__ == "__main__":
+    main()
