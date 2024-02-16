@@ -47,7 +47,15 @@ def extract_single_json(file_name, dir):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk edit of every JSON file in a directory, edit type varies
 def bulk_edit(data, type):
+    # Name Edit
+    if type == "name":
+        print("Beginning bulk name edit...")
+        # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
+        data["details"]["name"] = "COPY_" + data["details"]["name"]
+
+    # Xpath Edit
     if type == "xpath":
+        print("Beginning bulk xpath edit...")
         for step in data["details"]["steps"]:
             if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
                 user_specified_locator = step["params"]["element"]["userLocator"]["values"]
@@ -75,8 +83,8 @@ def bulk_edit(data, type):
                 break # just do one first
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Bulk traversal/edit of every JSON file in a directory (default to ./tests and edit xpath)
-def bulk_traversal_edit_json(dir = "./tests", edit_function = bulk_edit, edit_type = "xpath"):
+# Bulk traversal/edit of every JSON file in a directory
+def bulk_traversal_edit_json(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
 
@@ -90,6 +98,7 @@ def bulk_traversal_edit_json(dir = "./tests", edit_function = bulk_edit, edit_ty
         file_name = os.path.splitext(file_name_full)[0]
 
         throw(file_name, dir)
+        fetch()
         break # just do one first
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -163,10 +172,10 @@ def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):
 # Main
 def main():
     if validate_api():
-        fetch()
-        throw("000.000.000 RUN (cloned)", "./tests-copy2")
-        bulk_traversal_edit_json()
-        bulk_copy()
+        #fetch()
+        #throw("000.000.000 RUN (cloned)", "./tests-copy2")
+        #bulk_traversal_edit_json("./tests", bulk_edit, "xpath")
+        #bulk_copy()
 
 if __name__ == "__main__":
     main()
