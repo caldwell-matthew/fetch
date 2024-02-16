@@ -37,7 +37,7 @@ def process_to_json(data, file_name):
         file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from a singular JSON file by test file name
+# Extract data from a singular JSON file by test name
 def extract_single_json(file_name):
     with open("./tests/" + file_name + ".json", 'r') as file:
         return json.load(file)["details"]
@@ -56,35 +56,36 @@ def bulk_traversal_edit_json(dir = "./tests"):
 
         file_name_full = os.path.basename(file_path)
         file_name = os.path.splitext(file_name_full)[0]
-        
+
         throw(file_name)
         break # just do one first
 
 def bulk_edit(data):
     for step in data["details"]["steps"]:
-        user_specified_locator = step["params"]["element"]["userLocator"]["values"]
-        for USL in user_specified_locator:
-            if USL["type"] == "xpath":
-                xpath = USL["value"]
-
-                #DEBUGSTUFF
-                print("Current XPATH: " + xpath)
-
-                # Convert @data-tip -> contains()
-                # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
-                if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
-                    re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
-                    location = re_match_location.group(1)
+        if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
+            user_specified_locator = step["params"]["element"]["userLocator"]["values"]
+            for USL in user_specified_locator:
+                if USL["type"] == "xpath":
+                    xpath = USL["value"]
 
                     #DEBUGSTUFF
-                    print("LOCATION! : " + location) 
+                    print("Current XPATH: " + xpath)
 
-                    USL["value"] = f"//a[contains(., \"{location}\")]"
+                    # Convert @data-tip -> contains()
+                    # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
+                    if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
+                        re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
+                        location = re_match_location.group(1)
 
-                    #DEBUGSTUFF
-                    print("NEW XPATH: " + xpath)
+                        #DEBUGSTUFF
+                        print("LOCATION! : " + location) 
 
-        break # just do one first
+                        USL["value"] = f"//a[contains(., \"{location}\")]"
+
+                        #DEBUGSTUFF
+                        print("NEW XPATH: " + xpath)
+
+            break # just do one first
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -126,7 +127,8 @@ def throw(t_file):
         "options": data["options"],
         "type": data["type"],
         "locations": data["locations"],
-        "steps": data["steps"]
+        "steps": data["steps"],
+        "tags": data["tags"]
     }
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
@@ -143,8 +145,7 @@ def throw(t_file):
 def main():
     if validate_api():
         fetch()
-        #throw("Example-Synthetic")
-        #throw("001.004.001 Mk_SL")
+        #throw("000.000.000 RUN (cloned)")
         #bulk_traversal_edit_json()
 
 if __name__ == "__main__":

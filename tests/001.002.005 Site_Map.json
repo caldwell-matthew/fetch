@@ -30,7 +30,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" top-header-ellipsis-menu \")]",
                             "co": "",
@@ -152,10 +152,10 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
-                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"mentorapm\",\"textType\":\"innerText\"}]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"},{\"text\":\"mentorapm\",\"textType\":\"directText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]"
                         },
