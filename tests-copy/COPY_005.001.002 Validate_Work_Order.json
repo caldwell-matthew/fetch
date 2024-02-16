@@ -1,0 +1,2382 @@
+{
+    "test_name": "005.001.002 Validate_Work_Order",
+    "details": {
+        "created_at": "2024-02-07T01:57:05.565865+00:00",
+        "modified_at": "2024-02-13T00:51:18.465322+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 139095478,
+        "public_id": "kna-7jb-a8m",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Work\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//a[@data-tip=\"Work\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][5]",
+                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/work\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][5]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"assets\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@href=\"/apm/work\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][5]"
+                        },
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Work\" href=\"/apm/work\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" "
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Work Orders\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Work Orders\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][5]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritework orders\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"button\"][5]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][5]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-Mmqgm1wv8ZeA\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Work Order\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//span[@data-tip=\"View Record\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"svg\"][1]/*[local-name()=\"path\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\"]/descendant::*[@viewBox=\"0 0 512 512\"]/descendant::*[@fill=\"currentColor\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][1]/*[local-name()=\"path\"][1]",
+                            "co": "",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][1]/*[local-name()=\"path\"][1]"
+                        },
+                        "targetOuterHTML": "<path fill=\"currentColor\" d=\"M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,3 ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Cost Summary\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Cost Summary\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Total Work Order Cost\"",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "$12,000.00",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"6\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"$12,000.00\",\"textType\":\"directText\"},{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"total\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][6]/*[2]/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"$12,000.00\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%; text-align: right;\">$12,000.00</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Stages\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Stages\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Stage A\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Stage A",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage A\")]/div[4]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"4\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"stage a\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Stage A</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Stage B\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Stage B",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage B\")]/div[4]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"4\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"stage a\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Stage A</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Stage C\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Stage C",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage C\")]/div[4]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"4\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"stage a\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Stage A</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Stage A\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Stage A",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage A\")]/div[4]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"4\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"stage a\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stage a\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Stage A</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Stage A\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage A\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@focusable=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][3]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/*/*/*/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][3]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa fa-external-link fa-w-16 apm-color-dark-green\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assets\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Assets\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test Asset Gamma - EDIT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test Asset Gamma - EDIT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#1",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAsset\"]/div[contains(., \"Test Asset Gamma\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"test asset gamma - edit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"test asset gamma - edit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"test asset gamma - edit\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Test Asset Gamma - EDIT</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assignments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Assignments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Crewmate\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Crewmate",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"workstageassignment\"]/div[contains(., \"Crewmate\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"crewmate\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"crewmate\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"crewmate\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Crewmate</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Attachments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Attachments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test.txt\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test.txt",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#3",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"attachment\"]/div[contains(., \"Test.txt\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"gridcell\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"synthetic monitoring\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-selected\"]=\"true\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"0\" aria-selected=\"true\" aria-colindex=\"3\" style=\"width: 150px;\"><a href=\"/api/attachment/337cd1ef-7e83-42c7-b557-c7d9a4bb9f71\" rel=\"noreferrer\" target=\"_blank\">Test.txt< ..."
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Attributes\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_MONEY\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_MONEY",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_MONEY\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_PIC\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_PIC",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_PIC\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_BOOL\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_BOOL\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_INT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_INT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_INT\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_STR\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_STR",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_STR\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE_TIME\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE_TIME",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE_TIME\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_FLOAT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_FLOAT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_FLOAT\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Cost Summary\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Cost Summary\") and not(contains(., \"Estimated\"))]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Total Work Stage A Cost\"",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "$2,000.00",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"6\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"$12,000.00\",\"textType\":\"directText\"},{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"total\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][6]/*[2]/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"$12,000.00\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%; text-align: right;\">$12,000.00</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Forms\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Forms\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test paragraph \"SMCT Workflow Form\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT Workflow Form",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#20",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"SMCT Workflow Form\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" w-6/12 \")]",
+                            "co": "[{\"text\":\"smct workflow form\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"smct workflow form\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" w-6/12 \")]"
+                        },
+                        "targetOuterHTML": "<p class=\"w-6/12 whitespace-pre-wrap\">SMCT Workflow Form</p>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Back\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#24",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-tip=\"Back\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-8 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \")]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-left\" class=\"svg-inline--fa fa-chevron-left fa-w-8 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Stage B\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage B\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@focusable=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][3]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/*/*/*/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][3]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa fa-external-link fa-w-16 apm-color-dark-green\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assets\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Assets\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test Asset Gamma - EDIT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test Asset Gamma - EDIT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#1",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAsset\"]/div[contains(., \"Test Asset Gamma\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"test asset gamma - edit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"test asset gamma - edit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"test asset gamma - edit\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Test Asset Gamma - EDIT</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assignments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Assignments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Crewmate\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Crewmate",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"workstageassignment\"]/div[contains(., \"Crewmate\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"crewmate\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"crewmate\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"crewmate\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Crewmate</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Attachments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Attachments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test2.txt\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test2.txt",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#3",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"attachment\"]/div[contains(., \"Test2.txt\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"gridcell\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"synthetic monitoring\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-selected\"]=\"true\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"0\" aria-selected=\"true\" aria-colindex=\"3\" style=\"width: 150px;\"><a href=\"/api/attachment/337cd1ef-7e83-42c7-b557-c7d9a4bb9f71\" rel=\"noreferrer\" target=\"_blank\">Test.txt< ..."
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Attributes\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_MONEY\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_MONEY",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_MONEY\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_PIC\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_PIC",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_PIC\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_BOOL\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_BOOL\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_INT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_INT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_INT\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_STR\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_STR",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_STR\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE_TIME\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE_TIME",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE_TIME\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_FLOAT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_FLOAT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_FLOAT\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Cost Summary\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Cost Summary\") and not(contains(., \"Estimated\"))]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Total Work Stage B Cost\"",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "$4,000.00",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"6\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"$12,000.00\",\"textType\":\"directText\"},{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"total\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][6]/*[2]/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"$12,000.00\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%; text-align: right;\">$12,000.00</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Back\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#24",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-tip=\"Back\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-8 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \")]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-left\" class=\"svg-inline--fa fa-chevron-left fa-w-8 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Stage C\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkOrderStages\"]/div[contains(., \"Stage C\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@focusable=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][3]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/*/*/*/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")][3]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa fa-external-link fa-w-16 apm-color-dark-green\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assets\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Assets\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test Asset Gamma - EDIT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test Asset Gamma - EDIT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#1",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAsset\"]/div[contains(., \"Test Asset Gamma\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"test asset gamma - edit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"test asset gamma - edit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"test asset gamma - edit\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Test Asset Gamma - EDIT</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assignments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Assignments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Crewmate\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Crewmate",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"workstageassignment\"]/div[contains(., \"Crewmate\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"crewmate\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"crewmate\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"crewmate\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Crewmate</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Attachments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Attachments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test3.txt\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test3.txt",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#3",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"attachment\"]/div[contains(., \"Test3.txt\")]/div[3]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"gridcell\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"synthetic monitoring\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-selected\"]=\"true\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"0\" aria-selected=\"true\" aria-colindex=\"3\" style=\"width: 150px;\"><a href=\"/api/attachment/337cd1ef-7e83-42c7-b557-c7d9a4bb9f71\" rel=\"noreferrer\" target=\"_blank\">Test.txt< ..."
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Attributes\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_MONEY\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_MONEY",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_MONEY\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_PIC\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_PIC",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_PIC\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_BOOL\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_BOOL\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_INT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_INT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_INT\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_STR\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_STR",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_STR\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE_TIME\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE_TIME",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE_TIME\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_FLOAT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_FLOAT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_FLOAT\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"10000000000\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[2]/*[local-name()=\"div\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/bIqSclMr0dnFPQygjBNg5\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Cost Summary\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Cost Summary\") and not(contains(., \"Estimated\"))]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Total Work Stage C Cost\"",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "$6,000.00",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]/div[2]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"6\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"$12,000.00\",\"textType\":\"directText\"},{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"total\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][6]/*[2]/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" cost-summary-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"$12,000.00\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%; text-align: right;\">$12,000.00</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Forms\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/works/SMCT_18d85ac5c0e#6",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul[@class=\"apm-side-panel-tabs\"]/li[contains(., \"Forms\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][7]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"true\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][7]",
+                            "co": "[{\"text\":\"stages\",\"textType\":\"directText\"},{\"tagName\":\"SPAN\",\"text\":\"save search\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"stages\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-6\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"true\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamond ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test paragraph \"SMCT Workflow Form\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT Workflow Form",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#20",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"SMCT Workflow Form\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" w-6/12 \")]",
+                            "co": "[{\"text\":\"smct workflow form\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"smct workflow form\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" w-6/12 \")]"
+                        },
+                        "targetOuterHTML": "<p class=\"w-6/12 whitespace-pre-wrap\">SMCT Workflow Form</p>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"MentorAPM\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/work/workstages/jbHRVRZYZyZ5hpFxaEuz3#12",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"a\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]",
+                            "co": "[{\"text\":\"mentorapm\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"mentorapm\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]"
+                        },
+                        "targetOuterHTML": "<a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a>"
+                    }
+                },
+                "type": "click"
+            }
+        ],
+        "tags": [
+            "ADMIN",
+            "WORK"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "dev@smct.com ",
+                    "pattern": "dev@smct.com ",
+                    "secure": false,
+                    "name": "TEST_USR",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "TEST_PASS",
+                    "type": "text"
+                },
+                {
+                    "example": "47162848",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ACCT_#",
+                    "type": "text"
+                },
+                {
+                    "example": "Test account",
+                    "pattern": "Test account",
+                    "secure": false,
+                    "name": "TEST_ACCT_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "1000000000",
+                    "pattern": "1000000000",
+                    "secure": false,
+                    "name": "TEST_BUDGET",
+                    "type": "text"
+                },
+                {
+                    "example": "Testing Department",
+                    "pattern": "Testing Department",
+                    "secure": false,
+                    "name": "TEST_DEPARTMENT",
+                    "type": "text"
+                },
+                {
+                    "example": "A department for testing",
+                    "pattern": "A department for testing",
+                    "secure": false,
+                    "name": "TEST_DEPARTMENT_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "Expense Code 24953",
+                    "pattern": "Expense Code 24953",
+                    "secure": false,
+                    "name": "TEST_EXPEN_TYPE",
+                    "type": "text"
+                },
+                {
+                    "example": "Test expenditure type",
+                    "pattern": "Test expenditure type",
+                    "secure": false,
+                    "name": "TEST_EXPEN_TYPE_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "TAG-1",
+                    "pattern": "TAG-1",
+                    "secure": false,
+                    "name": "TEST_ASSET_GROUP",
+                    "type": "text"
+                },
+                {
+                    "example": "A test asset group",
+                    "pattern": "A test asset group",
+                    "secure": false,
+                    "name": "TEST_ASSET_GROUP_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "TAT-1",
+                    "pattern": "TAT-1",
+                    "secure": false,
+                    "name": "TEST_ASSET_TYP",
+                    "type": "text"
+                },
+                {
+                    "example": "Test asset type",
+                    "pattern": "Test asset type",
+                    "secure": false,
+                    "name": "TEST_ASSET_TYP_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "Work In Progress",
+                    "pattern": "Work In Progress",
+                    "secure": false,
+                    "name": "TEST_WIP",
+                    "type": "text"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
+            }
+        },
+        "locations": [
+            "aws:us-west-1"
+        ],
+        "message": "`005.001.002 Validate_Work_Order`\n- Test confirms that work order has been generated properly by validating work order has all workstages, forms, attributes, assets, attachments, and estimated costs.",
+        "name": "COPY_005.001.002 Validate_Work_Order",
+        "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 300
+        },
+        "type": "browser"
+    }
+}

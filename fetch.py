@@ -11,6 +11,7 @@
 from datadog_api_client import ApiClient, Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
+from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
 import json
 import os
 import re
@@ -21,6 +22,7 @@ configuration = Configuration()
 configuration.api_key["apiKeyAuth"] = "7014e4144493a636642d6d2b8c4a7b45"
 configuration.api_key["appKeyAuth"] = "e9971fad36b67e5684b45e767156e6c764c51c14" 
 os.makedirs("./tests", exist_ok=True)
+os.makedirs("./tests-copy", exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Validate API is connected/working, should return 'True'
@@ -38,8 +40,8 @@ def process_to_json(data, file_name):
         file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from a singular JSON file by test name
-def extract_single_json(file_name, dir):
+# Extract data from a JSON files by test name
+def extract_json(file_name, dir):
     file_path = os.path.join(dir + "/", file_name + ".json")
     with open(file_path, 'r') as file:
         return json.load(file)["details"]
@@ -84,22 +86,44 @@ def bulk_edit(data, type):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
-def bulk_traversal_edit_json(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
+def traversal_edit(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
-
         with open(file_path, 'r') as file:
             data = json.load(file)
         edit_function(data, edit_type)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
-
         file_name_full = os.path.basename(file_path)
         file_name = os.path.splitext(file_name_full)[0]
-
         throw(file_name, dir)
-        fetch()
-        break # just do one first
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Make backup copies of every existing test from ./tests -> ./tests-copy
+def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):  
+    for file in os.listdir(dir_A):
+        file = os.path.join(dir_A, file)
+        copy_file_name = "COPY_" + os.path.basename(file)
+        copy_file = os.path.join(dir_B, copy_file_name)
+        shutil.copyfile(file, copy_file)
+    traversal_edit(dir_B, bulk_edit, "name")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Delete tests
+def delete(t_file, dir):
+    print("\nDeleting tests...")
+    data = extract_json(t_file, dir)
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+
+    delete_me = SyntheticsDeleteTestsPayload(public_ids=[data["public_id"]])
+
+    try:
+        API.delete_tests(delete_me)
+        print(data["name"] + " deleted.")
+    except Exception as e:
+        print("ERROR. Check if test is being used by a parent or if exists")
+        print(e)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
@@ -132,7 +156,7 @@ def fetch():
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 def throw(t_file, dir):
     print("\nThrowing "+ t_file + "...")
-    data = extract_single_json(t_file, dir)
+    data = extract_json(t_file, dir)
     modify_test = {
         "name": data["name"],
         "config": data["config"],
@@ -153,21 +177,6 @@ def throw(t_file, dir):
         print(modify_test["name"] + " created!")
     fetch()
 
-def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):
-    os.makedirs(dir_B, exist_ok=True)
-        
-    for file in os.listdir(dir_A):
-        file = os.path.join(dir_A, file)
-        copy_file_name = "COPY_" + os.path.basename(file)
-        copy_file = os.path.join(dir_B, copy_file_name)
-        shutil.copyfile(file, copy_file)
-        break
-
-    bulk_traversal_edit_json(dir_B, bulk_edit, "name")
-
-
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 def main():
@@ -176,6 +185,7 @@ def main():
         #throw("000.000.000 RUN (cloned)", "./tests-copy2")
         #bulk_traversal_edit_json("./tests", bulk_edit, "xpath")
         #bulk_copy()
+        delete("COPY_000.000.000 RUN-1", "./tests-copy")
 
 if __name__ == "__main__":
     main()

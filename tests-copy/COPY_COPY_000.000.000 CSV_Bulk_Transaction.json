@@ -1,0 +1,518 @@
+{
+    "test_name": "COPY_000.000.000 CSV_Bulk_Transaction",
+    "details": {
+        "created_at": "2024-01-25T01:22:38.011925+00:00",
+        "modified_at": "2024-02-16T21:04:08.429081+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 138358554,
+        "public_id": "76c-br4-tmq",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Admin & Setup\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]/*[local-name()=\"svg\"][1]/*[local-name()=\"path\"][1]",
+                            "at": "/descendant::*[@href=\"/apm/admin\"]/descendant::*[@fill=\"currentColor\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-archive \")]/*[local-name()=\"path\"][1]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-archive \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-16 \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-link-icon \")]/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-archive \")]/*[local-name()=\"path\"][1]"
+                        },
+                        "targetOuterHTML": "<path fill=\"currentColor\" d=\"M464 32H48C21.5 32 0 53.5 0 80v64c0 8.8 7.2 16 16 16h16v272c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V160h16c8.8 0 16-7.2 16-16V80c0-26.5-21.5-48-48-48zm-16 400c0 ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Bulk Transaction\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Bulk Transaction Jobs\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][3]/*[local-name()=\"button\"][5]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritebulk transaction jobs\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[5]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][3]/*[local-name()=\"button\"][5]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-fQJxtRAe1oZA\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Failure Types\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs?limit=25&page=1&sort=name%20ASC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"bulktransactionjob\"]//div[contains(., \"Failure Types\") and not(contains(., \"Failure Type - Repair Actions\")) and not(contains(., \"Failure Type / Discovery Code\")) and not(contains(., \"Failure Type / Root Cause\"))]/*/span/span"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"25\"]/descendant::*[@focusable=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][25]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"25\"]/*/*/*/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][25]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-color-dark-green \")]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa fa-external-link fa-w-16 apm-color-dark-green\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Download Spreadsheet ...\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Download Spreadsheet Template\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"a\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@href=\"/api/attachment/bulktransaction/22\"]/descendant::*[@type=\"button\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][1]",
+                            "co": "[{\"text\":\"download spreadsheet template\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"download spreadsheet template\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"download spreadsheet template\"]]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn\" type=\"button\" style=\"width: 100%;\">Download Spreadsheet Template</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test a downloaded file",
+                "no_screenshot": false,
+                "params": {
+                    "file": {
+                        "nameCheck": {
+                            "type": "contains",
+                            "value": "Failure Types.xlsx"
+                        }
+                    }
+                },
+                "type": "assertFileDownload"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Validate CSV\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Validate CSV\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/descendant::*[@type=\"button\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]",
+                            "co": "[{\"text\":\"validate csv\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"validate csv\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"validate csv\"]]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn\" type=\"button\" style=\"margin-top: 25px; width: 100%;\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"file-medical-alt\" class=\"svg-inline--fa fa-file-medi"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Upload file",
+                "no_screenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Failure Types.csv",
+                            "size": 526,
+                            "bucketKey": "browser-upload-file-step/76c-br4-tmq/2024-02-06T01:40:30.562201_91aa904c-9ef0-4c69-8398-5ba7d5aa9d0a.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"file\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/*[local-name()=\"input\"][1]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"INPUT\",\"text\":\" validate csv\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"input\"][1]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/*[local-name()=\"input\"][1]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"text/csv\" style=\"display: none;\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Validation completed with no ...\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Validation completed with no errors discovered",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@role=\"alert\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "co": "[{\"text\":\"validation completed with no errors discovered\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"validation completed with no errors discovered\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]"
+                        },
+                        "targetOuterHTML": "<div role=\"alert\" class=\"Toastify__toast-body\">Validation completed with no errors discovered</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Run Job\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Run Job\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"button\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/descendant::*[@type=\"button\"][3]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][3]",
+                            "co": "[{\"text\":\"run job\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"run job\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"run job\"]]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn\" type=\"button\" style=\"margin-top: 25px; width: 100%;\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"file-upload\" class=\"svg-inline--fa fa-file-upload fa"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Upload file",
+                "no_screenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Failure Types.csv",
+                            "size": 526,
+                            "bucketKey": "browser-upload-file-step/76c-br4-tmq/2024-02-06T01:40:30.640294_a4796a06-5a30-49fb-adbd-bb9dd0ad9f90.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"input\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"file\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/*[local-name()=\"input\"][2]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"INPUT\",\"text\":\" run job\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"input\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")]/*[local-name()=\"input\"][2]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"text/csv\" style=\"display: none;\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"1 records inserted, 0 records ...\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "1 records inserted, 0 records deleted, 0 records updated. 0 errors",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/bulktransactionjobs/22",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@role=\"alert\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "co": "[{\"text\":\"1 records inserted, 0 records deleted, 0 records updated. 0 errors occurred.\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"1 records inserted, 0 records deleted, 0 records updated. 0 errors occurred.\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]"
+                        },
+                        "targetOuterHTML": "<div role=\"alert\" class=\"Toastify__toast-body\">1 records inserted, 0 records deleted, 0 records updated. 0 errors occurred.</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Criticality Analysis\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/ca",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//a[@data-tip=\"Criticality Analysis\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][8]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@href=\"/apm/ca\"]/descendant::*[@focusable=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-analytics \")]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"svg\",\"text\":\"criticality analysis\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-analytics \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-18 \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-link-icon \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-analytics \")]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"analytics\" class=\"svg-inline--fa fa-analytics fa-w-18 apm-navigation-link-icon\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" ..."
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Asset Failure Types\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/ca",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Asset Failure Types\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][1]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoriteasset failure types\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[2]/*[local-name()=\"div\"][2]/*[1]/*[local-name()=\"button\"][1]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][1]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-ffyn21dwFZLY\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Spontaneous Combustion\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Spontaneous Combustion",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/ca/failuretypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"failuretype\"]/*/div[contains(., \"Spontaneous Combustion\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
+                            "co": "[{\"text\":\"spontaneous combustion\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"spontaneous combustion\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"spontaneous combustion\"]]"
+                        },
+                        "targetOuterHTML": "<div style=\"width: 100%;\">Spontaneous Combustion</div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"MentorAPM\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/ca/failuretypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"a\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]",
+                            "co": "[{\"text\":\"mentorapm\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"mentorapm\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]"
+                        },
+                        "targetOuterHTML": "<a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a>"
+                    }
+                },
+                "type": "click"
+            }
+        ],
+        "tags": [
+            "ADMIN",
+            "CSV"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "dev@smct.com ",
+                    "pattern": "dev@smct.com ",
+                    "secure": false,
+                    "name": "TEST_USR",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "TEST_PASS",
+                    "type": "text"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
+            }
+        },
+        "locations": [
+            "aws:us-west-1"
+        ],
+        "message": "`000.000.000 CSV_Bulk_Transaction`\n- Test validates bulk transaction functionality.\n- Downloads a transaction CSV file, edits/validates it, then uploads it.\n- The job is to insert a new Asset Failure Type of \"Spontaneous Combustion\".",
+        "name": "COPY_COPY_000.000.000 CSV_Bulk_Transaction",
+        "options": {
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 300
+        },
+        "type": "browser"
+    }
+}
