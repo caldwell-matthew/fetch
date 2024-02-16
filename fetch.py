@@ -44,15 +44,20 @@ def extract_single_json(file_name):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory (default to ./tests)
-def bulk_traversal_edit_json(dir = "./tests-copy"):
+def bulk_traversal_edit_json(dir = "./tests"):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
+
         with open(file_path, 'r') as file:
             data = json.load(file)
         bulk_edit(data)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
+
+        file_name_full = os.path.basename(file_path)
+        file_name = os.path.splitext(file_name_full)[0]
         
+        throw(file_name)
         break # just do one first
 
 def bulk_edit(data):
@@ -61,14 +66,23 @@ def bulk_edit(data):
         for USL in user_specified_locator:
             if USL["type"] == "xpath":
                 xpath = USL["value"]
-                print("MATCH! : " + xpath) #DEBUGSTUFF (REMOVE)
+
+                #DEBUGSTUFF
+                print("Current XPATH: " + xpath)
 
                 # Convert @data-tip -> contains()
+                # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
                 if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
                     re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
                     location = re_match_location.group(1)
-                    print("LOCATION! : " + location) #DEBUGSTUFF (REMOVE)
+
+                    #DEBUGSTUFF
+                    print("LOCATION! : " + location) 
+
                     USL["value"] = f"//a[contains(., \"{location}\")]"
+
+                    #DEBUGSTUFF
+                    print("NEW XPATH: " + xpath)
 
         break # just do one first
 
@@ -128,10 +142,10 @@ def throw(t_file):
 # Main
 def main():
     if validate_api():
-        #fetch()
+        fetch()
         #throw("Example-Synthetic")
         #throw("001.004.001 Mk_SL")
-        bulk_traversal_edit_json()
+        #bulk_traversal_edit_json()
 
 if __name__ == "__main__":
     main()

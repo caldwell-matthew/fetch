@@ -1,15 +1,15 @@
 {
-    "test_name": "000.000.000 QUICK_RUN",
+    "test_name": "000.000.000 RUN-1",
     "details": {
-        "created_at": "2024-01-10T22:23:30.818426+00:00",
-        "modified_at": "2024-02-15T23:22:42.445059+00:00",
+        "created_at": "2024-02-01T21:59:18.706021+00:00",
+        "modified_at": "2024-02-13T00:57:49.467393+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 137565390,
-        "public_id": "776-xcj-gk7",
+        "monitor_id": 138835837,
+        "public_id": "j9z-dvb-juu",
         "status": "paused",
         "steps": [
             {
@@ -26,10 +26,43 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "001.004.001 Mk_SL",
+                "name": "001.007.001 Active_Workflow",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "jg2-6h9-8re",
+                    "subtestPublicId": "sds-d5x-4zs",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "001.008.001 Active_Workstages",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "cwq-njy-rgj",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "005.001.001 Active_Work_Order",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "xiq-mry-37p",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "005.002.001 Test_Triggers",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "gbg-327-b5u",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -73,8 +106,8 @@
         "locations": [
             "aws:us-west-1"
         ],
-        "message": "`000.000.000 QUICK_RUN`\n- Wrapper to run individual specific tests.",
-        "name": "000.000.000 QUICK_RUN",
+        "message": "`000.000.000 RUN-1`\n- Wrapper to run all tests 15-#.",
+        "name": "000.000.000 RUN-1",
         "options": {
             "enableProfiling": false,
             "enableSecurityTesting": false,
