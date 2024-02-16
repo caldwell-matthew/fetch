@@ -1012,7 +1012,7 @@
             "aws:us-east-1"
         ],
         "message": "`001.008.003 Mk_Workstages_Labor`\n- Test assigns time craft \"Mechanic\" labor to each stage of the work order. \n- Stage A uses 10 hours, Stage B uses 20, and Stage C uses 30. \n- 1 hour of Mechanic work costs $100/h.\n- Total estimated labor is found by the following formula: A(100$ * 10h) + B(100$ * 20h) + C(100$ * 30h) = $6000.00.\n- To create timecrafts, see `001.005.001`.",
-        "name": "COPY_001.008.003 Mk_Workstages_Labor",
+        "name": "001.008.003 Mk_Workstages_Labor",
         "options": {
             "enableProfiling": false,
             "enableSecurityTesting": false,

@@ -143,7 +143,7 @@
             "aws:us-west-1"
         ],
         "message": "`001.003.001 Active_Users`\nTest generates two users with roles, then updates user status from inactive to active.\n- When a user is officially activated, test also checks that an email notification is triggered.\n- To delete users/roles, see `001.003.002`.\n- To create roles and permissions, see `001.003.003` and `001.003.004`.\n- To create user, see `001.003.005` and `001.003.006`.\n- To assign users, see `001.003.007`.",
-        "name": "COPY_001.003.001 Active_Users",
+        "name": "001.003.001 Active_Users",
         "options": {
             "enableProfiling": false,
             "enableSecurityTesting": false,

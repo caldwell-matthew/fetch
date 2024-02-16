@@ -49,12 +49,22 @@ def extract_json(file_name, dir):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk edit of every JSON file in a directory, edit type varies
 def bulk_edit(data, type):
+    # Recursive Restore 
+    if type == "restore":
+        print("Restoration in progress...")
+        for step in data["details"]["steps"]:
+            if step["type"] == "playSubTest":
+                sub_test = step["name"]
+                throw(sub_test, "./tests/")
+                #os.remove(os.path.join("./tests/" + sub_test + ".json"))
+                #delete the old json, get new json and update parent w/ new data
+
     # Name Edit
     if type == "name":
         print("Beginning bulk name edit...")
         # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
         data["details"]["name"] = "COPY_" + data["details"]["name"]
-
+    
     # Xpath Edit
     if type == "xpath":
         print("Beginning bulk xpath edit...")
@@ -79,10 +89,6 @@ def bulk_edit(data, type):
 
                             USL["value"] = f"//a[contains(., \"{location}\")]"
 
-                            #DEBUGSTUFF
-                            print("NEW XPATH: " + xpath)
-
-                break # just do one first
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
@@ -115,16 +121,34 @@ def delete(t_file, dir):
     data = extract_json(t_file, dir)
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
-
-    delete_me = SyntheticsDeleteTestsPayload(public_ids=[data["public_id"]])
-
+    delete_me = SyntheticsDeleteTestsPayload(public_ids=[data["public_id"]]) 
     try:
         API.delete_tests(delete_me)
+        os.remove(os.path.join(dir + "/", t_file + ".json"))
         print(data["name"] + " deleted.")
+        print(f"Related JSON file '{t_file}' deleted from " + dir)
     except Exception as e:
         print("ERROR. Check if test is being used by a parent or if exists")
+        print(os.path.join(dir + "/", t_file + ".json"))
         print(e)
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Delete all tests and related JSON files in a directory (with/without a regex)       
+# WARNING: USE WITH EXTREME CAUTION!!!
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+def nuke(dir, regex=r'^COPY_.*$'):
+    print("Preparing to delete all related tests/files in " + dir + " ...")
+    big_red_button = input("Are you absolutely sure? This cannot be undone. (Y/N): ")
+    if big_red_button.upper() == "Y":
+        print("Here we go...")
+        for file in os.listdir(dir):
+            f_name, ext = os.path.splitext(file)
+            if re.match(regex, f_name):
+                delete(f_name, dir)
+    else: 
+        print("Aborting...")
+        return
+    
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 def fetch():
@@ -180,12 +204,16 @@ def throw(t_file, dir):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 def main():
+    dir = "./tests"
+    dir2 = "./tests-copy"
     if validate_api():
         #fetch()
-        #throw("000.000.000 RUN (cloned)", "./tests-copy2")
-        #bulk_traversal_edit_json("./tests", bulk_edit, "xpath")
+        #throw("TEST_NAME", dir)
+        #traversal_edit(dir, bulk_edit, "xpath")
         #bulk_copy()
-        delete("COPY_000.000.000 RUN-1", "./tests-copy")
+        #delete("TEST_NAME", dir2)
+        #nuke(dir)
+        traversal_edit(dir, bulk_edit, "restore")
 
 if __name__ == "__main__":
     main()

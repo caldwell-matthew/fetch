@@ -30,7 +30,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" top-header-ellipsis-menu \")]",
                             "co": "",
@@ -90,7 +90,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"my profile\",\"textType\":\"innerText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"emaildev@smct.comphoneno value found\",\"textType\":\"innerText\"}]",
@@ -120,7 +120,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMAvatar-edit-mode \")]",
                             "co": "",
@@ -150,7 +150,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]",
                             "co": "[{\"text\":\"upload a new avatar\",\"textType\":\"directText\"}]",
@@ -187,7 +187,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@accept=\"image/*\" and @type=\"file\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMAvatar-dropzone \")]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"INPUT\",\"text\":\"upload a new avatar\",\"textType\":\"innerText\"}]",
@@ -278,7 +278,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMAvatar-image-editor \")]",
                             "co": "",
@@ -368,7 +368,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
@@ -398,14 +398,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"a\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"a\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMTopheader-avatar \")]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"synthetic monitoringsmct\",\"textType\":\"innerText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" APMTopheader-avatar \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMTopheader-avatar \")]"
                         },
-                        "targetOuterHTML": "<a class=\"APMTopheader-avatar\" href=\"/apm/myprofile\"><img data-testid=\"avatar-image\" class=\"top-header-avatar\" src=\"https://s3.us-east-1.amazonaws.com/attachments.mentorapm.com/SMCT/development2/32d57"
+                        "targetOuterHTML": "<a class=\"APMTopheader-avatar\" href=\"/apm/myprofile\"><img data-testid=\"avatar-image\" class=\"top-header-avatar\" src=\"https://s3.us-east-1.amazonaws.com/attachments.mentorapm.com/SMCT/development2/be3f2"
                     }
                 },
                 "type": "click"
@@ -430,14 +430,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "co": "[{\"text\":\"my profile\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"emaildev@smct.comphoneno value found\",\"textType\":\"innerText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]"
                         },
-                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-for=\"detail-view-tooltip\" data-tip=\"Back\" type=\"button\" currentitem=\"false\" style=\"height: 34px;"
+                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Back\" data-tooltip-place=\"top\" type=\"button\" styl"
                     }
                 },
                 "type": "assertElementContent"
@@ -460,7 +460,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
