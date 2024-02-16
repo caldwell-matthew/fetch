@@ -14,6 +14,7 @@ from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 import json
 import os
 import re
+import shutil
 
 # Config/Setup
 configuration = Configuration()
@@ -38,55 +39,58 @@ def process_to_json(data, file_name):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Extract data from a singular JSON file by test name
-def extract_single_json(file_name):
-    with open("./tests/" + file_name + ".json", 'r') as file:
+def extract_single_json(file_name, dir):
+    file_path = os.path.join(dir + "/", file_name + ".json")
+    with open(file_path, 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Bulk traversal/edit of every JSON file in a directory (default to ./tests)
-def bulk_traversal_edit_json(dir = "./tests"):
+# Bulk edit of every JSON file in a directory, edit type varies
+def bulk_edit(data, type):
+    if type == "xpath":
+        for step in data["details"]["steps"]:
+            if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
+                user_specified_locator = step["params"]["element"]["userLocator"]["values"]
+                for USL in user_specified_locator:
+                    if USL["type"] == "xpath":
+                        xpath = USL["value"]
+
+                        #DEBUGSTUFF
+                        print("Current XPATH: " + xpath)
+
+                        # Convert @data-tip -> contains()
+                        # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
+                        if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
+                            re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
+                            location = re_match_location.group(1)
+
+                            #DEBUGSTUFF
+                            print("LOCATION! : " + location) 
+
+                            USL["value"] = f"//a[contains(., \"{location}\")]"
+
+                            #DEBUGSTUFF
+                            print("NEW XPATH: " + xpath)
+
+                break # just do one first
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Bulk traversal/edit of every JSON file in a directory (default to ./tests and edit xpath)
+def bulk_traversal_edit_json(dir = "./tests", edit_function = bulk_edit, edit_type = "xpath"):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
 
         with open(file_path, 'r') as file:
             data = json.load(file)
-        bulk_edit(data)
+        edit_function(data, edit_type)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
 
         file_name_full = os.path.basename(file_path)
         file_name = os.path.splitext(file_name_full)[0]
 
-        throw(file_name)
+        throw(file_name, dir)
         break # just do one first
-
-def bulk_edit(data):
-    for step in data["details"]["steps"]:
-        if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
-            user_specified_locator = step["params"]["element"]["userLocator"]["values"]
-            for USL in user_specified_locator:
-                if USL["type"] == "xpath":
-                    xpath = USL["value"]
-
-                    #DEBUGSTUFF
-                    print("Current XPATH: " + xpath)
-
-                    # Convert @data-tip -> contains()
-                    # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
-                    if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
-                        re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
-                        location = re_match_location.group(1)
-
-                        #DEBUGSTUFF
-                        print("LOCATION! : " + location) 
-
-                        USL["value"] = f"//a[contains(., \"{location}\")]"
-
-                        #DEBUGSTUFF
-                        print("NEW XPATH: " + xpath)
-
-            break # just do one first
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
@@ -117,9 +121,9 @@ def fetch():
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
-def throw(t_file):
+def throw(t_file, dir):
     print("\nThrowing "+ t_file + "...")
-    data = extract_single_json(t_file)
+    data = extract_single_json(t_file, dir)
     modify_test = {
         "name": data["name"],
         "config": data["config"],
@@ -140,13 +144,29 @@ def throw(t_file):
         print(modify_test["name"] + " created!")
     fetch()
 
+def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):
+    os.makedirs(dir_B, exist_ok=True)
+        
+    for file in os.listdir(dir_A):
+        file = os.path.join(dir_A, file)
+        copy_file_name = "COPY_" + os.path.basename(file)
+        copy_file = os.path.join(dir_B, copy_file_name)
+        shutil.copyfile(file, copy_file)
+        break
+
+    bulk_traversal_edit_json(dir_B, bulk_edit, "name")
+
+
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 def main():
     if validate_api():
         fetch()
-        #throw("000.000.000 RUN (cloned)")
-        #bulk_traversal_edit_json()
+        throw("000.000.000 RUN (cloned)", "./tests-copy2")
+        bulk_traversal_edit_json()
+        bulk_copy()
 
 if __name__ == "__main__":
     main()
