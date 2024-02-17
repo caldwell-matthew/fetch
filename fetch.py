@@ -12,12 +12,15 @@ from datadog_api_client import ApiClient, Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
+
 import json
 import os
 import re
 import shutil
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Config/Setup
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 configuration = Configuration()
 configuration.api_key["apiKeyAuth"] = "7014e4144493a636642d6d2b8c4a7b45"
 configuration.api_key["appKeyAuth"] = "e9971fad36b67e5684b45e767156e6c764c51c14" 
@@ -26,6 +29,7 @@ os.makedirs("./tests-copy", exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Validate API is connected/working, should return 'True'
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def validate_api():
     print("DataDog API Working...")
     with ApiClient(configuration) as api_client:
@@ -33,6 +37,7 @@ def validate_api():
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Process data into JSON files
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def process_to_json(data, file_name):
     file_path = os.path.join("./tests/", file_name)
     json_data = json.dumps(data, indent=4)
@@ -41,23 +46,54 @@ def process_to_json(data, file_name):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Extract data from a JSON files by test name
-def extract_json(file_name, dir):
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+def extract_json(file_name, dir = "./tests/"):
     file_path = os.path.join(dir + "/", file_name + ".json")
     with open(file_path, 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk edit of every JSON file in a directory, edit type varies
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# def bulk_edit(data, type):
+# # Full Depth Restore 
+# if type == "restore":
+#     print("Restoration of " + data["details"]["name"] + " in progress...")
+#     for step in data["details"]["steps"]:
+#         s_step = step["name"]
+#         if step["type"] == "playSubTest":
+#             throw(s_step, "./tests/")
+#             print("Subtest " + s_step + " regenerated!")
+
+#             # Delete old JSON, get new subtest id and update parent test
+#             os.remove(os.path.join("./tests/" + s_step + ".json"))
+#             fetch()
+#             data = extract_json(s_step)["public_id"]
+#             step["params"]["subtestPublicId"] = extract_json(s_step)["public_id"]
 def bulk_edit(data, type):
-    # Recursive Restore 
+    # Full Depth Restore 
     if type == "restore":
-        print("Restoration in progress...")
+        if "details" not in data or "name" not in data["details"]:
+            return
+        if "steps" not in data["details"]:
+            return
+        print("Restoration of " + data["details"]["name"] + " in progress...")
         for step in data["details"]["steps"]:
+            s_step = step["name"]
             if step["type"] == "playSubTest":
-                sub_test = step["name"]
-                throw(sub_test, "./tests/")
-                #os.remove(os.path.join("./tests/" + sub_test + ".json"))
-                #delete the old json, get new json and update parent w/ new data
+                bulk_edit(extract_json(s_step), "restore") 
+                try:
+                    # ISSUE IS THAT RECURSIVLY IS NOT GOING DEEP ENOUGH FOR A SUB_SUB TEST
+                    throw(s_step, "./tests/")
+                    print("Subtest " + s_step + " regenerated!")
+
+                    # Delete old JSON, get new subtest id and update parent test
+                    os.remove(os.path.join("./tests/" + s_step + ".json"))
+                    fetch()
+                    new_public_id = extract_json(s_step)["public_id"]
+                    step["params"]["subtestPublicId"] = new_public_id
+                except:
+                    return
 
     # Name Edit
     if type == "name":
@@ -92,6 +128,7 @@ def bulk_edit(data, type):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def traversal_edit(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
@@ -106,6 +143,7 @@ def traversal_edit(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Make backup copies of every existing test from ./tests -> ./tests-copy
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):  
     for file in os.listdir(dir_A):
         file = os.path.join(dir_A, file)
@@ -116,6 +154,7 @@ def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete tests
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def delete(t_file, dir):
     print("\nDeleting tests...")
     data = extract_json(t_file, dir)
@@ -134,7 +173,7 @@ def delete(t_file, dir):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete all tests and related JSON files in a directory (with/without a regex)       
-# WARNING: USE WITH EXTREME CAUTION!!!
+# WARNING: INVOKE WITH EXTREME CAUTION!!!
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def nuke(dir, regex=r'^COPY_.*$'):
     print("Preparing to delete all related tests/files in " + dir + " ...")
@@ -151,6 +190,7 @@ def nuke(dir, regex=r'^COPY_.*$'):
     
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def fetch():
     print("\nFetching tests...")
     with ApiClient(configuration) as api_client:
@@ -178,6 +218,7 @@ def fetch():
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def throw(t_file, dir):
     print("\nThrowing "+ t_file + "...")
     data = extract_json(t_file, dir)
@@ -203,12 +244,13 @@ def throw(t_file, dir):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
     dir = "./tests"
     dir2 = "./tests-copy"
     if validate_api():
         #fetch()
-        #throw("TEST_NAME", dir)
+        throw("001.002.003 Top_Header", dir)
         #traversal_edit(dir, bulk_edit, "xpath")
         #bulk_copy()
         #delete("TEST_NAME", dir2)
