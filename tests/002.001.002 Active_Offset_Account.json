@@ -1,15 +1,15 @@
 {
     "test_name": "002.001.002 Active_Offset_Account",
     "details": {
-        "created_at": "2024-01-18T23:04:49.308767+00:00",
-        "modified_at": "2024-02-10T01:00:56.181616+00:00",
+        "created_at": "2024-02-18T01:47:21.482910+00:00",
+        "modified_at": "2024-02-18T01:47:21.482910+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 138018999,
-        "public_id": "vdw-g6s-txw",
+        "monitor_id": 139781909,
+        "public_id": "ugh-dpr-hkw",
         "status": "paused",
         "steps": [
             {
@@ -547,8 +547,6 @@
         "message": "`002.001.002 Active_Offset_Account`\n- Test creates a test \"SMCT 002\" account within the \"Testing Department\" (non-chargeable).",
         "name": "002.001.002 Active_Offset_Account",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -558,7 +556,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {

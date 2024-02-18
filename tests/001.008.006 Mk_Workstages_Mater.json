@@ -1,15 +1,15 @@
 {
     "test_name": "001.008.006 Mk_Workstages_Mater",
     "details": {
-        "created_at": "2024-02-07T01:16:02.801710+00:00",
-        "modified_at": "2024-02-11T02:17:35.358426+00:00",
+        "created_at": "2024-02-18T01:47:07.732202+00:00",
+        "modified_at": "2024-02-18T01:47:07.732202+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139094378,
-        "public_id": "hwe-hmi-9m3",
+        "monitor_id": 139781905,
+        "public_id": "q6w-w9v-eb3",
         "status": "paused",
         "steps": [
             {
@@ -1204,8 +1204,6 @@
         "message": "`001.008.006 Mk_Workstages_Mater`\n- Test assigns units of material \"M@T-1\" to workstages. \n- 10 units to \"Stage A\".\n- 20 units to \"Stage B\".\n- 30 units to \"Stage C\".\n- To create inventory, see `005.001.001`.",
         "name": "001.008.006 Mk_Workstages_Mater",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -1215,7 +1213,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {

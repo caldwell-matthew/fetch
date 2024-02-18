@@ -59,25 +59,28 @@ def extract_json(file_name, dir = "./tests/"):
 def bulk_edit(data, type):
     # Full Depth Restore 
     if type == "restore":
-        print("Restoration of " + data["details"]["name"] + " in progress...")
+        test_name = data["details"]["name"]
+        print("Restoration of " + test_name + " in progress...")
+        sub_test = 0
+
+        for step in data["details"]["steps"]:
+            if step["type"] == "playSubTest":
+                sub_test += 1
+            
         for step in data["details"]["steps"]:
             # If a test step is a subtest, it is thrown to be regenerated.
             # throw() has an exception case where it can call bulk_edit recursively.
             # This way, a test with subtests within subtests is generated properly.
             if step["type"] == "playSubTest":
-
                 # If the test does not exist, throw, else skip?
-                # Currently it generates all subtests, but not parent of 2 layered
-                throw(step["name"], "./tests/")
-                print("Subtest " + step["name"] + " regenerated!")
-                new_public_id = extract_json(step["name"])["public_id"]
-                step["params"]["subtestPublicId"] = new_public_id
+                # Currently it generates all subtests, but not parents of 2 layered ones
+                if fetch("single", step["name"])["does_exist"] == "False":
+                    throw(step["name"])
+                    print("Subtest " + step["name"] + " regenerated!")
+                    new_public_id = extract_json(step["name"])["public_id"]
+                    step["params"]["subtestPublicId"] = new_public_id
 
-                # if fetch("single", step["name"]) != True:
-                #     throw(step["name"], "./tests/")
-                #     print("Subtest " + step["name"] + " regenerated!")
-                #     new_public_id = extract_json(step["name"])["public_id"]
-                #     step["params"]["subtestPublicId"] = new_public_id
+                print("Parent: " + test_name + "has " + str(sub_test) + "subtests")
 
     # Name Edit
     if type == "name":
@@ -172,16 +175,17 @@ def nuke(dir, regex=r'^COPY_.*$'):
 # Fetch DataDog tests and convert into JSON
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def fetch(type="full", t_name="test_name"):
-    print("\nFetching tests...")
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
 
     # Only fetch one test by name, also checks if it exists on DataDog site
     if type == "single":
-        t_details = API.get_browser_test(extract_json(t_name)["public_id"])
-        print("Caught: " + t_details["name"])
-        return True
-        
+        try:
+            t_details = API.get_browser_test(extract_json(t_name)["public_id"])
+            return {"data": t_details, "does_exist": True}
+        except:
+            return {"does_exist": False}
+
     # Only fetch/process new tests that do not exist
     if type == "quick":
         all_tests = API.list_tests().to_dict()["tests"]
@@ -193,6 +197,7 @@ def fetch(type="full", t_name="test_name"):
 
     # Convert to JSON
     if tests:
+        print("\nFetching tests...")    
         for test in tests:
             t_name = test["name"]
             t_id = test["public_id"]
@@ -209,7 +214,7 @@ def fetch(type="full", t_name="test_name"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def throw(t_file, dir):
+def throw(t_file, dir="./tests/"):
     print("\nThrowing "+ t_file + "...")
     data = extract_json(t_file, dir)
     modify_test = {
@@ -253,7 +258,7 @@ def main():
         #delete("TEST_NAME", dir2)
         #nuke(dir)
         traversal_edit(dir, bulk_edit, "restore")
-        #fetch("single", "000.000.000 CSV_Bulk_Transaction")
+        #print(fetch("single", "000.000.000 CSV_Bulk_Transaction")["does_exist"])
 
 if __name__ == "__main__":
     main()

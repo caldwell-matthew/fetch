@@ -1,15 +1,15 @@
 {
     "test_name": "003.001.003 Mk_Storeroom",
     "details": {
-        "created_at": "2024-02-06T22:37:27.920867+00:00",
-        "modified_at": "2024-02-13T00:49:09.632097+00:00",
+        "created_at": "2024-02-18T01:40:59.124161+00:00",
+        "modified_at": "2024-02-18T01:40:59.124161+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139085392,
-        "public_id": "ccd-kaa-ye2",
+        "monitor_id": 139781809,
+        "public_id": "3mt-43i-brx",
         "status": "paused",
         "steps": [
             {
@@ -1472,8 +1472,6 @@
         "message": "`003.001.003 Mk_Storeroom`\n- Test creates inventory type \"S-Class\".\n- Storeroom location \"Private Reserves\" and material \"M@T-1\" is stocked in storeroom.",
         "name": "003.001.003 Mk_Storeroom",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -1483,7 +1481,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {

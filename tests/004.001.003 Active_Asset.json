@@ -1,15 +1,15 @@
 {
     "test_name": "004.001.003 Active_Asset",
     "details": {
-        "created_at": "2024-02-08T23:00:45.816968+00:00",
-        "modified_at": "2024-02-13T01:02:51.001963+00:00",
+        "created_at": "2024-02-18T01:41:23.012411+00:00",
+        "modified_at": "2024-02-18T01:41:23.012411+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139227127,
-        "public_id": "rzj-q7s-h9d",
+        "monitor_id": 139781813,
+        "public_id": "r3s-j3d-zxz",
         "status": "paused",
         "steps": [
             {
@@ -1276,7 +1276,7 @@
                         {
                             "name": "Gamma.txt",
                             "size": 20,
-                            "bucketKey": "browser-upload-file-step/rzj-q7s-h9d/2024-02-08T23:24:06.828711_d5eba734-2246-4651-b0f7-bddfdd31d7ef.json"
+                            "bucketKey": "browser-upload-file-step/r3s-j3d-zxz/2024-02-18T01:41:23.255052_17c907dc-04b5-4f8e-9125-9095e8e6b600.json"
                         }
                     ],
                     "element": {
@@ -3226,8 +3226,6 @@
         "message": "`004.001.003 Active_Asset`\n- Test creates asset \"Test Asset Gamma\" with the following characteristics.\n- Has asset type of \"TAT-2. (Inheriting 8 data attributes and everything else...).\n- Has PM Anchor date of 01/01/2024.\n- Has asset status of \"Collected\".\n- Linked to SMCT 001 chargeable account.\n- Linked to \"Testing Department\". \n- Default crew of \"Crewmate\".\n- Failure profile of \"Whoops!\" and failure type of \"Spontaneous Combustion\".\n- Maintenance strategy of \"The Thunderbolt Strategy\".\n- Asset standard of \"LGTM\".\n- Part of system \"CORE\" which is a system type of \"SYS-TYP\"\n- Has a maintenance manager \"Chief Engineer Derrick\".\n- Has a \"Linear\" fail curve.\n- Units Associated to the Asset Level of Service are \"LOSU\"\n- Country Codes of \"USA\", State/Province Name Abbreviation of \"CA\"\n- Has a material item of \"M@T-1\" linked with bill of materials \"BOM\".\n- Has a bill of materials \"BOM\" with a default of 5 units of \"M@T-1\" assigned to it.",
         "name": "004.001.003 Active_Asset",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -3237,7 +3235,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {

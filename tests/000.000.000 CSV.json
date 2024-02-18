@@ -1,15 +1,15 @@
 {
     "test_name": "000.000.000 CSV",
     "details": {
-        "created_at": "2024-02-18T01:19:58.865199+00:00",
-        "modified_at": "2024-02-18T01:19:58.865199+00:00",
+        "created_at": "2024-02-18T02:10:54.817030+00:00",
+        "modified_at": "2024-02-18T02:12:31.205449+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139781435,
-        "public_id": "r4a-cst-r5r",
+        "monitor_id": 139782383,
+        "public_id": "6ny-fbg-3zy",
         "status": "paused",
         "steps": [
             {
@@ -18,7 +18,7 @@
                 "name": "000.000.000 CSV_Workflow_Stages",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "smd-3qr-fyj",
+                    "subtestPublicId": "m8t-i84-kb3",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -29,7 +29,7 @@
                 "name": "000.000.000 CSV_Bulk_Transaction",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "xmw-3ep-s8y",
+                    "subtestPublicId": "w2q-6wr-sbn",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -85,12 +85,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

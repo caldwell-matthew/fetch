@@ -1,15 +1,15 @@
 {
     "test_name": "001.008.002 Mk_Workstages_Equip",
     "details": {
-        "created_at": "2024-01-27T00:41:26.924973+00:00",
-        "modified_at": "2024-02-10T03:13:22.423167+00:00",
+        "created_at": "2024-02-18T01:46:43.142287+00:00",
+        "modified_at": "2024-02-18T01:46:43.142287+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 138490173,
-        "public_id": "xqu-axi-6ut",
+        "monitor_id": 139781897,
+        "public_id": "b35-2i3-hku",
         "status": "paused",
         "steps": [
             {
@@ -1111,8 +1111,6 @@
         "message": "`001.008.002 Mk_Workstages_Equip`\n- Test assigns Equipment \"Power Converter\" to each stage of the work order. \n- Stage A uses 10 Power Converters, Stage B uses 20, and Stage C uses 30. \n- 1 Power Converter cost $100/h. \n- Total estimated equipment cost is found by the following formula: A(100$ * 10h) + B(100$ * 20h) + C(100$ * 30h) = $6000.00.",
         "name": "001.008.002 Mk_Workstages_Equip",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -1122,7 +1120,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {

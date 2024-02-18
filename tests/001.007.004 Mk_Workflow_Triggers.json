@@ -1,15 +1,15 @@
 {
     "test_name": "001.007.004 Mk_Workflow_Triggers",
     "details": {
-        "created_at": "2024-01-30T21:22:30.193802+00:00",
-        "modified_at": "2024-02-10T02:43:05.507007+00:00",
+        "created_at": "2024-02-18T01:46:23.356861+00:00",
+        "modified_at": "2024-02-18T01:46:23.356861+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 138675010,
-        "public_id": "hnc-bj2-2pc",
+        "monitor_id": 139781893,
+        "public_id": "pug-m5e-wn9",
         "status": "paused",
         "steps": [
             {
@@ -1474,8 +1474,6 @@
         "message": "`001.007.004 Mk_Workflow_Triggers`\n- Test creates the following 4 workflow form triggers.\n- \"Send Alert\".\n- \"Create Follow-up Work\".\n- \"Add New Work Stage\".\n- \"Create Event Reading\".\n- To test triggers, see `004.002.001`.",
         "name": "001.007.004 Mk_Workflow_Triggers",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -1485,7 +1483,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {
