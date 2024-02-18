@@ -1,15 +1,15 @@
 {
     "test_name": "001.002.006 Help_Link",
     "details": {
-        "created_at": "2024-01-16T18:28:09.268132+00:00",
-        "modified_at": "2024-02-11T02:03:04.885301+00:00",
+        "created_at": "2024-02-18T01:20:12.356332+00:00",
+        "modified_at": "2024-02-18T01:20:42.464938+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 137865529,
-        "public_id": "9hs-zhi-b45",
+        "monitor_id": 139781443,
+        "public_id": "w8r-67i-2y3",
         "status": "paused",
         "steps": [
             {
@@ -198,8 +198,6 @@
         "message": "`001.002.006 Help_Link`\n- Test checks if \"Help\" button link works. ",
         "name": "001.002.006 Help_Link",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -208,9 +206,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "notification_preset_name": "show_all"
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

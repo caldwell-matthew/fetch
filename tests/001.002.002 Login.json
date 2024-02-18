@@ -1,15 +1,15 @@
 {
     "test_name": "001.002.002 Login",
     "details": {
-        "created_at": "2024-02-17T01:49:47.475145+00:00",
-        "modified_at": "2024-02-17T01:49:47.475145+00:00",
+        "created_at": "2024-02-18T01:20:04.555656+00:00",
+        "modified_at": "2024-02-18T01:20:34.762681+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139731585,
-        "public_id": "xgx-2r4-9h9",
+        "monitor_id": 139781437,
+        "public_id": "u8h-rjr-gqy",
         "status": "paused",
         "steps": [
             {
@@ -216,12 +216,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

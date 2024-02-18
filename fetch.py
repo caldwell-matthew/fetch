@@ -6,6 +6,7 @@
 #   Changelog   :
 #     20240214  MAT     INIT
 #     20240215  MAT     Able to fetch/throw tests, formatting       
+#     20240217  MAT     Full restore nearly done       
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient, Configuration
@@ -45,7 +46,7 @@ def process_to_json(data, file_name):
         file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from a JSON files by test name
+# Extract data from a JSON files
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def extract_json(file_name, dir = "./tests/"):
     file_path = os.path.join(dir + "/", file_name + ".json")
@@ -53,47 +54,30 @@ def extract_json(file_name, dir = "./tests/"):
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Bulk edit of every JSON file in a directory, edit type varies
+# Bulk edit of every JSON file within a directory, edit type varies
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# def bulk_edit(data, type):
-# # Full Depth Restore 
-# if type == "restore":
-#     print("Restoration of " + data["details"]["name"] + " in progress...")
-#     for step in data["details"]["steps"]:
-#         s_step = step["name"]
-#         if step["type"] == "playSubTest":
-#             throw(s_step, "./tests/")
-#             print("Subtest " + s_step + " regenerated!")
-
-#             # Delete old JSON, get new subtest id and update parent test
-#             os.remove(os.path.join("./tests/" + s_step + ".json"))
-#             fetch()
-#             data = extract_json(s_step)["public_id"]
-#             step["params"]["subtestPublicId"] = extract_json(s_step)["public_id"]
 def bulk_edit(data, type):
     # Full Depth Restore 
     if type == "restore":
-        if "details" not in data or "name" not in data["details"]:
-            return
-        if "steps" not in data["details"]:
-            return
         print("Restoration of " + data["details"]["name"] + " in progress...")
         for step in data["details"]["steps"]:
-            s_step = step["name"]
+            # If a test step is a subtest, it is thrown to be regenerated.
+            # throw() has an exception case where it can call bulk_edit recursively.
+            # This way, a test with subtests within subtests is generated properly.
             if step["type"] == "playSubTest":
-                bulk_edit(extract_json(s_step), "restore") 
-                try:
-                    # ISSUE IS THAT RECURSIVLY IS NOT GOING DEEP ENOUGH FOR A SUB_SUB TEST
-                    throw(s_step, "./tests/")
-                    print("Subtest " + s_step + " regenerated!")
 
-                    # Delete old JSON, get new subtest id and update parent test
-                    os.remove(os.path.join("./tests/" + s_step + ".json"))
-                    fetch()
-                    new_public_id = extract_json(s_step)["public_id"]
-                    step["params"]["subtestPublicId"] = new_public_id
-                except:
-                    return
+                # If the test does not exist, throw, else skip?
+                # Currently it generates all subtests, but not parent of 2 layered
+                throw(step["name"], "./tests/")
+                print("Subtest " + step["name"] + " regenerated!")
+                new_public_id = extract_json(step["name"])["public_id"]
+                step["params"]["subtestPublicId"] = new_public_id
+
+                # if fetch("single", step["name"]) != True:
+                #     throw(step["name"], "./tests/")
+                #     print("Subtest " + step["name"] + " regenerated!")
+                #     new_public_id = extract_json(step["name"])["public_id"]
+                #     step["params"]["subtestPublicId"] = new_public_id
 
     # Name Edit
     if type == "name":
@@ -119,10 +103,6 @@ def bulk_edit(data, type):
                         if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
                             re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
                             location = re_match_location.group(1)
-
-                            #DEBUGSTUFF
-                            print("LOCATION! : " + location) 
-
                             USL["value"] = f"//a[contains(., \"{location}\")]"
 
 
@@ -191,15 +171,25 @@ def nuke(dir, regex=r'^COPY_.*$'):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def fetch():
+def fetch(type="full", t_name="test_name"):
     print("\nFetching tests...")
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
 
+    # Only fetch one test by name, also checks if it exists on DataDog site
+    if type == "single":
+        t_details = API.get_browser_test(extract_json(t_name)["public_id"])
+        print("Caught: " + t_details["name"])
+        return True
+        
     # Only fetch/process new tests that do not exist
-    all_tests = API.list_tests().to_dict()["tests"]
-    existing_files = [file[:-5] for file in os.listdir("./tests")]
-    tests = [test for test in all_tests if test["name"] not in existing_files]
+    if type == "quick":
+        all_tests = API.list_tests().to_dict()["tests"]
+        existing_files = [file[:-5] for file in os.listdir("./tests")]
+        tests = [test for test in all_tests if test["name"] not in existing_files]
+    # Otherwise do a full fetch (overwrites all files)
+    else:
+        tests = API.list_tests().to_dict()["tests"]
 
     # Convert to JSON
     if tests:
@@ -238,8 +228,15 @@ def throw(t_file, dir):
         API.update_browser_test(data["public_id"], modify_test)
         print(modify_test["name"] + " modified!")
     except:
-        API.create_synthetics_browser_test(modify_test)
-        print(modify_test["name"] + " created!")
+        try:
+            API.create_synthetics_browser_test(modify_test)
+            print(modify_test["name"] + " created!")
+        except:
+            # This exception is part of bulk_edit(type="restore")
+            file_path = os.path.join(dir + "/", t_file + ".json")
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+            bulk_edit(data, "restore")
     fetch()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -250,12 +247,13 @@ def main():
     dir2 = "./tests-copy"
     if validate_api():
         #fetch()
-        throw("001.002.003 Top_Header", dir)
+        #throw("001.002.003 Top_Header", dir)
         #traversal_edit(dir, bulk_edit, "xpath")
         #bulk_copy()
         #delete("TEST_NAME", dir2)
         #nuke(dir)
         traversal_edit(dir, bulk_edit, "restore")
+        #fetch("single", "000.000.000 CSV_Bulk_Transaction")
 
 if __name__ == "__main__":
     main()
