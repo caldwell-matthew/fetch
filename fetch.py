@@ -57,30 +57,28 @@ def extract_json(file_name, dir = "./tests/"):
 # Bulk edit of every JSON file within a directory, edit type varies
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def bulk_edit(data, type):
-    # Full Depth Restore 
     if type == "restore":
         test_name = data["details"]["name"]
         print("Restoration of " + test_name + " in progress...")
-        sub_test = 0
 
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
-                sub_test += 1
-            
-        for step in data["details"]["steps"]:
-            # If a test step is a subtest, it is thrown to be regenerated.
-            # throw() has an exception case where it can call bulk_edit recursively.
-            # This way, a test with subtests within subtests is generated properly.
-            if step["type"] == "playSubTest":
-                # If the test does not exist, throw, else skip?
-                # Currently it generates all subtests, but not parents of 2 layered ones
-                if fetch("single", step["name"])["does_exist"] == "False":
+                if fetch("single", step["name"])["does_exist"] == False:
                     throw(step["name"])
-                    print("Subtest " + step["name"] + " regenerated!")
-                    new_public_id = extract_json(step["name"])["public_id"]
-                    step["params"]["subtestPublicId"] = new_public_id
 
-                print("Parent: " + test_name + "has " + str(sub_test) + "subtests")
+        bulk_edit(data, "id")
+# Need a function that goes through every file and changes the ID to the new one in files that ref             
+
+    # ID Edit
+    if type == "id":
+        print("Beginning bulk id edit...")
+        # Converts 'Old_ID' -> 'CURRENT_ID'        
+        for step in data["details"]["steps"]:
+            extract_stepname = extract_json(step["name"])["public_id"]
+            print(extract_stepname)
+            print(step["name"] + ":" + step["params"]["subtestPublicId"])
+# Need a function that goes through every file and changes the ID to the new one in files that ref             
+
 
     # Name Edit
     if type == "name":
@@ -108,6 +106,31 @@ def bulk_edit(data, type):
                             location = re_match_location.group(1)
                             USL["value"] = f"//a[contains(., \"{location}\")]"
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Throw (edit or create) a DataDog test from JSON, then fetch it
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+def throw(t_file, dir="./tests/"):
+    print("\nThrowing "+ t_file + "...")
+    data = extract_json(t_file, dir)
+    modify_test = {
+        "name": data["name"],
+        "config": data["config"],
+        "message": data["message"],
+        "options": data["options"],
+        "type": data["type"],
+        "locations": data["locations"],
+        "steps": data["steps"],
+        "tags": data["tags"]
+    }
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+    try:
+        API.update_browser_test(data["public_id"], modify_test)
+        print(modify_test["name"] + " modified!")
+    except:
+        API.create_synthetics_browser_test(modify_test)
+        print(modify_test["name"] + " created!")
+    fetch()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
@@ -210,39 +233,6 @@ def fetch(type="full", t_name="test_name"):
             print("Caught: " + formatted_test["test_name"])
     else: 
         print("No new tests to fetch...") 
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Throw (edit or create) a DataDog test from JSON, then fetch it
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def throw(t_file, dir="./tests/"):
-    print("\nThrowing "+ t_file + "...")
-    data = extract_json(t_file, dir)
-    modify_test = {
-        "name": data["name"],
-        "config": data["config"],
-        "message": data["message"],
-        "options": data["options"],
-        "type": data["type"],
-        "locations": data["locations"],
-        "steps": data["steps"],
-        "tags": data["tags"]
-    }
-    with ApiClient(configuration) as api_client:
-        API = SyntheticsApi(api_client)
-    try:
-        API.update_browser_test(data["public_id"], modify_test)
-        print(modify_test["name"] + " modified!")
-    except:
-        try:
-            API.create_synthetics_browser_test(modify_test)
-            print(modify_test["name"] + " created!")
-        except:
-            # This exception is part of bulk_edit(type="restore")
-            file_path = os.path.join(dir + "/", t_file + ".json")
-            with open(file_path, 'r') as file:
-                data = json.load(file)
-            bulk_edit(data, "restore")
-    fetch()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
