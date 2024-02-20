@@ -1,21 +1,21 @@
 {
-    "test_name": "001.002.005 Site_Map",
+    "test_name": "001.002.006 Help_Link",
     "details": {
-        "created_at": "2024-02-06T18:41:27.169080+00:00",
-        "modified_at": "2024-02-06T20:41:57.696140+00:00",
+        "created_at": "2024-02-18T02:24:45.561481+00:00",
+        "modified_at": "2024-02-18T02:24:45.561481+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139067852,
-        "public_id": "v74-ewx-9k4",
+        "monitor_id": 139782647,
+        "public_id": "zwe-d2n-jbi",
         "status": "paused",
         "steps": [
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Menu Header\"",
+                "name": "Click on \"Dropdown Menu\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
@@ -45,7 +45,7 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Site Map\"",
+                "name": "Click on \"Help\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
@@ -54,20 +54,20 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(., \"Site Map\")]"
+                                    "value": "//a[contains(., \"Help\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][4]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-dropdown-menu \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" menu-item \")][3]",
-                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"LI\",\"text\":\"my profile\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[local-name()=\"li\"][4]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-dropdown-menu \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" menu-item \")][3]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]/*[local-name()=\"a\"][1]",
+                            "at": "/descendant::*[@href=\"https://mentorapm.freshdesk.com/support/solutions\" and @target=\"_blank\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-dropdown-menu \")]/*[local-name()=\"li\"][5]/*[local-name()=\"a\"][1]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"A\",\"text\":\"help\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@href=\"https://mentorapm.freshdesk.com/support/solutions\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-dropdown-menu \")]/*[local-name()=\"li\"][5]/*[local-name()=\"a\"][1]"
                         },
-                        "targetOuterHTML": "<li class=\"menu-item\"><a target=\"\" class=\"row\" data-testid=\"dropdown-link\" rel=\"noreferrer\" style=\"display: flex; flex-wrap: nowrap; width: 100%;\"><div class=\"col-1\" style=\"padding: 0px; text-align: c"
+                        "targetOuterHTML": "<a href=\"https://mentorapm.freshdesk.com/support/solutions\" target=\"_blank\" class=\"row\" data-testid=\"dropdown-link\" rel=\"noreferrer\" style=\"display: flex; flex-wrap: nowrap; width: 100%;\"><div class=\""
                     }
                 },
                 "type": "click"
@@ -75,31 +75,41 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Test div \"Site Map\" content",
+                "name": "Navigate to link",
+                "no_screenshot": false,
+                "params": {
+                    "value": "https://mentorapm.freshdesk.com/support/solutions"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test heading \"Knowledge base\" content",
                 "no_screenshot": false,
                 "params": {
                     "check": "contains",
-                    "value": "Site Map",
+                    "value": "Knowledge base",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm",
+                        "url": "https://mentorapm.freshdesk.com/support/solutions",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[contains(@class, \"title-container\")]"
+                                    "value": "//h2[contains(., \"Knowledge \")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"h2\"][1]",
                             "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" title-container \")]",
-                            "co": "[{\"text\":\"site map\",\"textType\":\"directText\"},{\"text\":\"configuration\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" title-container \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" title-container \")]"
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" content \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" heading \")][1]",
+                            "co": "[{\"text\":\"knowledge base\",\"textType\":\"directText\"}]",
+                            "ro": "//*[local-name()=\"h2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" content \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"knowledge base\"]]"
                         },
-                        "targetOuterHTML": "<div class=\"title-container \">Site Map</div>"
+                        "targetOuterHTML": "<h2 class=\"heading\">Knowledge base</h2>"
                     }
                 },
                 "type": "assertElementContent"
@@ -107,62 +117,44 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on X esc",
+                "name": "Navigate to link",
                 "no_screenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//div[contains(@class, \"apm-modal-actions\")]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
-                            "co": "",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]"
-                        },
-                        "targetOuterHTML": "<div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa-times fa-w-11 close-modal\" role=\"img\" xmlns=\"http://www.w3.org/200"
-                    }
+                    "value": "https://dev.mentorapm.com/apm"
                 },
-                "type": "click"
+                "type": "goToUrl"
             },
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on\"MentorAPM\"",
+                "name": "Test strong \"Home\" content",
                 "no_screenshot": false,
                 "params": {
+                    "check": "contains",
+                    "value": "Home",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
+                                    "value": "//strong[contains(., \"Home\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"ol\"][1]/*[local-name()=\"li\"][1]/*[local-name()=\"strong\"][1]",
                             "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
-                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"},{\"text\":\"mentorapm\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]"
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMBreadcrumbs \")]/*[local-name()=\"li\"][1]/*[local-name()=\"strong\"][1]",
+                            "co": "[{\"text\":\"home\",\"textType\":\"directText\"},{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"notificationsdrag widget\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"strong\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMBreadcrumbs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"home\"]]"
                         },
-                        "targetOuterHTML": "<div class=\"apm-navigation-logo\"><a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a></div>"
+                        "targetOuterHTML": "<strong>Home</strong>"
                     }
                 },
-                "type": "click"
+                "type": "assertElementContent"
             }
         ],
         "tags": [
@@ -203,11 +195,9 @@
         "locations": [
             "aws:us-west-1"
         ],
-        "message": "`001.002.005 Site_Map`\n- Test checks if \"Site Map\" button link works.",
-        "name": "001.002.005 Site_Map",
+        "message": "`001.002.006 Help_Link`\n- Test checks if \"Help\" button link works. ",
+        "name": "001.002.006 Help_Link",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -217,7 +207,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {

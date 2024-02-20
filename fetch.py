@@ -59,26 +59,30 @@ def extract_json(file_name, dir = "./tests/"):
 def bulk_edit(data, type):
     if type == "restore":
         test_name = data["details"]["name"]
-        print("Restoration of " + test_name + " in progress...")
-        sub_test = False
+        if fetch("single", test_name)["does_exist"]:
+            return
+        
+        print("\nRestoration of " + test_name + " in progress...")
+        sub_test = False  
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
-                sub_test = True
+                print("    Subtest: " + str(step["name"]))  
+
+        for step in data["details"]["steps"]:
+            if step["type"] == "playSubTest":
+                sub_test = True  
                 if fetch("single", step["name"])["does_exist"] == False:
                     throw(step["name"])
-                else:
-                    sub_test = False
         
         if sub_test:
-            print("RECURSIVE CALL")
             fetch()
             bulk_edit(data, "id")
-
+        
     # ID Edit
     # Goes through every file and changes the ID to the new one in files that ref             
     if type == "id":
         # Converts 'OLD_ID' -> 'NEW_ID'
-        print("Beginning bulk id edit/update...")
+        print("\nBeginning bulk id edit/update...")
         for step in data["details"]["steps"]:
             new_step_id = extract_json(step["name"])["public_id"]
             step["params"]["subtestPublicId"] = new_step_id
@@ -86,12 +90,12 @@ def bulk_edit(data, type):
     # Name Edit
     if type == "name":
         # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
-        print("Beginning bulk name edit...")
+        print("\nBeginning bulk name edit...")
         data["details"]["name"] = "COPY_" + data["details"]["name"]
     
     # Xpath Edit
     if type == "xpath":
-        print("Beginning bulk xpath edit...")
+        print("\nBeginning bulk xpath edit...")
         for step in data["details"]["steps"]:
             if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
                 user_specified_locator = step["params"]["element"]["userLocator"]["values"]
@@ -113,8 +117,10 @@ def bulk_edit(data, type):
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def throw(t_file, dir="./tests/"):
-    print("\nThrowing "+ t_file + "...")
     data = extract_json(t_file, dir)
+    if fetch("single", data["name"])["does_exist"]:
+        return
+    print("\nThrowing "+ t_file + "...")
     modify_test = {
         "name": data["name"],
         "config": data["config"],
@@ -185,7 +191,7 @@ def delete(t_file, dir):
 # WARNING: INVOKE WITH EXTREME CAUTION!!!
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def nuke(dir, regex=r'^COPY_.*$'):
-    print("Preparing to delete all related tests/files in " + dir + " ...")
+    print("\nPreparing to delete all related tests/files in " + dir + " ...")
     big_red_button = input("Are you absolutely sure? This cannot be undone. (Y/N): ")
     if big_red_button.upper() == "Y":
         print("Here we go...")
@@ -234,10 +240,8 @@ def fetch(type="full", t_name="test_name"):
             }
             process_to_json(formatted_test, f"{t_name}.json")
             print("Caught: " + formatted_test["test_name"])
-            if ("Caught: " + formatted_test["test_name"] == "Caught: 000.000.000 CSV"):
-                x = input("WAIT")
     else: 
-        print("No new tests to fetch...") 
+        print("\nNo new tests to fetch...") 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
