@@ -60,30 +60,33 @@ def bulk_edit(data, type):
     if type == "restore":
         test_name = data["details"]["name"]
         print("Restoration of " + test_name + " in progress...")
-
+        sub_test = False
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
+                sub_test = True
                 if fetch("single", step["name"])["does_exist"] == False:
                     throw(step["name"])
-
-        bulk_edit(data, "id")
-# Need a function that goes through every file and changes the ID to the new one in files that ref             
+                else:
+                    sub_test = False
+        
+        if sub_test:
+            print("RECURSIVE CALL")
+            fetch()
+            bulk_edit(data, "id")
 
     # ID Edit
+    # Goes through every file and changes the ID to the new one in files that ref             
     if type == "id":
-        print("Beginning bulk id edit...")
-        # Converts 'Old_ID' -> 'CURRENT_ID'        
+        # Converts 'OLD_ID' -> 'NEW_ID'
+        print("Beginning bulk id edit/update...")
         for step in data["details"]["steps"]:
-            extract_stepname = extract_json(step["name"])["public_id"]
-            print(extract_stepname)
-            print(step["name"] + ":" + step["params"]["subtestPublicId"])
-# Need a function that goes through every file and changes the ID to the new one in files that ref             
-
+            new_step_id = extract_json(step["name"])["public_id"]
+            step["params"]["subtestPublicId"] = new_step_id
 
     # Name Edit
     if type == "name":
-        print("Beginning bulk name edit...")
         # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
+        print("Beginning bulk name edit...")
         data["details"]["name"] = "COPY_" + data["details"]["name"]
     
     # Xpath Edit
@@ -130,7 +133,7 @@ def throw(t_file, dir="./tests/"):
     except:
         API.create_synthetics_browser_test(modify_test)
         print(modify_test["name"] + " created!")
-    fetch()
+    fetch("single", modify_test["name"])
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
@@ -231,6 +234,8 @@ def fetch(type="full", t_name="test_name"):
             }
             process_to_json(formatted_test, f"{t_name}.json")
             print("Caught: " + formatted_test["test_name"])
+            if ("Caught: " + formatted_test["test_name"] == "Caught: 000.000.000 CSV"):
+                x = input("WAIT")
     else: 
         print("No new tests to fetch...") 
 
