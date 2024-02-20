@@ -66,7 +66,10 @@ def bulk_edit(data, type):
         sub_test = False  
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
-                print("    Subtest: " + str(step["name"]))  
+                print("    Subtest: " + str(step["name"]))                  
+                for layered_sub_test in extract_json(step["name"])["steps"]:
+                    if layered_sub_test["type"] == "playSubTest":
+                        print("        Nested Subtest: " + str(layered_sub_test["name"]))  
 
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
