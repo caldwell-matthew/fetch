@@ -77,10 +77,9 @@ def bulk_edit(data, type):
                         if fetch("single", layered_sub_test["name"])["does_exist"] == False:
                             throw(layered_sub_test["name"])
                         super_sub_test = True   
-                if super_sub_test:
+                if super_sub_test and fetch("single", step["name"])["does_exist"] == False:
                     fetch()
                     bulk_edit(data, "id")
-                if fetch("single", step["name"])["does_exist"] == False:
                     throw(step["name"])
                 sub_test = True  
         if sub_test:

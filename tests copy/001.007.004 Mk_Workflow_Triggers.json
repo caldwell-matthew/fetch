@@ -1,0 +1,1503 @@
+{
+    "test_name": "001.007.004 Mk_Workflow_Triggers",
+    "details": {
+        "created_at": "2024-02-21T16:39:07.984901+00:00",
+        "modified_at": "2024-02-21T16:39:07.984901+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 139976686,
+        "public_id": "zg4-5ie-kad",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Add Widget\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@class=\"apm-btn APMDashboardButton\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMDashboardButton \")]",
+                            "co": "[{\"text\":\"add widget\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"add widget\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMDashboardButton \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn APMDashboardButton\" type=\"button\" data-testid=\"dropdown-toggle\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"plus-hexagon\" class=\"svg-inline--fa fa-plu"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": true,
+                "is_critical": false,
+                "name": "Click on div \"Notifications\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(., \"Notifications\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][9]/*[local-name()=\"a\"][1]/*[local-name()=\"div\"][2]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-dropdown-menu \")]/*[local-name()=\"li\"][9]/*[local-name()=\"a\"][1]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"text\":\"notifications\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"notifications\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-dropdown-menu \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"notifications\"]]"
+                        },
+                        "targetOuterHTML": "<div class=\"col-11\" style=\"padding-left: 5px;\">Notifications</div>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Admin & Setup\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]",
+                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/admin\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"reporting\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@href=\"/apm/admin\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]"
+                        },
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Admin &amp; Setup\" href=\"/apm/admin\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Workflow Forms\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Workflow Forms\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][6]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][5]/*[local-name()=\"button\"][6]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoriteworkflow forms\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[6]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][5]/*[local-name()=\"button\"][6]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-SoEJptLnyqQz\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"SMCT Workflow\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@role=\"row\" and contains(., \"SMCT Workflow\")]//span[@data-tip=\"View Record\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\" and @role=\"gridcell\"]/descendant::*[@currentitem=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]"
+                        },
+                        "targetOuterHTML": "<span class=\"table3-row-button\" data-for=\"table3\" data-tip=\"View Record\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on list item \"Triggers\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul/li[contains(., \"Triggers\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][5]",
+                            "co": "[{\"text\":\"triggers\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-4\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"triggers\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-4\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Add Record\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Add Record\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
+                            "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@*[local-name()=\"aria-label\"]=\"Add Record\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]"
+                        },
+                        "targetOuterHTML": "<button class=\"btn-table\" type=\"button\" aria-label=\"Add Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"file-plus\" class=\"svg-inline--fa fa-file-plus fa-w-12 \" role=\"img"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #attributeTypeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"attributeTypeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"attributeTypeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"attributeTypeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fal"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #action",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Send Notification",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"action\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]",
+                            "co": "[{\"text\":\"action type *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"action\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"action\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #status",
+                "no_screenshot": false,
+                "params": {
+                    "value": "On Hold",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"status\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]",
+                            "co": "[{\"text\":\"stage status *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"status\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"status\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on switch \"Value\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"react-switch-bg\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" react-switch-bg \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" react-switch-bg \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" react-switch-bg \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"react-switch-bg\" style=\"height: 28px; width: 56px; margin: 0px; position: relative; background: rgb(136, 136, 136); border-radius: 14px; cursor: pointer; transition: background 0.25s ease "
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input \"User to Notify\"",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Synthetic Monitoring",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"workstage-form-field\" and contains(., \"User to Notify\")]//input[@class=\"listfilter__input\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @*[local-name()=\"aria-required\"]=\"true\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][2]",
+                            "co": "[{\"text\":\"user to notify *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter1\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][2]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"parameter1\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on textarea #Message",
+                "no_screenshot": false,
+                "params": {
+                    "value": "SMCT YOU HAVE AN ALERT!",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//textarea[@id=\"parameter2\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][1]/*[local-name()=\"textarea\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"new-password\" and @name=\"parameter2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-input-field \")]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"textarea\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-input-field \")]"
+                        },
+                        "targetOuterHTML": "<textarea autocomplete=\"new-password\" rows=\"5\" cols=\"15\" id=\"parameter2\" name=\"parameter2\" class=\"mui-mi-input-field form-input mui-textarea-resize-vert\"></textarea>"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Submit\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Submit\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]",
+                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"submit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]"
+                        },
+                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Submit</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Add Record\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Add Record\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
+                            "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@*[local-name()=\"aria-label\"]=\"Add Record\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]"
+                        },
+                        "targetOuterHTML": "<button class=\"btn-table\" type=\"button\" aria-label=\"Add Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"file-plus\" class=\"svg-inline--fa fa-file-plus fa-w-12 \" role=\"img"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #attributeTypeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "SMCT_STR",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"attributeTypeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"attributeTypeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"attributeTypeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fal"
+                    }
+                },
+                "timeout": 5,
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #action",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Add New Work Stage",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"action\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]",
+                            "co": "[{\"text\":\"action type *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"action\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"action\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #status",
+                "no_screenshot": false,
+                "params": {
+                    "value": "On Hold",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"status\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]",
+                            "co": "[{\"text\":\"stage status *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"status\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"status\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #value",
+                "no_screenshot": false,
+                "params": {
+                    "value": "STRING",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"value\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"value\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"value *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"value\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"value\" id=\"value\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #parameter1",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Stage C",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"parameter1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @*[local-name()=\"aria-required\"]=\"true\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-hs7au4-control \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"workflow stage *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter1\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-hs7au4-control \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"parameter1\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #parameter2",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Crewmate",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"parameter2\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-required\"]=\"false\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][3]",
+                            "co": "[{\"text\":\"crew \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][3]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"parameter2\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Submit\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Submit\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]",
+                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"submit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]"
+                        },
+                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Submit</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Add Record\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Add Record\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
+                            "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@*[local-name()=\"aria-label\"]=\"Add Record\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]"
+                        },
+                        "targetOuterHTML": "<button class=\"btn-table\" type=\"button\" aria-label=\"Add Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"file-plus\" class=\"svg-inline--fa fa-file-plus fa-w-12 \" role=\"img"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #attributeTypeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "SMCT_FLOAT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"attributeTypeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"attributeTypeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"attributeTypeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fal"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #action",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Create Follow-up Work",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"action\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]",
+                            "co": "[{\"text\":\"action type *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"action\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"action\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #status",
+                "no_screenshot": false,
+                "params": {
+                    "value": "On Hold",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"status\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]",
+                            "co": "[{\"text\":\"stage status *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"status\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"status\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #value",
+                "no_screenshot": false,
+                "params": {
+                    "value": "100.1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"value\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"value\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"value *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"value\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"number\" autocomplete=\"off\" name=\"value\" id=\"value\" class=\"mui-mi-input-field form-input\" step=\"any\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #parameter1",
+                "no_screenshot": false,
+                "params": {
+                    "value": "SMCT Workflow",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"parameter1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @*[local-name()=\"aria-required\"]=\"true\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-hs7au4-control \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"workflow *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter1\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-hs7au4-control \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"parameter1\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #parameter2",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Crewmate",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"parameter2\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-required\"]=\"false\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][3]",
+                            "co": "[{\"text\":\"crew \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][3]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"parameter2\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Submit\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Submit\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]",
+                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"submit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]"
+                        },
+                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Submit</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Add Record\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Add Record\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
+                            "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
+                            "ro": "//*[@*[local-name()=\"aria-label\"]=\"Add Record\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]"
+                        },
+                        "targetOuterHTML": "<button class=\"btn-table\" type=\"button\" aria-label=\"Add Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"file-plus\" class=\"svg-inline--fa fa-file-plus fa-w-12 \" role=\"img"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #attributeTypeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "SMCT_INT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"attributeTypeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"attributeTypeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"attributeTypeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fal"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #action",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Create Event Reading",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"action\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]",
+                            "co": "[{\"text\":\"action type *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"action\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"action\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #status",
+                "no_screenshot": false,
+                "params": {
+                    "value": "On Hold",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"status\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]",
+                            "co": "[{\"text\":\"stage status *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"status\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")][2]"
+                        },
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"status\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" ari"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #parameter1",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Wear Percentage",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"parameter1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @*[local-name()=\"aria-required\"]=\"true\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-hs7au4-control \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"meter reading type *\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter1\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-hs7au4-control \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"parameter1\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #parameter2",
+                "no_screenshot": false,
+                "params": {
+                    "value": "50",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"parameter2\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"parameter2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"max % above current reading \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"parameter2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"parameter2\" id=\"parameter2\" step=\"any\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Submit\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Submit\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]",
+                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"submit\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]"
+                        },
+                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Submit</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on link \"MentorAPM\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-navigation-logo\"><a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a></div>"
+                    }
+                },
+                "type": "click"
+            }
+        ],
+        "tags": [
+            "ADMIN",
+            "WORK"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "dev@smct.com ",
+                    "pattern": "dev@smct.com ",
+                    "secure": false,
+                    "name": "TEST_USR",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "TEST_PASS",
+                    "type": "text"
+                },
+                {
+                    "example": "hnc-bj2-2pc.8639236424@synthetics.synthetics.dtdg.co",
+                    "pattern": "hnc-bj2-2pc.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
+                    "name": "TEST_EMAIL",
+                    "type": "email"
+                },
+                {
+                    "example": "PvUIERbYzyViiYB",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_FNAME",
+                    "type": "text"
+                },
+                {
+                    "example": "FTpZQNyCteKUdCE",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_LNAME",
+                    "type": "text"
+                },
+                {
+                    "example": "65743379",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ALTID",
+                    "type": "text"
+                },
+                {
+                    "example": "774-239-8275",
+                    "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
+                    "secure": false,
+                    "name": "TEST_PHONE",
+                    "type": "text"
+                },
+                {
+                    "example": "irs-4jh-cpd.7656956754@synthetics.dtdg.co",
+                    "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
+                    "secure": false,
+                    "name": "TEST_EMAIL2",
+                    "type": "text"
+                },
+                {
+                    "example": "EMuTphfsuKhSrYj",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_FNAME2",
+                    "type": "text"
+                },
+                {
+                    "example": "khpxQNmEJUFPyey",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_LNAME2",
+                    "type": "text"
+                },
+                {
+                    "example": "43712964",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ALTID2",
+                    "type": "text"
+                },
+                {
+                    "example": "711-731-9798",
+                    "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
+                    "secure": false,
+                    "name": "TEST_PHONE2",
+                    "type": "text"
+                },
+                {
+                    "example": "SMCT Workflow Form",
+                    "pattern": "SMCT Workflow Form",
+                    "secure": false,
+                    "name": "TEST_WRK_FORM",
+                    "type": "text"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
+            }
+        },
+        "locations": [
+            "aws:us-west-1"
+        ],
+        "message": "`001.007.004 Mk_Workflow_Triggers`\n- Test creates the following 4 workflow form triggers.\n- \"Send Alert\".\n- \"Create Follow-up Work\".\n- \"Add New Work Stage\".\n- \"Create Event Reading\".\n- To test triggers, see `004.002.001`.",
+        "name": "001.007.004 Mk_Workflow_Triggers",
+        "options": {
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 300
+        },
+        "type": "browser"
+    }
+}
