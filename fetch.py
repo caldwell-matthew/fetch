@@ -57,6 +57,9 @@ def extract_json(file_name, dir = "./tests/"):
 # Bulk edit of every JSON file within a directory, edit type varies
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def bulk_edit(data, type):
+    if "details" not in data:
+            return
+    
     if type == "restore":
         test_name = data["details"]["name"]
         if fetch("single", test_name)["does_exist"]:
@@ -97,14 +100,12 @@ def bulk_edit(data, type):
                     if layered_sub_test["type"] == "playSubTest":
                         new_layered_step_id = extract_json(layered_sub_test["name"])["public_id"]
                         layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
-                        print("        LAYERED " + layered_sub_test["name"] + " | " + str(layered_sub_test["params"]["subtestPublicId"]))
-                        # HERE YOU NEED TO FIX THE IDS IN OTHER FILES THAT REFERENCE THIS
-                print("    SUBTEST " + str(step["name"]) + " | Parent Params " + str(data["test_name"] + str(step["params"])))
-        
-        for step in data["details"]["steps"]:
-            print(step["name"])
-            
-        print("PARENT " + str(data["test_name"]))
+        # DEBUGSTUFF
+                        #print("        LAYERED " + layered_sub_test["name"] + " | " + str(layered_sub_test["params"]["subtestPublicId"]))
+                #print("    SUBTEST " + str(step["name"]) + " | Parent Params " + str(data["test_name"] + str(step["params"])))
+        #for step in data["details"]["steps"]:
+            #print(step["name"])
+        #print("PARENT " + str(data["test_name"]))
 
     # Name Edit
     if type == "name":
@@ -122,7 +123,7 @@ def bulk_edit(data, type):
                     if USL["type"] == "xpath":
                         xpath = USL["value"]
 
-                        #DEBUGSTUFF
+                        # DEBUGSTUFF
                         print("Current XPATH: " + xpath)
 
                         # Convert @data-tip -> contains()
@@ -156,8 +157,11 @@ def throw(t_file, dir="./tests/"):
         API.update_browser_test(data["public_id"], modify_test)
         print(modify_test["name"] + " modified!")
     except:
-        API.create_synthetics_browser_test(modify_test)
-        print(modify_test["name"] + " created!")
+        try:
+            API.create_synthetics_browser_test(modify_test)
+            print(modify_test["name"] + " created!")
+        except:
+            bulk_edit(data, "id")
     fetch("single", modify_test["name"])
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
