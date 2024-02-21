@@ -6,7 +6,7 @@
 #   Changelog   :
 #     20240214  MAT     INIT
 #     20240215  MAT     Able to fetch/throw tests, formatting       
-#     20240220  MAT     Full restore first layer      
+#     20240220  MAT     Full restore works, but needs to be run a few times   
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient, Configuration
@@ -88,9 +88,9 @@ def bulk_edit(data, type):
             bulk_edit(data, "id")
         
     # ID Edit
-    # Goes through every file and changes the ID to the new one in files that ref             
+    # Converts 'OLD_ID' -> 'NEW_ID' 
+    # Step through every reference to the subtest or nested test and update id      
     if type == "id":
-        # Converts 'OLD_ID' -> 'NEW_ID'
         print("\nBeginning bulk id edit/update...")
         for step in data["details"]["steps"]:
             new_step_id = extract_json(step["name"])["public_id"]
@@ -108,12 +108,14 @@ def bulk_edit(data, type):
         #print("PARENT " + str(data["test_name"]))
 
     # Name Edit
+    # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
     if type == "name":
-        # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
         print("\nBeginning bulk name edit...")
         data["details"]["name"] = "COPY_" + data["details"]["name"]
     
     # Xpath Edit
+    # Converts an XPATH statement into a new one such as @data-tip -> contains()
+    # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
     if type == "xpath":
         print("\nBeginning bulk xpath edit...")
         for step in data["details"]["steps"]:
@@ -122,12 +124,8 @@ def bulk_edit(data, type):
                 for USL in user_specified_locator:
                     if USL["type"] == "xpath":
                         xpath = USL["value"]
-
                         # DEBUGSTUFF
-                        print("Current XPATH: " + xpath)
-
-                        # Convert @data-tip -> contains()
-                        # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
+                        # print("Current XPATH: " + xpath)
                         if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
                             re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
                             location = re_match_location.group(1)
@@ -228,6 +226,7 @@ def nuke(dir, regex=r'^COPY_.*$'):
     
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
+# fetch() can be of type "full", "quick", or "single" (if given a testname)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def fetch(type="full", t_name="test_name"):
     with ApiClient(configuration) as api_client:
