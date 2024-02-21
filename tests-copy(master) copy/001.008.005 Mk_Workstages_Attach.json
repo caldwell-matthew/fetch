@@ -1,0 +1,687 @@
+{
+    "test_name": "001.008.005 Mk_Workstages_Attach",
+    "details": {
+        "created_at": "2024-02-18T01:47:01.366169+00:00",
+        "modified_at": "2024-02-18T01:47:01.366169+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 139781903,
+        "public_id": "9gs-zwq-9q3",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Admin & Setup\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]",
+                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/admin\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"reporting\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@href=\"/apm/admin\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]"
+                        },
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Admin &amp; Setup\" href=\"/apm/admin\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Workflow Stages\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Workflow Stages\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][7]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][5]/*[local-name()=\"button\"][7]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoriteworkflow stages\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[7]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][5]/*[local-name()=\"button\"][7]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-HI0NRlSrucCf\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Stage A'",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"workflowstage\"]/div[contains(., \"Stage A\")]/div[2]/span/span"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@currentitem=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][3]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/*/*/*[local-name()=\"span\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][3]"
+                        },
+                        "targetOuterHTML": "<span class=\"table3-row-button\" data-for=\"table3\" data-tip=\"View Record\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on list item \"Attachments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/T8PK9TWNEDwuzSNZD4skf",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul/li[contains(., \"Attachments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][3]",
+                            "co": "[{\"text\":\"attachments\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"attachments\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-2\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Upload a file\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/T8PK9TWNEDwuzSNZD4skf#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"Upload a file\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]",
+                            "co": "[{\"text\":\"upload a file\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"upload a file\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]"
+                        },
+                        "targetOuterHTML": "<p class=\"mui-mi-file-input\">Upload a file</p>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Upload file",
+                "no_screenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Test.txt",
+                            "size": 20,
+                            "bucketKey": "browser-upload-file-step/9gs-zwq-9q3/2024-02-18T01:47:01.540407_d517ddaf-30df-4b05-9aba-657858d98a8e.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/T8PK9TWNEDwuzSNZD4skf#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@type=\"file\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@multiple=\"\" and @type=\"file\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"INPUT\",\"text\":\"upload a file\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@multiple=\"\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]"
+                        },
+                        "targetOuterHTML": "<input multiple=\"\" type=\"file\" autocomplete=\"off\" tabindex=\"-1\" style=\"display: none;\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test.txt\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test.txt",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/T8PK9TWNEDwuzSNZD4skf#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"attachment\"]/*/div[contains(., \"Test.txt\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"synthetic monitoring\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-colindex\"]=\"3\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"3\" style=\"width: 150px;\"><a href=\"/api/attachment/86611f0a-1d60-4e08-9386-387ab17bb6ff\" rel=\"noreferrer\" target=\"_blank\">Test.tx"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Back\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/T8PK9TWNEDwuzSNZD4skf#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-tip=\"Back\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" m-r-sm \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" m-r-sm \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" m-r-sm \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn m-r-sm\" data-for=\"detail-view-tooltip\" data-tip=\"Back\" type=\"button\" currentitem=\"false\" style=\"height: 34px; min-height: 34px; padding: 8px 12px; width: 42px; min-width: 42px;\""
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Stage B'",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"workflowstage\"]/div[contains(., \"Stage B\")]/div[2]/span/span"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"3\"]/descendant::*[@currentitem=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][2]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"3\"]/*/*/*[local-name()=\"span\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][2]"
+                        },
+                        "targetOuterHTML": "<span class=\"table3-row-button\" data-for=\"table3\" data-tip=\"View Record\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on list item \"Attachments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/I4aFV-I-Zn5kXEw_qZ9Ea",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul/li[contains(., \"Attachments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][3]",
+                            "co": "[{\"text\":\"attachments\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"attachments\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-2\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Upload a file\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/I4aFV-I-Zn5kXEw_qZ9Ea#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"Upload a file\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]",
+                            "co": "[{\"text\":\"upload a file\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"upload a file\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]"
+                        },
+                        "targetOuterHTML": "<p class=\"mui-mi-file-input\">Upload a file</p>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Upload file",
+                "no_screenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Test2.txt",
+                            "size": 20,
+                            "bucketKey": "browser-upload-file-step/9gs-zwq-9q3/2024-02-18T01:47:01.590242_37702161-1f58-40d4-8955-f8a319f96317.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/I4aFV-I-Zn5kXEw_qZ9Ea#2",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@multiple=\"\" and @type=\"file\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"INPUT\",\"text\":\"upload a file\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@multiple=\"\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]"
+                        },
+                        "targetOuterHTML": "<input multiple=\"\" type=\"file\" autocomplete=\"off\" tabindex=\"-1\" style=\"display: none;\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test2.txt\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test2.txt",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/I4aFV-I-Zn5kXEw_qZ9Ea#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"attachment\"]/*/div[contains(., \"Test2.txt\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"synthetic monitoring\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-colindex\"]=\"3\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"3\" style=\"width: 150px;\"><a href=\"/api/attachment/3d5a7680-81d8-4dc2-aee7-162da71ab4f0\" rel=\"noreferrer\" target=\"_blank\">Test2.t"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Back\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/I4aFV-I-Zn5kXEw_qZ9Ea#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-tip=\"Back\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" m-r-sm \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" m-r-sm \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" m-r-sm \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn m-r-sm\" data-for=\"detail-view-tooltip\" data-tip=\"Back\" type=\"button\" currentitem=\"false\" style=\"height: 34px; min-height: 34px; padding: 8px 12px; width: 42px; min-width: 42px;\""
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Stage C'",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"workflowstage\"]/div[contains(., \"Stage C\")]/div[2]/span/span"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@currentitem=\"false\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][1]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/*/*/*[local-name()=\"span\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][1]"
+                        },
+                        "targetOuterHTML": "<span class=\"table3-row-button\" data-for=\"table3\" data-tip=\"View Record\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on list item \"Attachments\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/ueHC7tCGIfHnzbPcZrTOL",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//ul/li[contains(., \"Attachments\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][3]",
+                            "co": "[{\"text\":\"attachments\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"attachments\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-2\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Upload a file\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/ueHC7tCGIfHnzbPcZrTOL#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"Upload a file\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]",
+                            "co": "[{\"text\":\"upload a file\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"upload a file\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]"
+                        },
+                        "targetOuterHTML": "<p class=\"mui-mi-file-input\">Upload a file</p>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Upload file",
+                "no_screenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Test3.txt",
+                            "size": 20,
+                            "bucketKey": "browser-upload-file-step/9gs-zwq-9q3/2024-02-18T01:47:01.684265_e91c8668-4009-4736-8ed5-287322357126.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/ueHC7tCGIfHnzbPcZrTOL#2",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@multiple=\"\" and @type=\"file\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"INPUT\",\"text\":\"upload a file\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@multiple=\"\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]"
+                        },
+                        "targetOuterHTML": "<input multiple=\"\" type=\"file\" autocomplete=\"off\" tabindex=\"-1\" style=\"display: none;\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"Test3.txt\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Test3.txt",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/ueHC7tCGIfHnzbPcZrTOL#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@id=\"attachment\"]/*/div[contains(., \"Test3.txt\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"synthetic monitoring\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-colindex\"]=\"3\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"3\" style=\"width: 150px;\"><a href=\"/api/attachment/701a5971-3dc7-4731-9a15-27dbb45c6d5d\" rel=\"noreferrer\" target=\"_blank\">Test3.t"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"MentorAPM\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowstages/ueHC7tCGIfHnzbPcZrTOL#2",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-navigation-logo\"><a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a></div>"
+                    }
+                },
+                "type": "click"
+            }
+        ],
+        "tags": [
+            "ADMIN",
+            "WORK"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/apm"
+            }
+        },
+        "locations": [
+            "aws:us-east-1"
+        ],
+        "message": "`001.008.005 Mk_Workstages_Attach`\n- Test uploads attachment files to the workstages.\n- \"Test.txt\" to \"Stage A\".\n- \"Test2.txt\" to \"Stage B\".\n- \"Test3.txt\" to \"Stage C'. ",
+        "name": "001.008.005 Mk_Workstages_Attach",
+        "options": {
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 3600
+        },
+        "type": "browser"
+    }
+}

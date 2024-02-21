@@ -1,0 +1,222 @@
+{
+    "test_name": "001.008.001 Active_Workstages",
+    "details": {
+        "created_at": "2024-01-30T18:13:04.656196+00:00",
+        "modified_at": "2024-02-11T00:36:00.200214+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 138664535,
+        "public_id": "cwq-njy-rgj",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "001.008.002 Mk_Workstages_Equip",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "xqu-axi-6ut",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "001.008.003 Mk_Workstages_Labor",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "wum-5fp-nsd",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "001.008.004 Mk_Workstages_Attrib",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "7ac-hd5-t8s",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "001.008.005 Mk_Workstages_Attach",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "sy7-mzf-vas",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "001.008.006 Mk_Workstages_Mater",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "hwe-hmi-9m3",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            }
+        ],
+        "tags": [
+            "ADMIN",
+            "WORK"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "dev@smct.com ",
+                    "pattern": "dev@smct.com ",
+                    "secure": false,
+                    "name": "TEST_USR",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "TEST_PASS",
+                    "type": "text"
+                },
+                {
+                    "example": "55651588",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ACCT_#",
+                    "type": "text"
+                },
+                {
+                    "example": "Test account",
+                    "pattern": "Test account",
+                    "secure": false,
+                    "name": "TEST_ACCT_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "1000000000",
+                    "pattern": "1000000000",
+                    "secure": false,
+                    "name": "TEST_BUDGET",
+                    "type": "text"
+                },
+                {
+                    "example": "Testing Department",
+                    "pattern": "Testing Department",
+                    "secure": false,
+                    "name": "TEST_DEPARTMENT",
+                    "type": "text"
+                },
+                {
+                    "example": "A department for testing",
+                    "pattern": "A department for testing",
+                    "secure": false,
+                    "name": "TEST_DEPARTMENT_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "Expense Code 24953",
+                    "pattern": "Expense Code 24953",
+                    "secure": false,
+                    "name": "TEST_EXPEN_TYPE",
+                    "type": "text"
+                },
+                {
+                    "example": "Test expenditure type",
+                    "pattern": "Test expenditure type",
+                    "secure": false,
+                    "name": "TEST_EXPEN_TYPE_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "TAG-1",
+                    "pattern": "TAG-1",
+                    "secure": false,
+                    "name": "TEST_ASSET_GROUP",
+                    "type": "text"
+                },
+                {
+                    "example": "A test asset group",
+                    "pattern": "A test asset group",
+                    "secure": false,
+                    "name": "TEST_ASSET_GROUP_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "TAT-1",
+                    "pattern": "TAT-1",
+                    "secure": false,
+                    "name": "TEST_ASSET_TYP",
+                    "type": "text"
+                },
+                {
+                    "example": "Test asset type",
+                    "pattern": "Test asset type",
+                    "secure": false,
+                    "name": "TEST_ASSET_TYP_DESC",
+                    "type": "text"
+                },
+                {
+                    "example": "Work In Progress",
+                    "pattern": "Work In Progress",
+                    "secure": false,
+                    "name": "TEST_WIP",
+                    "type": "text"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
+            }
+        },
+        "locations": [
+            "aws:us-west-1"
+        ],
+        "message": "`001.008.001 Active_Workstages`\n- Test configures Workflow Stages \"Stage A\", \"Stage B\", and \"Stage C\". \n- To create estimated equipment, see `001.008.002`.\n- To create estimated labor, see `001.008.003`.\n- To create attributes, see `001.008.004`.\n- To create attachments, see `001.008.005`.",
+        "name": "001.008.001 Active_Workstages",
+        "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 300
+        },
+        "type": "browser"
+    }
+}

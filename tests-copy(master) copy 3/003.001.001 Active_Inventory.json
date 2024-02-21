@@ -1,0 +1,96 @@
+{
+    "test_name": "003.001.001 Active_Inventory",
+    "details": {
+        "created_at": "2024-02-06T21:27:28.448041+00:00",
+        "modified_at": "2024-02-13T00:48:33.852053+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 139080499,
+        "public_id": "cqs-44p-uw9",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "005.001.002 Mk_Material",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "y97-cjg-kff",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "005.001.003 Mk_Storeroom",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "ccd-kaa-ye2",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            }
+        ],
+        "tags": [
+            "ADMIN",
+            "INV"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/apm"
+            }
+        },
+        "locations": [
+            "aws:us-east-1"
+        ],
+        "message": "`003.001.001 Active_Inventory`\n- To make material, see `003.001.002`.\n- To make storeroom, see `003.001.003`.",
+        "name": "003.001.001 Active_Inventory",
+        "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 3600
+        },
+        "type": "browser"
+    }
+}
