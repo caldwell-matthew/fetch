@@ -6,7 +6,7 @@
 #   Changelog   :
 #     20240214  MAT     INIT
 #     20240215  MAT     Able to fetch/throw tests, formatting       
-#     20240217  MAT     Full restore nearly done       
+#     20240220  MAT     Full restore first layer      
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient, Configuration
@@ -63,20 +63,23 @@ def bulk_edit(data, type):
             return
         
         print("\nRestoration of " + test_name + " in progress...")
-        sub_test = False  
+        sub_test, super_sub_test = False, False
+
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
                 print("    Subtest: " + str(step["name"]))                  
                 for layered_sub_test in extract_json(step["name"])["steps"]:
                     if layered_sub_test["type"] == "playSubTest":
                         print("        Nested Subtest: " + str(layered_sub_test["name"]))  
-
-        for step in data["details"]["steps"]:
-            if step["type"] == "playSubTest":
-                sub_test = True  
+                        if fetch("single", layered_sub_test["name"])["does_exist"] == False:
+                            throw(layered_sub_test["name"])
+                        super_sub_test = True   
+                if super_sub_test:
+                    fetch()
+                    bulk_edit(data, "id")
                 if fetch("single", step["name"])["does_exist"] == False:
                     throw(step["name"])
-        
+                sub_test = True  
         if sub_test:
             fetch()
             bulk_edit(data, "id")
@@ -89,6 +92,19 @@ def bulk_edit(data, type):
         for step in data["details"]["steps"]:
             new_step_id = extract_json(step["name"])["public_id"]
             step["params"]["subtestPublicId"] = new_step_id
+            if step["type"] == "playSubTest":
+                for layered_sub_test in extract_json(step["name"])["steps"]:
+                    if layered_sub_test["type"] == "playSubTest":
+                        new_layered_step_id = extract_json(layered_sub_test["name"])["public_id"]
+                        layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
+                        print("        LAYERED " + layered_sub_test["name"] + " | " + str(layered_sub_test["params"]["subtestPublicId"]))
+                        # HERE YOU NEED TO FIX THE IDS IN OTHER FILES THAT REFERENCE THIS
+                print("    SUBTEST " + str(step["name"]) + " | Parent Params " + str(data["test_name"] + str(step["params"])))
+        
+        for step in data["details"]["steps"]:
+            print(step["name"])
+            
+        print("PARENT " + str(data["test_name"]))
 
     # Name Edit
     if type == "name":
