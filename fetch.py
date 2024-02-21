@@ -6,7 +6,7 @@
 #   Changelog   :
 #     20240214  MAT     INIT
 #     20240215  MAT     Able to fetch/throw tests, formatting       
-#     20240220  MAT     Full restore works, but needs to be run a few times   
+#     20240221  MAT     Full restore works
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient, Configuration
@@ -48,7 +48,7 @@ def process_to_json(data, file_name):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Extract data from a JSON files
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def extract_json(file_name, dir = "./tests/"):
+def extract_json(file_name, dir="./tests/"):
     file_path = os.path.join(dir + "/", file_name + ".json")
     with open(file_path, 'r') as file:
         return json.load(file)["details"]
@@ -57,59 +57,52 @@ def extract_json(file_name, dir = "./tests/"):
 # Bulk edit of every JSON file within a directory, edit type varies
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def bulk_edit(data, type):
-    if "details" not in data:
-            return
-    
+    # Regeneration Edit
+    # Recursivly throws, fetches, and updates ids to rebuild all tests
+    # See full_restore() for more information
     if type == "restore":
         test_name = data["details"]["name"]
         if fetch("single", test_name)["does_exist"]:
             return
-        
-        print("\nRestoration of " + test_name + " in progress...")
-        sub_test, super_sub_test = False, False
-
-        for step in data["details"]["steps"]:
-            if step["type"] == "playSubTest":
-                print("    Subtest: " + str(step["name"]))                  
-                for layered_sub_test in extract_json(step["name"])["steps"]:
-                    if layered_sub_test["type"] == "playSubTest":
-                        print("        Nested Subtest: " + str(layered_sub_test["name"]))  
-                        if fetch("single", layered_sub_test["name"])["does_exist"] == False:
-                            throw(layered_sub_test["name"])
-                        super_sub_test = True   
-                if super_sub_test and fetch("single", step["name"])["does_exist"] == False:
-                    fetch()
+        else:
+            all_exist = False
+            for step in data["details"]["steps"]:
+                if step["type"] == "playSubTest":
                     bulk_edit(data, "id")
-                    throw(step["name"])
-                sub_test = True  
-        if sub_test:
-            fetch()
-            bulk_edit(data, "id")
-        
+                    all_exist = fetch("single", step["name"])["does_exist"]
+                    if not all_exist:
+                        break
+            if all_exist:
+                throw(test_name)
+                return
+            print("\nRestoration of " + test_name + " in progress...")
+            for step in data["details"]["steps"]:
+                if step["type"] == "playSubTest":
+                    print("  Subtest: " + str(step["name"]))                  
+                    for layered_sub_test in extract_json(step["name"])["steps"]:
+                        if layered_sub_test["type"] == "playSubTest":
+                            print("    Nested Subtest: " + str(layered_sub_test["name"]))  
+            fetch()       
+            for step in data["details"]["steps"]:
+                if step["type"] == "playSubTest":
+                    bulk_edit(data, "id")
+            
     # ID Edit
     # Converts 'OLD_ID' -> 'NEW_ID' 
     # Step through every reference to the subtest or nested test and update id      
     if type == "id":
-        print("\nBeginning bulk id edit/update...")
         for step in data["details"]["steps"]:
-            new_step_id = extract_json(step["name"])["public_id"]
-            step["params"]["subtestPublicId"] = new_step_id
             if step["type"] == "playSubTest":
+                new_step_id = extract_json(step["name"])["public_id"]
+                step["params"]["subtestPublicId"] = new_step_id
                 for layered_sub_test in extract_json(step["name"])["steps"]:
                     if layered_sub_test["type"] == "playSubTest":
                         new_layered_step_id = extract_json(layered_sub_test["name"])["public_id"]
                         layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
-        # DEBUGSTUFF
-                        #print("        LAYERED " + layered_sub_test["name"] + " | " + str(layered_sub_test["params"]["subtestPublicId"]))
-                #print("    SUBTEST " + str(step["name"]) + " | Parent Params " + str(data["test_name"] + str(step["params"])))
-        #for step in data["details"]["steps"]:
-            #print(step["name"])
-        #print("PARENT " + str(data["test_name"]))
 
     # Name Edit
     # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
     if type == "name":
-        print("\nBeginning bulk name edit...")
         data["details"]["name"] = "COPY_" + data["details"]["name"]
     
     # Xpath Edit
@@ -137,7 +130,6 @@ def throw(t_file, dir="./tests/"):
     data = extract_json(t_file, dir)
     if fetch("single", data["name"])["does_exist"]:
         return
-    print("\nThrowing "+ t_file + "...")
     modify_test = {
         "name": data["name"],
         "config": data["config"],
@@ -156,15 +148,16 @@ def throw(t_file, dir="./tests/"):
     except:
         try:
             API.create_synthetics_browser_test(modify_test)
+            print("\nThrowing "+ t_file + "...")
             print(modify_test["name"] + " created!")
         except:
-            bulk_edit(data, "id")
+            pass
     fetch("single", modify_test["name"])
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def traversal_edit(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
+def traversal_edit(dir="./tests", edit_function=bulk_edit, edit_type=""):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
@@ -179,7 +172,8 @@ def traversal_edit(dir = "./tests", edit_function = bulk_edit, edit_type = ""):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Make backup copies of every existing test from ./tests -> ./tests-copy
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def bulk_copy (dir_A = "./tests", dir_B = "./tests-copy"):  
+def bulk_copy (dir_A="./tests", dir_B="./tests-copy"):  
+    print("\nBeginning bulk name edit...")
     for file in os.listdir(dir_A):
         file = os.path.join(dir_A, file)
         copy_file_name = "COPY_" + os.path.basename(file)
@@ -222,7 +216,22 @@ def nuke(dir, regex=r'^COPY_.*$'):
     else: 
         print("Aborting...")
         return
-    
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Completly rebuild, throw, and fetch all DataDog tests from JSON backup
+# To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
+# This takes a minute or so to work to reconstruct everything
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+def full_restore(dir="./tests"):
+    print("Beginning full restore...")
+    L = ["Sub-Child", "Child", "Parent"]
+    for layer in range(3):
+        traversal_edit(dir, bulk_edit, "restore")
+        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(L[layer] + " layer successfully restored!")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        layer += 1
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 # fetch() can be of type "full", "quick", or "single" (if given a testname)
@@ -230,7 +239,6 @@ def nuke(dir, regex=r'^COPY_.*$'):
 def fetch(type="full", t_name="test_name"):
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
-
     # Only fetch one test by name, also checks if it exists on DataDog site
     if type == "single":
         try:
@@ -238,7 +246,6 @@ def fetch(type="full", t_name="test_name"):
             return {"data": t_details, "does_exist": True}
         except:
             return {"does_exist": False}
-
     # Only fetch/process new tests that do not exist
     if type == "quick":
         all_tests = API.list_tests().to_dict()["tests"]
@@ -247,7 +254,6 @@ def fetch(type="full", t_name="test_name"):
     # Otherwise do a full fetch (overwrites all files)
     else:
         tests = API.list_tests().to_dict()["tests"]
-
     # Convert to JSON
     if tests:
         print("\nFetching tests...")    
@@ -261,24 +267,14 @@ def fetch(type="full", t_name="test_name"):
             }
             process_to_json(formatted_test, f"{t_name}.json")
             print("Caught: " + formatted_test["test_name"])
-    else: 
-        print("\nNo new tests to fetch...") 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
-    dir = "./tests"
-    dir2 = "./tests-copy"
+    dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        #fetch()
-        #throw("001.002.003 Top_Header", dir)
-        #traversal_edit(dir, bulk_edit, "xpath")
-        #bulk_copy()
-        #delete("TEST_NAME", dir2)
-        #nuke(dir)
-        traversal_edit(dir, bulk_edit, "restore")
-        #print(fetch("single", "000.000.000 CSV_Bulk_Transaction")["does_exist"])
+        full_restore()
 
 if __name__ == "__main__":
     main()

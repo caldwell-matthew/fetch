@@ -1,15 +1,15 @@
 {
     "test_name": "001.001.001 Active_Admin",
     "details": {
-        "created_at": "2024-01-04T18:37:14.672992+00:00",
-        "modified_at": "2024-02-14T22:27:43.525160+00:00",
+        "created_at": "2024-02-21T20:32:24.930202+00:00",
+        "modified_at": "2024-02-21T20:32:24.930202+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 137240241,
-        "public_id": "rns-zhp-egi",
+        "monitor_id": 139992732,
+        "public_id": "9qc-v5h-367",
         "status": "paused",
         "steps": [
             {
@@ -18,7 +18,7 @@
                 "name": "001.001.002 Deactivate_Admin",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "izf-d9u-wrp",
+                    "subtestPublicId": "s9w-xz5-a4v",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -87,8 +87,6 @@
         "message": "`001.001.001 Active_Admin`\nTest generates \"Synthetic Monitoring\" user SMCTUSER1 with full admin permissions.\n- This user and all requisite data should be deleted after the end of all tests. \n- User SMCTUSER1 is deleted if exists when this test is run.\n- To delete user, see `001.001.002`.",
         "name": "001.001.001 Active_Admin",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -98,7 +96,10 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all"
+                "on_missing_data": "show_no_data",
+                "notify_audit": false,
+                "new_host_delay": 300,
+                "include_tags": true
             },
             "no_screenshot": false,
             "retry": {
