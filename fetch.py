@@ -117,7 +117,7 @@ def bulk_edit(data, type):
                     if USL["type"] == "xpath":
                         xpath = USL["value"]
 
-                        # Convert //a[@data-tip] to //a[contains()]
+                        # Convert //a[@data-tip] -> //a[contains()]
                         RE_A = r'\/\/a\[@data-tip=\".*\"\]'
                         if re.match(RE_A, xpath):
                             print("Found XPATH: " + xpath)
@@ -127,7 +127,7 @@ def bulk_edit(data, type):
                             print("XPATH Updated to: " + USL["value"])
                             modified = True
                         
-                        # Convert data-tip to data-tip-content
+                        # Convert data-tip -> data-tip-content
                         RE_Data_Tip = r'data-tip'
                         if re.search(RE_Data_Tip, xpath):
                             print("Found XPATH: " + xpath)
@@ -144,6 +144,10 @@ def bulk_edit(data, type):
                             USL["value"] = f'//ul/li[contains(., "{location}")]'
                             print("XPATH Updated to: " + USL["value"])
                             modified = True
+
+
+# NEED TO DO //a[contains()] -> //aside/a[contains(., "Work")]
+
 
                         # //p[@data-testid="dv-name"]
                         # //*[@id="role"]/*/div[contains(., "")]
