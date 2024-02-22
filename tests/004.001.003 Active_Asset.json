@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Assets\"]"
+                                    "value": "//a[contains(., \"Assets\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -408,7 +408,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Assets\"]"
+                                    "value": "//a[contains(., \"Assets\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1868,7 +1868,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Assets\"]"
+                                    "value": "//a[contains(., \"Assets\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2071,7 +2071,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Assets\"]"
+                                    "value": "//a[contains(., \"Assets\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2345,7 +2345,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Work\"]"
+                                    "value": "//a[contains(., \"Work\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2548,7 +2548,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Assets\"]"
+                                    "value": "//a[contains(., \"Assets\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

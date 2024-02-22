@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                    "value": "//a[contains(., \"Admin & Setup\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -114,7 +114,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"root\"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., \"Estimated - Labor\")]"
+                                    "value": "//ul/li[contains(., \"Estimated - Labor\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -366,7 +366,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"root\"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., \"Estimated - Labor\")]"
+                                    "value": "//ul/li[contains(., \"Estimated - Labor\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -618,7 +618,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"root\"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., \"Estimated - Labor\")]"
+                                    "value": "//ul/li[contains(., \"Estimated - Labor\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -810,7 +810,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                    "value": "//a[contains(., \"Admin & Setup\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -900,7 +900,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"root\"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., \"Cost Summary\")]"
+                                    "value": "//ul/li[contains(., \"Cost Summary\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

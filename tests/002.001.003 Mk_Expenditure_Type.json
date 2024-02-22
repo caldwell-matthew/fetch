@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Accounting\"]"
+                                    "value": "//a[contains(., \"Accounting\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

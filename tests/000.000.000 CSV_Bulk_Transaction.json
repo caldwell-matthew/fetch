@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                    "value": "//a[contains(., \"Admin & Setup\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -341,7 +341,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Criticality Analysis\"]"
+                                    "value": "//a[contains(., \"Criticality Analysis\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

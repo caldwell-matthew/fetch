@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                    "value": "//a[contains(., \"Admin & Setup\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -577,7 +577,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1100,7 +1100,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1623,7 +1623,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2146,7 +2146,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2669,7 +2669,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -3192,7 +3192,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -3716,7 +3716,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

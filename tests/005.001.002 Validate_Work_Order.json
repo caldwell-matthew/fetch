@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Work\"]"
+                                    "value": "//a[contains(., \"Work\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -84,7 +84,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//span[@data-tip=\"View Record\"]"
+                                    "value": "//span[@data-tooltip-content=\"View Record\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -959,7 +959,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1553,7 +1553,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-tip=\"Back\"]"
+                                    "value": "//button[@data-tooltip-content=\"Back\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

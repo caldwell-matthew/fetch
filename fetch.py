@@ -105,31 +105,68 @@ def bulk_edit(data, type):
     if type == "name":
         data["details"]["name"] = "COPY_" + data["details"]["name"]
     
-    # Xpath Edit
+    # Xpath Edit (CHANGE AS NEEDED)
     # Converts an XPATH statement into a new one such as @data-tip -> contains()
     # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
     if type == "xpath":
-        print("\nBeginning bulk xpath edit...")
+        modified = False
         for step in data["details"]["steps"]:
             if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
                 user_specified_locator = step["params"]["element"]["userLocator"]["values"]
                 for USL in user_specified_locator:
                     if USL["type"] == "xpath":
                         xpath = USL["value"]
-                        # DEBUGSTUFF
-                        # print("Current XPATH: " + xpath)
-                        if re.match(r'\/\/a\[@data-tip=\".*\"\]', xpath):
-                            re_match_location = re.search(r'@data-tip="([^"]+)"', xpath)
+
+                        # Convert //a[@data-tip] to //a[contains()]
+                        RE_A = r'\/\/a\[@data-tip=\".*\"\]'
+                        if re.match(RE_A, xpath):
+                            print("Found XPATH: " + xpath)
+                            re_match_location = re.search(RE_A, xpath)
                             location = re_match_location.group(1)
-                            USL["value"] = f"//a[contains(., \"{location}\")]"
+                            USL["value"] = f'//a[contains(., "{location}")]'
+                            print("XPATH Updated to: " + USL["value"])
+                            modified = True
+                        
+                        # Convert data-tip to data-tip-content
+                        RE_Data_Tip = r'data-tip'
+                        if re.search(RE_Data_Tip, xpath):
+                            print("Found XPATH: " + xpath)
+                            USL["value"] = re.sub(RE_Data_Tip, 'data-tooltip-content', xpath)
+                            print("XPATH Updated to: " + USL["value"])
+                            modified = True
+
+                        # Simplify xpaths with */ul/li[contains()] by removal of excessive identifiers
+                        RE_Ul_Li = r'^.*\/ul\/li\[contains\(., "([^"]+)"\)]$'
+                        if re.search(RE_Ul_Li, xpath) and not re.match(r'//ul/li', xpath):
+                            print("Found XPATH: " + xpath)
+                            re_match_location = re.search(RE_Ul_Li, xpath)
+                            location = re_match_location.group(1)
+                            USL["value"] = f'//ul/li[contains(., "{location}")]'
+                            print("XPATH Updated to: " + USL["value"])
+                            modified = True
+
+                        # //p[@data-testid="dv-name"]
+                        # //*[@id="role"]/*/div[contains(., "")]
+                        # //*[text()='Captain']
+                            
+                        # Paragraph (The "Name" value on top of a detailview)
+                        # //p[text()='TEXT']
+                        
+                        # //ul/li[contains(., "Estimated - Labor")]
+                        # //*[@id="root"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., "Estimated - Labor")]
+        
+        if modified:
+            print("")
+
+        return modified
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def throw(t_file, dir="./tests/"):
     data = extract_json(t_file, dir)
-    if fetch("single", data["name"])["does_exist"]:
-        return
+    # if fetch("single", data["name"])["does_exist"]:
+    #     return
     modify_test = {
         "name": data["name"],
         "config": data["config"],
@@ -162,12 +199,17 @@ def traversal_edit(dir="./tests", edit_function=bulk_edit, edit_type=""):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        edit_function(data, edit_type)
+        modified = edit_function(data, edit_type)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
         file_name_full = os.path.basename(file_path)
         file_name = os.path.splitext(file_name_full)[0]
-        throw(file_name, dir)
+        if edit_type == "restore" and fetch("single", data["name"])["does_exist"]:
+            return
+        if edit_type == "xpath" and not modified:
+            pass
+        else:
+            throw(file_name, dir)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Make backup copies of every existing test from ./tests -> ./tests-copy
@@ -274,7 +316,8 @@ def fetch(type="full", t_name="test_name"):
 def main():
     dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        full_restore()
+        #full_restore()
+        traversal_edit(dir, bulk_edit, "xpath")
 
 if __name__ == "__main__":
     main()

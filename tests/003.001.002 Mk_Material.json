@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Inventory\"]"
+                                    "value": "//a[contains(., \"Inventory\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -693,7 +693,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Assets\"]"
+                                    "value": "//a[contains(., \"Assets\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true

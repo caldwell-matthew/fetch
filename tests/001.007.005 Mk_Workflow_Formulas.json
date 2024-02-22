@@ -24,7 +24,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//a[@data-tip=\"Admin & Setup\"]"
+                                    "value": "//a[contains(., \"Admin & Setup\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -84,7 +84,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@role=\"row\" and contains(., \"SMCT Workflow\")]//span[@data-tip=\"View Record\"]"
+                                    "value": "//div[@role=\"row\" and contains(., \"SMCT Workflow\")]//span[@data-tooltip-content=\"View Record\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
