@@ -5,7 +5,7 @@
 #   Description : Script to "fetch, return, and bulk edit" tests from DataDog
 #   Changelog   :
 #     20240214  MAT     INIT
-#     20240215  MAT     Able to fetch/throw tests, formatting       
+#     20240215  MAT     Able to fetch/throw tests, formatting, xpath       
 #     20240221  MAT     Full restore works
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
@@ -108,6 +108,7 @@ def bulk_edit(data, type):
     # Xpath Edit (CHANGE AS NEEDED)
     # Converts an XPATH statement into a new one such as @data-tip -> contains()
     # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
+    # Just add/comment out the ones you want to run
     if type == "xpath":
         modified = False
         for step in data["details"]["steps"]:
@@ -117,47 +118,57 @@ def bulk_edit(data, type):
                     if USL["type"] == "xpath":
                         xpath = USL["value"]
 
-                        # Convert //a[@data-tip] -> //a[contains()]
-                        RE_A = r'\/\/a\[@data-tip=\".*\"\]'
-                        if re.match(RE_A, xpath):
-                            print("Found XPATH: " + xpath)
-                            re_match_location = re.search(RE_A, xpath)
-                            location = re_match_location.group(1)
-                            USL["value"] = f'//a[contains(., "{location}")]'
-                            print("XPATH Updated to: " + USL["value"])
-                            modified = True
+                    # Placeholder
+                        print("No XPATH modification set...")
+                        return
+
+                    # Convert //a[@data-tip] -> //a[contains()]
+                        # RE_A = r'\/\/a\[@data-tip=\".*\"\]'
+                        # if re.match(RE_A, xpath):
+                        #     print("Found XPATH: " + xpath)
+                        #     re_match_location = re.search(RE_A, xpath)
+                        #     location = re_match_location.group(1)
+                        #     USL["value"] = f'//a[contains(., "{location}")]'
+                        #     print("XPATH Updated to: " + USL["value"])
+                        #     modified = True
                         
-                        # Convert data-tip -> data-tip-content
-                        RE_Data_Tip = r'data-tip'
-                        if re.search(RE_Data_Tip, xpath):
-                            print("Found XPATH: " + xpath)
-                            USL["value"] = re.sub(RE_Data_Tip, 'data-tooltip-content', xpath)
-                            print("XPATH Updated to: " + USL["value"])
-                            modified = True
+                    # Convert data-tip -> data-tip-content
+                        # RE_Data_Tip = r'data-tip'
+                        # if re.search(RE_Data_Tip, xpath):
+                        #     print("Found XPATH: " + xpath)
+                        #     USL["value"] = re.sub(RE_Data_Tip, 'data-tooltip-content', xpath)
+                        #     print("XPATH Updated to: " + USL["value"])
+                        #     modified = True
 
-                        # Simplify xpaths with */ul/li[contains()] by removal of excessive identifiers
-                        RE_Ul_Li = r'^.*\/ul\/li\[contains\(., "([^"]+)"\)]$'
-                        if re.search(RE_Ul_Li, xpath) and not re.match(r'//ul/li', xpath):
-                            print("Found XPATH: " + xpath)
-                            re_match_location = re.search(RE_Ul_Li, xpath)
-                            location = re_match_location.group(1)
-                            USL["value"] = f'//ul/li[contains(., "{location}")]'
-                            print("XPATH Updated to: " + USL["value"])
-                            modified = True
+                    # Simplify xpaths with */ul/li[contains()] by removal of excessive identifiers
+                        # RE_Ul_Li = r'^.*\/ul\/li\[contains\(., "([^"]+)"\)]$'
+                        # if re.search(RE_Ul_Li, xpath) and not re.match(r'//ul/li', xpath):
+                        #     print("Found XPATH: " + xpath)
+                        #     re_match_location = re.search(RE_Ul_Li, xpath)
+                        #     location = re_match_location.group(1)
+                        #     USL["value"] = f'//ul/li[contains(., "{location}")]'
+                        #     print("XPATH Updated to: " + USL["value"])
+                        #     modified = True
 
+                    # Convert //a[contains()] -> //aside/a[contains()]
+                        # RE_Aside_A = r'\/\/a\[contains\(., "([^"]+)"\)\]'
+                        # if re.match(RE_Aside_A, xpath):
+                        #     print("Found XPATH: " + xpath)
+                        #     re_match_location = re.search(RE_Aside_A, xpath)
+                        #     location = re_match_location.group(1)
+                        #     USL["value"] = f'//aside/a[contains(., "{location}")]'
+                        #     print("XPATH Updated to: " + USL["value"])
+                        #     modified = True
 
-# NEED TO DO //a[contains()] -> //aside/a[contains(., "Work")]
-
-
-                        # //p[@data-testid="dv-name"]
-                        # //*[@id="role"]/*/div[contains(., "")]
-                        # //*[text()='Captain']
-                            
-                        # Paragraph (The "Name" value on top of a detailview)
-                        # //p[text()='TEXT']
+                    # //p[@data-testid="dv-name"]
+                    # //*[@id="role"]/*/div[contains(., "")]
+                    # //*[text()='Captain']
                         
-                        # //ul/li[contains(., "Estimated - Labor")]
-                        # //*[@id="root"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., "Estimated - Labor")]
+                    # Paragraph (The "Name" value on top of a detailview)
+                    # //p[text()='TEXT']
+                    
+                    # //ul/li[contains(., "Estimated - Labor")]
+                    # //*[@id="root"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., "Estimated - Labor")]
         
         if modified:
             print("")
@@ -320,8 +331,8 @@ def fetch(type="full", t_name="test_name"):
 def main():
     dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        #full_restore()
-        traversal_edit(dir, bulk_edit, "xpath")
+        #traversal_edit(dir, bulk_edit, "xpath")
+        print("Nothing configured.")
 
 if __name__ == "__main__":
     main()
