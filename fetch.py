@@ -2,17 +2,20 @@
 # Fetch.py
 #   Created By  : Matthew Caldwell
 #   Created On  : 20240214
-#   Description : Script to "fetch, return, and bulk edit" tests from DataDog
+#   Description : Script to 'fetch' and 'throw' DataDog tests
 #   Changelog   :
 #     20240214  MAT     INIT
 #     20240215  MAT     Able to fetch/throw tests, formatting, xpath       
 #     20240221  MAT     Full restore works
+#     20240227  MAT     Added README, .env, did final formatting
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient, Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
+
+from dotenv import dotenv_values
 
 import json
 import os
@@ -23,8 +26,9 @@ import shutil
 # Config/Setup
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 configuration = Configuration()
-configuration.api_key["apiKeyAuth"] = "7014e4144493a636642d6d2b8c4a7b45"
-configuration.api_key["appKeyAuth"] = "e9971fad36b67e5684b45e767156e6c764c51c14" 
+env = dotenv_values(".env")
+configuration.api_key["apiKeyAuth"] = env.get("DD_API")
+configuration.api_key["appKeyAuth"] = env.get("DD_APP")
 os.makedirs("./tests", exist_ok=True)
 os.makedirs("./tests-copy", exist_ok=True)
 
@@ -54,9 +58,9 @@ def extract_json(file_name, dir="./tests/"):
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Bulk edit of every JSON file within a directory, edit type varies
+# Edit content within a JSON file, edit type varies
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def bulk_edit(data, type):
+def edit(data, type):
     # Regeneration Edit
     # Recursivly throws, fetches, and updates ids to rebuild all tests
     # See full_restore() for more information
@@ -68,7 +72,7 @@ def bulk_edit(data, type):
             all_exist = False
             for step in data["details"]["steps"]:
                 if step["type"] == "playSubTest":
-                    bulk_edit(data, "id")
+                    edit(data, "id")
                     all_exist = fetch("single", step["name"])["does_exist"]
                     if not all_exist:
                         break
@@ -85,7 +89,7 @@ def bulk_edit(data, type):
             fetch()       
             for step in data["details"]["steps"]:
                 if step["type"] == "playSubTest":
-                    bulk_edit(data, "id")
+                    edit(data, "id")
             
     # ID Edit
     # Converts 'OLD_ID' -> 'NEW_ID' 
@@ -209,7 +213,7 @@ def throw(t_file, dir="./tests/"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def traversal_edit(dir="./tests", edit_function=bulk_edit, edit_type=""):
+def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
@@ -236,7 +240,7 @@ def bulk_copy (dir_A="./tests", dir_B="./tests-copy"):
         copy_file_name = "COPY_" + os.path.basename(file)
         copy_file = os.path.join(dir_B, copy_file_name)
         shutil.copyfile(file, copy_file)
-    traversal_edit(dir_B, bulk_edit, "name")
+    traversal_edit(dir_B, edit, "name")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete tests
@@ -283,7 +287,7 @@ def full_restore(dir="./tests"):
     print("Beginning full restore...")
     L = ["Sub-Child", "Child", "Parent"]
     for layer in range(3):
-        traversal_edit(dir, bulk_edit, "restore")
+        traversal_edit(dir, edit, "restore")
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(L[layer] + " layer successfully restored!")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -331,8 +335,7 @@ def fetch(type="full", t_name="test_name"):
 def main():
     dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        #traversal_edit(dir, bulk_edit, "xpath")
-        print("Nothing configured.")
+        print("Nothing configured, but API works!")
 
 if __name__ == "__main__":
     main()
