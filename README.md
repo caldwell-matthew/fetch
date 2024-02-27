@@ -38,9 +38,9 @@ A script to 'fetch' and 'throw' DataDog tests.
 ### `fetch()`
 - Pulls or fetches tests from DataDog.com and converts them into JSON.
 - Fetch types:
-  - "full"
-  - "quick"
-  - "single"
+  - "full"   : Fetch all existing tests from DataDog and update all files.
+  - "quick"  : Only fetch new tests that do not exist in directory.
+  - "single" : Only fetch one test by name provided name if exists.
 
 ### `bulk_copy()`
 - Creates a backup copy of every existing test from the source directory.
