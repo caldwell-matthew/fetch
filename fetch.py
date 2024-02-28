@@ -335,7 +335,8 @@ def fetch(type="full", t_name="test_name"):
 def main():
     dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        print("Nothing configured, but API works!")
+        fetch()
+        #throw('004.001.003 Active_Asset (COPY)')
 
 if __name__ == "__main__":
     main()

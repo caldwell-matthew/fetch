@@ -2,7 +2,7 @@
     "test_name": "003.001.003 Mk_Storeroom",
     "details": {
         "created_at": "2024-02-21T20:30:05.410734+00:00",
-        "modified_at": "2024-02-21T20:30:05.410734+00:00",
+        "modified_at": "2024-02-22T17:22:35.203899+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -30,14 +30,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/inventory\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"criticality analysis\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/inventory\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Inventory\" href=\"/apm/inventory\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-pre"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Inventory\" href=\"/apm/inventory\"><svg aria-hidden=\"true\" focu"
                     }
                 },
                 "type": "click"
@@ -60,14 +60,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][5]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][5]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][5]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritetypes\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"button\"][5]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][5]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-tJxB6T9ekvrE\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-4xGuJFdTnXoU\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -90,7 +90,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -334,7 +334,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
                             "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\" and @role=\"gridcell\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"yes\",\"textType\":\"innerText\"}]",
@@ -364,14 +364,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/inventory\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"criticality analysis\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/inventory\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Inventory\" href=\"/apm/inventory\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-pre"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Inventory\" href=\"/apm/inventory\"><svg aria-hidden=\"true\" focu"
                     }
                 },
                 "type": "click"
@@ -394,14 +394,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][4]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][4]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][4]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritestoreroom locations\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"button\"][4]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][4]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-MGqlaPYKoYvl\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-FhCY1z4FQqXc\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -424,7 +424,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -840,7 +840,7 @@
                     "check": "contains",
                     "value": "Private Reserves",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/x_0itGPmdPd-paACB2SIT",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/tTMQPQxfcNFgvCW4Z9xKd",
                         "userLocator": {
                             "values": [
                                 {
@@ -851,14 +851,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "co": "[{\"text\":\"private reserves\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\" general info attachments bins inventory permissions summary\",\"textType\":\"innerText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]"
                         },
-                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-for=\"detail-view-tooltip\" data-tip=\"Back\" type=\"button\" currentitem=\"false\" style=\"height: 34px;"
+                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Back\" data-tooltip-place=\"top\" type=\"button\" styl"
                     }
                 },
                 "type": "assertElementContent"
@@ -870,7 +870,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/x_0itGPmdPd-paACB2SIT",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/tTMQPQxfcNFgvCW4Z9xKd",
                         "userLocator": {
                             "values": [
                                 {
@@ -881,14 +881,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/inventory\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"criticality analysis\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/inventory\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Inventory\" href=\"/apm/inventory\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-pre"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Inventory\" href=\"/apm/inventory\"><svg aria-hidden=\"true\" focu"
                     }
                 },
                 "type": "click"
@@ -911,14 +911,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][3]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][3]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][3]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritestoreroom items\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"button\"][3]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][3]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-U8HIdBODkIHE\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-BAVcOEH6JbuD\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -941,7 +941,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -1385,7 +1385,7 @@
                     "check": "contains",
                     "value": "Private Reserves, M@T-1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/PynMK-xja5IhJ1Tch5vAt",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/xBN9oEOeZ9olpGZj-CIBr",
                         "userLocator": {
                             "values": [
                                 {
@@ -1396,14 +1396,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "co": "[{\"text\":\"private reserves, m@t-1 material item m@t-1\",\"textType\":\"directText\"}]",
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"private reserves, m@t-1 material item m@t-1\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]"
                         },
-                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-for=\"detail-view-tooltip\" data-tip=\"Back\" type=\"button\" currentitem=\"false\" style=\"height: 34px;"
+                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Back\" data-tooltip-place=\"top\" type=\"button\" styl"
                     }
                 },
                 "type": "assertElementContent"
@@ -1415,7 +1415,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/PynMK-xja5IhJ1Tch5vAt",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/xBN9oEOeZ9olpGZj-CIBr",
                         "userLocator": {
                             "values": [
                                 {
@@ -1426,7 +1426,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
@@ -1480,12 +1480,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

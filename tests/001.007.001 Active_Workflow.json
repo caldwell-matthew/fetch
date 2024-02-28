@@ -2,7 +2,7 @@
     "test_name": "001.007.001 Active_Workflow",
     "details": {
         "created_at": "2024-02-21T20:32:57.568903+00:00",
-        "modified_at": "2024-02-21T20:32:57.568903+00:00",
+        "modified_at": "2024-02-22T17:22:11.080367+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -1127,12 +1127,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

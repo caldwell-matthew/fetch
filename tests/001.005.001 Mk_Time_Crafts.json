@@ -2,7 +2,7 @@
     "test_name": "001.005.001 Mk_Time_Crafts",
     "details": {
         "created_at": "2024-02-21T20:27:56.765925+00:00",
-        "modified_at": "2024-02-21T20:27:56.765925+00:00",
+        "modified_at": "2024-02-22T17:22:07.851142+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -30,14 +30,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/admin\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"reporting\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/admin\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Admin &amp; Setup\" href=\"/apm/admin\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Admin &amp; Setup\" href=\"/apm/admin\"><svg aria-hidden=\"true\" "
                     }
                 },
                 "type": "click"
@@ -60,14 +60,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][2]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][4]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritecrafts\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[2]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][4]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-uG9LOoUiEQQo\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-IZ0QhmR736YL\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -90,7 +90,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -373,7 +373,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX",
                         "userLocator": {
                             "values": [
                                 {
@@ -384,7 +384,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][2]",
                             "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"false\" and @role=\"tab\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][2]",
                             "co": "[{\"text\":\"rates\",\"textType\":\"directText\"}]",
@@ -403,7 +403,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -414,7 +414,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -434,7 +434,7 @@
                 "params": {
                     "value": "{{ TEST_DATE_1 }}",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -464,7 +464,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -495,7 +495,7 @@
                 "params": {
                     "value": "{{ TEST_RATE }}",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -525,7 +525,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -557,7 +557,7 @@
                     "check": "contains",
                     "value": "${{ TEST_RATE }}.00",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -568,10 +568,10 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
                             "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"3\" and @role=\"gridcell\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]",
-                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"feb 13, 2024\",\"textType\":\"innerText\"}]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"feb 28, 2024\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@role=\"gridcell\" and @*[local-name()=\"aria-colindex\"]=\"3\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]"
                         },
@@ -587,7 +587,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/crafts/z0N5YpeAME0PpHMgTDNzn#1",
+                        "url": "https://dev.mentorapm.com/apm/admin/crafts/foHaxGaP46VQKsgPhskMX#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -598,7 +598,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
@@ -751,12 +751,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

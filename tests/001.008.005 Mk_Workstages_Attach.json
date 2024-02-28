@@ -2,7 +2,7 @@
     "test_name": "001.008.005 Mk_Workstages_Attach",
     "details": {
         "created_at": "2024-02-21T20:29:13.808659+00:00",
-        "modified_at": "2024-02-21T20:29:13.808659+00:00",
+        "modified_at": "2024-02-22T17:22:25.693908+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -666,12 +666,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

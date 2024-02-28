@@ -2,7 +2,7 @@
     "test_name": "003.001.002 Mk_Material",
     "details": {
         "created_at": "2024-02-21T20:29:57.618109+00:00",
-        "modified_at": "2024-02-21T20:29:57.618109+00:00",
+        "modified_at": "2024-02-22T17:22:32.913471+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -30,14 +30,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/inventory\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][9]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"criticality analysis\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/inventory\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][9]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Inventory\" href=\"/apm/inventory\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-pre"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Inventory\" href=\"/apm/inventory\"><svg aria-hidden=\"true\" focu"
                     }
                 },
                 "type": "click"
@@ -60,14 +60,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][1]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritematerial items\",\"textType\":\"innerText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success-light \") and contains(concat(' ', normalize-space(@class), ' '), \" module-btn \")][1]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][1]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-5mwWxHh5p0Nx\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-OUJv4oH0Qj9v\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -90,7 +90,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -658,7 +658,7 @@
                     "check": "contains",
                     "value": "M@T-1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/gVY9sA4BRx1V7MwFh2mgd",
+                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/xpXpsMxnWYxi_55Wpp8oY",
                         "userLocator": {
                             "values": [
                                 {
@@ -669,14 +669,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "co": "[{\"text\":\"m@t-1 material item m@t-1\",\"textType\":\"directText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]"
                         },
-                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-for=\"detail-view-tooltip\" data-tip=\"Back\" type=\"button\" currentitem=\"false\" style=\"height: 34px;"
+                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Back\" data-tooltip-place=\"top\" type=\"button\" styl"
                     }
                 },
                 "type": "assertElementContent"
@@ -688,7 +688,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/gVY9sA4BRx1V7MwFh2mgd",
+                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/xpXpsMxnWYxi_55Wpp8oY",
                         "userLocator": {
                             "values": [
                                 {
@@ -699,14 +699,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][4]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/asset\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][4]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][4]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"channels\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/asset\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][4]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Assets\" href=\"/apm/asset\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fa"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Assets\" href=\"/apm/asset\"><svg aria-hidden=\"true\" focusable=\""
                     }
                 },
                 "type": "click"
@@ -729,14 +729,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][8]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][8]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][1]/*[local-name()=\"button\"][8]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritebill of materials\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"button\"][8]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][1]/*[local-name()=\"button\"][8]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-MSFA16qpEp2H\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-lTgaDUlJkk0I\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -759,7 +759,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -900,7 +900,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7",
                         "userLocator": {
                             "values": [
                                 {
@@ -911,7 +911,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][2]",
                             "at": "/descendant::*[@*[local-name()=\"aria-selected\"]=\"false\" and @role=\"tab\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][2]",
                             "co": "[{\"text\":\"material items\",\"textType\":\"directText\"}]",
@@ -930,7 +930,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju#1",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -941,7 +941,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -961,7 +961,7 @@
                 "params": {
                     "value": "M@T",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju#1",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -1001,7 +1001,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju#1",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -1032,7 +1032,7 @@
                 "params": {
                     "value": "5",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju#1",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -1062,7 +1062,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju#1",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -1092,7 +1092,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/VAcD3KRtWFObvfiAGVxju#1",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/B01YrLeMXKn49t3fWO7O7#1",
                         "userLocator": {
                             "values": [
                                 {
@@ -1103,7 +1103,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
@@ -1157,12 +1157,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

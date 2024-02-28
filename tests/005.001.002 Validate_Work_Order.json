@@ -2,7 +2,7 @@
     "test_name": "005.001.002 Validate_Work_Order",
     "details": {
         "created_at": "2024-02-21T20:30:58.456327+00:00",
-        "modified_at": "2024-02-21T20:30:58.456327+00:00",
+        "modified_at": "2024-02-27T21:51:16.472570+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -384,11 +384,11 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Test div \"Test Asset Gamma - EDIT\" content",
+                "name": "Test div \"Test Asset Gamma\" content",
                 "no_screenshot": false,
                 "params": {
                     "check": "contains",
-                    "value": "Test Asset Gamma - EDIT",
+                    "value": "Test Asset Gamma",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#1",
                         "userLocator": {
@@ -581,7 +581,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_MONEY\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_MONEY\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -613,7 +613,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_PIC\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_PIC\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -645,7 +645,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_BOOL\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_BOOL\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -677,7 +677,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_INT\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_INT\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -709,7 +709,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_STR\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_STR\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -741,7 +741,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -773,7 +773,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE_TIME\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_DATE_TIME\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -805,7 +805,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_FLOAT\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_FLOAT\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1040,11 +1040,11 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Test div \"Test Asset Gamma - EDIT\" content",
+                "name": "Test div \"Test Asset Gamma\" content",
                 "no_screenshot": false,
                 "params": {
                     "check": "contains",
-                    "value": "Test Asset Gamma - EDIT",
+                    "value": "Test Asset Gamma",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#1",
                         "userLocator": {
@@ -1237,7 +1237,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_MONEY\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_MONEY\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1269,7 +1269,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_PIC\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_PIC\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1301,7 +1301,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_BOOL\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_BOOL\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1333,7 +1333,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_INT\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_INT\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1365,7 +1365,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_STR\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_STR\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1397,7 +1397,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1429,7 +1429,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE_TIME\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_DATE_TIME\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1461,7 +1461,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_FLOAT\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_FLOAT\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1523,7 +1523,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]/div[2]"
+                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1638,14 +1638,14 @@
                 "no_screenshot": false,
                 "params": {
                     "check": "contains",
-                    "value": "Test Asset Gamma - EDIT",
+                    "value": "Test Asset Gamma",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/work/workstages/quGQO6zWrhR5xYfwAcnHE#1",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAsset\"]/div[contains(., \"Test Asset Gamma\")]/div[3]"
+                                    "value": "//div[@id=\"WorkStageAsset\"]/*/div[contains(., \"Test Asset Gamma\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1707,7 +1707,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"workstageassignment\"]/div[contains(., \"Crewmate\")]/div[3]"
+                                    "value": "//div[@id=\"workstageassignment\"]/*/div[contains(., \"Crewmate\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1769,7 +1769,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"attachment\"]/div[contains(., \"Test3.txt\")]/div[3]"
+                                    "value": "//div[@id=\"attachment\"]/*/div[contains(., \"Test3.txt\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1831,7 +1831,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_MONEY\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_MONEY\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1863,7 +1863,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_PIC\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_PIC\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1895,7 +1895,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_BOOL\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_BOOL\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1927,7 +1927,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_INT\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_INT\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1959,7 +1959,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_STR\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_STR\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1991,7 +1991,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2023,7 +2023,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_DATE_TIME\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_DATE_TIME\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2055,7 +2055,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"WorkStageAttribute\"]/div[contains(., \"SMCT_FLOAT\")]/div[2]"
+                                    "value": "//div[@id=\"WorkStageAttribute\"]/*/div[contains(., \"SMCT_FLOAT\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2117,7 +2117,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]/div[2]"
+                                    "value": "//div[@class=\"cost-summary-table\"]/*/div[contains(., \"Total\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2258,7 +2258,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "47162848",
+                    "example": "47361391",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ACCT_#",
@@ -2362,12 +2362,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

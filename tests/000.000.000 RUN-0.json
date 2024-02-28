@@ -1,15 +1,15 @@
 {
     "test_name": "000.000.000 RUN-0",
     "details": {
-        "created_at": "2024-02-21T22:14:53.409107+00:00",
-        "modified_at": "2024-02-21T22:14:53.409107+00:00",
+        "created_at": "2024-02-28T00:30:38.427421+00:00",
+        "modified_at": "2024-02-28T17:01:48.412694+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139999378,
-        "public_id": "bmx-nts-k3f",
+        "monitor_id": 140404544,
+        "public_id": "84r-nqv-9gp",
         "status": "paused",
         "steps": [
             {
@@ -136,10 +136,10 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "004.001.003 Active_Asset",
+                "name": "004.001.003 Active_Asset (cloned)",
                 "no_screenshot": false,
                 "params": {
-                    "subtestPublicId": "6r8-55w-b9m",
+                    "subtestPublicId": "qxq-zat-fic",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -186,6 +186,8 @@
         "message": "`000.000.000 RUN-0`\n- Wrapper to run all tests 1-14.",
         "name": "000.000.000 RUN-0",
         "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -195,10 +197,7 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
+                "notification_preset_name": "show_all"
             },
             "no_screenshot": false,
             "retry": {
