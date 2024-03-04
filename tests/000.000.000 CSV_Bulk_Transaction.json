@@ -2,7 +2,7 @@
     "test_name": "000.000.000 CSV_Bulk_Transaction",
     "details": {
         "created_at": "2024-02-21T20:26:14.746433+00:00",
-        "modified_at": "2024-02-26T23:47:01.411448+00:00",
+        "modified_at": "2024-02-28T18:35:12.053672+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -185,9 +185,9 @@
                 "params": {
                     "files": [
                         {
-                            "name": "Failure Types (2).xlsx",
-                            "size": 5460,
-                            "bucketKey": "browser-upload-file-step/jm8-aa2-r4v/2024-02-26T23:47:01.462968_2e5c230c-0843-49c0-abe5-e178da63cd90.json"
+                            "name": "Failure Types_Bulk2.csv",
+                            "size": 504,
+                            "bucketKey": "browser-upload-file-step/jm8-aa2-r4v/2024-02-28T17:44:33.776260_83eaaea9-427f-411e-9dc6-1ac43652d6dd.json"
                         }
                     ],
                     "element": {
@@ -276,9 +276,9 @@
                 "params": {
                     "files": [
                         {
-                            "name": "Failure Types.csv",
-                            "size": 526,
-                            "bucketKey": "browser-upload-file-step/jm8-aa2-r4v/2024-02-21T20:26:15.144441_4abd4318-e294-43fa-98e9-a28cca547508.json"
+                            "name": "Failure Types_Bulk2.csv",
+                            "size": 504,
+                            "bucketKey": "browser-upload-file-step/jm8-aa2-r4v/2024-02-28T18:18:23.899509_585ebfd1-4753-451c-b258-88cd97d8f27c.json"
                         }
                     ],
                     "element": {
@@ -392,7 +392,7 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Test div \"Spontaneous Combustion\" content",
+                "name": "Test div \"Spontaneous Decompression\" content",
                 "no_screenshot": false,
                 "params": {
                     "check": "contains",

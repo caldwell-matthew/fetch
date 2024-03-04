@@ -30,7 +30,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMDashboardButton \")]",
                             "co": "[{\"text\":\"add widget\",\"textType\":\"directText\"}]",
@@ -90,14 +90,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]",
-                            "at": "/descendant::*[@currentitem=\"false\" and @href=\"/apm/admin\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][11]",
+                            "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]",
                             "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"reporting\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@href=\"/apm/admin\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][11]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tip=\"Admin &amp; Setup\" href=\"/apm/admin\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Admin &amp; Setup\" href=\"/apm/admin\"><svg aria-hidden=\"true\" "
                     }
                 },
                 "type": "click"
@@ -120,14 +120,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][6]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][6]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][5]/*[local-name()=\"button\"][6]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoriteworkflow forms\",\"textType\":\"innerText\"}]",
                             "ro": "//*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[6]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][5]/*[local-name()=\"button\"][6]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-SoEJptLnyqQz\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-nZrqUHo0l2S6\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -150,14 +150,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\" and @role=\"gridcell\"]/descendant::*[@currentitem=\"false\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\" and @role=\"gridcell\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
                             "co": "",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]"
                         },
-                        "targetOuterHTML": "<span class=\"table3-row-button\" data-for=\"table3\" data-tip=\"View Record\" currentitem=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"external-link\" class=\"svg-inline--fa"
+                        "targetOuterHTML": "<span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\" data-tooltip-place=\"top\" data-tooltip-content=\"View Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"externa"
                     }
                 },
                 "type": "click"
@@ -169,7 +169,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8",
                         "userLocator": {
                             "values": [
                                 {
@@ -180,7 +180,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][5]",
                             "co": "[{\"text\":\"triggers\",\"textType\":\"directText\"}]",
@@ -199,7 +199,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -210,7 +210,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -230,7 +230,7 @@
                 "params": {
                     "value": "SMCT_BOOL",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -244,7 +244,7 @@
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
-                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "co": "[{\"text\":\"attribute type *\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@id=\"attributeTypeId\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
                         },
@@ -271,7 +271,7 @@
                 "params": {
                     "value": "Send Notification",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -312,7 +312,7 @@
                 "params": {
                     "value": "On Hold",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -352,7 +352,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -383,7 +383,7 @@
                 "params": {
                     "value": "Synthetic Monitoring",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -424,7 +424,7 @@
                 "params": {
                     "value": "SMCT YOU HAVE AN ALERT!",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -454,7 +454,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -484,7 +484,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -495,7 +495,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -515,7 +515,7 @@
                 "params": {
                     "value": "SMCT_STR",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -529,7 +529,7 @@
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
-                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "co": "[{\"text\":\"attribute type *\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@id=\"attributeTypeId\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
                         },
@@ -557,7 +557,7 @@
                 "params": {
                     "value": "Add New Work Stage",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -598,7 +598,7 @@
                 "params": {
                     "value": "On Hold",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -639,7 +639,7 @@
                 "params": {
                     "value": "STRING",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -670,7 +670,7 @@
                 "params": {
                     "value": "Stage C",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -711,7 +711,7 @@
                 "params": {
                     "value": "Crewmate",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -751,7 +751,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -781,7 +781,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -792,7 +792,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -812,7 +812,7 @@
                 "params": {
                     "value": "SMCT_FLOAT",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -826,7 +826,7 @@
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
-                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "co": "[{\"text\":\"attribute type *\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@id=\"attributeTypeId\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
                         },
@@ -853,7 +853,7 @@
                 "params": {
                     "value": "Create Follow-up Work",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -894,7 +894,7 @@
                 "params": {
                     "value": "On Hold",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -935,7 +935,7 @@
                 "params": {
                     "value": "100.1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -966,7 +966,7 @@
                 "params": {
                     "value": "SMCT Workflow",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1007,7 +1007,7 @@
                 "params": {
                     "value": "Crewmate",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1047,7 +1047,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1077,7 +1077,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1088,7 +1088,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"Add Record\" and @type=\"button\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][1]",
                             "co": "[{\"tagName\":\"BUTTON\",\"text\":\"add record\",\"textType\":\"aria-label\"}]",
@@ -1108,7 +1108,7 @@
                 "params": {
                     "value": "SMCT_INT",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1122,7 +1122,7 @@
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\" and @value=\"\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
-                            "co": "[{\"text\":\"attribute type \",\"textType\":\"innerText\"}]",
+                            "co": "[{\"text\":\"attribute type *\",\"textType\":\"innerText\"}]",
                             "ro": "//*[@id=\"attributeTypeId\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
                         },
@@ -1149,7 +1149,7 @@
                 "params": {
                     "value": "Create Event Reading",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1190,7 +1190,7 @@
                 "params": {
                     "value": "On Hold",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1231,7 +1231,7 @@
                 "params": {
                     "value": "Wear Percentage",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1272,7 +1272,7 @@
                 "params": {
                     "value": "50",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1302,7 +1302,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1332,7 +1332,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/6nM4hSLvq0p7ORU3QU8Vf#4",
+                        "url": "https://dev.mentorapm.com/apm/admin/workflowforms/QMklo1lvtOYN_8vgNyaA8#4",
                         "userLocator": {
                             "values": [
                                 {
@@ -1343,7 +1343,7 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",

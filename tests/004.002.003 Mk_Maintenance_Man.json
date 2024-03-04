@@ -1,43 +1,43 @@
 {
-    "test_name": "002.001.003 Mk_Expenditure_Type",
+    "test_name": "004.002.003 Mk_Maintenance_Man",
     "details": {
-        "created_at": "2024-02-21T20:29:42.677314+00:00",
-        "modified_at": "2024-02-22T17:22:31.523314+00:00",
+        "created_at": "2024-02-28T00:01:23.011272+00:00",
+        "modified_at": "2024-03-04T20:31:40.927119+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 139992646,
-        "public_id": "uaz-v9v-uud",
+        "monitor_id": 140403250,
+        "public_id": "2qj-tcc-suw",
         "status": "paused",
         "steps": [
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Accounting\"",
+                "name": "Click on \"Work\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm",
+                        "url": "https://dev.mentorapm.com/apm/asset/assetstatuses?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//aside/a[contains(., \"Accounting\")]"
+                                    "value": "//aside/a[contains(., \"Work\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][6]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][5]",
                             "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][6]",
-                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"work\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@href=\"/apm/account\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][6]"
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][5]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"assets\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@href=\"/apm/work\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][5]"
                         },
-                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Accounting\" href=\"/apm/account\"><svg aria-hidden=\"true\" focus"
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Work\" href=\"/apm/work\"><svg aria-hidden=\"true\" focusable=\"fal"
                     }
                 },
                 "type": "click"
@@ -45,29 +45,29 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Expenditure Types\"",
+                "name": "Click on \"Maintenance Management\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/account",
+                        "url": "https://dev.mentorapm.com/apm/work",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[contains(., \"Expenditure Types\")]"
+                                    "value": "//button[contains(., \"Maintenance Management\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][2]",
                             "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]",
-                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoriteexpenditure types\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[local-name()=\"button\"][2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]"
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/*[local-name()=\"div\"][5]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritemaintenance management\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/*[local-name()=\"div\"][5]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][2]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-IQl0xWhrPiZm\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-y66IXppigXoe\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -79,7 +79,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/work/maintenancemanagement?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -108,9 +108,9 @@
                 "name": "Type text on input #name",
                 "no_screenshot": false,
                 "params": {
-                    "value": "{{ EXPEN_TYPE  }}",
+                    "value": "Chief Engineer Derrick",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/work/maintenancemanagement?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -136,11 +136,11 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Next\"",
+                "name": "Click on button \"Next\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/work/maintenancemanagement?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -154,7 +154,7 @@
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
+                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"},{\"text\":\"*\",\"textType\":\"directText\"}]",
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"next\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
@@ -169,9 +169,9 @@
                 "name": "Type text on textarea #desc",
                 "no_screenshot": false,
                 "params": {
-                    "value": "{{ EXPEN_TYPE_DESC  }}",
+                    "value": "Not right now Derrick!!!!!!!!!!!!!!!",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/work/maintenancemanagement?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -197,82 +197,11 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Next\"",
-                "no_screenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@data-testid=\"next-btn\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" buttons \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")]",
-                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \") and @type=\"button\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" buttons \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")]"
-                        },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Type text on input #expenseCategory",
-                "no_screenshot": false,
-                "params": {
-                    "value": "Beta",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
-                            "co": "[{\"text\":\"expense category\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"expenseCategory\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
-                        },
-                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"expenseCategory\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fal"
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Press key",
-                "no_screenshot": false,
-                "params": {
-                    "value": "Tab"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
                 "name": "Click on button #submit-btn",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@role=\"submit\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
+                        "url": "https://dev.mentorapm.com/apm/work/maintenancemanagement?limit=25&page=1&sortDir=DESC",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
                             "at": "/descendant::*[@role=\"submit\" and @type=\"submit\"]",
@@ -285,51 +214,10 @@
                     }
                 },
                 "type": "click"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Test text is present on the active page",
-                "no_screenshot": false,
-                "params": {
-                    "value": "{{ EXPEN_TYPE }}"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Click on \"MentorAPM\"",
-                "no_screenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm/account/expendituretypes?limit=25&page=1&sortDir=DESC",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
-                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]"
-                        },
-                        "targetOuterHTML": "<div class=\"apm-navigation-logo\"><a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a></div>"
-                    }
-                },
-                "type": "click"
             }
         ],
         "tags": [
-            "ADMIN",
-            "ACCT"
+            "WORK"
         ],
         "config": {
             "assertions": [],
@@ -357,17 +245,79 @@
                     "type": "text"
                 },
                 {
-                    "example": "Expense Code 24953",
-                    "pattern": "Expense Code 24953",
+                    "example": "qxq-zat-fic.9249354261@synthetics.synthetics.dtdg.co",
+                    "pattern": "qxq-zat-fic.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
+                    "name": "TEST_EMAIL",
+                    "type": "email"
+                },
+                {
+                    "example": "sRaXgHWhVBvuzez",
+                    "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
-                    "name": "EXPEN_TYPE",
+                    "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "Test expenditure type",
-                    "pattern": "Test expenditure type",
+                    "example": "yZQVxeKqDAxMTLP",
+                    "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
-                    "name": "EXPEN_TYPE_DESC",
+                    "name": "TEST_LNAME",
+                    "type": "text"
+                },
+                {
+                    "example": "53886654",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ALTID",
+                    "type": "text"
+                },
+                {
+                    "example": "517-669-8225",
+                    "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
+                    "secure": false,
+                    "name": "TEST_PHONE",
+                    "type": "text"
+                },
+                {
+                    "example": "irs-4jh-cpd.8151835844@synthetics.dtdg.co",
+                    "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
+                    "secure": false,
+                    "name": "TEST_EMAIL2",
+                    "type": "text"
+                },
+                {
+                    "example": "rDDCdnsSprbqaXD",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_FNAME2",
+                    "type": "text"
+                },
+                {
+                    "example": "MpvtxVdEoWBaMeS",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_LNAME2",
+                    "type": "text"
+                },
+                {
+                    "example": "13188731",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ALTID2",
+                    "type": "text"
+                },
+                {
+                    "example": "186-725-6954",
+                    "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
+                    "secure": false,
+                    "name": "TEST_PHONE2",
+                    "type": "text"
+                },
+                {
+                    "example": "SMCT Workflow",
+                    "pattern": "SMCT Workflow",
+                    "secure": false,
+                    "name": "TEST_WRK_FORM",
                     "type": "text"
                 }
             ],
@@ -380,18 +330,20 @@
         "locations": [
             "aws:us-west-1"
         ],
-        "message": "`002.001.003 Mk_Expenditure_Type`\n- Test creates expenditure type \"Expense Code 24953\". ",
-        "name": "002.001.003 Mk_Expenditure_Type",
+        "message": "`004.002.003 Mk_Maintenance_Man`\n- Test generates maintenance manager \"Chief Engineer Derrick\".",
+        "name": "004.002.003 Mk_Maintenance_Man",
         "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
             "disable_cors": false,
             "disable_csp": false,
             "ignore_server_certificate_error": false,
-            "min_failure_duration": 0,
-            "min_location_failed": 1,
-            "monitor_options": {},
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
             "no_screenshot": false,
             "retry": {
                 "count": 0,
@@ -400,7 +352,7 @@
             "rum_settings": {
                 "is_enabled": false
             },
-            "tick_every": 300
+            "tick_every": 600
         },
         "type": "browser"
     }

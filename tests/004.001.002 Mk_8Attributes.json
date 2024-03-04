@@ -2,7 +2,7 @@
     "test_name": "004.001.002 Mk_8Attributes",
     "details": {
         "created_at": "2024-02-21T20:30:22.636472+00:00",
-        "modified_at": "2024-02-22T17:22:39.384894+00:00",
+        "modified_at": "2024-03-04T20:22:45.517267+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,7 +67,7 @@
                             "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[3]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][3]/*[local-name()=\"button\"][3]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-ia11qevQOIvz\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-NRerRCsQRcAn\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -572,7 +572,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/Ip5KOlYonHlHrR4aV-ukA",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/qb1hQ0WotkVYQDNF0JOeG",
                         "userLocator": {
                             "values": [
                                 {
@@ -1095,7 +1095,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/qOrn6OZW4vq0-tpppzapX",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/5A-gKl5gSU7NnZak9ciGB",
                         "userLocator": {
                             "values": [
                                 {
@@ -1618,7 +1618,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/3ey0fUgkuvTNM6F1uXqyy",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/SNacWt5bfPzFVoJBAnitW",
                         "userLocator": {
                             "values": [
                                 {
@@ -2141,7 +2141,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/jnaaoUGQSm0RHTTLS7h3s",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/MyVyN_4BhyLoeBldzfbxa",
                         "userLocator": {
                             "values": [
                                 {
@@ -2664,7 +2664,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/SkdysJOD_B86xmYb8kmF0",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/yVS1V9ZP8cyKQj336SFEH",
                         "userLocator": {
                             "values": [
                                 {
@@ -3187,7 +3187,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/yUXv2yAKEEY08ajIrrSTK",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/xoS0KDJTskAnA1q5OGVaD",
                         "userLocator": {
                             "values": [
                                 {
@@ -3711,7 +3711,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/DNpV_d2Oapf_pd8zeLetw",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/kPQg00WVkYqDRaNDWwHoX",
                         "userLocator": {
                             "values": [
                                 {
@@ -4234,7 +4234,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/h6LTLp7rjcmFVzZ0_oVsl",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/qPRwJlo1Pl_De8GQEvlQj",
                         "userLocator": {
                             "values": [
                                 {
@@ -4287,69 +4287,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "vps-hsg-cah.4884434633@synthetics.synthetics.dtdg.co",
+                    "example": "vps-hsg-cah.1137489381@synthetics.synthetics.dtdg.co",
                     "pattern": "vps-hsg-cah.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "OuNfmotsfWvVGHt",
+                    "example": "RGvhnZgnKdQIxFV",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "EPxvKhVROWgqjBT",
+                    "example": "tHvcADssiXRjBmE",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "28237847",
+                    "example": "78898229",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "558-168-2312",
+                    "example": "254-933-7829",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.3798427664@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.4815229233@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "tDgSWWDDKJKChkK",
+                    "example": "fPFddptaxHHpYiE",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "FmUgIKZdbvcOeGe",
+                    "example": "AwSlnFqkapkgQBt",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "74457924",
+                    "example": "29546992",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "571-399-8923",
+                    "example": "936-179-8195",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",
@@ -4375,6 +4375,8 @@
         "message": "`004.001.002 Mk_8Attributes`\n- Test creates 8 attributes of data types: string, date, datetime, integer, float, boolean, money, and image. \n- Each attribute follows the naming convention of SMCT_DATATYPE.",
         "name": "004.001.002 Mk_8Attributes",
         "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -4383,7 +4385,9 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {},
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
             "no_screenshot": false,
             "retry": {
                 "count": 0,
