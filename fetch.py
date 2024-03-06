@@ -165,21 +165,68 @@ def edit(data, type):
                         #     USL["value"] = f'//aside/a[contains(., "{location}")]'
                         #     print("XPATH Updated to: " + USL["value"])
                         #     modified = True
-
-                    # //p[@data-testid="dv-name"]
-                    # //*[@id="role"]/*/div[contains(., "")]
-                    # //*[text()='Captain']
-                        
-                    # Paragraph (The "Name" value on top of a detailview)
-                    # //p[text()='TEXT']
                     
-                    # //ul/li[contains(., "Estimated - Labor")]
-                    # //*[@id="root"]/div[4]/div/div[2]/div[1]/div[3]/ul/li[contains(., "Estimated - Labor")]
-        
         if modified:
             print("")
-
         return modified
+    
+    if type == "steps":
+        modified = False
+        RE_ESC = re.compile(r'.*x\sesc.*', re.IGNORECASE)
+
+        for step in data["details"]["steps"]:
+            if step["type"] != "playSubTest":
+                if re.match(RE_ESC, step["name"]):
+                    print("Found step: " + step["name"])
+                    print(step)
+                    modified = True
+                    input('asdf')
+
+        if modified:
+            print("")
+        return modified
+    
+        # {
+        #     "allow_failure": false,
+        #     "is_critical": true,
+        #     "name": "Press key",
+        #     "no_screenshot": false,
+        #     "params": {
+        #         "value": "Escape"
+        #     },
+        #     "type": "pressKey"
+        # },
+        
+        # {
+        #     "allow_failure": false,
+        #     "is_critical": true,
+        #     "name": "Click on X esc",
+        #     "no_screenshot": false,
+        #     "params": {
+        #         "element": {
+        #             "url": "https://dev.mentorapm.com/apm/myprofile",
+        #             "userLocator": {
+        #                 "values": [
+        #                     {
+        #                         "type": "xpath",
+        #                         "value": "//div[contains(@class, \"apm-modal-actions\")]"
+        #                     }
+        #                 ],
+        #                 "failTestOnCannotLocate": true
+        #             },
+        #             "multiLocator": {
+        #                 "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+        #                 "at": "",
+        #                 "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
+        #                 "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"formatmark updelete export\",\"textType\":\"innerText\"},{\"text\":\"formatmark up\",\"textType\":\"innerText\",\"relation\":\"PARENT OF\",\"tagName\":\"UL\",\"isNegativeAnchor\":true},{\"relation\":\"BEFORE\",\"tagName\":\"LI\",\"text\":\"mark up\",\"textType\":\"innerText\"}]",
+        #                 "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
+        #                 "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]"
+        #             },
+        #             "targetOuterHTML": "<div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa-times fa-w-11 close-modal\" role=\"img\" xmlns=\"http://www.w3.org/200"
+        #         }
+        #     },
+        #     "type": "click"
+        # },
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
@@ -227,7 +274,9 @@ def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
         file_name = os.path.splitext(file_name_full)[0]
         if edit_type == "restore" and fetch("single", data["name"])["does_exist"]:
             return
-        if edit_type == "xpath" and not modified:
+        elif edit_type == "xpath" and not modified:
+            pass
+        elif edit_type == "steps" and not modified:
             pass
         else:
             throw(file_name, dir)
@@ -335,9 +384,11 @@ def fetch(type="full", t_name="test_name"):
 # Main
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
-    #dir, dir2 = "./tests", "./tests-copy"
+    dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        fetch()
+        #fetch()
+        #traversal_edit(dir, edit, "steps")
+        bulk_copy()
 
 if __name__ == "__main__":
     main()
