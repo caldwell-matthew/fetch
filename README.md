@@ -49,11 +49,9 @@ A script to 'fetch' and 'throw' DataDog tests.
 - Deletes a singular test file from a specified directory and DataDog.com.
 
 ### `nuke()`
-- Deletes ALL tests and related JSON files in a specified directory, optionally using a regex. Use with caution.
+- Deletes ALL tests and related JSON files in a specified directory and on Datadog.com, optionally using a regex.
 - Default regex targets files starting with "COPY_".
-- NOTE: This does not delete from DataDog.com, only test files.
-  - To do so, use a combination of `delete()` and `traversal_edit()` for a complete deletion of online DataDog tests.
-  - This should rarely need to be done, if ever. Use with extreme caution.
+- This should rarely need to be done, if ever. Use with extreme caution.
 
 ### `full_restore()`
 - Rebuilds, throws, and fetches all DataDog tests from a JSON backup directory.
