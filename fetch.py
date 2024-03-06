@@ -8,7 +8,7 @@
 #     20240215  MAT     Able to fetch/throw tests, formatting, xpath       
 #     20240221  MAT     Full restore works
 #     20240227  MAT     Added README, .env, did final formatting
-#     20240306  MAT     Fixed certification error
+#     20240306  MAT     Fixed certification error, tested nuke/full_restore again...
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient
@@ -272,8 +272,9 @@ def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
             json.dump(data, file, indent=4)
         file_name_full = os.path.basename(file_path)
         file_name = os.path.splitext(file_name_full)[0]
-        if edit_type == "restore" and fetch("single", data["name"])["does_exist"]:
-            return
+        if edit_type == "restore":
+            if data["test_name"] and fetch("single", data["test_name"])["does_exist"]:
+                return
         elif edit_type == "xpath" and not modified:
             pass
         elif edit_type == "steps" and not modified:
@@ -285,13 +286,15 @@ def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
 # Make backup copies of every existing test from ./tests -> ./tests-copy
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def bulk_copy (dir_A="./tests", dir_B="./tests-copy"):  
-    print("\nBeginning bulk name edit...")
-    for file in os.listdir(dir_A):
-        file = os.path.join(dir_A, file)
-        copy_file_name = "COPY_" + os.path.basename(file)
-        copy_file = os.path.join(dir_B, copy_file_name)
-        shutil.copyfile(file, copy_file)
-    traversal_edit(dir_B, edit, "name")
+    print("BROKEN. DO NOT USE RIGHT NOW")
+    print("NEED TO MAKE CHANGES TO ID/NAME")
+    # print("\nBeginning bulk name edit...")
+    # for file in os.listdir(dir_A):
+    #     file = os.path.join(dir_A, file)
+    #     copy_file_name = "COPY_" + os.path.basename(file)
+    #     copy_file = os.path.join(dir_B, copy_file_name)
+    #     shutil.copyfile(file, copy_file)
+    # traversal_edit(dir_B, edit, "name")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete tests
@@ -317,7 +320,10 @@ def delete(t_file, dir):
 # WARNING: INVOKE WITH EXTREME CAUTION!!!
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def nuke(dir, regex=r'^COPY_.*$'):
-    print("\nPreparing to delete all related tests/files in " + dir + " ...")
+    print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("Preparing to delete all related tests/files in " + dir + " ...")
+    print("REGEX pattern is currently set to : '" + regex + "' ...")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
     big_red_button = input("Are you absolutely sure? This cannot be undone. (Y/N): ")
     if big_red_button.upper() == "Y":
         print("Here we go...")
@@ -386,9 +392,10 @@ def fetch(type="full", t_name="test_name"):
 def main():
     dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
+        full_restore()
         #fetch()
         #traversal_edit(dir, edit, "steps")
-        bulk_copy()
+        #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
 
 if __name__ == "__main__":
     main()
