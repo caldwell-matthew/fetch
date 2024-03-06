@@ -2,7 +2,7 @@
     "test_name": "005.001.002 Validate_Work_Order",
     "details": {
         "created_at": "2024-02-21T20:30:58.456327+00:00",
-        "modified_at": "2024-02-27T21:51:16.472570+00:00",
+        "modified_at": "2024-03-05T23:18:33.205827+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,7 +67,7 @@
                             "ro": "//*[local-name()=\"button\"][5]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")][5]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-at0aL810hlZC\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-ll4o7JVTTcbQ\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -458,7 +458,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"workstageassignment\"]/div[contains(., \"Crewmate\")]/div[3]"
+                                    "value": "//div[@id=\"WorkStageAssignment\"]/*/div[contains(., \"Crewmate\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1114,7 +1114,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"workstageassignment\"]/div[contains(., \"Crewmate\")]/div[3]"
+                                    "value": "//div[@id=\"WorkStageAssignment\"]/*/div[contains(., \"Crewmate\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -1708,7 +1708,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//div[@id=\"workstageassignment\"]/*/div[contains(., \"Crewmate\")]"
+                                    "value": "//div[@id=\"WorkStageAssignment\"]/*/div[contains(., \"Crewmate\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
@@ -2259,7 +2259,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "47361391",
+                    "example": "87838996",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ACCT_#",

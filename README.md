@@ -7,7 +7,7 @@ A script to 'fetch' and 'throw' DataDog tests.
 - Have Python 3+ installed with dependencies (datadog_api_client and dotenv).
 - Enter DataDog configuration variables `DD_API` and `DD_APP` in a file named `.env`.
 - Modify the `main()` function to reference whichever function you want to run.
-- Run the script using Python 3: `py ./fetch.py`
+- Run the script using Python 3: `./fetch.py`
 
 ## Functions
 

@@ -10,22 +10,23 @@
 #     20240227  MAT     Added README, .env, did final formatting
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-from datadog_api_client import ApiClient, Configuration
+from datadog_api_client import ApiClient
+from datadog_api_client.v1 import Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
-
 from dotenv import dotenv_values
 
 import json
 import os
 import re
 import shutil
+import certifi
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Config/Setup
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-configuration = Configuration()
+configuration = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(".env")
 configuration.api_key["apiKeyAuth"] = env.get("DD_API")
 configuration.api_key["appKeyAuth"] = env.get("DD_APP")

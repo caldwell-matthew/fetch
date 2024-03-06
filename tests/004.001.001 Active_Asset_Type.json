@@ -2,7 +2,7 @@
     "test_name": "004.001.001 Active_Asset_Type",
     "details": {
         "created_at": "2024-03-04T20:21:02.921332+00:00",
-        "modified_at": "2024-03-04T20:24:49.440659+00:00",
+        "modified_at": "2024-03-04T23:17:09.023631+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -76,7 +76,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "96533138",
+                    "example": "67528236",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ACCT_#",
@@ -148,7 +148,7 @@
         "locations": [
             "aws:us-west-1"
         ],
-        "message": "`004.001.001 Active_Asset_Type`  \n- Test generates and configures asset types, \"TAT-1\" and \"TAT-2\".\n- To create 'TAT-1\", see `004.001.002`.\n- To create 'TAT-1\", see `004.001.003`.",
+        "message": "`004.001.001 Active_Asset_Type`  \n- To create the 8 attributes, see `004.001.002`.\n- To create 'TAT-1\", see `004.001.003`.\n- To create 'TAT-2\", see `004.001.004`.",
         "name": "004.001.001 Active_Asset_Type",
         "options": {
             "enableProfiling": false,
@@ -162,11 +162,7 @@
             "min_failure_duration": 0,
             "min_location_failed": 1,
             "monitor_options": {
-                "notification_preset_name": "show_all",
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
+                "notification_preset_name": "show_all"
             },
             "no_screenshot": false,
             "retry": {
