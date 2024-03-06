@@ -8,6 +8,7 @@
 #     20240215  MAT     Able to fetch/throw tests, formatting, xpath       
 #     20240221  MAT     Full restore works
 #     20240227  MAT     Added README, .env, did final formatting
+#     20240306  MAT     Fixed certification error
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 from datadog_api_client import ApiClient
@@ -334,10 +335,9 @@ def fetch(type="full", t_name="test_name"):
 # Main
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
-    dir, dir2 = "./tests", "./tests-copy"
+    #dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
         fetch()
-        #throw('004.001.003 Active_Asset (COPY)')
 
 if __name__ == "__main__":
     main()
