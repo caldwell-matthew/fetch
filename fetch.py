@@ -8,24 +8,19 @@
 #     20240215  MAT     Able to fetch/throw tests, formatting, xpath       
 #     20240221  MAT     Full restore works
 #     20240227  MAT     Added README, .env, did final formatting
-#     20240306  MAT     Fixed certification error, tested nuke/full_restore again...
+#     20240306  MAT     Fixed certifi error, tested nuke/full_restore again...
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
+import json, os, re, shutil, certifi
+from dotenv import dotenv_values
 from datadog_api_client import ApiClient
 from datadog_api_client.v1 import Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
-from dotenv import dotenv_values
-
-import json
-import os
-import re
-import shutil
-import certifi
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Config/Setup
+# Config/Setup (See https://docs.datadoghq.com/api/latest/synthetics/)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 configuration = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(".env")
@@ -263,24 +258,36 @@ def throw(t_file, dir="./tests/"):
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
+    # for file in os.listdir(dir):
+    #     file_path = os.path.join(dir, file)
+    #     with open(file_path, 'r') as file:
+    #         data = json.load(file)
+    #     modified = edit_function(data, edit_type)
+    #     with open(file_path, 'w') as file:
+    #         json.dump(data, file, indent=4)
+    #     file_name_full = os.path.basename(file_path)
+    #     file_name = os.path.splitext(file_name_full)[0]
+    #     if edit_type == "restore":
+    #         print(data["test_name"])
+    #         input('asdf')
+    #         if fetch("single", data["test_name"])["does_exist"]:
+    #             pass
+    #     elif edit_type == "xpath" and not modified:
+    #         pass
+    #     elif edit_type == "steps" and not modified:
+    #         pass
+    #     else:
+    #         throw(file_name, dir)
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        modified = edit_function(data, edit_type)
+        edit_function(data, edit_type)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
         file_name_full = os.path.basename(file_path)
         file_name = os.path.splitext(file_name_full)[0]
-        if edit_type == "restore":
-            if data["test_name"] and fetch("single", data["test_name"])["does_exist"]:
-                return
-        elif edit_type == "xpath" and not modified:
-            pass
-        elif edit_type == "steps" and not modified:
-            pass
-        else:
-            throw(file_name, dir)
+        throw(file_name, dir)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Make backup copies of every existing test from ./tests -> ./tests-copy
@@ -316,8 +323,10 @@ def delete(t_file, dir):
         print(e)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Delete all tests and related JSON files in a directory (with/without a regex)       
-# WARNING: INVOKE WITH EXTREME CAUTION!!!
+# Delete all tests and related JSON files in a directory (with/without a regex)    
+#   WARNING: INVOKE WITH EXTREME CAUTION!!!
+#   I HAVE LOST ALL MY TESTS TWICE BY MISHANDLING THIS. (PLEASE BACKUP YOUR FILES)
+#   YOU SHOULD ALMOST NEVER EVER EVER NEED TO USE THIS.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def nuke(dir, regex=r'^COPY_.*$'):
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -337,8 +346,8 @@ def nuke(dir, regex=r'^COPY_.*$'):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Completly rebuild, throw, and fetch all DataDog tests from JSON backup
-# To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
-# This takes a minute or so to work to reconstruct everything
+#   To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
+#   This takes a minute or so to work to reconstruct everything
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def full_restore(dir="./tests"):
     print("Beginning full restore...")
@@ -352,7 +361,7 @@ def full_restore(dir="./tests"):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
-# fetch() can be of type "full", "quick", or "single" (if given a testname)
+#   fetch() can be of type "full", "quick", or "single" (if given a testname)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def fetch(type="full", t_name="test_name"):
     with ApiClient(configuration) as api_client:
@@ -396,6 +405,7 @@ def main():
         #fetch()
         #traversal_edit(dir, edit, "steps")
         #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
+        #throw('000.000.000 CSV_Bulk_Transaction')
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,15 @@
 {
     "test_name": "004.002.001 Update_Asset",
     "details": {
-        "created_at": "2024-02-28T00:27:32.250957+00:00",
-        "modified_at": "2024-02-28T00:30:10.664647+00:00",
+        "created_at": "2024-03-06T21:40:02.846698+00:00",
+        "modified_at": "2024-03-06T21:46:50.831135+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 140404508,
-        "public_id": "xqk-jia-yfx",
+        "monitor_id": 140902776,
+        "public_id": "8mc-eby-9cn",
         "status": "paused",
         "steps": [
             {
@@ -220,8 +220,6 @@
         "message": "`004.002.001 Update_Asset`\n",
         "name": "004.002.001 Update_Asset",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
@@ -230,13 +228,7 @@
             "ignore_server_certificate_error": false,
             "min_failure_duration": 0,
             "min_location_failed": 1,
-            "monitor_options": {
-                "notification_preset_name": "show_all",
-                "on_missing_data": "show_no_data",
-                "notify_audit": false,
-                "new_host_delay": 300,
-                "include_tags": true
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,

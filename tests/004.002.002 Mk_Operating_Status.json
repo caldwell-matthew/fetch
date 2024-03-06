@@ -1,15 +1,15 @@
 {
     "test_name": "004.002.002 Mk_Operating_Status",
     "details": {
-        "created_at": "2024-02-27T23:56:56.978914+00:00",
-        "modified_at": "2024-03-04T20:31:33.743564+00:00",
+        "created_at": "2024-03-06T21:40:13.092582+00:00",
+        "modified_at": "2024-03-06T21:46:53.469108+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
             "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 140403008,
-        "public_id": "4jy-jjv-ebc",
+        "monitor_id": 140902786,
+        "public_id": "q6b-ra3-ter",
         "status": "paused",
         "steps": [
             {
@@ -514,17 +514,13 @@
         "message": "`004.002.002 Mk_Operating_Status`\n- Test generates operating status \"Collected\".",
         "name": "004.002.002 Mk_Operating_Status",
         "options": {
-            "enableProfiling": false,
-            "enableSecurityTesting": false,
             "device_ids": [
                 "chrome.laptop_large"
             ],
             "disable_cors": false,
             "disable_csp": false,
             "ignore_server_certificate_error": false,
-            "monitor_options": {
-                "notification_preset_name": "show_all"
-            },
+            "monitor_options": {},
             "no_screenshot": false,
             "retry": {
                 "count": 0,
