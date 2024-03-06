@@ -401,8 +401,8 @@ def fetch(type="full", t_name="test_name"):
 def main():
     dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        full_restore()
-        #fetch()
+        #full_restore()
+        fetch()
         #traversal_edit(dir, edit, "steps")
         #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
         #throw('000.000.000 CSV_Bulk_Transaction')
