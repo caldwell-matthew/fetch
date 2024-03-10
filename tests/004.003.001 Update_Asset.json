@@ -2,7 +2,7 @@
     "test_name": "004.003.001 Update_Asset",
     "details": {
         "created_at": "2024-03-06T21:40:44.714901+00:00",
-        "modified_at": "2024-03-07T23:27:23.524489+00:00",
+        "modified_at": "2024-03-09T00:04:36.080336+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -1934,69 +1934,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "xqk-jia-yfx.2966879836@synthetics.synthetics.dtdg.co",
+                    "example": "xqk-jia-yfx.7465114177@synthetics.synthetics.dtdg.co",
                     "pattern": "xqk-jia-yfx.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "srOosatNImSpeVI",
+                    "example": "sgNYDJQGmIFvEOA",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "LGrWymfIOSEupot",
+                    "example": "SIMTFWcCaeWWtLe",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "17362843",
+                    "example": "68852416",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "767-476-4974",
+                    "example": "836-222-8367",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.5735348438@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.3926582466@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "yszMXMtkRgVgOpN",
+                    "example": "QyYPZAQwyTrriDC",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "NefxsCCGXdLgmOU",
+                    "example": "NomojxNeQwYvCUx",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "44984421",
+                    "example": "74249172",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "641-297-6226",
+                    "example": "592-458-2234",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",
