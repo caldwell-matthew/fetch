@@ -2,7 +2,7 @@
     "test_name": "001.007.004 Mk_Workflow_Triggers",
     "details": {
         "created_at": "2024-03-06T21:36:18.513977+00:00",
-        "modified_at": "2024-03-06T21:49:30.804910+00:00",
+        "modified_at": "2024-03-11T18:37:17.577980+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -1386,69 +1386,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "hnc-bj2-2pc.8639236424@synthetics.synthetics.dtdg.co",
+                    "example": "hnc-bj2-2pc.9732829324@synthetics.synthetics.dtdg.co",
                     "pattern": "hnc-bj2-2pc.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "PvUIERbYzyViiYB",
+                    "example": "qRjEJytwBtlotOi",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "FTpZQNyCteKUdCE",
+                    "example": "uOwXRYWaMgRGbHE",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "65743379",
+                    "example": "87975356",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "774-239-8275",
+                    "example": "554-436-3485",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.7656956754@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.8254472661@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "EMuTphfsuKhSrYj",
+                    "example": "RYAzrBjaBMicNhW",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "khpxQNmEJUFPyey",
+                    "example": "cfRBMAHmsHnWHQQ",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "43712964",
+                    "example": "27845713",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "711-731-9798",
+                    "example": "496-388-8581",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",

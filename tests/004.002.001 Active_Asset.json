@@ -2,7 +2,7 @@
     "test_name": "004.002.001 Active_Asset",
     "details": {
         "created_at": "2024-03-06T21:46:45.551899+00:00",
-        "modified_at": "2024-03-09T00:44:55.150219+00:00",
+        "modified_at": "2024-03-11T20:58:49.182936+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -12,17 +12,6 @@
         "public_id": "p8z-m75-acf",
         "status": "paused",
         "steps": [
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "004.002.002 Mk_Operating_Status",
-                "no_screenshot": false,
-                "params": {
-                    "subtestPublicId": "q6b-ra3-ter",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
             {
                 "allow_failure": false,
                 "is_critical": true,
@@ -2503,69 +2492,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "qxq-zat-fic.3522647598@synthetics.synthetics.dtdg.co",
+                    "example": "qxq-zat-fic.6424786139@synthetics.synthetics.dtdg.co",
                     "pattern": "qxq-zat-fic.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "dHbxwhgPcIEWAEE",
+                    "example": "UCeIJexRdYxECho",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "nUoBaJkGBLHTyLU",
+                    "example": "iPScuruDevLdumQ",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "32819316",
+                    "example": "95379598",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "865-635-2192",
+                    "example": "742-786-8918",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.8723741969@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.3899431859@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "TtrKHzhejQJUJgl",
+                    "example": "HdEaLVoXBCfHTkh",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "jrfziFztTacOszH",
+                    "example": "JyzVsYxNIdgPtQO",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "44795747",
+                    "example": "86932144",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "359-211-1752",
+                    "example": "834-687-2968",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",
