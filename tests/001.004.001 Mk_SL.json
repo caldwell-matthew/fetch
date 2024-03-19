@@ -2,7 +2,7 @@
     "test_name": "001.004.001 Mk_SL",
     "details": {
         "created_at": "2024-03-06T21:35:30.963228+00:00",
-        "modified_at": "2024-03-06T21:49:09.344904+00:00",
+        "modified_at": "2024-03-12T21:51:56.810485+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,10 +67,41 @@
                             "ro": "//*[local-name()=\"button\"][12]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][3]/*[local-name()=\"button\"][12]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-Rikg46MBwaOh\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-1BvTZf5jZpJp\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Select rows per page option 100",
+                "no_screenshot": false,
+                "params": {
+                    "value": "100",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sortDir=DESC&sortId=createdAt",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//select[@aria-labelledby=\"rows-per-page\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"select\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" page-dropdown \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-input-field \")][1]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"SELECT\",\"text\":\"rows per page \",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"select\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" page-dropdown \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-input-field \")][1]"
+                        },
+                        "targetOuterHTML": "<select aria-labelledby=\"rows-per-page\" class=\"mui-mi-input-field page-dropdown-input\"><option value=\"25\">25</option><option value=\"50\">50</option><option value=\"75\">75</option><option value=\"100\" sel"
+                    }
+                },
+                "type": "selectOption"
             },
             {
                 "allow_failure": false,
@@ -79,7 +110,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -90,12 +121,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][10]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"10\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][10]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][12]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"12\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][12]/*[local-name()=\"div\"][2]",
                             "co": "",
-                            "ro": "//*[local-name()=\"div\"][10]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][10]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][12]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][12]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -323,7 +354,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -334,12 +365,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][23]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"23\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][23]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"25\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"expense category\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][23]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][23]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][25]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -567,7 +598,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -578,12 +609,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][22]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"22\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][22]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][24]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"24\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][24]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
                             "co": "",
-                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"22\"]/*/*/*[local-name()=\"span\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][22]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]"
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"24\"]/*/*/*[local-name()=\"span\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][24]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]"
                         },
                         "targetOuterHTML": "<span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\" data-tooltip-place=\"top\" data-tooltip-content=\"View Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"externa"
                     }
@@ -811,7 +842,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -822,12 +853,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][11]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"11\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][11]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][13]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"13\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][13]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]",
                             "co": "",
-                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"11\"]/*/*/*[local-name()=\"span\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][11]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]"
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"13\"]/*/*/*[local-name()=\"span\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][13]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")]"
                         },
                         "targetOuterHTML": "<span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\" data-tooltip-place=\"top\" data-tooltip-content=\"View Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"externa"
                     }
@@ -1055,7 +1086,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -1066,12 +1097,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"25\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][27]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"27\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][27]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"material item categories\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][25]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][25]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][27]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][27]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -1299,7 +1330,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -1310,12 +1341,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][16]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"16\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][16]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][18]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"18\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][18]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"purchasing commodity codes\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][16]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][16]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][18]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][18]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -1543,7 +1574,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -1554,12 +1585,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][24]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"24\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][24]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][26]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"26\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][26]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"inventory unit of measure\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][24]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][24]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][26]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][26]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -1787,7 +1818,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -1798,12 +1829,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][20]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"20\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][20]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][22]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"22\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][22]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"units associated to the asset level of service\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][20]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][20]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][22]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][22]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -2031,7 +2062,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -2042,12 +2073,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"8\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][10]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"10\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][10]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"country codes\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][8]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][10]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][10]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -2244,7 +2275,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=25&page=1&sortDir=DESC",
+                        "url": "https://dev.mentorapm.com/apm/admin/systemlookuptypes?limit=100&page=1&sort=createdAt%20DESC",
                         "userLocator": {
                             "values": [
                                 {
@@ -2255,12 +2286,12 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"9\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][11]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"11\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][11]/*[local-name()=\"div\"][2]",
                             "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"state/province name abbreviations\",\"textType\":\"innerText\"},{\"text\":\"select row\",\"textType\":\"aria-label\",\"tagName\":\"INPUT\",\"isNegativeAnchor\":true}]",
-                            "ro": "//*[local-name()=\"div\"][9]/*[2]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]"
+                            "ro": "//*[local-name()=\"div\"][11]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][11]/*[local-name()=\"div\"][2]"
                         },
                         "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 40px;\"><span class=\"table3-row-buttons-container\"><span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\""
                     }
@@ -2481,34 +2512,34 @@
                     "type": "text"
                 },
                 {
-                    "example": "jg2-6h9-8re.1163314243@synthetics.synthetics.dtdg.co",
+                    "example": "jg2-6h9-8re.5773866827@synthetics.synthetics.dtdg.co",
                     "pattern": "jg2-6h9-8re.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL1",
                     "type": "email"
                 },
                 {
-                    "example": "vFalTFrEuMDkpqV",
+                    "example": "QtYFcCdzFCNzIBA",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME1",
                     "type": "text"
                 },
                 {
-                    "example": "OuaxGzHTameDKQX",
+                    "example": "MFBxWTVuXGvYvkJ",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME1",
                     "type": "text"
                 },
                 {
-                    "example": "69373336",
+                    "example": "13482392",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID1",
                     "type": "text"
                 },
                 {
-                    "example": "397-485-9223",
+                    "example": "864-421-5556",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE1",

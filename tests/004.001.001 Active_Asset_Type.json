@@ -2,7 +2,7 @@
     "test_name": "004.001.001 Active_Asset_Type",
     "details": {
         "created_at": "2024-03-06T21:45:48.149386+00:00",
-        "modified_at": "2024-03-11T20:07:41.617760+00:00",
+        "modified_at": "2024-03-12T22:33:46.962506+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -12,17 +12,6 @@
         "public_id": "skn-wgm-r8b",
         "status": "paused",
         "steps": [
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "004.001.002 Mk_8Attributes",
-                "no_screenshot": false,
-                "params": {
-                    "subtestPublicId": "p7t-56u-fp4",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
             {
                 "allow_failure": false,
                 "is_critical": true,
@@ -76,7 +65,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "67528236",
+                    "example": "38552581",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ACCT_#",

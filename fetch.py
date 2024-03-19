@@ -18,6 +18,8 @@ from datadog_api_client.v1 import Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
+from datadog_api_client.v1.model.synthetics_trigger_body import SyntheticsTriggerBody
+from datadog_api_client.v1.model.synthetics_trigger_test import SyntheticsTriggerTest
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Config/Setup (See https://docs.datadoghq.com/api/latest/synthetics/)
@@ -395,6 +397,26 @@ def fetch(type="full", t_name="test_name"):
             process_to_json(formatted_test, f"{t_name}.json")
             print("Caught: " + formatted_test["test_name"])
 
+def fetch_run_results(t_name="test_name"):
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+    response = API.get_browser_test_latest_results(public_id="ted-i7e-p38", )
+    
+    for r in response.results:
+        print(r)
+        break
+    # response = API.trigger_tests(
+    #     body=SyntheticsTriggerBody(
+    #         tests=[
+    #             SyntheticsTriggerTest(
+    #                 public_id='ted-i7e-p38'
+    #             ),
+    #         ],
+    #     )
+    # )
+    #print(response)
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -403,6 +425,7 @@ def main():
     if validate_api():
         #full_restore()
         fetch()
+        #fetch_run_results()
         #traversal_edit(dir, edit, "steps")
         #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
         #throw('000.000.000 CSV_Bulk_Transaction')

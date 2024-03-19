@@ -2,7 +2,7 @@
     "test_name": "004.003.002 Asset_Tabs",
     "details": {
         "created_at": "2024-03-07T23:20:37.839321+00:00",
-        "modified_at": "2024-03-08T23:50:31.339607+00:00",
+        "modified_at": "2024-03-13T20:19:32.793022+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -2851,7 +2851,7 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Type text on input #failureCurve",
+                "name": "Type text on input #failureCurve [@@@@@@@FAIL HERE}",
                 "no_screenshot": false,
                 "params": {
                     "value": "linear",
@@ -2877,6 +2877,7 @@
                         "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"failureCurve\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fals ..."
                     }
                 },
+                "timeout": 5,
                 "type": "typeText"
             },
             {
@@ -4446,13 +4447,13 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//ul/li[contains(., \"Work History\")]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][2]",
@@ -4527,69 +4528,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "jgt-9d8-xyn.5831976513@synthetics.synthetics.dtdg.co",
+                    "example": "jgt-9d8-xyn.3592363846@synthetics.synthetics.dtdg.co",
                     "pattern": "jgt-9d8-xyn.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "bVDIFzfSVwiESbp",
+                    "example": "SQaRmNwkphCNBhx",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "szERkrWwyDNRBII",
+                    "example": "jNBAVLfgcXVGVJY",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "19512925",
+                    "example": "15767497",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "538-428-9298",
+                    "example": "826-543-2462",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.7299111223@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.6659592827@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "gJfpmpeprNmlOgq",
+                    "example": "uxpvvURnmOPVPUs",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "AYdZYHQVecLxOTa",
+                    "example": "cHZcdmNbLpIVWEp",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "58116946",
+                    "example": "44413177",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "438-435-7683",
+                    "example": "526-817-1911",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",

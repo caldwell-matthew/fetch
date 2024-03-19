@@ -2,7 +2,7 @@
     "test_name": "001.006.001 Mk_8Attributes",
     "details": {
         "created_at": "2024-03-06T21:38:24.396816+00:00",
-        "modified_at": "2024-03-11T20:06:56.005143+00:00",
+        "modified_at": "2024-03-12T22:30:20.434903+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,7 +67,7 @@
                             "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[3]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][3]/*[local-name()=\"button\"][3]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-obVMTm9jgYXJ\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-Zp73r2t6Bv8K\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -572,7 +572,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/_g9Lu-RMuKdDdxWlxD82G",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/v9opYjXqjMBTlUrc-vcbU",
                         "userLocator": {
                             "values": [
                                 {
@@ -1095,7 +1095,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/PBuv69qmKAv-LuJgxvZ3P",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/VJqvUpYtXuIhB1wCFeYsk",
                         "userLocator": {
                             "values": [
                                 {
@@ -1618,7 +1618,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/qLkyOUm9gpb8EgqMOogK5",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/uAhyb0Esf16ihcscFYWzv",
                         "userLocator": {
                             "values": [
                                 {
@@ -2141,7 +2141,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/TzkXBlgKx68zsLOufMsFD",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/TK1uxKOj2Hi_MqmEVhzlt",
                         "userLocator": {
                             "values": [
                                 {
@@ -2664,7 +2664,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/fRLW6usrx0nPHkyZZOcG1",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/h5YNn09YsApk4dwJRVNCi",
                         "userLocator": {
                             "values": [
                                 {
@@ -3187,7 +3187,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/uC5NNLwR2m6NLlQgQTccj",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/yBka4aFM-LrhjwvVkFdQj",
                         "userLocator": {
                             "values": [
                                 {
@@ -3711,7 +3711,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/CrQMAOrTIKMUSG_xxBaGQ",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/58ta_waelWWW4DlY8Cvtn",
                         "userLocator": {
                             "values": [
                                 {
@@ -4234,7 +4234,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/5CC27C0cKFobVrQ881iBQ",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/Ae0RQE-Ip8wBvdS1oslBO",
                         "userLocator": {
                             "values": [
                                 {
@@ -4287,69 +4287,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "vps-hsg-cah.9546448858@synthetics.synthetics.dtdg.co",
+                    "example": "vps-hsg-cah.5279248634@synthetics.synthetics.dtdg.co",
                     "pattern": "vps-hsg-cah.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "IipaIfsCAJaoJYm",
+                    "example": "nhfUPhzQlYywjUG",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "cyNEaYoIiGLRtfo",
+                    "example": "gfFUxMYJehRMmDL",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "39129845",
+                    "example": "32893293",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "252-962-6513",
+                    "example": "295-454-3386",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.9887523772@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.3371665751@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "zmMQEBqfjyNtxId",
+                    "example": "yfZJDYhIgnlVMCS",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "DSMHcQKgqldCRLR",
+                    "example": "ibndZmVifkyzxSp",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "35643561",
+                    "example": "82361495",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "581-212-5239",
+                    "example": "672-335-5124",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",
