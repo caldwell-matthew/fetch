@@ -60,14 +60,14 @@
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][2]",
                             "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][2]",
                             "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoritematerial items\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success-light \") and contains(concat(' ', normalize-space(@class), ' '), \" module-btn \")][1]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][1]"
+                            "ro": "//*[local-name()=\"button\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][2]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-7G3TWxxnTZh9\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-mPNQZNtBhivo\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -658,7 +658,7 @@
                     "check": "contains",
                     "value": "M@T-1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/FksDqDLDfu4ahjL0zskf3",
+                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/AWfggPX0FmiOhwTQ-PrDW",
                         "userLocator": {
                             "values": [
                                 {
@@ -688,7 +688,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/FksDqDLDfu4ahjL0zskf3",
+                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/AWfggPX0FmiOhwTQ-PrDW",
                         "userLocator": {
                             "values": [
                                 {
@@ -736,7 +736,7 @@
                             "ro": "//*[local-name()=\"button\"][8]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][1]/*[local-name()=\"button\"][8]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-widGPfcpiVnf\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-iqEn0YPmLJfd\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -900,7 +900,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/TTWkAmLf9gX3maTdjT30a",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/k9OIfSAAXpihkeSwQ_iQV",
                         "userLocator": {
                             "values": [
                                 {
@@ -931,7 +931,7 @@
                 "params": {
                     "value": "M@T",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/TTWkAmLf9gX3maTdjT30a",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/k9OIfSAAXpihkeSwQ_iQV",
                         "userLocator": {
                             "values": [
                                 {
@@ -971,7 +971,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/TTWkAmLf9gX3maTdjT30a",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/k9OIfSAAXpihkeSwQ_iQV",
                         "userLocator": {
                             "values": [
                                 {
@@ -1002,7 +1002,7 @@
                 "params": {
                     "value": "5",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/TTWkAmLf9gX3maTdjT30a",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/k9OIfSAAXpihkeSwQ_iQV",
                         "userLocator": {
                             "values": [
                                 {
@@ -1032,7 +1032,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/TTWkAmLf9gX3maTdjT30a",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/k9OIfSAAXpihkeSwQ_iQV",
                         "userLocator": {
                             "values": [
                                 {
@@ -1062,7 +1062,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/TTWkAmLf9gX3maTdjT30a",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/k9OIfSAAXpihkeSwQ_iQV",
                         "userLocator": {
                             "values": [
                                 {

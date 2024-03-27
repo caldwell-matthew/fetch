@@ -2,7 +2,7 @@
     "test_name": "004.002.001 Active_Asset",
     "details": {
         "created_at": "2024-03-06T21:46:45.551899+00:00",
-        "modified_at": "2024-03-11T20:58:49.182936+00:00",
+        "modified_at": "2024-03-20T21:48:01.402664+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -2249,88 +2249,6 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Type text on input #latitude",
-                "no_screenshot": false,
-                "params": {
-                    "value": "50",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@id=\"latitude\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"latitude\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][2]/*[local-name()=\"div\"][5]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")][1]",
-                            "co": "[{\"text\":\"latitude\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"latitude\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][2]/*[local-name()=\"div\"][5]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")][1]"
-                        },
-                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"latitude\" id=\"latitude\" step=\"any\" class=\"mui-mi-input-field form-input\" type=\"number\">"
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Press key",
-                "no_screenshot": false,
-                "params": {
-                    "value": "Tab"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Type text on input #longitude",
-                "no_screenshot": false,
-                "params": {
-                    "value": "51",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@id=\"longitude\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"longitude\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][2]/*[local-name()=\"div\"][5]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")][2]",
-                            "co": "[{\"text\":\"longitude\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"longitude\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][2]/*[local-name()=\"div\"][5]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")][2]"
-                        },
-                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"longitude\" id=\"longitude\" step=\"any\" class=\"mui-mi-input-field form-input\" type=\"number\">"
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Press key",
-                "no_screenshot": false,
-                "params": {
-                    "value": "Tab"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
                 "name": "Type text on input #scadaId",
                 "no_screenshot": false,
                 "params": {
@@ -2492,69 +2410,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "qxq-zat-fic.6424786139@synthetics.synthetics.dtdg.co",
+                    "example": "qxq-zat-fic.3142637161@synthetics.synthetics.dtdg.co",
                     "pattern": "qxq-zat-fic.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "UCeIJexRdYxECho",
+                    "example": "nEdyTHJpHizOXtc",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "iPScuruDevLdumQ",
+                    "example": "eMLMcbvNJlfgfAS",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "95379598",
+                    "example": "43121661",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "742-786-8918",
+                    "example": "363-521-6739",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.3899431859@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.6446769472@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "HdEaLVoXBCfHTkh",
+                    "example": "nDOiyCUuBZRLdsE",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "JyzVsYxNIdgPtQO",
+                    "example": "sydyTAyKSbIlfcJ",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "86932144",
+                    "example": "36568352",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "834-687-2968",
+                    "example": "249-981-7387",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",

@@ -2,7 +2,7 @@
     "test_name": "000.000.000 RUN-1",
     "details": {
         "created_at": "2024-03-06T21:48:12.723664+00:00",
-        "modified_at": "2024-03-18T22:46:10.345627+00:00",
+        "modified_at": "2024-03-19T19:19:35.457768+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -55,28 +55,6 @@
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "001.008.001 Active_Workstages",
-                "no_screenshot": false,
-                "params": {
-                    "subtestPublicId": "cmu-t2d-xx5",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "005.001.001 Active_Maintenance",
-                "no_screenshot": false,
-                "params": {
-                    "subtestPublicId": "tup-3b7-ty2",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
             }
         ],
         "tags": [
@@ -117,7 +95,7 @@
         "locations": [
             "aws:us-west-1"
         ],
-        "message": "`000.000.000 RUN-1`\n- Wrapper to run all tests 11-15. (ADMIN)\n- DataDog has a test execution time cap at ~20 minutes. \n- RUN tests are broken up to circumvent.",
+        "message": "`000.000.000 RUN-1`\n- Wrapper to run all tests 11-13. (ADMIN)\n- DataDog has a test execution time cap at ~20 minutes. \n- RUN tests are broken up to circumvent.",
         "name": "000.000.000 RUN-1",
         "options": {
             "enableProfiling": false,

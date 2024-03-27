@@ -2,7 +2,7 @@
     "test_name": "DATE ISSUE",
     "details": {
         "created_at": "2024-03-15T18:50:30.805491+00:00",
-        "modified_at": "2024-03-18T18:39:42.852442+00:00",
+        "modified_at": "2024-03-21T16:05:53.125896+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -29,7 +29,7 @@
                 "name": "Navigate to link",
                 "no_screenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm/asset/assettypes/1_ZUQnCIV3bAui9vQyqOz#2"
+                    "value": "https://dev.mentorapm.com/apm/asset/assettypes/Os1um462vFrjaMfZwejgN#2"
                 },
                 "type": "goToUrl"
             },
@@ -167,10 +167,10 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Test custom JavaScript assertion",
+                "name": "JavaScript Assertion to circumvent Date Issue",
                 "no_screenshot": false,
                 "params": {
-                    "code": "var dateTimeInput = document.getElementById(\"value\");\n    if (dateTimeInput) dateTimeInput.value = '2024-03-18 11:30';\n    else console.error(\"DateTime input element not found\");\nreturn true",
+                    "code": "const dateInput = document.getElementById(\"value\");\nlet todayString = '2022-03-15T12:20';\n    dateInput.value= todayString;\nreturn dateInput.value",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/asset/assettypes/1_ZUQnCIV3bAui9vQyqOz#2",
                         "multiLocator": {
@@ -309,7 +309,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "89692653",
+                    "example": "72289476",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ACCT_#",
@@ -372,7 +372,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "2024-03-18 06:38",
+                    "example": "2024-03-21 04:05",
                     "pattern": "{{ date(0d, YYYY-MM-DD hh:mm) }}",
                     "secure": false,
                     "name": "DATE",

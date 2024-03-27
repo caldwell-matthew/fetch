@@ -9,17 +9,16 @@
 #     20240221  MAT     Full restore works
 #     20240227  MAT     Added README, .env, did final formatting
 #     20240306  MAT     Fixed certifi error, tested nuke/full_restore again...
+#     20240316  MAT     Cleanup
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-import json, os, re, shutil, certifi
+import json, os, re, certifi
 from dotenv import dotenv_values
 from datadog_api_client import ApiClient
 from datadog_api_client.v1 import Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
 from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
-from datadog_api_client.v1.model.synthetics_trigger_body import SyntheticsTriggerBody
-from datadog_api_client.v1.model.synthetics_trigger_test import SyntheticsTriggerTest
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Config/Setup (See https://docs.datadoghq.com/api/latest/synthetics/)
@@ -57,16 +56,27 @@ def extract_json(file_name, dir="./tests/"):
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Edit content within a JSON file, edit type varies
+# Edit content within a JSON file
+#   Edit Types: "test-working", "restore", "id", "name", "xpath", "steps"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def edit(data, type):
+    # Test to see if traversal_edit() and edit() are working together.
+    if type == "test-working":
+        print("Parent: " + data["details"]["name"])
+        for step in data["details"]["steps"]:
+            if step["type"] == "playSubTest":
+                print("  Subtest: " + str(step["name"]))                  
+                for layered_sub_test in extract_json(step["name"])["steps"]:
+                    if layered_sub_test["type"] == "playSubTest":
+                        print("    Nested Subtest: " + str(layered_sub_test["name"]))  
+        return
+
     # Regeneration Edit
     # Recursivly throws, fetches, and updates ids to rebuild all tests
     # See full_restore() for more information
     if type == "restore":
         test_name = data["details"]["name"]
-        if fetch("single", test_name)["does_exist"]:
-            return
+        if fetch("single", test_name)["does_exist"]: return
         else:
             all_exist = False
             for step in data["details"]["steps"]:
@@ -105,8 +115,7 @@ def edit(data, type):
 
     # Name Edit
     # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
-    if type == "name":
-        data["details"]["name"] = "COPY_" + data["details"]["name"]
+    if type == "name": data["details"]["name"] = "COPY_" + data["details"]["name"]
     
     # Xpath Edit (CHANGE AS NEEDED)
     # Converts an XPATH statement into a new one such as @data-tip -> contains()
@@ -163,8 +172,7 @@ def edit(data, type):
                         #     print("XPATH Updated to: " + USL["value"])
                         #     modified = True
                     
-        if modified:
-            print("")
+        if modified: print("")
         return modified
     
     if type == "steps":
@@ -179,57 +187,15 @@ def edit(data, type):
                     modified = True
                     input('asdf')
 
-        if modified:
-            print("")
+        if modified: print("")
         return modified
     
-        # {
-        #     "allow_failure": false,
-        #     "is_critical": true,
-        #     "name": "Press key",
-        #     "no_screenshot": false,
-        #     "params": {
-        #         "value": "Escape"
-        #     },
-        #     "type": "pressKey"
-        # },
-        
-        # {
-        #     "allow_failure": false,
-        #     "is_critical": true,
-        #     "name": "Click on X esc",
-        #     "no_screenshot": false,
-        #     "params": {
-        #         "element": {
-        #             "url": "https://dev.mentorapm.com/apm/myprofile",
-        #             "userLocator": {
-        #                 "values": [
-        #                     {
-        #                         "type": "xpath",
-        #                         "value": "//div[contains(@class, \"apm-modal-actions\")]"
-        #                     }
-        #                 ],
-        #                 "failTestOnCannotLocate": true
-        #             },
-        #             "multiLocator": {
-        #                 "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
-        #                 "at": "",
-        #                 "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
-        #                 "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"formatmark updelete export\",\"textType\":\"innerText\"},{\"text\":\"formatmark up\",\"textType\":\"innerText\",\"relation\":\"PARENT OF\",\"tagName\":\"UL\",\"isNegativeAnchor\":true},{\"relation\":\"BEFORE\",\"tagName\":\"LI\",\"text\":\"mark up\",\"textType\":\"innerText\"}]",
-        #                 "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
-        #                 "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]"
-        #             },
-        #             "targetOuterHTML": "<div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa-times fa-w-11 close-modal\" role=\"img\" xmlns=\"http://www.w3.org/200"
-        #         }
-        #     },
-        #     "type": "click"
-        # },
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def throw(t_file, dir="./tests/"):
     data = extract_json(t_file, dir)
+    # Uncomment if you want to only throw tests that do not exist. 
     # if fetch("single", data["name"])["does_exist"]:
     #     return
     modify_test = {
@@ -260,26 +226,6 @@ def throw(t_file, dir="./tests/"):
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
-    # for file in os.listdir(dir):
-    #     file_path = os.path.join(dir, file)
-    #     with open(file_path, 'r') as file:
-    #         data = json.load(file)
-    #     modified = edit_function(data, edit_type)
-    #     with open(file_path, 'w') as file:
-    #         json.dump(data, file, indent=4)
-    #     file_name_full = os.path.basename(file_path)
-    #     file_name = os.path.splitext(file_name_full)[0]
-    #     if edit_type == "restore":
-    #         print(data["test_name"])
-    #         input('asdf')
-    #         if fetch("single", data["test_name"])["does_exist"]:
-    #             pass
-    #     elif edit_type == "xpath" and not modified:
-    #         pass
-    #     elif edit_type == "steps" and not modified:
-    #         pass
-    #     else:
-    #         throw(file_name, dir)
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
@@ -397,38 +343,12 @@ def fetch(type="full", t_name="test_name"):
             process_to_json(formatted_test, f"{t_name}.json")
             print("Caught: " + formatted_test["test_name"])
 
-def fetch_run_results(t_name="test_name"):
-    with ApiClient(configuration) as api_client:
-        API = SyntheticsApi(api_client)
-    response = API.get_browser_test_latest_results(public_id="ted-i7e-p38", )
-    
-    for r in response.results:
-        print(r)
-        break
-    # response = API.trigger_tests(
-    #     body=SyntheticsTriggerBody(
-    #         tests=[
-    #             SyntheticsTriggerTest(
-    #                 public_id='ted-i7e-p38'
-    #             ),
-    #         ],
-    #     )
-    # )
-    #print(response)
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
-    dir, dir2 = "./tests", "./tests-copy"
     if validate_api():
-        #full_restore()
         fetch()
-        #fetch_run_results()
-        #traversal_edit(dir, edit, "steps")
-        #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
-        #throw('000.000.000 CSV_Bulk_Transaction')
 
 if __name__ == "__main__":
     main()
