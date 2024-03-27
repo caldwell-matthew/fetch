@@ -39,20 +39,17 @@ def validate_api():
         return AuthenticationApi(api_client).validate()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Process data into JSON files
+# Process data into JSON file
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def process_to_json(data, file_name):
-    file_path = os.path.join("./tests/", file_name)
-    json_data = json.dumps(data, indent=4)
-    with open(file_path, "w") as file:
-        file.write(json_data)
+    with open(os.path.join("./tests/", file_name + ".json"), "w") as file:
+        file.write(json.dumps(data, indent=4))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from a JSON files
+# Extract data from JSON file
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def extract_json(file_name, dir="./tests/"):
-    file_path = os.path.join(dir + "/", file_name + ".json")
-    with open(file_path, 'r') as file:
+    with open(os.path.join(dir + "/", file_name + ".json"), 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -175,6 +172,7 @@ def edit(data, type):
         if modified: print("")
         return modified
     
+    # WIP: Way of stepping through subtests and edit Y/N? (WIP)
     if type == "steps":
         modified = False
         RE_ESC = re.compile(r'.*x\sesc.*', re.IGNORECASE)
@@ -185,7 +183,7 @@ def edit(data, type):
                     print("Found step: " + step["name"])
                     print(step)
                     modified = True
-                    input('asdf')
+                    input('Edit this step? (Y/N): ')
 
         if modified: print("")
         return modified
@@ -225,7 +223,7 @@ def throw(t_file, dir="./tests/"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
+def traversal_edit(edit_function=edit, edit_type="", dir="./tests"):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
@@ -243,6 +241,7 @@ def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
 def bulk_copy (dir_A="./tests", dir_B="./tests-copy"):  
     print("BROKEN. DO NOT USE RIGHT NOW")
     print("NEED TO MAKE CHANGES TO ID/NAME")
+    print("CURRENTLY CAUSES DELETE ERRORS")
     # print("\nBeginning bulk name edit...")
     # for file in os.listdir(dir_A):
     #     file = os.path.join(dir_A, file)
@@ -340,7 +339,7 @@ def fetch(type="full", t_name="test_name"):
                 "test_name": t_name, 
                 "details": t_details
             }
-            process_to_json(formatted_test, f"{t_name}.json")
+            process_to_json(formatted_test, t_name)
             print("Caught: " + formatted_test["test_name"])
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -349,6 +348,16 @@ def fetch(type="full", t_name="test_name"):
 def main():
     if validate_api():
         fetch()
+        # process_to_json()
+        # extract_json()
+        # traversal_edit()
+        # edit()
+        # throw()
+        # fetch()
+        # bulk_copy()
+        # delete()
+        # nuke() 
+        # full_restore()
 
 if __name__ == "__main__":
     main()

@@ -26,10 +26,12 @@ A script to 'fetch' and 'throw' DataDog tests.
 ### `edit()`
 - Edits content within a JSON file based on the specified edit type.
 - Edit types:
-  - "restore" : See `full_restore()`
-  - "id"      : Converts `'OLD_ID'` -> `'NEW_ID'`
-  - "name"    : Converts `'TEST_NAME'` -> `'COPY_TEST_NAME'`
-  - "xpath"   : Converts `'OLD_XPATH'` -> `'NEW_XPATH'`
+  - "test-working"  : Test to see if traversal_edit() and edit() are working
+  - "restore"       : See `full_restore()`
+  - "id"            : Converts `'OLD_ID'` -> `'NEW_ID'`
+  - "name"          : Converts `'TEST_NAME'` -> `'COPY_TEST_NAME'`
+  - "xpath"         : Converts `'OLD_XPATH'` -> `'NEW_XPATH'`
+  - "steps"         : Way of stepping through subtests and edit Y/N? (WIP)
 
 ### `throw()`
 - Creates or edits a DataDog test from JSON in a directory.

@@ -2,7 +2,7 @@
     "test_name": "001.006.001 Mk_8Attributes",
     "details": {
         "created_at": "2024-03-06T21:38:24.396816+00:00",
-        "modified_at": "2024-03-27T00:26:07.272896+00:00",
+        "modified_at": "2024-03-27T19:37:33.234948+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,7 +67,7 @@
                             "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[3]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][3]/*[local-name()=\"button\"][3]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-ZiU9Yp2R08Sf\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-rx7sGqBt1BYs\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -162,6 +162,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -504,23 +535,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -663,7 +694,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/7MNNHkbHTaquqoHYntiP6",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/q1fDexcnnfN5IP8eMXwI6",
                         "userLocator": {
                             "values": [
                                 {
@@ -776,6 +807,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -1118,23 +1180,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -1277,7 +1339,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/jhg4gbrXerNQUBtLHteMi",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/7EQ1jmdK7_Efw70nKbPWv",
                         "userLocator": {
                             "values": [
                                 {
@@ -1390,6 +1452,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -1732,23 +1825,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -1891,7 +1984,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/RKPOauTe_Y6yZzFCqlNeZ",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/UO9LvDRVsAM5XJcLgGvm7",
                         "userLocator": {
                             "values": [
                                 {
@@ -2004,6 +2097,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -2346,23 +2470,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -2505,7 +2629,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/62vuIRdDNJRZ8JDF3w3ik",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/zd0WA6UUy80Eb50cZoJL2",
                         "userLocator": {
                             "values": [
                                 {
@@ -2618,6 +2742,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -2960,23 +3115,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -3119,7 +3274,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/VwlZ-u-Y2FyndJObdumjY",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/STPLHW7rIPVgECrl5ER5H",
                         "userLocator": {
                             "values": [
                                 {
@@ -3232,6 +3387,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -3574,23 +3760,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -3733,7 +3919,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/-osMn2ULyIYITns5XxXOz",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/EQHDujBg60y8kMrSMNs9R",
                         "userLocator": {
                             "values": [
                                 {
@@ -3846,6 +4032,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -4189,23 +4406,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -4348,7 +4565,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/MxeMBOKAiLYh6zKySPWKU",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/d7UVVjcNQT8i5rbALzyN-",
                         "userLocator": {
                             "values": [
                                 {
@@ -4461,6 +4678,37 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #label",
+                "no_screenshot": false,
+                "params": {
+                    "value": "thisisalabel",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"label\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"label\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"label\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"label\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"label\" id=\"label\" class=\"mui-mi-input-field form-input\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -4803,23 +5051,23 @@
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
-                            "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
                                     "value": "//input[@id=\"tags\"]"
                                 }
-                            ]
+                            ],
+                            "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
-                            "co": "[{\"text\":\"data type\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"type\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"tags\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"tags\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"tags\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"type\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"tags\" id=\"tags\" class=\"mui-mi-input-field form-input\">"
                     }
                 },
                 "type": "typeText"
@@ -4962,7 +5210,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/3IbAgDuWRWeeUcmCAjMOd",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes/INb4B5qqivh2xgzFtag7N",
                         "userLocator": {
                             "values": [
                                 {
@@ -5015,69 +5263,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "vps-hsg-cah.9759939969@synthetics.synthetics.dtdg.co",
+                    "example": "vps-hsg-cah.5625771936@synthetics.synthetics.dtdg.co",
                     "pattern": "vps-hsg-cah.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "RnHDuAUGrcWOLhg",
+                    "example": "QoAvSwPwEojAPkI",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "hvAWAehYodzxEnd",
+                    "example": "WFsNHxHBxTxLZaM",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "89789354",
+                    "example": "23296656",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "232-666-5998",
+                    "example": "328-134-4818",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.3533277226@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.1271463454@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "AWgTBjbZvGAJlBl",
+                    "example": "aNeqFFgsOtWdElA",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "BfaVqzGWIxSXigJ",
+                    "example": "CsfrEhqUkGIJQCj",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "43826267",
+                    "example": "87918322",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "199-259-1319",
+                    "example": "389-133-8632",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",

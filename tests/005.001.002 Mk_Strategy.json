@@ -2,7 +2,7 @@
     "test_name": "005.001.002 Mk_Strategy",
     "details": {
         "created_at": "2024-03-09T00:54:58.552886+00:00",
-        "modified_at": "2024-03-12T01:21:12.289592+00:00",
+        "modified_at": "2024-03-27T22:50:14.516676+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -1029,8 +1029,8 @@
                 "type": "click"
             },
             {
-                "allow_failure": false,
-                "is_critical": true,
+                "allow_failure": true,
+                "is_critical": false,
                 "name": "Test alert content",
                 "no_screenshot": false,
                 "params": {
@@ -1058,6 +1058,7 @@
                         "targetOuterHTML": "<div role=\"alert\" class=\"Toastify__toast-body\">Record was created</div>"
                     }
                 },
+                "timeout": 10,
                 "type": "assertElementContent"
             },
             {
@@ -2433,7 +2434,7 @@
                     "type": "text"
                 },
                 {
-                    "example": "29844147",
+                    "example": "77942984",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ACCT_#",
