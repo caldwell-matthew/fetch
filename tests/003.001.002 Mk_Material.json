@@ -2,7 +2,7 @@
     "test_name": "003.001.002 Mk_Material",
     "details": {
         "created_at": "2024-03-06T21:37:55.172118+00:00",
-        "modified_at": "2024-03-06T21:50:04.710953+00:00",
+        "modified_at": "2024-04-01T23:38:42.361966+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,7 +67,7 @@
                             "ro": "//*[local-name()=\"button\"][2]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][2]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-gSiejxLJaHks\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-oDNQM53wsuOg\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -658,7 +658,7 @@
                     "check": "contains",
                     "value": "M@T-1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/Pm_29_oszEsh7JDjKPqT8",
+                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/CaycFipRYIXUdcb0bpgDf",
                         "userLocator": {
                             "values": [
                                 {
@@ -688,7 +688,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/Pm_29_oszEsh7JDjKPqT8",
+                        "url": "https://dev.mentorapm.com/apm/inventory/materialitems/CaycFipRYIXUdcb0bpgDf",
                         "userLocator": {
                             "values": [
                                 {
@@ -736,7 +736,7 @@
                             "ro": "//*[local-name()=\"button\"][8]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][1]/*[local-name()=\"button\"][8]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-Q3H7zh8neFVs\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-ljlaAwTKIrcW\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -900,7 +900,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/PVcoi1f-_y8EI7vbJe5y5",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
                         "userLocator": {
                             "values": [
                                 {
@@ -926,70 +926,119 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Type text on input #materialItemId",
+                "name": "Click on \"Select All\"",
                 "no_screenshot": false,
                 "params": {
-                    "value": "M@T",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/PVcoi1f-_y8EI7vbJe5y5",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//input[@id=\"materialItemId\"]"
+                                    "value": "//div[@role=\"columnheader\"]//div[@class=\"table3-checkbox\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
-                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
-                            "co": "[{\"text\":\"material item\",\"textType\":\"innerText\"}]",
-                            "ro": "//*[@id=\"materialItemId\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"1\" and @role=\"columnheader\"]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")][1]",
+                            "co": "",
+                            "ro": "//*[@role=\"columnheader\"]/*/*[local-name()=\"div\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")][1]"
                         },
-                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"materialItemId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fals"
+                        "targetOuterHTML": "<div class=\"table3-checkbox\"></div>"
                     }
                 },
-                "type": "typeText"
+                "type": "click"
             },
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Press key",
-                "no_screenshot": false,
-                "params": {
-                    "value": "Tab"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "Click on button \"Next\"",
+                "name": "Click on button \"Add Item\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/PVcoi1f-_y8EI7vbJe5y5",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                    "value": "//button[contains(., \"Add Item\")]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
                             "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"},{\"text\":\"*\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]",
+                            "co": "[{\"text\":\"add item\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"add item\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-block \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Add Item</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on X Esc",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(@class, \"apm-modal-actions\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa-times fa-w-11 close-modal\" role=\"img\" xmlns=\"http://www.w3.org/200"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"table-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@role=\"tabpanel\"]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][1]/descendant::*[@type=\"button\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][2]",
+                            "co": "",
+                            "ro": "//*[3]/*[local-name()=\"button\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" btn-table \")][2]"
+                        },
+                        "targetOuterHTML": "<button class=\"btn-table\" data-testid=\"table-edit-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"pencil\" class=\"svg-inline--fa fa-pencil fa-w-16 \" role=\"img\""
                     }
                 },
                 "type": "click"
@@ -1002,18 +1051,18 @@
                 "params": {
                     "value": "5",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/PVcoi1f-_y8EI7vbJe5y5",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//input[@name=\"quantity\"]"
+                                    "value": "//input[@id=\"quantity\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@autocomplete=\"off\" and @name=\"quantity\"]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
                             "co": "[{\"text\":\"quantity\",\"textType\":\"innerText\"}]",
@@ -1028,32 +1077,12 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on button #submit-btn",
+                "name": "Press key",
                 "no_screenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/PVcoi1f-_y8EI7vbJe5y5",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@role=\"submit\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
-                            "at": "/descendant::*[@role=\"submit\" and @type=\"submit\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]",
-                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
-                            "ro": "//*[@id=\"submit-btn\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
-                        },
-                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa f"
-                    }
+                    "value": "Escape"
                 },
-                "type": "click"
+                "type": "pressKey"
             },
             {
                 "allow_failure": false,
@@ -1062,7 +1091,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/PVcoi1f-_y8EI7vbJe5y5",
+                        "url": "https://dev.mentorapm.com/apm/asset/billofmaterials/ISdp6y0OatKrzNFLRdNMo",
                         "userLocator": {
                             "values": [
                                 {
