@@ -2,7 +2,7 @@
     "test_name": "003.001.003 Mk_Storeroom",
     "details": {
         "created_at": "2024-03-06T21:38:04.649548+00:00",
-        "modified_at": "2024-03-08T23:28:48.452378+00:00",
+        "modified_at": "2024-04-08T20:32:56.980593+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -67,7 +67,7 @@
                             "ro": "//*[local-name()=\"button\"][10]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][10]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-qKC2pejbWHPM\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-4AMIKxPKF6Eu\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -401,7 +401,7 @@
                             "ro": "//*[local-name()=\"button\"][8]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][8]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-G8CZTDODRFgJ\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-Z32Hc9P3ptCp\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -840,7 +840,7 @@
                     "check": "contains",
                     "value": "Private Reserves",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/J8v2xOn8Un5ZipVVyVnIv",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/c_JF7HIzZ0CUpvN4ymRLe",
                         "userLocator": {
                             "values": [
                                 {
@@ -854,7 +854,7 @@
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
                             "at": "",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
-                            "co": "[{\"text\":\"private reserves\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\" general info attachments bins inventory permissions summary\",\"textType\":\"innerText\"}]",
+                            "co": "[{\"text\":\"private reserves\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\" general info attachments bins inventory permissions storeroom items summary\",\"textType\":\"innerText\"}]",
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]"
                         },
@@ -870,7 +870,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/J8v2xOn8Un5ZipVVyVnIv",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations/c_JF7HIzZ0CUpvN4ymRLe",
                         "userLocator": {
                             "values": [
                                 {
@@ -918,7 +918,7 @@
                             "ro": "//*[local-name()=\"button\"][7]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")]/*[local-name()=\"button\"][7]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-PmZodtWSXJLd\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-iSUiTvdlUanh\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
                     }
                 },
                 "type": "click"
@@ -1169,6 +1169,128 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
+                "name": "Type text on input #inventoryQuantity",
+                "no_screenshot": false,
+                "params": {
+                    "value": "99999999",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"inventoryQuantity\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"inventoryQuantity\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"inventory quantity\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"inventoryQuantity\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"inventoryQuantity\" id=\"inventoryQuantity\" step=\"1\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Next\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #averageUnitPrice",
+                "no_screenshot": false,
+                "params": {
+                    "value": "10",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"averageUnitPrice\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"averageUnitPrice\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"average unit price\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"averageUnitPrice\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"averageUnitPrice\" id=\"averageUnitPrice\" step=\"any\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Next\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
                 "name": "Click on button \"Next\"",
                 "no_screenshot": false,
                 "params": {
@@ -1199,32 +1321,33 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on button \"Next\"",
+                "name": "Type text on input #abcClass",
                 "no_screenshot": false,
                 "params": {
+                    "value": "A",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                    "value": "//input[@id=\"abcClass\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocapitalize=\"none\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]",
+                            "co": "[{\"text\":\"abc class\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"abcClass\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__input \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                        "targetOuterHTML": "<input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"abcClass\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" a"
                     }
                 },
-                "type": "click"
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -1259,32 +1382,33 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on button \"Next\"",
+                "name": "Type text on input #safetyQuantity",
                 "no_screenshot": false,
                 "params": {
+                    "value": "5",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
                         "userLocator": {
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                    "value": "//input[@id=\"safetyQuantity\"]"
                                 }
                             ],
                             "failTestOnCannotLocate": true
                         },
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"safetyQuantity\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"safety quantity\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"safetyQuantity\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"safetyQuantity\" id=\"safetyQuantity\" step=\"1\" class=\"mui-mi-input-field form-input\" type=\"number\">"
                     }
                 },
-                "type": "click"
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -1319,6 +1443,37 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
+                "name": "Type text on input #minimumQuantity",
+                "no_screenshot": false,
+                "params": {
+                    "value": "1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"minimumQuantity\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"minimumQuantity\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"minimum quantity\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"minimumQuantity\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"minimumQuantity\" id=\"minimumQuantity\" step=\"1\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
                 "name": "Click on button \"Next\"",
                 "no_screenshot": false,
                 "params": {
@@ -1345,6 +1500,159 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #maximumQuantity",
+                "no_screenshot": false,
+                "params": {
+                    "value": "99999999",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"maximumQuantity\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"maximumQuantity\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"maximum quantity\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"maximumQuantity\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"maximumQuantity\" id=\"maximumQuantity\" step=\"1\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Next\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #reorderPoint",
+                "no_screenshot": false,
+                "params": {
+                    "value": "1000",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"reorderPoint\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"reorderPoint\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"reorder point\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"reorderPoint\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"reorderPoint\" id=\"reorderPoint\" step=\"1\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Next\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "co": "[{\"text\":\"next\",\"textType\":\"directText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #reorderQuantity",
+                "no_screenshot": false,
+                "params": {
+                    "value": "100",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"reorderQuantity\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"off\" and @name=\"reorderQuantity\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"reorder quantity\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"reorderQuantity\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input autocomplete=\"off\" name=\"reorderQuantity\" id=\"reorderQuantity\" step=\"1\" class=\"mui-mi-input-field form-input\" type=\"number\">"
+                    }
+                },
+                "type": "typeText"
             },
             {
                 "allow_failure": false,
@@ -1385,7 +1693,7 @@
                     "check": "contains",
                     "value": "Private Reserves, M@T-1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/q5qzBEc3G83B3ypQ95pLm",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/IBwfm1GO5hKB9eoUYgE3v",
                         "userLocator": {
                             "values": [
                                 {
@@ -1415,7 +1723,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/q5qzBEc3G83B3ypQ95pLm",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomitems/IBwfm1GO5hKB9eoUYgE3v",
                         "userLocator": {
                             "values": [
                                 {

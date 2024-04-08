@@ -57,3 +57,6 @@ A script to 'fetch' and 'throw' DataDog tests.
 
 ### `full_restore()`
 - Rebuilds, throws, and fetches all DataDog tests from a JSON backup directory.
+
+-------------
+pytest run.py
