@@ -1,0 +1,2050 @@
+{
+    "test_name": "004.003.001 Update_Asset",
+    "details": {
+        "created_at": "2024-03-06T21:40:44.714901+00:00",
+        "modified_at": "2024-03-09T00:04:36.080336+00:00",
+        "creator": {
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
+        },
+        "monitor_id": 140902810,
+        "public_id": "swt-bhr-8vm",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Assets\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//aside/a[contains(., \"Assets\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"a\"][4]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][4]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"A\",\"text\":\"channels\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@href=\"/apm/asset\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation \")]/*[local-name()=\"a\"][4]"
+                        },
+                        "targetOuterHTML": "<a class=\"apm-navigation-link apm-navigation-link-is-root apm-navigation-link-is-mini\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Assets\" href=\"/apm/asset\"><svg aria-hidden=\"true\" focusable=\""
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on \"Asset Register\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Asset Register\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][4]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][1]/*[local-name()=\"button\"][4]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"favoriteasset register\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"button\"][4]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-toggle-list \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-module-container \")][1]/*[local-name()=\"button\"][4]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success-light module-btn\" type=\"button\"><svg aria-labelledby=\"svg-inline--fa-title-BkuYTR6kYCOW\" data-prefix=\"far\" data-icon=\"star\" class=\"svg-inline--fa fa-star fa-w-18"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on view record \"Test Asset Gamma\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets?limit=25&page=1&sortDir=DESC",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"asset\"]/div[contains(., \"Test Asset Gamma\")]/div[2]/span/span[1]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\" and @role=\"gridcell\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-buttons-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][1]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][1]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-buttons-container \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-row-button \")][1]"
+                        },
+                        "targetOuterHTML": "<span class=\"table3-row-button\" data-tooltip-id=\"apm-tooltip\" data-tooltip-place=\"top\" data-tooltip-content=\"View Record\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"externa"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/descendant::*[@type=\"button\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Open Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefi"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #typeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "TAT-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"typeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@*[local-name()=\"aria-required\"]=\"true\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]",
+                            "co": "[{\"text\":\"asset type*\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"typeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"typeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test heading div \"New AttributesDo you want to ...\" is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"apm-modal-content\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-modal-content\" style=\"width: 500px; height: auto;\"><div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa"
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Cancel\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Cancel\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-danger \")]",
+                            "co": "[{\"text\":\"cancel\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"cancel\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-danger \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-danger\">Cancel</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"][3]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/descendant::*[@type=\"button\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Open Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefi"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #typeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "TAT-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"typeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@*[local-name()=\"aria-required\"]=\"true\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]",
+                            "co": "[{\"text\":\"asset type*\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"typeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"typeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test heading div \"New AttributesDo you want to ...\" is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"apm-modal-content\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-modal-content\" style=\"width: 500px; height: auto;\"><div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa"
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Copy New Attributes\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Copy New Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" confirm-buttons \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")][2]",
+                            "co": "[{\"text\":\"copy new attributes\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"copy new attributes\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" confirm-buttons \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"copy new attributes\"]]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-primary\">Copy New Attributes</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test alert is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"Toastify\"]//div[@role=\"alert\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]"
+                        },
+                        "targetOuterHTML": "<div role=\"alert\" class=\"Toastify__toast-body\">Asset Type update complete. \n\t\t\t\t\t\tMaintenance Strategy, Failure Profile, and Asset Standard information was cleared when the Asset Type was changed and "
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Clear All\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Clear All\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]",
+                            "co": "[{\"text\":\"clear all\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"clear all\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success clear-toasts-btn\">Clear All</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #failureProfileId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Whoops!-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/descendant::*[@autocapitalize=\"none\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][2]",
+                            "co": "[{\"text\":\"failure profile\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"failureProfileId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][2]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"failureProfileId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fa"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #maintenanceStrategyId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "The Thunderbolt Strategy-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][3]/descendant::*[@autocapitalize=\"none\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][3]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"maintenance strategy\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"maintenanceStrategyId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][3]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"maintenanceStrategyId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expande"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #assetStandardId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "LGTM-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][4]/descendant::*[@*[local-name()=\"aria-label\"]=\"field-input\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][4]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]",
+                            "co": "[{\"text\":\"asset standard\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"assetStandardId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][4]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"assetStandardId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"fal"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"][3]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test paragraph \"TAT-1\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "TAT-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"TAT-1\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][1]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"P\",\"text\":\"asset type\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[1]/*[1]/*[local-name()=\"p\"][1]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][1]"
+                        },
+                        "targetOuterHTML": "<p class=\"readonly-field\" data-testid=\"dv-typeId\"><a href=\"/apm/asset/assettypes/uVtaAFWtjaXI7xZ8672yE\">TAT-1</a></p>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test paragraph \"Whoops!-1\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Whoops!-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"Whoops!-1\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][2]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"P\",\"text\":\"failure profile\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[2]/*/*[local-name()=\"p\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][2]"
+                        },
+                        "targetOuterHTML": "<p class=\"readonly-field\" data-testid=\"dv-failureProfileId\"><a href=\"/apm/admin/failureprofiles/P-TMRCZbKQ0DWr-q3cSR7\">Whoops!-1</a></p>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test paragraph \"The Thunderbolt ...\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "The Thunderbolt Strategy-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"The Thunderbolt Strategy-1\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][3]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][1]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"P\",\"text\":\"maintenance strategy\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][3]/*[1]/*[1]/*[local-name()=\"p\"][1]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][3]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][1]"
+                        },
+                        "targetOuterHTML": "<p class=\"readonly-field\" data-testid=\"dv-maintenanceStrategyId\"><a href=\"/apm/work/maintenancestrategies/TuRNdTsjo_WnsMJEgEpJ8\">The Thunderbolt Strategy-1</a></p>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test paragraph \"LGTM-1\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "LGTM-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[contains(., \"LGTM-1\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"p\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][4]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][1]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"P\",\"text\":\"asset standard\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][4]/*[1]/*[1]/*[local-name()=\"p\"][1]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][4]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" readonly-field \")][1]"
+                        },
+                        "targetOuterHTML": "<p class=\"readonly-field\" data-testid=\"dv-assetStandardId\"><a href=\"/apm/asset/assetstandards/EEfdX2exOQpAWl1hvM5gv\">LGTM-1</a></p>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/descendant::*[@type=\"button\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Open Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefi"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Attributes",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(., \"Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][5]",
+                            "co": "[{\"text\":\"attributes\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-4\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"attributes\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-4\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_INT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_INT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_INT\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"9\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"123\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][9]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/Uk06zowChfcX22CzLrjof\">SMCT_INT</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE_TIME\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE_TIME",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_DATE_TIME\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"5\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"feb 02, 2024, 5:00 pm\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][5]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/dofMXH6FOSzM3d8TB-Ktr\">SMCT_DATE_TIME</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"jan 01, 2024\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][4]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/dR5BB0BR6WpR0D8m2H57W\">SMCT_DATE</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_STR\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_STR",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_STR\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"6\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"i am a string\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][6]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/EsbW67hnrvTHPm7milLgu\">SMCT_STR</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_MONEY\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_MONEY",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_MONEY\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"3\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"$10,000,000,000.00\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@*[local-name()=\"aria-selected\"]=\"false\"][2]/*[@*[local-name()=\"aria-selected\"]=\"false\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/cqVzRm6V8j5Ocba1ZOMbl\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_PIC\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_PIC",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_PIC\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][7]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"7\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][7]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"smct_pic\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][7]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][7]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/DOQVBcHnOLx_gvuybe18W\">SMCT_PIC</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_FLOAT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_FLOAT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_FLOAT\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"8\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"123.123\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][8]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/jMi-TCx4snLx6ErpLKwMB\">SMCT_FLOAT</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_BOOL\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_BOOL\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"yes\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/6s4GbnaZzML4tGNRfTqam\">SMCT_BOOL</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on General Info",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(., \"General Info\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-disabled\"]=\"false\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][1]",
+                            "co": "[{\"text\":\"general info\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-0\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"general info\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-0\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\" aria-disabled=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"sv"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"][3]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/descendant::*[@type=\"button\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Open Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefi"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #typeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "TAT-2",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"typeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@*[local-name()=\"aria-required\"]=\"true\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]",
+                            "co": "[{\"text\":\"asset type*\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"typeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"typeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test heading div \"New AttributesDo you want to ...\" is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"apm-modal-content\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-modal-content\" style=\"width: 500px; height: auto;\"><div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa"
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Copy New Attributes\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Copy New Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" confirm-buttons \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")][2]",
+                            "co": "[{\"text\":\"copy new attributes\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"copy new attributes\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" confirm-buttons \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"copy new attributes\"]]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-primary\">Copy New Attributes</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test alert is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"Toastify\"]//div[@role=\"alert\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]"
+                        },
+                        "targetOuterHTML": "<div role=\"alert\" class=\"Toastify__toast-body\">Asset Type update complete. \n\t\t\t\t\t\tMaintenance Strategy, Failure Profile, and Asset Standard information was cleared when the Asset Type was changed and "
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Clear All\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Clear All\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]",
+                            "co": "[{\"text\":\"clear all\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"clear all\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-success clear-toasts-btn\">Clear All</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"][3]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Attributes",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(., \"Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][5]",
+                            "co": "[{\"text\":\"attributes\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-4\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"attributes\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-4\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_BOOL\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_BOOL\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"yes\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/6s4GbnaZzML4tGNRfTqam\">SMCT_BOOL</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on General Info",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(., \"General Info\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-disabled\"]=\"false\" and @role=\"tab\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][1]",
+                            "co": "[{\"text\":\"general info\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-0\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"general info\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-0\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\" aria-disabled=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"sv"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/descendant::*[@type=\"button\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Open Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefi"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Type text on input #typeId",
+                "no_screenshot": false,
+                "params": {
+                    "value": "TAT-1",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@id=\"typeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][1]/*[local-name()=\"fieldset\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@*[local-name()=\"aria-required\"]=\"true\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]",
+                            "co": "[{\"text\":\"asset type*\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"typeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" dv-form-section \")][1]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__input \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"listfilter__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"typeId\" spellcheck=\"false\" tabindex=\"0\" type=\"text\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Press key",
+                "no_screenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test heading div \"New AttributesDo you want to ...\" is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"apm-modal-content\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-content \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-modal-content\" style=\"width: 500px; height: auto;\"><div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa"
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on button \"Copy New Attributes\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(., \"Copy New Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" confirm-buttons \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")][2]",
+                            "co": "[{\"text\":\"copy new attributes\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"copy new attributes\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" confirm-buttons \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"copy new attributes\"]]"
+                        },
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-primary\">Copy New Attributes</button>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test alert is present",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[@class=\"Toastify\"]//div[@role=\"alert\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" Toastify__toast-body \")]"
+                        },
+                        "targetOuterHTML": "<div role=\"alert\" class=\"Toastify__toast-body\">Asset Type update complete. \n\t\t\t\t\t\tMaintenance Strategy, Failure Profile, and Asset Standard information was cleared when the Asset Type was changed and "
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Toggle Edit",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"][3]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                        },
+                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on Attributes",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#0",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(., \"Attributes\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/*[local-name()=\"li\"][5]",
+                            "co": "[{\"text\":\"attributes\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"apm-side-tab-4\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-side-panel-tabs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"attributes\"]]"
+                        },
+                        "targetOuterHTML": "<li role=\"tab\" id=\"apm-side-tab-4\" aria-controls=\"apm-dv-tabpanel\" aria-selected=\"false\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"diamond\" class=\"svg-inline--fa fa-diamon"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_BOOL\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_BOOL",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_BOOL\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"yes\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/6s4GbnaZzML4tGNRfTqam\">SMCT_BOOL</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_INT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_INT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_INT\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"8\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"123\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][8]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][8]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/Uk06zowChfcX22CzLrjof\">SMCT_INT</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE_TIME\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE_TIME",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_DATE_TIME\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"4\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"feb 02, 2024, 5:00 pm\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][4]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][4]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/dofMXH6FOSzM3d8TB-Ktr\">SMCT_DATE_TIME</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_DATE\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_DATE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_DATE\") and not(contains(., \"SMCT_DATE_TIME\"))]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"5\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"jan 01, 2024\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][5]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/dR5BB0BR6WpR0D8m2H57W\">SMCT_DATE</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_STR\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_STR",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_STR\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"6\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"i am a string\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][6]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/EsbW67hnrvTHPm7milLgu\">SMCT_STR</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_MONEY\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_MONEY",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_MONEY\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"3\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"$10,000,000,000.00\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@*[local-name()=\"aria-selected\"]=\"false\"][2]/*[@*[local-name()=\"aria-selected\"]=\"false\"][2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/cqVzRm6V8j5Ocba1ZOMbl\">SMCT_MONEY</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_PIC\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_PIC",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_PIC\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][7]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"7\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][7]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"smct_pic\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][7]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][7]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/DOQVBcHnOLx_gvuybe18W\">SMCT_PIC</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Test div \"SMCT_FLOAT\" content",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "SMCT_FLOAT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"AssetAttributes\"]/*/div[contains(., \"SMCT_FLOAT\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"9\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"2\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"123.123\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[local-name()=\"div\"][9]/*[2]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][9]/*[local-name()=\"div\"][2]"
+                        },
+                        "targetOuterHTML": "<div role=\"gridcell\" tabindex=\"-1\" aria-selected=\"false\" aria-colindex=\"2\" style=\"width: 150px;\"><a href=\"/apm/admin/attributetypes/jMi-TCx4snLx6ErpLKwMB\">SMCT_FLOAT</a></div>"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on link \"MentorAPM\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm/asset/assets/qYdkaDeoot2OpuOSUnpzv#4",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(@class, \"apm-navigation-logo\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
+                            "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"home\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-navigation-logo \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"apm-navigation-logo\"><a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a></div>"
+                    }
+                },
+                "type": "click"
+            }
+        ],
+        "tags": [
+            "ASSET"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
+                    "name": "MENTOR_ENV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "dev@smct.com ",
+                    "pattern": "dev@smct.com ",
+                    "secure": false,
+                    "name": "TEST_USR",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "TEST_PASS",
+                    "type": "text"
+                },
+                {
+                    "example": "xqk-jia-yfx.7465114177@synthetics.synthetics.dtdg.co",
+                    "pattern": "xqk-jia-yfx.{{ numeric(10) }}@synthetics.synthetics.dtdg.co",
+                    "name": "TEST_EMAIL",
+                    "type": "email"
+                },
+                {
+                    "example": "sgNYDJQGmIFvEOA",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_FNAME",
+                    "type": "text"
+                },
+                {
+                    "example": "SIMTFWcCaeWWtLe",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_LNAME",
+                    "type": "text"
+                },
+                {
+                    "example": "68852416",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ALTID",
+                    "type": "text"
+                },
+                {
+                    "example": "836-222-8367",
+                    "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
+                    "secure": false,
+                    "name": "TEST_PHONE",
+                    "type": "text"
+                },
+                {
+                    "example": "irs-4jh-cpd.3926582466@synthetics.dtdg.co",
+                    "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
+                    "secure": false,
+                    "name": "TEST_EMAIL2",
+                    "type": "text"
+                },
+                {
+                    "example": "QyYPZAQwyTrriDC",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_FNAME2",
+                    "type": "text"
+                },
+                {
+                    "example": "NomojxNeQwYvCUx",
+                    "pattern": "{{ alphabetic(15) }}",
+                    "secure": false,
+                    "name": "TEST_LNAME2",
+                    "type": "text"
+                },
+                {
+                    "example": "74249172",
+                    "pattern": "{{ numeric(8) }}",
+                    "secure": false,
+                    "name": "TEST_ALTID2",
+                    "type": "text"
+                },
+                {
+                    "example": "592-458-2234",
+                    "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
+                    "secure": false,
+                    "name": "TEST_PHONE2",
+                    "type": "text"
+                },
+                {
+                    "example": "SMCT Workflow",
+                    "pattern": "SMCT Workflow",
+                    "secure": false,
+                    "name": "TEST_WRK_FORM",
+                    "type": "text"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
+            }
+        },
+        "locations": [
+            "aws:us-west-1"
+        ],
+        "message": "`004.003.001 Update_Asset`\n- Test modifies every characteristic of \"Test Asset Gamma\" to confirm update functionality.\n- Asset type is updated from \"TAT-2\" to \"TAT-1\".\n- Related asset attributes are checked if deleted/added when changing asset type.\n- All asset characteristics should be updated to the \"-1\" type as a result.\n- Checks modification of asset group, maintenance strategy, failure profile, asset standard, and 8 attributes.\"",
+        "name": "004.003.001 Update_Asset",
+        "options": {
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 300
+        },
+        "type": "browser"
+    }
+}
