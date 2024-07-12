@@ -183,26 +183,34 @@ def edit(data, type):
                         #     print("XPATH Updated to: " + USL["value"])
                         #     modified = True
 
-    # ~~~~~~~~~~~~~~~~~
-    # "params": {
-    #     "element": {
-    #         "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
-    #         "userLocator": {
-    #             "values": [
-    #                 {
-    #                     "type": "xpath",
-    #                     "value": "button[@data-testid=\"next-btn\"]"
-    #                 }
-    #             ],
-    #             "failTestOnCannotLocate": true
-    #         },
-    #         "multiLocator": 
     if type == "step_add":                
         for step in data["details"]["steps"]:
-            if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
-                if step["name"] == "[+] Click Next Button":
-                    print(step)
-                    input()
+            if "params" in step and "element" in step["params"]:
+                if "targetOuterHTML" in step["params"]["element"]:
+                    nextButton = "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\">"
+                    if nextButton in step["params"]["element"]["targetOuterHTML"]:
+                        step["name"] = 'Click on "Next"'
+                        step["params"]["element"]["userLocator"] = {
+                            'userLocator': {
+                                "values": [
+                                    {
+                                        "type": "xpath",
+                                        "value": "button[@data-testid=\"next-btn\"]"
+                                    }
+                                ],
+                                "failTestOnCannotLocate": True
+                            }
+                        }
+
+                # if 'next' in step["name"].lower():
+                #     print(step["name"])
+            #     RE_NXT_BUTTON = r'(?i)(?=\b|\W|^)(?=.*\bnext\b)(?=.*\bbutton\b)'
+            #     if 'next' in step["name"].lower():
+            #         print('FOUND STR', step["name"])
+            #         input()
+            #     if re.match(RE_NXT_BUTTON, step["name"]):
+            #         print('FOUND REGESX', step["name"])
+            #         input()
     
     # WIP: Way of stepping through subtests and edit Y/N? (WIP)
     # if type == "steps":
@@ -383,10 +391,9 @@ def fetch(type="full", t_name="test_name"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
     if validate_api():
-        fetch()
         # process_to_json()
         # extract_json()
-        # traversal_edit(edit, 'step_add')
+        traversal_edit(edit, 'step_add')
         # traversal_edit(edit, 'test-working')
         # traversal_edit(edit, 'name')
         # edit()
