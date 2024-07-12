@@ -27,8 +27,10 @@ configuration = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(".env")
 configuration.api_key["apiKeyAuth"] = env.get("DD_API")
 configuration.api_key["appKeyAuth"] = env.get("DD_APP")
-os.makedirs("./tests", exist_ok=True)
-os.makedirs("./tests-copy", exist_ok=True)
+main_dir = './tests/'
+backup_dir = './tests-copy'
+os.makedirs(main_dir, exist_ok=True)
+os.makedirs(backup_dir, exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Validate API is connected/working, should return 'True'
@@ -42,21 +44,24 @@ def validate_api():
 # Process data into JSON file
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def process_to_json(data, file_name):
-    with open(os.path.join("./tests/", file_name + ".json"), "w") as file:
+    with open(os.path.join(main_dir, file_name + ".json"), "w") as file:
         file.write(json.dumps(data, indent=4))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Extract data from JSON file
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def extract_json(file_name, dir="./tests/"):
-    with open(os.path.join(dir + "/", file_name + ".json"), 'r') as file:
+def extract_json(file_name, dir=main_dir):    
+    with open(os.path.join(dir, file_name + ".json"), 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Edit content within a JSON file
 #   Edit Types: "test-working", "restore", "id", "name", "xpath", "steps"
+#   Returns true when a modification has happened, otherwise false.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def edit(data, type):
+    modified = False
+
     # Test to see if traversal_edit() and edit() are working together.
     if type == "test-working":
         print("Parent: " + data["details"]["name"])
@@ -66,14 +71,15 @@ def edit(data, type):
                 for layered_sub_test in extract_json(step["name"])["steps"]:
                     if layered_sub_test["type"] == "playSubTest":
                         print("    Nested Subtest: " + str(layered_sub_test["name"]))  
-        return
 
     # Regeneration Edit
     # Recursivly throws, fetches, and updates ids to rebuild all tests
     # See full_restore() for more information
     if type == "restore":
+        modified = True
         test_name = data["details"]["name"]
-        if fetch("single", test_name)["does_exist"]: return
+        if fetch("single", test_name)["does_exist"]: 
+            return
         else:
             all_exist = False
             for step in data["details"]["steps"]:
@@ -111,15 +117,23 @@ def edit(data, type):
                         layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
 
     # Name Edit
-    # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
-    if type == "name": data["details"]["name"] = "COPY_" + data["details"]["name"]
-    
+    # Converts test and subtest names - change as needed
+    if type == "name": 
+        modified = True
+        # data["details"]["name"] = "COPY_" + data["details"]["name"]
+        data["details"]["name"] = data["details"]["name"].strip().replace(" ", "_")
+        # print(data["details"]["name"], data["details"]["name"].strip().replace(" ", "_"))
+
+        for step in data["details"]["steps"]:
+            if step["type"] == "playSubTest":
+                step["name"] = step["name"].strip().replace(" ", "_")
+                # print('subteste', step["name"], step["name"].strip().replace(" ", "_"))
+
     # Xpath Edit (CHANGE AS NEEDED)
     # Converts an XPATH statement into a new one such as @data-tip -> contains()
     # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
     # Just add/comment out the ones you want to run
     if type == "xpath":
-        modified = False
         for step in data["details"]["steps"]:
             if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
                 user_specified_locator = step["params"]["element"]["userLocator"]["values"]
@@ -168,30 +182,52 @@ def edit(data, type):
                         #     USL["value"] = f'//aside/a[contains(., "{location}")]'
                         #     print("XPATH Updated to: " + USL["value"])
                         #     modified = True
-                    
-        if modified: print("")
-        return modified
+
+    # ~~~~~~~~~~~~~~~~~
+    # "params": {
+    #     "element": {
+    #         "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+    #         "userLocator": {
+    #             "values": [
+    #                 {
+    #                     "type": "xpath",
+    #                     "value": "button[@data-testid=\"next-btn\"]"
+    #                 }
+    #             ],
+    #             "failTestOnCannotLocate": true
+    #         },
+    #         "multiLocator": 
+    if type == "step_add":                
+        for step in data["details"]["steps"]:
+            if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
+                if step["name"] == "[+] Click Next Button":
+                    print(step)
+                    input()
     
     # WIP: Way of stepping through subtests and edit Y/N? (WIP)
-    if type == "steps":
-        modified = False
-        RE_ESC = re.compile(r'.*x\sesc.*', re.IGNORECASE)
+    # if type == "steps":
+    #     modified = False
+    #     RE_ESC = re.compile(r'.*x\sesc.*', re.IGNORECASE)
 
-        for step in data["details"]["steps"]:
-            if step["type"] != "playSubTest":
-                if re.match(RE_ESC, step["name"]):
-                    print("Found step: " + step["name"])
-                    print(step)
-                    modified = True
-                    input('Edit this step? (Y/N): ')
+    #     for step in data["details"]["steps"]:
+    #         if step["type"] != "playSubTest":
+    #             if re.match(RE_ESC, step["name"]):
+    #                 print("Found step: " + step["name"])
+    #                 print(step)
+    #                 modified = True
+    #                 input('Edit this step? (Y/N): ')
 
-        if modified: print("")
-        return modified
+    #     if modified: print("")
+    #     return modified
+
+    # Always return modified true/false
+    if modified: print("")
+    return modified
     
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def throw(t_file, dir="./tests/"):
+def throw(t_file, dir=main_dir):
     data = extract_json(t_file, dir)
     # Uncomment if you want to only throw tests that do not exist. 
     # if fetch("single", data["name"])["does_exist"]:
@@ -223,22 +259,22 @@ def throw(t_file, dir="./tests/"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def traversal_edit(edit_function=edit, edit_type="", dir="./tests"):
+def traversal_edit(edit_function=edit, edit_type="", dir=main_dir):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        edit_function(data, edit_type)
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-        file_name_full = os.path.basename(file_path)
-        file_name = os.path.splitext(file_name_full)[0]
-        throw(file_name, dir)
+        if edit_function(data, edit_type):
+            with open(file_path, 'w') as file:
+                json.dump(data, file, indent=4)
+            file_name_full = os.path.basename(file_path)
+            file_name = os.path.splitext(file_name_full)[0]
+            throw(file_name, dir)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Make backup copies of every existing test from ./tests -> ./tests-copy
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def bulk_copy (dir_A="./tests", dir_B="./tests-copy"):  
+def bulk_copy (main_dir, backup_dir):  
     print("BROKEN. DO NOT USE RIGHT NOW")
     print("NEED TO MAKE CHANGES TO ID/NAME")
     print("CURRENTLY CAUSES DELETE ERRORS")
@@ -296,7 +332,7 @@ def nuke(dir, regex=r'^COPY_.*$'):
 #   To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
 #   This takes a minute or so to work to reconstruct everything
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def full_restore(dir="./tests"):
+def full_restore(dir=main_dir):
     print("Beginning full restore...")
     L = ["Sub-Child", "Child", "Parent"]
     for layer in range(3):
@@ -350,9 +386,11 @@ def main():
         fetch()
         # process_to_json()
         # extract_json()
-        # traversal_edit()
+        # traversal_edit(edit, 'step_add')
+        # traversal_edit(edit, 'test-working')
+        # traversal_edit(edit, 'name')
         # edit()
-        # throw()
+        # throw('[!] [+] Bill of Materials')
         # fetch()
         # bulk_copy()
         # delete()

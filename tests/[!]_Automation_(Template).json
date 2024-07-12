@@ -1,0 +1,786 @@
+{
+    "test_name": "[!]_Automation_(Template)",
+    "details": {
+        "created_at": "2024-06-22T14:10:24.620316+00:00",
+        "modified_at": "2024-07-12T19:57:42.972274+00:00",
+        "creator": {
+            "name": "Jimmy Mano",
+            "handle": "jimmy.mano@mentorapm.com",
+            "email": "jimmy.mano@mentorapm.com"
+        },
+        "monitor_id": 147703971,
+        "public_id": "r5q-c3y-rdt",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[!]_Login",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "s95-gth-bz8",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_Navigation_(Page)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "94x-a54-x6n",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_Admin",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "ekk-tsp-tp2",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_Inventory",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "htt-3hk-ffj",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_Assets",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "www-v58-8j6",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_Work",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "nhe-sss-i8m",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_Accounting",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "5c7-7xf-hwt",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Role_(Template)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "6pq-tmq-6t9",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "User_(Template)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "3zz-mpn-zbs",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Department_(Template)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "3fi-tac-xtu",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "System_Lookup_(Template)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "hgw-gex-w9i",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[+]_Add_Record_(Template)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "q4y-hwi-7ab",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[+]_Add_Record_(NEW)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "3p8-9ej-zpn",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[#]_Module_functions_(Template)",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "e46-rza-xrh",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[+] Click Submit Button",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@role=\"submit\" and @type=\"submit\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]",
+                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"submit-btn\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
+                        },
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "1. Dropdown Field",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"name\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"name\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"name\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"name\" id=\"name\" class=\"mui-mi-input-field form-input mui-mi-input-field-has-error form-input-error\">",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[+] Click dropdown",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-15lsz6c-indicatorContainer \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" listfilter__indicator \") and contains(concat(' ', normalize-space(@class), ' '), \" listfilter__dropdown-indicator \") and contains(concat(' ', normalize-space(@class), ' '), \" css-15lsz6c-indicatorContainer \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-15lsz6c-indicatorContainer \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"listfilter__indicator listfilter__dropdown-indicator css-15lsz6c-indicatorContainer\" aria-hidden=\"true\"><svg height=\"20\" width=\"20\" viewBox=\"0 0 20 20\" aria-hidden=\"true\" focusable=\"false\" ...",
+                        "url": "https://dev.mentorapm.com/apm/inventory/storeroomlocations?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "1. Toggle",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"name\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"name\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"name\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"name\" id=\"name\" class=\"mui-mi-input-field form-input mui-mi-input-field-has-error form-input-error\">",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[+] Click Toggle",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" react-switch-bg \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" react-switch-bg \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" react-switch-bg \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"react-switch-bg\" style=\"height: 122px; width: 224px; margin: 0px; position: relative; background: rgb(0, 136, 0); border-radius: 61px; cursor: pointer; transition: background 0.25s ease ...",
+                        "url": "https://dev.mentorapm.com/apm/inventory/types?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[!!!!!] SUBMIT [!!!!!] ",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"name\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"name\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"name\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"name\" id=\"name\" class=\"mui-mi-input-field form-input mui-mi-input-field-has-error form-input-error\">",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[+] Click Submit Button",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@role=\"submit\" and @type=\"submit\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]",
+                            "co": "[{\"text\":\"submit\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"submit-btn\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
+                        },
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[!!!!!] BACK ARROW [!!!!!] ",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@name=\"name\" and @type=\"text\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]",
+                            "co": "[{\"text\":\"name\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"name\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input \")]"
+                        },
+                        "targetOuterHTML": "<input type=\"text\" autocomplete=\"off\" name=\"name\" id=\"name\" class=\"mui-mi-input-field form-input mui-mi-input-field-has-error form-input-error\">",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[#] Click Back Arrow Button",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-8 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-chevron-left \")]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-left\" class=\"svg-inline--fa fa-chevron-left fa-w-8 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 ...",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles/3CKiJ_JcrE9KgHxjTgQTt"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[#] Assert Record was created",
+                "no_screenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "{{ TESTNAME }}",
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
+                            "co": "[{\"text\":\"djhnfkd\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"namedjhnfkddescriptiondhjtgkhshide money fieldsnopermit approval permissionnois crew?no\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMPanel-header-title \")]"
+                        },
+                        "targetOuterHTML": "<span class=\"APMPanel-header-title\" data-testid=\"detail-view-title\"><button class=\"apm-btn m-r-sm\" data-tooltip-id=\"apm-tooltip\" data-tooltip-content=\"Back\" data-tooltip-place=\"top\" type=\"button\" ...",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles/8mG9ZtFoqlOLKF-arGPK9"
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Click on link \"MentorAPM\"",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"a\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]",
+                            "co": "[{\"text\":\"mentorapm\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"mentorapm\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]"
+                        },
+                        "targetOuterHTML": "<a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a>",
+                        "url": "https://dev.mentorapm.com/apm"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[---] Click Select All Checkbox",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"1\" and @role=\"columnheader\"]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")]",
+                            "co": "",
+                            "ro": "//*[@role=\"columnheader\"]/*/*[local-name()=\"div\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"table3-checkbox\"></div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[---] Click First Checkbox",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/descendant::*[@*[local-name()=\"aria-colindex\"]=\"1\"]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")]",
+                            "co": "",
+                            "ro": "//*[@*[local-name()=\"aria-rowindex\"]=\"2\"]/*/*/*[local-name()=\"div\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"table3-checkbox\"></div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[---] Click Delete",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][6]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-trash-alt \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-trash-alt \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-14 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-trash-alt \")]"
+                        },
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"trash-alt\" class=\"svg-inline--fa fa-trash-alt fa-w-14 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[---] Click Yes",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-delete-btn \")]",
+                            "co": "[{\"text\":\"yes\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"delete 1 record?yes\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-delete-btn \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-delete-btn \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"table-header-delete-btn\" type=\"button\">Yes</button>",
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Click Dropdown Arrow",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-1wy0on6 \")]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"string\",\"textType\":\"innerText\"},{\"text\":\"string\",\"textType\":\"innerText\",\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"isNegativeAnchor\":true}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" select-input__indicators \") and contains(concat(' ', normalize-space(@class), ' '), \" css-1wy0on6 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-1wy0on6 \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__indicators css-1wy0on6\"><span class=\"select-input__indicator-separator css-1u9des2-indicatorSeparator\"></span><div class=\"select-input__indicator select-input__dropdown-indic ...",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 1",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"string\",\"textType\":\"directText\"},{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"stringdatedatetimeintegerfloatbooleanmoneyimagesignature\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-0\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-0\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">string</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 2",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"date\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-1\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-1\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">date</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 3",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"datetime\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-2\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-2\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">datetime</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 4",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][4]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"integer\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-3\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-3\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">integer</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 5",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][5]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"float\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-4\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-4\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">float</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 6",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][6]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"boolean\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-5\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-5\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">boolean</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 7",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][7]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"money\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-6\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-6\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">money</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[Dropdown] Option 8",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][8]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"image\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-7\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-7\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">image</div>",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "Select signature option",
+                "no_screenshot": false,
+                "params": {
+                    "element": {
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][9]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
+                            "co": "[{\"text\":\"signature\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-2-option-8\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
+                        },
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-2-option-8\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">signature</div ...",
+                        "url": "https://dev.mentorapm.com/apm/admin/attributetypes?limit=-1&page=-1&sortDir=ASC&sortId=id"
+                    }
+                },
+                "type": "click"
+            }
+        ],
+        "tags": [
+            "Template",
+            "team:qa"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "example": "https://dev.mentorapm.com/login",
+                    "pattern": "https://dev.mentorapm.com/login",
+                    "secure": false,
+                    "name": "LOGIN",
+                    "type": "text"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "https://dev.mentorapm.com/login",
+                    "pattern": "https://dev.mentorapm.com/login",
+                    "secure": false,
+                    "name": "LOGIN",
+                    "type": "text"
+                },
+                {
+                    "example": "dev@smct.com",
+                    "pattern": "dev@smct.com",
+                    "secure": false,
+                    "name": "EMAIL",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "PASSWORD",
+                    "type": "text"
+                },
+                {
+                    "id": "d2482e4c-781a-401a-a552-a48661f2cea2",
+                    "name": "ADMIN",
+                    "type": "global"
+                },
+                {
+                    "example": " Description placeholder text.",
+                    "pattern": " Description placeholder text.",
+                    "secure": false,
+                    "name": "DESCRIPTION",
+                    "type": "text"
+                },
+                {
+                    "id": "82d74769-e8f9-4356-aee5-4dd241b4d6af",
+                    "name": "TESTNAME",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ LOGIN }}"
+            }
+        },
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "message": "",
+        "name": "[!]_Automation_(Template)",
+        "options": {
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 604800
+        },
+        "type": "browser"
+    }
+}

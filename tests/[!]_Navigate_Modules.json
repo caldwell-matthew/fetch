@@ -1,0 +1,160 @@
+{
+    "test_name": "[!]_Navigate_Modules",
+    "details": {
+        "created_at": "2024-06-24T16:33:39.044918+00:00",
+        "modified_at": "2024-07-12T19:56:37.502236+00:00",
+        "creator": {
+            "name": "Jimmy Mano",
+            "handle": "jimmy.mano@mentorapm.com",
+            "email": "jimmy.mano@mentorapm.com"
+        },
+        "monitor_id": 147801856,
+        "public_id": "zhy-74q-uzr",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_0.1.a._Admin",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "ekk-tsp-tp2",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_0.1.b._Accounting",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "5c7-7xf-hwt",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_0.1.c._Inventory",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "htt-3hk-ffj",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_0.1.d._Work",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "nhe-sss-i8m",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]_0.1.e._Assets",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "www-v58-8j6",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            }
+        ],
+        "tags": [
+            "Template",
+            "team:qa"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "example": "https://dev.mentorapm.com/login",
+                    "pattern": "https://dev.mentorapm.com/login",
+                    "secure": false,
+                    "name": "LOGIN",
+                    "type": "text"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "example": "https://dev.mentorapm.com/login",
+                    "pattern": "https://dev.mentorapm.com/login",
+                    "secure": false,
+                    "name": "LOGIN",
+                    "type": "text"
+                },
+                {
+                    "example": "dev@smct.com",
+                    "pattern": "dev@smct.com",
+                    "secure": false,
+                    "name": "EMAIL",
+                    "type": "text"
+                },
+                {
+                    "example": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "pattern": "!M4ee9Ma82fM45fff3ab5a3d",
+                    "secure": false,
+                    "name": "PASSWORD",
+                    "type": "text"
+                },
+                {
+                    "id": "d2482e4c-781a-401a-a552-a48661f2cea2",
+                    "name": "ADMIN",
+                    "type": "global"
+                },
+                {
+                    "example": " Description placeholder text.",
+                    "pattern": " Description placeholder text.",
+                    "secure": false,
+                    "name": "DESCRIPTION",
+                    "type": "text"
+                },
+                {
+                    "id": "82d74769-e8f9-4356-aee5-4dd241b4d6af",
+                    "name": "TESTNAME",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ LOGIN }}"
+            }
+        },
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "message": "",
+        "name": "[!]_Navigate_Modules",
+        "options": {
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 604800
+        },
+        "type": "browser"
+    }
+}
