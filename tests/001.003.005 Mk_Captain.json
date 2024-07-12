@@ -2,7 +2,7 @@
     "test_name": "001.003.005 Mk_Captain",
     "details": {
         "created_at": "2024-03-06T21:35:13.118566+00:00",
-        "modified_at": "2024-03-06T21:49:01.522397+00:00",
+        "modified_at": "2024-05-11T15:26:09.664896+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -673,29 +673,20 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Toggle Edit\"",
+                "name": "Click on svg \"svg-inline--fa fa-pencil ...\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/users/e3AgjTBYGwPpCev3Iw2XE",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
+                        "url": "https://dev.mentorapm.com/apm/admin/roles/SMCTROLE1#1",
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][2]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@role=\"tabpanel\"]/descendant::*[@viewBox=\"0 0 512 512\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-pencil \")]",
                             "co": "",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-pencil \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-16 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-pencil \")]"
                         },
-                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"pencil\" class=\"svg-inline--fa fa-pencil fa-w-16 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path ..."
                     }
                 },
                 "type": "click"
@@ -790,34 +781,34 @@
                     "type": "text"
                 },
                 {
-                    "example": "2ut-ipi-7ha.4113459638@synthetics.dtdg.co",
+                    "example": "2ut-ipi-7ha.9466985531@synthetics.dtdg.co",
                     "pattern": "2ut-ipi-7ha.{{ numeric(10) }}@synthetics.dtdg.co",
                     "name": "TEST_EMAIL1",
                     "type": "email"
                 },
                 {
-                    "example": "FName-QuCKS",
+                    "example": "FName-toiQJ",
                     "pattern": "FName-{{ alphabetic(5) }}",
                     "secure": false,
                     "name": "TEST_FNAME1",
                     "type": "text"
                 },
                 {
-                    "example": "LName-hOKOy",
+                    "example": "LName-FknWm",
                     "pattern": "LName-{{ alphabetic(5) }}",
                     "secure": false,
                     "name": "TEST_LNAME1",
                     "type": "text"
                 },
                 {
-                    "example": "23563228",
+                    "example": "48668968",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID1",
                     "type": "text"
                 },
                 {
-                    "example": "795-761-2113",
+                    "example": "947-673-1456",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE1",

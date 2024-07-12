@@ -1,0 +1,185 @@
+{
+    "test_name": "[@] 0.1. Navigation (Page)",
+    "details": {
+        "created_at": "2024-06-18T15:14:09.548333+00:00",
+        "modified_at": "2024-06-22T14:26:11.012441+00:00",
+        "creator": {
+            "name": "Jimmy Mano",
+            "handle": "jimmy.mano@mentorapm.com",
+            "email": "jimmy.mano@mentorapm.com"
+        },
+        "monitor_id": 147394512,
+        "public_id": "94x-a54-x6n",
+        "status": "paused",
+        "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@] Home",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ HOME }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@] Admin & Setup",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ ADMIN }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@] Assets",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ ASSETS }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@] Work",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ WORK }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@] Inventory",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ INVENTORY }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@] Accounting",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ ACCOUNTING }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]  Channels",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ CHANNELS }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "[@]  Map",
+                "no_screenshot": false,
+                "params": {
+                    "value": "{{ MAP }}"
+                },
+                "type": "goToUrl"
+            }
+        ],
+        "tags": [
+            "team:qa"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "id": "d2482e4c-781a-401a-a552-a48661f2cea2",
+                    "name": "ADMIN",
+                    "type": "global"
+                },
+                {
+                    "id": "196a8037-7711-470b-8dfd-93eaa2f1fd2f",
+                    "name": "ASSETS",
+                    "type": "global"
+                },
+                {
+                    "id": "05dc1f08-4342-4180-980f-e99b6126ce53",
+                    "name": "WORK",
+                    "type": "global"
+                },
+                {
+                    "id": "5f349110-2024-4c33-95eb-48824eb0ca87",
+                    "name": "HOME",
+                    "type": "global"
+                },
+                {
+                    "id": "16e63943-ceee-48a8-9639-08c30f419a81",
+                    "name": "INVENTORY",
+                    "type": "global"
+                },
+                {
+                    "id": "ad7c1f85-645f-41ff-9a8f-4ba20c85e7fa",
+                    "name": "ACCOUNTING",
+                    "type": "global"
+                },
+                {
+                    "id": "03d620cd-a53c-4b53-9069-05374c7a22e0",
+                    "name": "CHANNELS",
+                    "type": "global"
+                },
+                {
+                    "id": "fa6bd21c-285a-4eb7-86c8-2470944e012c",
+                    "name": "MAP",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "https://dev.mentorapm.com/apm"
+            }
+        },
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "message": "",
+        "name": "[@] 0.1. Navigation (Page)",
+        "options": {
+            "bindings": [],
+            "enableProfiling": false,
+            "enableSecurityTesting": false,
+            "device_ids": [
+                "chrome.laptop_large"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {
+                "notification_preset_name": "show_all"
+            },
+            "no_screenshot": false,
+            "retry": {
+                "count": 0,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "application_id": "7372fdca-35b0-42f6-86e1-b994dc85d451",
+                "client_token_id": 85674,
+                "is_enabled": true
+            },
+            "tick_every": 604800
+        },
+        "type": "browser"
+    }
+}

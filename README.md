@@ -1,62 +1,70 @@
 # Fetch.py
 
-A script to 'fetch' and 'throw' DataDog tests.
+A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 
 ## Installation Guide
 
 - Have Python 3+ installed with dependencies (datadog_api_client and dotenv).
-- Enter DataDog configuration variables `DD_API` and `DD_APP` in a file named `.env`.
+- Enter DataDog configuration variables `DD_API` and `DD_APP` in `.env`.
 - Modify the `main()` function to reference whichever function you want to run.
-- Run the script using Python 3: `./fetch.py`
+- Run the script using: `python3 ./fetch.py`
 
 ## Functions
 
 ### `validate_api()`
+
 - Checks if DataDog's API configuration is valid.
 
 ### `process_to_json()`
+
 - Converts online test data into raw JSON format.
 
 ### `extract_json()`
+
 - Reads raw JSON test data from a directory (default: `./tests/`).
 
 ### `traversal_edit()`
+
 - Wrapper to traverse all files in a directory while performing an edit function.
 
 ### `edit()`
+
 - Edits content within a JSON file based on the specified edit type.
 - Edit types:
-  - "test-working"  : Test to see if traversal_edit() and edit() are working
-  - "restore"       : See `full_restore()`
-  - "id"            : Converts `'OLD_ID'` -> `'NEW_ID'`
-  - "name"          : Converts `'TEST_NAME'` -> `'COPY_TEST_NAME'`
-  - "xpath"         : Converts `'OLD_XPATH'` -> `'NEW_XPATH'`
-  - "steps"         : Way of stepping through subtests and edit Y/N? (WIP)
+  - "test-working" : Test to see if traversal_edit() and edit() are working
+  - "restore" : See `full_restore()`
+  - "id" : Converts `'OLD_ID'` -> `'NEW_ID'`
+  - "name" : Converts `'TEST_NAME'` -> `'COPY_TEST_NAME'`
+  - "xpath" : Converts `'OLD_XPATH'` -> `'NEW_XPATH'`
+  - "steps" : Way of stepping through subtests and edit Y/N? (WIP)
 
 ### `throw()`
+
 - Creates or edits a DataDog test from JSON in a directory.
 - Also calls the `fetch()` function to ensure the JSON file is updated.
 
 ### `fetch()`
+
 - Pulls or fetches tests from DataDog.com and converts them into JSON.
 - Fetch types:
-  - "full"   : Fetch all existing tests from DataDog and update all files.
-  - "quick"  : Only fetch new tests that do not exist in directory.
+  - "full" : Fetch all existing tests from DataDog and update all files.
+  - "quick" : Only fetch new tests that do not exist in directory.
   - "single" : Only fetch one test by name provided name if exists.
 
 ### `bulk_copy()`
+
 - Creates a backup copy of every existing test from the source directory.
 
 ### `delete()`
+
 - Deletes a singular test file from a specified directory and DataDog.com.
 
 ### `nuke()`
+
 - Deletes ALL tests and related JSON files in a specified directory and on Datadog.com, optionally using a regex.
-- Default regex targets files starting with "COPY_".
+- Default regex targets files starting with "COPY\_".
 - This should rarely need to be done, if ever. Use with extreme caution.
 
 ### `full_restore()`
-- Rebuilds, throws, and fetches all DataDog tests from a JSON backup directory.
 
--------------
-pytest run.py
+- Rebuilds, throws, and fetches all DataDog tests from a JSON backup directory.

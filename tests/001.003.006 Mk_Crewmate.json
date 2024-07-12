@@ -2,7 +2,7 @@
     "test_name": "001.003.006 Mk_Crewmate",
     "details": {
         "created_at": "2024-03-06T21:35:18.521529+00:00",
-        "modified_at": "2024-03-06T21:49:04.044583+00:00",
+        "modified_at": "2024-05-11T15:26:05.139969+00:00",
         "creator": {
             "name": "Matthew Caldwell",
             "handle": "matthew.caldwell@mentorapm.com",
@@ -673,29 +673,20 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "Click on \"Toggle Edit\"",
+                "name": "Click on svg \"svg-inline--fa fa-pencil ...\"",
                 "no_screenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm/admin/users/UfstRUKhWxO6WoGnhYOCl",
-                        "userLocator": {
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@data-testid=\"dv-edit-btn\"]"
-                                }
-                            ],
-                            "failTestOnCannotLocate": true
-                        },
+                        "url": "https://dev.mentorapm.com/apm/admin/roles/SMCTROLE1#1",
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-readonly\"]=\"true\"]/descendant::*[@type=\"button\"]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][2]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
+                            "at": "/descendant::*[@role=\"tabpanel\"]/descendant::*[@viewBox=\"0 0 512 512\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-pencil \")]",
                             "co": "",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-primary \")]"
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-pencil \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-16 \")]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-pencil \")]"
                         },
-                        "targetOuterHTML": "<button data-testid=\"dv-edit-btn\" data-tooltip-content=\"Close Edit Mode\" data-tooltip-id=\"apm-tooltip\" class=\"apm-btn apm-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-pref"
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"pencil\" class=\"svg-inline--fa fa-pencil fa-w-16 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path ..."
                     }
                 },
                 "type": "click"
@@ -760,69 +751,69 @@
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.9631952723@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.1364476539@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "name": "TEST_EMAIL",
                     "type": "email"
                 },
                 {
-                    "example": "CUpSIcMIFBCAJuv",
+                    "example": "iQAvcVhVWBwqDVO",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_FNAME",
                     "type": "text"
                 },
                 {
-                    "example": "eHqDwKdZJSUTmOC",
+                    "example": "CxDopSDwAKcThxF",
                     "pattern": "{{ alphabetic(15) }}",
                     "secure": false,
                     "name": "TEST_LNAME",
                     "type": "text"
                 },
                 {
-                    "example": "17867178",
+                    "example": "49469244",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID",
                     "type": "text"
                 },
                 {
-                    "example": "245-235-9391",
+                    "example": "334-362-5856",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE",
                     "type": "text"
                 },
                 {
-                    "example": "irs-4jh-cpd.8915746925@synthetics.dtdg.co",
+                    "example": "irs-4jh-cpd.7276447852@synthetics.dtdg.co",
                     "pattern": "irs-4jh-cpd.{{ numeric(10) }}@synthetics.dtdg.co",
                     "secure": false,
                     "name": "TEST_EMAIL2",
                     "type": "text"
                 },
                 {
-                    "example": "FName-chkoY",
+                    "example": "FName-EMgTR",
                     "pattern": "FName-{{ alphabetic(5) }}",
                     "secure": false,
                     "name": "TEST_FNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "LName-vIzWR",
+                    "example": "LName-QJQqc",
                     "pattern": "LName-{{ alphabetic(5) }}",
                     "secure": false,
                     "name": "TEST_LNAME2",
                     "type": "text"
                 },
                 {
-                    "example": "52287332",
+                    "example": "23516242",
                     "pattern": "{{ numeric(8) }}",
                     "secure": false,
                     "name": "TEST_ALTID2",
                     "type": "text"
                 },
                 {
-                    "example": "616-885-6657",
+                    "example": "275-198-1932",
                     "pattern": "{{ numeric(3) }}-{{ numeric(3) }}-{{ numeric(4) }}",
                     "secure": false,
                     "name": "TEST_PHONE2",
