@@ -393,7 +393,7 @@ def main():
     if validate_api():
         # process_to_json()
         # extract_json()
-        traversal_edit(edit, 'step_add')
+        # traversal_edit(edit, 'step_add')
         # traversal_edit(edit, 'test-working')
         # traversal_edit(edit, 'name')
         # edit()
@@ -402,7 +402,7 @@ def main():
         # bulk_copy()
         # delete()
         # nuke() 
-        # full_restore()
+        full_restore()
 
 if __name__ == "__main__":
     main()
