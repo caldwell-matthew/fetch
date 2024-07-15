@@ -1,17 +1,28 @@
 {
-    "test_name": "[!]_Bulk_Insert_Functions",
+    "test_name": "Role_(Bulk)_(Template)",
     "details": {
-        "created_at": "2024-06-28T20:28:41.269481+00:00",
-        "modified_at": "2024-07-12T23:12:17.552412+00:00",
+        "created_at": "2024-07-12T22:01:59.124887+00:00",
+        "modified_at": "2024-07-12T22:15:48.654010+00:00",
         "creator": {
-            "name": "Jimmy Mano",
-            "handle": "jimmy.mano@mentorapm.com",
-            "email": "jimmy.mano@mentorapm.com"
+            "name": "Matthew Caldwell",
+            "handle": "matthew.caldwell@mentorapm.com",
+            "email": "matthew.caldwell@mentorapm.com"
         },
-        "monitor_id": 148166141,
-        "public_id": "rgy-b42-tqr",
+        "monitor_id": 149163639,
+        "public_id": "qgp-qwv-cuk",
         "status": "paused",
         "steps": [
+            {
+                "allow_failure": false,
+                "is_critical": true,
+                "name": "LOGIN",
+                "no_screenshot": false,
+                "params": {
+                    "subtestPublicId": "s95-gth-bz8",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
             {
                 "allow_failure": false,
                 "is_critical": true,
@@ -29,6 +40,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"ol\"][1]/*[local-name()=\"li\"][2]/*[local-name()=\"strong\"][1]",
                             "at": "",
@@ -37,71 +49,7 @@
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"roles\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMBreadcrumbs \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"roles\"]]"
                         },
-                        "targetOuterHTML": "<strong>Roles</strong>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "[+++] Click Select All Checkbox",
-                "no_screenshot": false,
-                "params": {
-                    "element": {
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-colindex\"]=\"1\" and @role=\"columnheader\"]/*[local-name()=\"label\"][1]/*[local-name()=\"div\"][1]",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")]",
-                            "co": "",
-                            "ro": "//*[@role=\"columnheader\"]/*/*[local-name()=\"div\"]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3 \")]/*[local-name()=\"div\"][1]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table3-checkbox \")]"
-                        },
-                        "targetOuterHTML": "<div class=\"table3-checkbox\"></div>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "[+++] Click Delete Button",
-                "no_screenshot": false,
-                "params": {
-                    "element": {
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][6]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-trash-alt \")]",
-                            "co": "",
-                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-trash-alt \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-14 \")]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-trash-alt \")]"
-                        },
-                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"trash-alt\" class=\"svg-inline--fa fa-trash-alt fa-w-14 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allow_failure": false,
-                "is_critical": true,
-                "name": "[+++] Click Yes",
-                "no_screenshot": false,
-                "params": {
-                    "element": {
-                        "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
-                            "at": "",
-                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-delete-btn \")]",
-                            "co": "[{\"text\":\"yes\",\"textType\":\"directText\"}]",
-                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"yes\"]]",
-                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" table-header-delete-btn \")]"
-                        },
-                        "targetOuterHTML": "<button class=\"table-header-delete-btn\" type=\"button\">Yes</button>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=name"
+                        "targetOuterHTML": "<strong>Roles</strong>"
                     }
                 },
                 "type": "click"
@@ -113,6 +61,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][3]/*[local-name()=\"button\"][1]/*[local-name()=\"svg\"][1]",
                             "at": "",
@@ -121,8 +70,7 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" svg-inline--fa \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-upload \") and contains(concat(' ', normalize-space(@class), ' '), \" fa-w-16 \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" fa-upload \")]"
                         },
-                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"upload\" class=\"svg-inline--fa fa-upload fa-w-16 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill=",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"upload\" class=\"svg-inline--fa fa-upload fa-w-16 \" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path fill="
                     }
                 },
                 "type": "click"
@@ -134,6 +82,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"p\"][1]",
                             "at": "",
@@ -142,8 +91,7 @@
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"upload file(s)\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mui-mi-file-input \")]"
                         },
-                        "targetOuterHTML": "<p class=\"mui-mi-file-input\">Upload File(s)</p>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<p class=\"mui-mi-file-input\">Upload File(s)</p>"
                     }
                 },
                 "type": "click"
@@ -156,12 +104,13 @@
                 "params": {
                     "files": [
                         {
-                            "name": "Datadog Role CSV.csv",
-                            "size": 2635,
-                            "bucketKey": "browser-upload-file-step/rgy-b42-tqr/2024-07-12T19:57:11.437157_fab9559d-dcde-4d83-88e9-88e974fd9bd9.json"
+                            "name": "Datadog Role CSV - Datadog Role CSV.csv.csv",
+                            "size": 1023,
+                            "bucketKey": "browser-upload-file-step/qgp-qwv-cuk/2024-07-12T22:01:59.258838_311ccfa6-3b36-4a4d-a083-e09b67aa56b8.json"
                         }
                     ],
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]",
                             "at": "/descendant::*[@accept=\"text/*\" and @type=\"file\"]",
@@ -170,8 +119,7 @@
                             "ro": "//*[@accept=\"text/*\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-body \")]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"input\"][1]"
                         },
-                        "targetOuterHTML": "<input accept=\"text/*\" type=\"file\" autocomplete=\"off\" tabindex=\"-1\" style=\"display: none;\">",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<input accept=\"text/*\" type=\"file\" autocomplete=\"off\" tabindex=\"-1\" style=\"display: none;\">"
                     },
                     "withClick": false
                 },
@@ -180,10 +128,11 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "[+++] Click Name",
+                "name": "[+++] Click Name dropdown",
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"table\"][1]/*[local-name()=\"thead\"][1]/*[local-name()=\"tr\"][1]/*[local-name()=\"th\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"svg\"][1]",
                             "at": "",
@@ -191,8 +140,7 @@
                             "co": "",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" simple-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-8mmkcg \")][2]"
                         },
-                        "targetOuterHTML": "<svg height=\"20\" width=\"20\" viewBox=\"0 0 20 20\" aria-hidden=\"true\" focusable=\"false\" class=\"css-8mmkcg\"><path d=\"M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<svg height=\"20\" width=\"20\" viewBox=\"0 0 20 20\" aria-hidden=\"true\" focusable=\"false\" class=\"css-8mmkcg\"><path d=\"M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-"
                     }
                 },
                 "type": "click"
@@ -200,20 +148,20 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "[+++] Click Option",
+                "name": "Click on Option-1",
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=25&page=1&sort=createdAt%20DESC",
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"table\"][1]/*[local-name()=\"thead\"][1]/*[local-name()=\"tr\"][1]/*[local-name()=\"th\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
-                            "at": "/descendant::*[@role=\"listbox\"]/descendant::*[@*[local-name()=\"aria-disabled\"]=\"false\"][1]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][18]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"table\"][1]/*[local-name()=\"thead\"][1]/*[local-name()=\"tr\"][1]/*[local-name()=\"th\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]",
+                            "at": "/descendant::*[@role=\"listbox\"]/descendant::*[@*[local-name()=\"aria-disabled\"]=\"false\"][2]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
-                            "co": "[{\"text\":\"name\",\"textType\":\"directText\"},{\"text\":\"start at row:\",\"textType\":\"directText\"}]",
-                            "ro": "//*[@id=\"react-select-3-option-0\"]",
+                            "co": "[{\"text\":\"name\",\"textType\":\"directText\"},{\"relation\":\"BEFORE\",\"tagName\":\"SPAN\",\"text\":\"descriptionname\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"react-select-3-option-1\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
                         },
-                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-3-option-0\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">Name</div>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-3-option-1\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">Name</div>"
                     }
                 },
                 "type": "click"
@@ -221,10 +169,11 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "[+++] Click Description",
+                "name": "[+++] Click Description Dropdown",
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"table\"][1]/*[local-name()=\"thead\"][1]/*[local-name()=\"tr\"][1]/*[local-name()=\"th\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]",
                             "at": "",
@@ -233,8 +182,7 @@
                             "ro": "//*[2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[2]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" simple-table \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-19bb58m \")][2]"
                         },
-                        "targetOuterHTML": "<div class=\"select-input__input-container css-19bb58m\" data-value=\"\"><input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"react-select-4-input\" spellcheck=",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<div class=\"select-input__input-container css-19bb58m\" data-value=\"\"><input class=\"select-input__input\" autocapitalize=\"none\" autocomplete=\"off\" autocorrect=\"off\" id=\"react-select-4-input\" spellcheck="
                     }
                 },
                 "type": "click"
@@ -242,20 +190,20 @@
             {
                 "allow_failure": false,
                 "is_critical": true,
-                "name": "[+++] Click option",
+                "name": "[+++] Click Option-0",
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
-                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"table\"][1]/*[local-name()=\"thead\"][1]/*[local-name()=\"tr\"][1]/*[local-name()=\"th\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
-                            "at": "/descendant::*[@*[local-name()=\"aria-disabled\"]=\"false\" and @role=\"option\"]",
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"table\"][1]/*[local-name()=\"thead\"][1]/*[local-name()=\"tr\"][1]/*[local-name()=\"th\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
+                            "at": "/descendant::*[@role=\"listbox\"]/descendant::*[@*[local-name()=\"aria-disabled\"]=\"false\"][1]",
                             "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]",
-                            "co": "[{\"text\":\"description\",\"textType\":\"directText\"},{\"text\":\"start at row:\",\"textType\":\"directText\"}]",
-                            "ro": "//*[@id=\"react-select-4-option-0\"]",
+                            "co": "[{\"text\":\"name\",\"textType\":\"directText\"},{\"text\":\"start at row:\",\"textType\":\"directText\"}]",
+                            "ro": "//*[@id=\"react-select-3-option-0\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" css-zkg21e-option \")]"
                         },
-                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-4-option-0\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">Description</d",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<div class=\"select-input__option select-input__option--is-focused css-zkg21e-option\" aria-disabled=\"false\" id=\"react-select-3-option-0\" tabindex=\"-1\" role=\"option\" aria-selected=\"false\">Name</div>"
                     }
                 },
                 "type": "click"
@@ -267,6 +215,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"ul\"][1]/*[local-name()=\"li\"][3]/*[local-name()=\"p\"][1]",
                             "at": "",
@@ -275,8 +224,7 @@
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"validation\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" tab-arrows \")]/descendant::*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"validation\"]]"
                         },
-                        "targetOuterHTML": "<p>Validation</p>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<p>Validation</p>"
                     }
                 },
                 "type": "click"
@@ -288,6 +236,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]",
                             "at": "",
@@ -296,8 +245,7 @@
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"upload\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")]"
                         },
-                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Upload 27 records <svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"upload\" class=\"svg-inline--fa fa-upload fa-w-16 \" role=\"img",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<button type=\"button\" class=\"apm-btn apm-btn-block\">Upload 27 records <svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fal\" data-icon=\"upload\" class=\"svg-inline--fa fa-upload fa-w-16 \" role=\"img"
                     }
                 },
                 "type": "click"
@@ -309,6 +257,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"button\"][1]",
                             "at": "",
@@ -317,8 +266,7 @@
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"reload page\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-block\">Reload Page</button>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<button class=\"apm-btn apm-btn-block\">Reload Page</button>"
                     }
                 },
                 "type": "click"
@@ -330,6 +278,7 @@
                 "no_screenshot": false,
                 "params": {
                     "element": {
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
                         "multiLocator": {
                             "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"aside\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"a\"][1]",
                             "at": "",
@@ -338,8 +287,7 @@
                             "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"mentorapm\"]]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" APMLogo \")]"
                         },
-                        "targetOuterHTML": "<a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a>",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "targetOuterHTML": "<a href=\"/apm\" class=\"APMLogo APMLogo-is-mini\">MentorAPM</a>"
                     }
                 },
                 "type": "click"
@@ -347,6 +295,7 @@
         ],
         "tags": [
             "Template",
+            "Solo",
             "team:qa"
         ],
         "config": {
@@ -415,7 +364,7 @@
             "gcp:us-west2"
         ],
         "message": "",
-        "name": "[!]_Bulk_Insert_Functions",
+        "name": "Role_(Bulk)_(Template)",
         "options": {
             "device_ids": [
                 "chrome.laptop_large"
