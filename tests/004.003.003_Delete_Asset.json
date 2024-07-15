@@ -373,7 +373,16 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \") and @type=\"button\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" buttons \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8"
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right fa-w-8",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"

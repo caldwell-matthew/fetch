@@ -8,6 +8,7 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 - Create or locate your DataDog API and Application keys for `fetch` to reference.
 
   - If you are setting this up for the first time, create new keys with the links below.
+  - https://docs.datadoghq.com/api/latest/synthetics
   - https://app.datadoghq.com/organization-settings/api-keys
   - https://app.datadoghq.com/organization-settings/application-keys
 

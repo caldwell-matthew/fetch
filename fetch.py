@@ -3,7 +3,6 @@
 #   Created By  : Matthew Caldwell
 #   Created On  : 20240214
 #   Description : Script to 'fetch' and 'throw' DataDog tests
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 import json, os, re, certifi
 from dotenv import dotenv_values
@@ -14,49 +13,43 @@ from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_delete_tests_payload import SyntheticsDeleteTestsPayload
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Config/Setup (See https://docs.datadoghq.com/api/latest/synthetics/)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Config/Setup (See README for instructions)
 configuration = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(".env")
 configuration.api_key["apiKeyAuth"] = env.get("DD_API") 
 configuration.api_key["appKeyAuth"] = env.get("DD_APP") 
-main_dir = './tests/'
-backup_dir = './tests-copy/'
-os.makedirs(main_dir, exist_ok=True)
-os.makedirs(backup_dir, exist_ok=True)
+MAIN_DIR = './tests/'
+os.makedirs(MAIN_DIR, exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Validate API is connected/working, should return 'True'
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Validate API
+#   Confirm that DataDog API is connected/working. Should return True, otherwise False
 def validate_api():
     print("DataDog API Working...")
     with ApiClient(configuration) as api_client:
         return AuthenticationApi(api_client).validate()
-
+    
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Process data into JSON files
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def process_to_json(data, file_name):
-    file_path = os.path.join("./tests/", file_name)
+def process_to_json(data, file_name, dir=MAIN_DIR):
+    file_path = os.path.join(dir, file_name)
     json_data = json.dumps(data, indent=4)
     with open(file_path, "w") as file:
         file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Extract data from a JSON files
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def extract_json(file_name, dir="./tests/"):
+def extract_json(file_name, dir=MAIN_DIR):
     file_path = os.path.join(dir, file_name + ".json")
     with open(file_path, 'r') as file:
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Edit content within a JSON file, edit type varies
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def edit(data, type):
     # Regeneration Edit
-    # Recursivly throws, fetches, and updates ids to rebuild all tests
-    # See full_restore() for more information
+    #   Recursivly throws, fetches, and updates ids to rebuild all tests on DataDog.com
+    #   See full_restore() for more information
     if type == "restore":
         test_name = data["details"]["name"]
         if fetch("single", test_name)["does_exist"]:
@@ -85,8 +78,8 @@ def edit(data, type):
                     edit(data, "id")
             
     # ID Edit
-    # Converts 'OLD_ID' -> 'NEW_ID' 
-    # Step through every reference to the subtest or nested test and update id      
+    #   Converts 'OLD_ID' -> 'NEW_ID' 
+    #   Step through every reference to the subtest or nested test and update id      
     if type == "id":
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
@@ -96,16 +89,11 @@ def edit(data, type):
                     if layered_sub_test["type"] == "playSubTest":
                         new_layered_step_id = extract_json(layered_sub_test["name"])["public_id"]
                         layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
-
-    # Name Edit
-    # Converts 'TEST_NAME' -> 'COPY_TEST_NAME'
-    if type == "name":
-        data["details"]["name"] = "COPY_" + data["details"]["name"]
     
     # Xpath Edit (CHANGE AS NEEDED)
-    # Converts an XPATH statement into a new one such as @data-tip -> contains()
-    # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
-    # Just add/comment out the ones you want to run
+    #   Converts an XPATH statement into a new one such as @data-tip -> contains()
+    #   EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
+    #   Just add/comment out the ones you want to run
     if type == "xpath":
 
         # Placeholder - Comment this out when ready to use
@@ -154,10 +142,10 @@ def edit(data, type):
                             print("XPATH Updated to: " + USL["value"])
                     
     # Step Edit (CHANGE AS NEEDED)
-    # Adds a new parameter, element, xpath, or otherwise modifies something within a test step
-    # If you just need an existing XPATH changed and nothing else, see edit("xpath")
-    # edit("steps) should only be used when you need to insert/create an entirely new obj within a test step
-    # Just add/comment out the ones you want to run
+    #   Adds a new parameter, element, xpath, or otherwise modifies something within a test step
+    #   If you just need an existing XPATH changed and nothing else, see edit("xpath")
+    #   edit("steps) should only be used when you need to insert/create an entirely new obj within a test step
+    #   Just add/comment out the ones you want to run
     if type == "steps":
 
         # Placeholder - Comment this out when ready to use
@@ -196,8 +184,7 @@ def edit(data, type):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def throw(t_file, dir="./tests/"):
+def throw(t_file, dir=MAIN_DIR):
     data = extract_json(t_file, dir)
     # if fetch("single", data["name"])["does_exist"]:
     #     return
@@ -227,8 +214,7 @@ def throw(t_file, dir="./tests/"):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
+def traversal_edit(dir=MAIN_DIR, edit_function=edit, edit_type=""):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
@@ -241,22 +227,7 @@ def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
         throw(file_name, dir)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Make backup copies of every existing test from ./tests -> ./tests-copy
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def bulk_copy (dir_A="./tests", dir_B="./tests-copy"):  
-    print("BROKEN. DO NOT USE RIGHT NOW")
-    print("NEED TO MAKE CHANGES TO ID/NAME")
-    # print("\nBeginning bulk name edit...")
-    # for file in os.listdir(dir_A):
-    #     file = os.path.join(dir_A, file)
-    #     copy_file_name = "COPY_" + os.path.basename(file)
-    #     copy_file = os.path.join(dir_B, copy_file_name)
-    #     shutil.copyfile(file, copy_file)
-    # traversal_edit(dir_B, edit, "name")
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete tests
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def delete(t_file, dir):
     print("\nDeleting tests...")
     data = extract_json(t_file, dir)
@@ -278,7 +249,6 @@ def delete(t_file, dir):
 #   WARNING: INVOKE WITH EXTREME CAUTION!!!
 #   I HAVE LOST ALL MY TESTS TWICE BY MISHANDLING THIS. (PLEASE BACKUP YOUR FILES)
 #   YOU SHOULD ALMOST NEVER EVER EVER NEED TO USE THIS.
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def nuke(dir, regex=r'^COPY_.*$'):
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Preparing to delete all related tests/files in " + dir + " ...")
@@ -299,8 +269,7 @@ def nuke(dir, regex=r'^COPY_.*$'):
 # Completly rebuild, throw, and fetch all DataDog tests from JSON backup
 #   To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
 #   This takes a minute or so to work to reconstruct everything
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def full_restore(dir="./tests"):
+def full_restore(dir=MAIN_DIR):
     print("Beginning full restore...")
     L = ["Sub-Child", "Child", "Parent"]
     for layer in range(3):
@@ -313,7 +282,6 @@ def full_restore(dir="./tests"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 #   fetch() can be of type "full", "quick", or "single" (if given a testname)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def fetch(type="full", t_name="test_name"):
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
@@ -348,18 +316,11 @@ def fetch(type="full", t_name="test_name"):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
     if validate_api():
-        # print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        # print("Preparing to delete all related tests/files in " + dir + " ...")
-        # print("REGEX pattern is currently set to : '" + regex + "' ...")
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-        # cmd = input('What do you want to do?')
         # full_restore()
         # fetch()
-        traversal_edit('./tests-edit/', edit, "steps")
-        #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
+        traversal_edit(MAIN_DIR, edit, "steps")
         # throw(t_file='TEST_CPY', dir='./tests-edit/')
 
 if __name__ == "__main__":

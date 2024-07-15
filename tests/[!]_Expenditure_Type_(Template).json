@@ -123,7 +123,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -176,7 +185,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -239,7 +257,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
                         "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -324,7 +351,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -377,7 +413,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -440,7 +485,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
                         "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -525,7 +579,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -578,7 +641,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -641,7 +713,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
                         "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -726,7 +807,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -779,7 +869,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
                         "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -842,7 +941,16 @@
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
                         "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
-                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id"
+                        "url": "https://dev.mentorapm.com/apm/admin/roles?limit=-1&page=1&sortDir=ASC&sortId=id",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"

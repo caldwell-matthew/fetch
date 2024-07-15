@@ -113,7 +113,16 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ..."
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -156,7 +165,16 @@
                             "ro": "//*[@id=\"submit-btn\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
-                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ..."
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -241,7 +259,16 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ..."
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -284,7 +311,16 @@
                             "ro": "//*[@id=\"submit-btn\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
-                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ..."
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -369,7 +405,16 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ..."
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -412,7 +457,16 @@
                             "ro": "//*[@id=\"submit-btn\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
-                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ..."
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -497,7 +551,16 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ..."
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -540,7 +603,16 @@
                             "ro": "//*[@id=\"submit-btn\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
-                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ..."
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -625,7 +697,16 @@
                             "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn \") and contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" nav-btn \")]"
                         },
-                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ..."
+                        "targetOuterHTML": "<button class=\"apm-btn nav-btn\" data-testid=\"next-btn\" type=\"button\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"chevron-right\" class=\"svg-inline--fa fa-chevron-right ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@data-testid=\"next-btn\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
@@ -668,7 +749,16 @@
                             "ro": "//*[@id=\"submit-btn\"]",
                             "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-btn-success \")]"
                         },
-                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ..."
+                        "targetOuterHTML": "<button id=\"submit-btn\" class=\"apm-btn apm-btn-success nav-btn-submit\" type=\"submit\" role=\"submit\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"far\" data-icon=\"check\" class=\"svg-inline--fa ...",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@role=\"submit\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        }
                     }
                 },
                 "type": "click"
