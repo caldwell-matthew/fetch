@@ -21,7 +21,7 @@ env = dotenv_values(".env")
 configuration.api_key["apiKeyAuth"] = env.get("DD_API") 
 configuration.api_key["appKeyAuth"] = env.get("DD_APP") 
 main_dir = './tests/'
-backup_dir = './tests-copy'
+backup_dir = './tests-copy/'
 os.makedirs(main_dir, exist_ok=True)
 os.makedirs(backup_dir, exist_ok=True)
 
@@ -107,117 +107,92 @@ def edit(data, type):
     # EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]
     # Just add/comment out the ones you want to run
     if type == "xpath":
-        modified = False
+
+        # Placeholder - Comment this out when ready to use
+        print("No XPATH modification set...")
+        return
+    
         for step in data["details"]["steps"]:
             if "params" in step and "element" in step["params"] and "userLocator" in step["params"]["element"]:
                 user_specified_locator = step["params"]["element"]["userLocator"]["values"]
                 for USL in user_specified_locator:
                     if USL["type"] == "xpath":
                         xpath = USL["value"]
-
-                    # Placeholder
-                        print("No XPATH modification set...")
-                        return
-
+                    
                     # Convert //a[@data-tip] -> //a[contains()]
-                        # RE_A = r'\/\/a\[@data-tip=\".*\"\]'
-                        # if re.match(RE_A, xpath):
-                        #     print("Found XPATH: " + xpath)
-                        #     re_match_location = re.search(RE_A, xpath)
-                        #     location = re_match_location.group(1)
-                        #     USL["value"] = f'//a[contains(., "{location}")]'
-                        #     print("XPATH Updated to: " + USL["value"])
-                        #     modified = True
+                        RE_A = r'\/\/a\[@data-tip=\".*\"\]'
+                        if re.match(RE_A, xpath):
+                            print("Found XPATH: " + xpath)
+                            re_match_location = re.search(RE_A, xpath)
+                            location = re_match_location.group(1)
+                            USL["value"] = f'//a[contains(., "{location}")]'
+                            print("XPATH Updated to: " + USL["value"])
                         
                     # Convert data-tip -> data-tip-content
-                        # RE_Data_Tip = r'data-tip'
-                        # if re.search(RE_Data_Tip, xpath):
-                        #     print("Found XPATH: " + xpath)
-                        #     USL["value"] = re.sub(RE_Data_Tip, 'data-tooltip-content', xpath)
-                        #     print("XPATH Updated to: " + USL["value"])
-                        #     modified = True
+                        RE_Data_Tip = r'data-tip'
+                        if re.search(RE_Data_Tip, xpath):
+                            print("Found XPATH: " + xpath)
+                            USL["value"] = re.sub(RE_Data_Tip, 'data-tooltip-content', xpath)
+                            print("XPATH Updated to: " + USL["value"])
 
                     # Simplify xpaths with */ul/li[contains()] by removal of excessive identifiers
-                        # RE_Ul_Li = r'^.*\/ul\/li\[contains\(., "([^"]+)"\)]$'
-                        # if re.search(RE_Ul_Li, xpath) and not re.match(r'//ul/li', xpath):
-                        #     print("Found XPATH: " + xpath)
-                        #     re_match_location = re.search(RE_Ul_Li, xpath)
-                        #     location = re_match_location.group(1)
-                        #     USL["value"] = f'//ul/li[contains(., "{location}")]'
-                        #     print("XPATH Updated to: " + USL["value"])
-                        #     modified = True
+                        RE_Ul_Li = r'^.*\/ul\/li\[contains\(., "([^"]+)"\)]$'
+                        if re.search(RE_Ul_Li, xpath) and not re.match(r'//ul/li', xpath):
+                            print("Found XPATH: " + xpath)
+                            re_match_location = re.search(RE_Ul_Li, xpath)
+                            location = re_match_location.group(1)
+                            USL["value"] = f'//ul/li[contains(., "{location}")]'
+                            print("XPATH Updated to: " + USL["value"])
 
                     # Convert //a[contains()] -> //aside/a[contains()]
-                        # RE_Aside_A = r'\/\/a\[contains\(., "([^"]+)"\)\]'
-                        # if re.match(RE_Aside_A, xpath):
-                        #     print("Found XPATH: " + xpath)
-                        #     re_match_location = re.search(RE_Aside_A, xpath)
-                        #     location = re_match_location.group(1)
-                        #     USL["value"] = f'//aside/a[contains(., "{location}")]'
-                        #     print("XPATH Updated to: " + USL["value"])
-                        #     modified = True
+                        RE_Aside_A = r'\/\/a\[contains\(., "([^"]+)"\)\]'
+                        if re.match(RE_Aside_A, xpath):
+                            print("Found XPATH: " + xpath)
+                            re_match_location = re.search(RE_Aside_A, xpath)
+                            location = re_match_location.group(1)
+                            USL["value"] = f'//aside/a[contains(., "{location}")]'
+                            print("XPATH Updated to: " + USL["value"])
                     
-        if modified:
-            print("")
-        return modified
-    
+    # Step Edit (CHANGE AS NEEDED)
+    # Adds a new parameter, element, xpath, or otherwise modifies something within a test step
+    # If you just need an existing XPATH changed and nothing else, see edit("xpath")
+    # edit("steps) should only be used when you need to insert/create an entirely new obj within a test step
+    # Just add/comment out the ones you want to run
     if type == "steps":
-        modified = False
-        RE_ESC = re.compile(r'.*x\sesc.*', re.IGNORECASE)
 
+        # Placeholder - Comment this out when ready to use
+        # print("No Step modification set...")
+        # return
+        
+        RE_NEXT_BTN = r'<button class="apm-btn nav-btn" data-testid="next-btn" type="button">'
+        RE_SUBMIT_BTN = r'<button id="submit-btn" class="apm-btn apm-btn-success nav-btn-submit" type="submit" role="submit">'
+        
         for step in data["details"]["steps"]:
             if step["type"] != "playSubTest":
-                if re.match(RE_ESC, step["name"]):
-                    print("Found step: " + step["name"])
-                    print(step)
-                    modified = True
-                    input('asdf')
-
-        if modified:
-            print("")
-        return modified
-    
-        # {
-        #     "allow_failure": false,
-        #     "is_critical": true,
-        #     "name": "Press key",
-        #     "no_screenshot": false,
-        #     "params": {
-        #         "value": "Escape"
-        #     },
-        #     "type": "pressKey"
-        # },
-        
-        # {
-        #     "allow_failure": false,
-        #     "is_critical": true,
-        #     "name": "Click on X esc",
-        #     "no_screenshot": false,
-        #     "params": {
-        #         "element": {
-        #             "url": "https://dev.mentorapm.com/apm/myprofile",
-        #             "userLocator": {
-        #                 "values": [
-        #                     {
-        #                         "type": "xpath",
-        #                         "value": "//div[contains(@class, \"apm-modal-actions\")]"
-        #                     }
-        #                 ],
-        #                 "failTestOnCannotLocate": true
-        #             },
-        #             "multiLocator": {
-        #                 "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][3]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]",
-        #                 "at": "",
-        #                 "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
-        #                 "co": "[{\"relation\":\"BEFORE\",\"tagName\":\"DIV\",\"text\":\"formatmark updelete export\",\"textType\":\"innerText\"},{\"text\":\"formatmark up\",\"textType\":\"innerText\",\"relation\":\"PARENT OF\",\"tagName\":\"UL\",\"isNegativeAnchor\":true},{\"relation\":\"BEFORE\",\"tagName\":\"LI\",\"text\":\"mark up\",\"textType\":\"innerText\"}]",
-        #                 "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]",
-        #                 "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" apm-modal-actions \")]"
-        #             },
-        #             "targetOuterHTML": "<div class=\"apm-modal-actions\"><svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"times\" class=\"svg-inline--fa fa-times fa-w-11 close-modal\" role=\"img\" xmlns=\"http://www.w3.org/200"
-        #         }
-        #     },
-        #     "type": "click"
-        # },
+                if "element" in step["params"]:
+                    if "targetOuterHTML" in step["params"]["element"]:
+                        htmlElm = step["params"]["element"]["targetOuterHTML"]
+                        if re.findall(RE_NEXT_BTN, htmlElm):
+                            step["params"]["element"]["userLocator"] = {
+                                "values": [
+                                    {
+                                        "type": "xpath",
+                                        "value": "//button[@data-testid=\"next-btn\"]"
+                                    }
+                                ],
+                                "failTestOnCannotLocate": True
+                            }
+                        
+                        if re.findall(RE_SUBMIT_BTN, htmlElm):
+                            step["params"]["element"]["userLocator"] = {
+                                "values": [
+                                    {
+                                        "type": "xpath",
+                                        "value": "//button[@role=\"submit\"]"
+                                    }
+                                ],
+                                "failTestOnCannotLocate": True
+                            }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Throw (edit or create) a DataDog test from JSON, then fetch it
@@ -254,26 +229,6 @@ def throw(t_file, dir="./tests/"):
 # Bulk traversal/edit of every JSON file in a directory
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def traversal_edit(dir="./tests", edit_function=edit, edit_type=""):
-    # for file in os.listdir(dir):
-    #     file_path = os.path.join(dir, file)
-    #     with open(file_path, 'r') as file:
-    #         data = json.load(file)
-    #     modified = edit_function(data, edit_type)
-    #     with open(file_path, 'w') as file:
-    #         json.dump(data, file, indent=4)
-    #     file_name_full = os.path.basename(file_path)
-    #     file_name = os.path.splitext(file_name_full)[0]
-    #     if edit_type == "restore":
-    #         print(data["test_name"])
-    #         input('asdf')
-    #         if fetch("single", data["test_name"])["does_exist"]:
-    #             pass
-    #     elif edit_type == "xpath" and not modified:
-    #         pass
-    #     elif edit_type == "steps" and not modified:
-    #         pass
-    #     else:
-    #         throw(file_name, dir)
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
@@ -396,11 +351,16 @@ def fetch(type="full", t_name="test_name"):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def main():
     if validate_api():
+        # print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("Preparing to delete all related tests/files in " + dir + " ...")
+        # print("REGEX pattern is currently set to : '" + regex + "' ...")
+        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        # cmd = input('What do you want to do?')
         # full_restore()
-        fetch()
-        #traversal_edit(dir, edit, "steps")
+        # fetch()
+        traversal_edit('./tests-edit/', edit, "steps")
         #bulk_copy() // NEED TO CHANGE ID ON THE COPIES.
-        #throw('000.000.000 CSV_Bulk_Transaction')
+        # throw(t_file='TEST_CPY', dir='./tests-edit/')
 
 if __name__ == "__main__":
     main()
