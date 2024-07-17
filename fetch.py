@@ -17,8 +17,8 @@ configuration = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(".env")
 configuration.api_key["apiKeyAuth"] = env.get("DD_API") 
 configuration.api_key["appKeyAuth"] = env.get("DD_APP") 
-MAIN_DIR = './tests/'
-BACKUP_DIR = './tests/'
+MAIN_DIR = './dd_tests/'
+BACKUP_DIR = './dd_tests_copy/'
 os.makedirs(MAIN_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
 
@@ -296,7 +296,7 @@ def fetch(type="full", t_name="test_name"):
     # Only fetch/process new tests that do not exist
     if type == "quick":
         all_tests = API.list_tests().to_dict()["tests"]
-        existing_files = [file[:-5] for file in os.listdir("./tests")]
+        existing_files = [file[:-5] for file in os.listdir(MAIN_DIR)]
         tests = [test for test in all_tests if test["name"] not in existing_files]
     # Otherwise do a full fetch (overwrites all files)
     else:
@@ -319,10 +319,7 @@ def fetch(type="full", t_name="test_name"):
 # Main
 def main():
     if validate_api():
-        # full_restore()
         fetch()
-        traversal_edit(MAIN_DIR, edit, "steps")
-        # throw(t_file='TEST_CPY', dir='./tests-edit/')
 
 if __name__ == "__main__":
     main()
