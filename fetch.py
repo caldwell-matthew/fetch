@@ -1,7 +1,6 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch.py
 #   Created By  : Matthew Caldwell
-#   Created On  : 20240214
 #   Description : Script to 'fetch' and 'throw' DataDog tests
 
 import json, os, re, certifi
@@ -319,7 +318,7 @@ def fetch(type="full", t_name="test_name"):
 def main():
     if validate_api():
         # full_restore()
-        # fetch()
+        fetch()
         traversal_edit(MAIN_DIR, edit, "steps")
         # throw(t_file='TEST_CPY', dir='./tests-edit/')
 
