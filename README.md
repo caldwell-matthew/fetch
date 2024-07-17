@@ -1,6 +1,7 @@
 # Fetch.py
 
 A multi-purpose script to 'fetch' and 'throw' DataDog tests.
+![image](./fetch.jpg)
 
 ## Installation Guide
 
