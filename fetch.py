@@ -20,9 +20,9 @@ configuration.api_key["appKeyAuth"] = env.get("DD_APP")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Directory Setup
-MAIN_DIR = './dd_tests/'
-BACKUP_DIR = './dd_tests_copy/'
-TESTING_DIR = './fetch_testing/'
+MAIN_DIR = "./dd_tests/"
+BACKUP_DIR = "./dd_tests_copy/"
+TESTING_DIR = "./fetch_testing/"
 os.makedirs(MAIN_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
 os.makedirs(TESTING_DIR, exist_ok=True)
@@ -285,16 +285,23 @@ def full_restore(dir=MAIN_DIR):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 #   fetch() can be of type "full", "quick", or "single" (if given a testname)
-def fetch(type="full", t_name="test_name"):
+def fetch(type="full", t_name="test_name", dir=MAIN_DIR):
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
     # Only fetch one test by name, also checks if it exists on DataDog site
     if type == "single":
         try:
-            t_details = API.get_browser_test(extract_json(t_name)["public_id"])
-            return {"data": t_details, "does_exist": True}
+            # t_details = API.get_browser_test(extract_json(t_name, dir)["public_id"])
+            t_id = extract_json(t_name, dir)["public_id"]
+            formatted_test = {
+                "test_name": t_name, 
+                "details": API.get_browser_test(t_id).to_dict()
+            }
+            process_to_json(formatted_test, f"{t_name}.json", dir)
+            print("Caught: " + formatted_test["test_name"])
+            return True
         except:
-            return {"does_exist": False}
+            return False
     # Only fetch/process new tests that do not exist
     if type == "quick":
         all_tests = API.list_tests().to_dict()["tests"]
