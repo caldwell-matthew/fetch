@@ -17,10 +17,15 @@ configuration = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(".env")
 configuration.api_key["apiKeyAuth"] = env.get("DD_API") 
 configuration.api_key["appKeyAuth"] = env.get("DD_APP") 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Directory Setup
 MAIN_DIR = './dd_tests/'
 BACKUP_DIR = './dd_tests_copy/'
+TESTING_DIR = './fetch_testing/'
 os.makedirs(MAIN_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
+os.makedirs(TESTING_DIR, exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Validate API
@@ -29,17 +34,14 @@ def validate_api():
     print("DataDog API Working...")
     with ApiClient(configuration) as api_client:
         return AuthenticationApi(api_client).validate()
-    
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Process data into JSON files
-def process_to_json(data, file_name, dir=MAIN_DIR):
-    file_path = os.path.join(dir, file_name)
-    json_data = json.dumps(data, indent=4)
-    with open(file_path, "w") as file:
-        file.write(json_data)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Extract data from a JSON files
+# JSON Processing and Extracting 
+def process_to_json(data, file_name, dir=MAIN_DIR):
+    file_path = os.path.join(dir, file_name)
+    with open(file_path, "w") as file:
+        file.write(json.dumps(data, indent=4))
+
 def extract_json(file_name, dir=MAIN_DIR):
     file_path = os.path.join(dir, file_name + ".json")
     with open(file_path, 'r') as file:
@@ -319,7 +321,9 @@ def fetch(type="full", t_name="test_name"):
 # Main
 def main():
     if validate_api():
-        fetch()
+        print('asdf')
+        # fetch()
+        # print(extract_json('TEST1', TESTING_DIR))
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,7 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 
 ## Installation Guide
 
-- Have Python 3+ installed with dependencies (datadog_api_client and dotenv).
+- Have Python 3+ installed with dependencies (datadog_api_client, dotenv, pytest, pytest-cov).
 - Create or locate your DataDog API and Application keys for `fetch` to reference.
 
   - If you are setting this up for the first time, create new keys with the links below.
@@ -20,7 +20,8 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
   - DD_APP = "ENTER YOUR APP KEY HERE"
 
 - Modify the `main()` function to reference whichever function you want to run.
-- Run the script using: `python3 ./fetch.py`
+- Run the script using: `python3 fetch.py`
+- Rum testing script using `pytest test.py` or `pytest --cov=fetch test.py`
 
 ## Functions
 
