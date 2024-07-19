@@ -53,7 +53,7 @@ def edit(data, type, dir=MAIN_DIR):
     #   See full_restore() for more information
     if type == "restore":
         test_name = data["details"]["name"]
-        if fetch("single", test_name)["does_exist"]:
+        if fetch("single", test_name, dir):
             return
         else:
             all_exist = False
@@ -64,7 +64,7 @@ def edit(data, type, dir=MAIN_DIR):
                     if not all_exist:
                         break
             if all_exist:
-                throw(test_name)
+                throw(test_name, dir)
                 return
             print("\nRestoration of " + test_name + " in progress...")
             for step in data["details"]["steps"]:
@@ -84,11 +84,11 @@ def edit(data, type, dir=MAIN_DIR):
     if type == "id":
         for step in data["details"]["steps"]:
             if step["type"] == "playSubTest":
-                new_step_id = extract_json(step["name"])["public_id"]
+                new_step_id = extract_json(step["name"], dir)["public_id"]
                 step["params"]["subtestPublicId"] = new_step_id
-                for layered_sub_test in extract_json(step["name"])["steps"]:
+                for layered_sub_test in extract_json(step["name"], dir)["steps"]:
                     if layered_sub_test["type"] == "playSubTest":
-                        new_layered_step_id = extract_json(layered_sub_test["name"])["public_id"]
+                        new_layered_step_id = extract_json(layered_sub_test["name"], dir)["public_id"]
                         layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
     
     # Xpath Edit (CHANGE AS NEEDED)
@@ -212,15 +212,16 @@ def throw(t_file, dir=MAIN_DIR):
         except:
             pass
     fetch("single", modify_test["name"], dir)
+    return True
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
-def traversal_edit(dir=MAIN_DIR, edit_function=edit, edit_type=""):
+def traversal_edit(edit_type="", dir=MAIN_DIR):
     for file in os.listdir(dir):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        edit_function(data, edit_type, dir)
+        edit(data, edit_type, dir)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
         file_name_full = os.path.basename(file_path)
@@ -272,7 +273,7 @@ def full_restore(dir=MAIN_DIR):
     print("Beginning full restore...")
     L = ["Sub-Child", "Child", "Parent"]
     for layer in range(3):
-        traversal_edit(dir, edit, "restore")
+        traversal_edit("restore", dir)
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(L[layer] + " layer successfully restored!")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -287,37 +288,33 @@ def fetch(type="full", t_name="_", dir=MAIN_DIR):
 
     # Get all existing tests on DataDog
     tests = API.list_tests().to_dict()["tests"]
-
+    
     # Only fetch/process new tests that do not exist
     if type == "quick":
         existing_files = [file[:-5] for file in os.listdir(dir)]
         tests = [test for test in tests if test["name"] not in existing_files]
 
     # Convert to JSON
-    if tests:
-        print("\nFetching tests...")    
-        for test in tests:
-            test_name = test["name"]
-
-            # Only fetch one specific test by name if type "single"
-            if type == "single" and test_name != t_name:
-                continue
-
-            # Otherwise fetch everything
-            try:
-                test_details = API.get_browser_test(test["public_id"]).to_dict()
-                formatted_test = {
-                    "test_name": test_name, 
-                    "details": test_details
-                }
-                process_to_json(formatted_test, f"{test_name}.json", dir)
-                print("Caught: " + formatted_test["test_name"])
-
-            except Exception as e:
-                print("ERROR. Check if test " + test_name + " exists")
-                print(os.path.join(dir + "/", test_name + ".json"))
-                print(e)
-                return False
+    print("\nFetching tests...")    
+    for test in tests:
+        test_name = test["name"]
+        # Only fetch one specific test by name if type "single"
+        if type == "single" and test_name != t_name:
+            continue
+        # Otherwise fetch everything
+        try:
+            test_details = API.get_browser_test(test["public_id"]).to_dict()
+            formatted_test = {
+                "test_name": test_name, 
+                "details": test_details
+            }
+            process_to_json(formatted_test, f"{test_name}.json", dir)
+            print("Caught: " + formatted_test["test_name"])
+        except Exception as e:
+            print("ERROR. Check if test " + test_name + " exists")
+            print(os.path.join(dir + "/", test_name + ".json"))
+            print(e)
+            return False
 
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Completed " + type + " fetch of " + str(len(tests)) + " tests.")
@@ -328,8 +325,8 @@ def fetch(type="full", t_name="_", dir=MAIN_DIR):
 # Main
 def main():
     if validate_api():
-        # print('asdf')
-        fetch("full", "_", MAIN_DIR)
+        print('asdf')
+        # fetch("full", "_", MAIN_DIR)
         # print(extract_json('TEST1', TESTING_DIR))
 
 if __name__ == "__main__":
