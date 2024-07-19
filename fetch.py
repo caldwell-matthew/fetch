@@ -22,10 +22,8 @@ configuration.api_key["appKeyAuth"] = env.get("DD_APP")
 # Directory Setup
 MAIN_DIR = "./dd_tests/"
 BACKUP_DIR = "./dd_tests_copy/"
-TESTING_DIR = "./fetch_testing/"
 os.makedirs(MAIN_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
-os.makedirs(TESTING_DIR, exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Validate API
@@ -49,7 +47,7 @@ def extract_json(file_name, dir=MAIN_DIR):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Edit content within a JSON file, edit type varies
-def edit(data, type):
+def edit(data, type, dir=MAIN_DIR):
     # Regeneration Edit
     #   Recursivly throws, fetches, and updates ids to rebuild all tests on DataDog.com
     #   See full_restore() for more information
@@ -61,7 +59,7 @@ def edit(data, type):
             all_exist = False
             for step in data["details"]["steps"]:
                 if step["type"] == "playSubTest":
-                    edit(data, "id")
+                    edit(data, "id", dir)
                     all_exist = fetch("single", step["name"])["does_exist"]
                     if not all_exist:
                         break
@@ -75,10 +73,10 @@ def edit(data, type):
                     for layered_sub_test in extract_json(step["name"])["steps"]:
                         if layered_sub_test["type"] == "playSubTest":
                             print("    Nested Subtest: " + str(layered_sub_test["name"]))  
-            fetch()       
+            fetch("full", "_", dir)       
             for step in data["details"]["steps"]:
                 if step["type"] == "playSubTest":
-                    edit(data, "id")
+                    edit(data, "id", dir)
             
     # ID Edit
     #   Converts 'OLD_ID' -> 'NEW_ID' 
@@ -213,7 +211,7 @@ def throw(t_file, dir=MAIN_DIR):
             print(modify_test["name"] + " created!")
         except:
             pass
-    fetch("single", modify_test["name"])
+    fetch("single", modify_test["name"], dir)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Bulk traversal/edit of every JSON file in a directory
@@ -222,7 +220,7 @@ def traversal_edit(dir=MAIN_DIR, edit_function=edit, edit_type=""):
         file_path = os.path.join(dir, file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        edit_function(data, edit_type)
+        edit_function(data, edit_type, dir)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
         file_name_full = os.path.basename(file_path)
@@ -243,15 +241,13 @@ def delete(t_file, dir):
         print(data["name"] + " deleted.")
         print(f"Related JSON file '{t_file}' deleted from " + dir)
     except Exception as e:
-        print("ERROR. Check if test is being used by a parent or if exists")
+        print("ERROR. Check if test " + t_file + " is being used by a parent or if exists")
         print(os.path.join(dir + "/", t_file + ".json"))
         print(e)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete all tests and related JSON files in a directory (with/without a regex)    
 #   WARNING: INVOKE WITH EXTREME CAUTION!!!
-#   I HAVE LOST ALL MY TESTS TWICE BY MISHANDLING THIS. (PLEASE BACKUP YOUR FILES)
-#   YOU SHOULD ALMOST NEVER EVER EVER NEED TO USE THIS.
 def nuke(dir, regex=r'^COPY_.*$'):
     print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Preparing to delete all related tests/files in " + dir + " ...")
@@ -285,51 +281,55 @@ def full_restore(dir=MAIN_DIR):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch DataDog tests and convert into JSON
 #   fetch() can be of type "full", "quick", or "single" (if given a testname)
-def fetch(type="full", t_name="test_name", dir=MAIN_DIR):
+def fetch(type="full", t_name="_", dir=MAIN_DIR):
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
-    # Only fetch one test by name, also checks if it exists on DataDog site
-    if type == "single":
-        try:
-            # t_details = API.get_browser_test(extract_json(t_name, dir)["public_id"])
-            t_id = extract_json(t_name, dir)["public_id"]
-            formatted_test = {
-                "test_name": t_name, 
-                "details": API.get_browser_test(t_id).to_dict()
-            }
-            process_to_json(formatted_test, f"{t_name}.json", dir)
-            print("Caught: " + formatted_test["test_name"])
-            return True
-        except:
-            return False
+
+    # Get all existing tests on DataDog
+    tests = API.list_tests().to_dict()["tests"]
+
     # Only fetch/process new tests that do not exist
     if type == "quick":
-        all_tests = API.list_tests().to_dict()["tests"]
-        existing_files = [file[:-5] for file in os.listdir(MAIN_DIR)]
-        tests = [test for test in all_tests if test["name"] not in existing_files]
-    # Otherwise do a full fetch (overwrites all files)
-    else:
-        tests = API.list_tests().to_dict()["tests"]
+        existing_files = [file[:-5] for file in os.listdir(dir)]
+        tests = [test for test in tests if test["name"] not in existing_files]
+
     # Convert to JSON
     if tests:
         print("\nFetching tests...")    
         for test in tests:
-            t_name = test["name"]
-            t_id = test["public_id"]
-            t_details = API.get_browser_test(t_id).to_dict()
-            formatted_test = {
-                "test_name": t_name, 
-                "details": t_details
-            }
-            process_to_json(formatted_test, f"{t_name}.json")
-            print("Caught: " + formatted_test["test_name"])
+            test_name = test["name"]
+
+            # Only fetch one specific test by name if type "single"
+            if type == "single" and test_name != t_name:
+                continue
+
+            # Otherwise fetch everything
+            try:
+                test_details = API.get_browser_test(test["public_id"]).to_dict()
+                formatted_test = {
+                    "test_name": test_name, 
+                    "details": test_details
+                }
+                process_to_json(formatted_test, f"{test_name}.json", dir)
+                print("Caught: " + formatted_test["test_name"])
+
+            except Exception as e:
+                print("ERROR. Check if test " + test_name + " exists")
+                print(os.path.join(dir + "/", test_name + ".json"))
+                print(e)
+                return False
+
+    print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("Completed " + type + " fetch of " + str(len(tests)) + " tests.")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    return True
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 def main():
     if validate_api():
-        print('asdf')
-        # fetch()
+        # print('asdf')
+        fetch("full", "_", MAIN_DIR)
         # print(extract_json('TEST1', TESTING_DIR))
 
 if __name__ == "__main__":
