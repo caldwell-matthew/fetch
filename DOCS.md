@@ -2,7 +2,15 @@
 
 ## Basic Usage / Tips
 
-- Modify the `main()` function to reference whichever function you wish to run.
+- The very first thing you shoud do is download all Datadog tests and make a backup of your test files.
+- Afterwards, modify the `main()` function to reference whichever function you wish to run.
+```
+# Main
+def main():
+    if validate_api():
+        fetch()
+        # do something else...
+```
 - Start small. Don't try and modify every single one of your tests at once.
 - Just try modifying one to see if you are doing what you want to do.
 
