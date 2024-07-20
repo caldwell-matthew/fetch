@@ -1,6 +1,6 @@
 # Fetch.py
 
-<img src="./fetch.jpg" alt="drawing" width="300"/>
+<img src="./fetch.jpg" alt="drawing"/>
 
 A multi-purpose script to 'fetch' and 'throw' Datadog tests.
 
