@@ -2,19 +2,19 @@
 
 <img src="./fetch.jpg" alt="drawing" width="300"/>
 
-A multi-purpose script to 'fetch' and 'throw' DataDog tests.
+A multi-purpose script to 'fetch' and 'throw' Datadog tests.
 
 ## Installation Guide
 
 - Have Python 3+ installed with dependencies (datadog_api_client, dotenv, pytest, pytest-cov).
-- Create or locate your DataDog API and Application keys for `fetch` to reference.
+- Create or locate your Datadog API and Application keys for `fetch` to reference.
 
   - If you are setting this up for the first time, create new keys with the links below.
   - https://docs.datadoghq.com/api/latest/synthetics
   - https://app.datadoghq.com/organization-settings/api-keys
   - https://app.datadoghq.com/organization-settings/application-keys
 
-- Create a `.env` file with the two DataDog keys `DD_API` and `DD_APP` as shown below.
+- Create a `.env` file with the two Datadog keys `DD_API` and `DD_APP` as shown below.
 
   - DD_API = "ENTER YOUR API KEY HERE"
   - DD_APP = "ENTER YOUR APP KEY HERE"
@@ -27,7 +27,7 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 
 ### `validate_api()`
 
-- Checks if DataDog's API configuration is valid.
+- Checks if Datadog's API configuration is valid.
 
 ### `process_to_json()`
 
@@ -54,14 +54,14 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 
 ### `throw()`
 
-- Creates or edits a DataDog test from JSON in a directory.
+- Creates or edits a Datadog test from JSON in a directory.
 - Also calls the `fetch()` function to ensure the JSON file is updated.
 
 ### `fetch()`
 
-- Pulls or fetches tests from DataDog.com and converts them into JSON.
+- Pulls or fetches tests from Datadog.com and converts them into JSON.
 - Fetch types:
-  - "full" : Fetch all existing tests from DataDog and update all files.
+  - "full" : Fetch all existing tests from Datadog and update all files.
   - "quick" : Only fetch new tests that do not exist in directory.
   - "single" : Only fetch one test by name provided name if exists.
 
@@ -71,7 +71,7 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 
 ### `delete()`
 
-- Deletes a singular test file from a specified directory and DataDog.com.
+- Deletes a singular test file from a specified directory and Datadog.com.
 
 ### `nuke()`
 
@@ -81,4 +81,4 @@ A multi-purpose script to 'fetch' and 'throw' DataDog tests.
 
 ### `full_restore()`
 
-- Rebuilds, throws, and fetches all DataDog tests from a JSON backup directory.
+- Rebuilds, throws, and fetches all Datadog tests from a JSON backup directory.

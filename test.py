@@ -118,7 +118,7 @@ def test_edit():
     #         "locations": [
     #             "aws:us-west-1"
     #         ],
-    #         "message": "`000.000.000 RUN-0`\n- Wrapper to run all tests 1-10. \n- DataDog has a test execution time cap at ~20 minutes. \n- RUN tests are broken up to circumvent.",
+    #         "message": "`000.000.000 RUN-0`\n- Wrapper to run all tests 1-10. \n- Datadog has a test execution time cap at ~20 minutes. \n- RUN tests are broken up to circumvent.",
     #         "name": "T_NAME_HERERERE",
     #         "options": {
     #             "device_ids": [

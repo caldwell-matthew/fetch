@@ -1,7 +1,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Fetch.py
 #   Created By  : Matthew Caldwell
-#   Description : Script to 'fetch' and 'throw' DataDog tests
+#   Description : Script to 'fetch' and 'throw' Datadog tests
 
 import json, os, re, certifi
 from dotenv import dotenv_values
@@ -27,9 +27,9 @@ os.makedirs(BACKUP_DIR, exist_ok=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Validate API
-#   Confirm that DataDog API is connected/working. Should return True, otherwise False
+#   Confirm that Datadog API is connected/working. Should return True, otherwise False
 def validate_api():
-    print("DataDog API Working...")
+    print("Datadog API Working...")
     with ApiClient(configuration) as api_client:
         return AuthenticationApi(api_client).validate()
 
@@ -49,7 +49,7 @@ def extract_json(file_name, dir=MAIN_DIR):
 # Edit content within a JSON file, edit type varies
 def edit(data, type, dir=MAIN_DIR):
     # Regeneration Edit
-    #   Recursivly throws, fetches, and updates ids to rebuild all tests on DataDog.com
+    #   Recursivly throws, fetches, and updates ids to rebuild all tests on Datadog.com
     #   See full_restore() for more information
     if type == "restore":
         test_name = data["details"]["name"]
@@ -184,7 +184,7 @@ def edit(data, type, dir=MAIN_DIR):
                             }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Throw (edit or create) a DataDog test from JSON, then fetch it
+# Throw (edit or create) a Datadog test from JSON, then fetch it
 def throw(t_file, dir=MAIN_DIR):
     data = extract_json(t_file, dir)
     # if fetch("single", data["name"])["does_exist"]:
@@ -266,7 +266,7 @@ def nuke(dir, regex=r'^COPY_.*$'):
         return
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Completly rebuild, throw, and fetch all DataDog tests from JSON backup
+# Completly rebuild, throw, and fetch all Datadog tests from JSON backup
 #   To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
 #   This takes a minute or so to work to reconstruct everything
 def full_restore(dir=MAIN_DIR):
@@ -280,13 +280,13 @@ def full_restore(dir=MAIN_DIR):
         layer += 1
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Fetch DataDog tests and convert into JSON
+# Fetch Datadog tests and convert into JSON
 #   fetch() can be of type "full", "quick", or "single" (if given a testname)
 def fetch(type="full", t_name="_", dir=MAIN_DIR):
     with ApiClient(configuration) as api_client:
         API = SyntheticsApi(api_client)
 
-    # Get all existing tests on DataDog
+    # Get all existing tests on Datadog
     tests = API.list_tests().to_dict()["tests"]
     
     # Only fetch/process new tests that do not exist
