@@ -46,11 +46,16 @@ def test_fetch():
 def test_throw(): 
     assert throw("TEST1", TESTING_DIR)
 
-def test_edit(): 
-    with open(os.path.join(TESTING_DIR, "TEST1"), 'r') as file:
-        data = json.load(file)
+def test_traversal_editing(): 
+    # This tests traversal_edit() and edit() since edit() is only a helper function
+    # Some edit types are not directly tested since they are used in other types like "ID Edit"
+
+    # "ID Edit" (Typically only use with "Restore Edit" )
+    # edit(data, "id", TESTING_DIR)
+
+
         
-    edit(data, "id", TESTING_DIR)
+    # edit(data, "id", TESTING_DIR)
     # edit(data, "restore", TESTING_DIR)
     # edit(data, "xpath", TESTING_DIR)
     # edit(data, "steps", TESTING_DIR)

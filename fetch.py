@@ -48,6 +48,19 @@ def extract_json(file_name, dir=MAIN_DIR):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Edit content within a JSON file, edit type varies
 def edit(data, type, dir=MAIN_DIR):
+    # ID Edit (Don't use directly. Used with edit("restore")
+    #   Converts 'OLD_ID' -> 'NEW_ID' 
+    #   Step through every reference to the subtest or nested test and update id      
+    if type == "id":
+        for step in data["details"]["steps"]:
+            if step["type"] == "playSubTest":
+                new_step_id = extract_json(step["name"], dir)["public_id"]
+                step["params"]["subtestPublicId"] = new_step_id
+                for layered_sub_test in extract_json(step["name"], dir)["steps"]:
+                    if layered_sub_test["type"] == "playSubTest":
+                        new_layered_step_id = extract_json(layered_sub_test["name"], dir)["public_id"]
+                        layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
+
     # Regeneration Edit
     #   Recursivly throws, fetches, and updates ids to rebuild all tests on Datadog.com
     #   See full_restore() for more information
@@ -78,19 +91,6 @@ def edit(data, type, dir=MAIN_DIR):
                 if step["type"] == "playSubTest":
                     edit(data, "id", dir)
             
-    # ID Edit
-    #   Converts 'OLD_ID' -> 'NEW_ID' 
-    #   Step through every reference to the subtest or nested test and update id      
-    if type == "id":
-        for step in data["details"]["steps"]:
-            if step["type"] == "playSubTest":
-                new_step_id = extract_json(step["name"], dir)["public_id"]
-                step["params"]["subtestPublicId"] = new_step_id
-                for layered_sub_test in extract_json(step["name"], dir)["steps"]:
-                    if layered_sub_test["type"] == "playSubTest":
-                        new_layered_step_id = extract_json(layered_sub_test["name"], dir)["public_id"]
-                        layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
-    
     # Xpath Edit (CHANGE AS NEEDED)
     #   Converts an XPATH statement into a new one such as @data-tip -> contains()
     #   EXAMPLE: //a[@data-tip=\"Admin & Setup\"] -> //a[contains(., \"Admin & Setup\")]

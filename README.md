@@ -27,7 +27,9 @@ DD_APP = "ENTER YOUR APP KEY HERE"
 
 # Getting Started
 
-[Documentation](DOCS.md)
+Read the [Documentation](DOCS.md)
+
+# Running the Script
 
 ```
 python3 fetch.py              # Run Fetch
@@ -37,4 +39,4 @@ pytest --cov=fetch test.py    # Test with coverage
 
 # Author
 
-Matthew Caldwell
+`caldwell-matthew`

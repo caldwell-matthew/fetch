@@ -22,35 +22,37 @@
 
 ### `extract_json()`
 
-- Reads raw JSON test data from a directory (default: `./tests/`).
+- Reads raw JSON test data from a directory.
+
+### `fetch()`
+
+- 'Fetches' (or downloads) tests from Datadog and converts them into JSON.
+- Fetch types:
+  - "full" : Fetch all existing tests from Datadog and update all files.
+  - "quick" : Only fetch new tests that do not exist in directory.
+  - "single" : Only fetch one test by name.
+
+### `throw()`
+
+- 'Throws' (or uploads) a new test to Datadog.
+- Also calls the `fetch()` function to ensure the JSON file is updated.
 
 ### `traversal_edit()`
 
-- Wrapper to traverse all files in a directory while performing an edit function.
+- Wrapper to traverse all files in a directory while performing an edit().
 
 ### `edit()`
 
 - Edits content within a JSON file based on the specified edit type.
 - Edit types:
-  - "test-working" : Test to see if traversal_edit() and edit() are working
-  - "restore" : See `full_restore()`
-  - "id" : Converts `'OLD_ID'` -> `'NEW_ID'`
-  - "name" : Converts `'TEST_NAME'` -> `'COPY_TEST_NAME'`
-  - "xpath" : Converts `'OLD_XPATH'` -> `'NEW_XPATH'`
-  - "steps" : Way of stepping through subtests and edit Y/N? (WIP)
+  - "id" : Don't use directly. Used with `edit("restore")`
+  - "restore" : Don't use directly. Used with `full_restore()`
+  - "xpath" : Converts and/or edits existing XPATH statements by REGEX
+  - "steps" : Adds a new parameter, element, xpath, or otherwise modifies something within a test step. If you just need an existing XPATH changed and nothing else, use `edit("xpath")` instead.
 
-### `throw()`
+### `full_restore()`
 
-- Creates or edits a Datadog test from JSON in a directory.
-- Also calls the `fetch()` function to ensure the JSON file is updated.
-
-### `fetch()`
-
-- Pulls or fetches tests from Datadog.com and converts them into JSON.
-- Fetch types:
-  - "full" : Fetch all existing tests from Datadog and update all files.
-  - "quick" : Only fetch new tests that do not exist in directory.
-  - "single" : Only fetch one test by name provided name if exists.
+- Rebuilds, throws, and fetches all Datadog tests from a JSON backup directory.
 
 ### `bulk_copy()`
 
@@ -62,10 +64,7 @@
 
 ### `nuke()`
 
-- Deletes ALL tests and related JSON files in a specified directory and on Datadog.com, optionally using a regex.
+- WARNING: INVOKE WITH EXTREME CAUTION!!!
+- Deletes ALL tests and related JSON files in a specified directory and on Datadog, optionally using a regex.
 - Default regex targets files starting with "COPY\_".
-- This should rarely need to be done, if ever. Use with extreme caution.
-
-### `full_restore()`
-
-- Rebuilds, throws, and fetches all Datadog tests from a JSON backup directory.
+- This should rarely need to be done, if ever...
