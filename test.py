@@ -48,30 +48,12 @@ def test_throw():
 
 def test_traversal_editing(): 
     # This tests traversal_edit() and edit() since edit() is only a helper function
-    # Some edit types are not directly tested since they are used in other types like "ID Edit"
+    # Edit types ("ID" and "Restore") are not directly tested since they are used in "full_restore()""
 
-    # "ID Edit" (Typically only use with "Restore Edit" )
-    # edit(data, "id", TESTING_DIR)
-
-
-        
-    # edit(data, "id", TESTING_DIR)
-    # edit(data, "restore", TESTING_DIR)
     # edit(data, "xpath", TESTING_DIR)
     # edit(data, "steps", TESTING_DIR)
 
-    # ID Edit
-    #   Converts 'OLD_ID' -> 'NEW_ID' 
-    #   Step through every reference to the subtest or nested test and update id      
-    # if type == "id":
-    #     for step in data["details"]["steps"]:
-    #         if step["type"] == "playSubTest":
-    #             new_step_id = extract_json(step["name"], dir)["public_id"]
-    #             step["params"]["subtestPublicId"] = new_step_id
-    #             for layered_sub_test in extract_json(step["name"], dir)["steps"]:
-    #                 if layered_sub_test["type"] == "playSubTest":
-    #                     new_layered_step_id = extract_json(layered_sub_test["name"], dir)["public_id"]
-    #                     layered_sub_test["params"]["subtestPublicId"] = new_layered_step_id
+    print('Woah nelly')
 
     # modify_test = {
     #     "name": data["name"],

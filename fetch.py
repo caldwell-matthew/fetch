@@ -46,6 +46,93 @@ def extract_json(file_name, dir=MAIN_DIR):
         return json.load(file)["details"]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Fetch Datadog tests and convert into JSON
+#   fetch() can be of type "full", "quick", or "single" (if given a testname)
+def fetch(type="full", t_name="_", dir=MAIN_DIR):
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+
+    # Get all existing tests on Datadog
+    tests = API.list_tests().to_dict()["tests"]
+    
+    # Only fetch/process new tests that do not exist
+    if type == "quick":
+        existing_files = [file[:-5] for file in os.listdir(dir)]
+        tests = [test for test in tests if test["name"] not in existing_files]
+
+    # Convert to JSON
+    print("\nFetching tests...")    
+    for test in tests:
+        test_name = test["name"]
+        # Only fetch one specific test by name if type "single"
+        if type == "single" and test_name != t_name:
+            continue
+        # Otherwise fetch everything
+        try:
+            test_details = API.get_browser_test(test["public_id"]).to_dict()
+            formatted_test = {
+                "test_name": test_name, 
+                "details": test_details
+            }
+            process_to_json(formatted_test, f"{test_name}.json", dir)
+            print("Caught: " + formatted_test["test_name"])
+        except Exception as e:
+            print("ERROR. Check if test " + test_name + " exists")
+            print(os.path.join(dir + "/", test_name + ".json"))
+            print(e)
+            return False
+
+    print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("Completed " + type + " fetch of " + str(len(tests)) + " tests.")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    return True
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Throw (edit or create) a Datadog test from JSON, then fetch it
+def throw(t_file, dir=MAIN_DIR):
+    data = extract_json(t_file, dir)
+    # if fetch("single", data["name"])["does_exist"]:
+    #     return
+    modify_test = {
+        "name": data["name"],
+        "config": data["config"],
+        "message": data["message"],
+        "options": data["options"],
+        "type": data["type"],
+        "locations": data["locations"],
+        "steps": data["steps"],
+        "tags": data["tags"]
+    }
+    with ApiClient(configuration) as api_client:
+        API = SyntheticsApi(api_client)
+    try:
+        API.update_browser_test(data["public_id"], modify_test)
+        print(modify_test["name"] + " modified!")
+    except:
+        try:
+            API.create_synthetics_browser_test(modify_test)
+            print("\nThrowing "+ t_file + "...")
+            print(modify_test["name"] + " created!")
+        except:
+            pass
+    fetch("single", modify_test["name"], dir)
+    return True
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Bulk traversal/edit of every JSON file in a directory
+def traversal_edit(edit_type="", dir=MAIN_DIR):
+    for file in os.listdir(dir):
+        file_path = os.path.join(dir, file)
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        edit(data, edit_type, dir)
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+        file_name_full = os.path.basename(file_path)
+        file_name = os.path.splitext(file_name_full)[0]
+        throw(file_name, dir)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Edit content within a JSON file, edit type varies
 def edit(data, type, dir=MAIN_DIR):
     # ID Edit (Don't use directly. Used with edit("restore")
@@ -150,8 +237,8 @@ def edit(data, type, dir=MAIN_DIR):
     if type == "steps":
 
         # Placeholder - Comment this out when ready to use
-        # print("No Step modification set...")
-        # return
+        print("No Step modification set...")
+        return
         
         RE_NEXT_BTN = r'<button class="apm-btn nav-btn" data-testid="next-btn" type="button">'
         RE_SUBMIT_BTN = r'<button id="submit-btn" class="apm-btn apm-btn-success nav-btn-submit" type="submit" role="submit">'
@@ -184,49 +271,18 @@ def edit(data, type, dir=MAIN_DIR):
                             }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Throw (edit or create) a Datadog test from JSON, then fetch it
-def throw(t_file, dir=MAIN_DIR):
-    data = extract_json(t_file, dir)
-    # if fetch("single", data["name"])["does_exist"]:
-    #     return
-    modify_test = {
-        "name": data["name"],
-        "config": data["config"],
-        "message": data["message"],
-        "options": data["options"],
-        "type": data["type"],
-        "locations": data["locations"],
-        "steps": data["steps"],
-        "tags": data["tags"]
-    }
-    with ApiClient(configuration) as api_client:
-        API = SyntheticsApi(api_client)
-    try:
-        API.update_browser_test(data["public_id"], modify_test)
-        print(modify_test["name"] + " modified!")
-    except:
-        try:
-            API.create_synthetics_browser_test(modify_test)
-            print("\nThrowing "+ t_file + "...")
-            print(modify_test["name"] + " created!")
-        except:
-            pass
-    fetch("single", modify_test["name"], dir)
-    return True
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Bulk traversal/edit of every JSON file in a directory
-def traversal_edit(edit_type="", dir=MAIN_DIR):
-    for file in os.listdir(dir):
-        file_path = os.path.join(dir, file)
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-        edit(data, edit_type, dir)
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-        file_name_full = os.path.basename(file_path)
-        file_name = os.path.splitext(file_name_full)[0]
-        throw(file_name, dir)
+# Completly rebuild, throw, and fetch all Datadog tests from JSON backup
+#   To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
+#   This takes a minute or so to work to reconstruct everything
+def full_restore(dir=MAIN_DIR):
+    print("Beginning full restore...")
+    L = ["Sub-Child", "Child", "Parent"]
+    for layer in range(3):
+        traversal_edit("restore", dir)
+        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(L[layer] + " layer successfully restored!")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        layer += 1
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete tests
@@ -266,68 +322,11 @@ def nuke(dir, regex=r'^COPY_.*$'):
         return
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Completly rebuild, throw, and fetch all Datadog tests from JSON backup
-#   To fully restore parent, child-tests, and sub-child-tests, it has to run 3 times
-#   This takes a minute or so to work to reconstruct everything
-def full_restore(dir=MAIN_DIR):
-    print("Beginning full restore...")
-    L = ["Sub-Child", "Child", "Parent"]
-    for layer in range(3):
-        traversal_edit("restore", dir)
-        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print(L[layer] + " layer successfully restored!")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        layer += 1
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-# Fetch Datadog tests and convert into JSON
-#   fetch() can be of type "full", "quick", or "single" (if given a testname)
-def fetch(type="full", t_name="_", dir=MAIN_DIR):
-    with ApiClient(configuration) as api_client:
-        API = SyntheticsApi(api_client)
-
-    # Get all existing tests on Datadog
-    tests = API.list_tests().to_dict()["tests"]
-    
-    # Only fetch/process new tests that do not exist
-    if type == "quick":
-        existing_files = [file[:-5] for file in os.listdir(dir)]
-        tests = [test for test in tests if test["name"] not in existing_files]
-
-    # Convert to JSON
-    print("\nFetching tests...")    
-    for test in tests:
-        test_name = test["name"]
-        # Only fetch one specific test by name if type "single"
-        if type == "single" and test_name != t_name:
-            continue
-        # Otherwise fetch everything
-        try:
-            test_details = API.get_browser_test(test["public_id"]).to_dict()
-            formatted_test = {
-                "test_name": test_name, 
-                "details": test_details
-            }
-            process_to_json(formatted_test, f"{test_name}.json", dir)
-            print("Caught: " + formatted_test["test_name"])
-        except Exception as e:
-            print("ERROR. Check if test " + test_name + " exists")
-            print(os.path.join(dir + "/", test_name + ".json"))
-            print(e)
-            return False
-
-    print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Completed " + type + " fetch of " + str(len(tests)) + " tests.")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-    return True
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Main
 def main():
     if validate_api():
-        print('asdf')
-        # fetch("full", "_", MAIN_DIR)
-        # print(extract_json('TEST1', TESTING_DIR))
-
+        fetch()
+        # do something else...
+        
 if __name__ == "__main__":
     main()
