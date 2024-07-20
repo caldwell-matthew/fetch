@@ -3,12 +3,16 @@
 ## Basic Usage / Tips
 
 - Modify the `main()` function to reference whichever function you wish to run.
-- Start small. Don't try and modify every single one of your tests at once. Just try modifying one to see if you are doing what you want to do.
+- Start small. Don't try and modify every single one of your tests at once.
+- Just try modifying one to see if you are doing what you want to do.
 
 ## WARNING
 
 - **Backup. Your. Files.**
-- I am not responsible for any losses, damages, or issues that may arise with the useage of this program. Please backup your tests so that you can make a `full_restore()` if the worst happens. I have deleted all of my tests many times due to misusing my own program. The very first thing you should be using this script for is to perform a full `fetch()` and make a **backup** as soon as possible.
+- I am not responsible for any losses, damages, or issues that may arise with the useage of this program.
+- Please backup your tests so that you can make a `full_restore()` if the worst happens.
+- I have deleted all of my tests many times due to misusing my own program.
+- The very first thing you should be using this script for is to perform a full `fetch()` and make a **backup** as soon as possible.
 
 ## Function Guide
 
@@ -43,7 +47,7 @@
 
 ### `edit()`
 
-- Edits content within a JSON file based on the specified edit type.
+- Edits content within a JSON file based on the specified edit type. (Change/Modify/Add as needed)
 - Edit types:
   - "id" : Don't use directly. Used with `edit("restore")`
   - "restore" : Don't use directly. Used with `full_restore()`
@@ -53,10 +57,6 @@
 ### `full_restore()`
 
 - Rebuilds, throws, and fetches all Datadog tests from a JSON backup directory.
-
-### `bulk_copy()`
-
-- Creates a backup copy of every existing test from the source directory.
 
 ### `delete()`
 
