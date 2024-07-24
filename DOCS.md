@@ -4,6 +4,7 @@
 
 - The very first thing you shoud do is download all Datadog tests and make a backup of your test files.
 - Afterwards, modify the `main()` function to reference whichever function you wish to run.
+
 ```
 # Main
 def main():
@@ -11,6 +12,7 @@ def main():
         fetch()
         # do something else...
 ```
+
 - Start small. Don't try and modify every single one of your tests at once.
 - Just try modifying one to see if you are doing what you want to do.
 
@@ -56,7 +58,16 @@ def main():
 ### `edit()`
 
 - Edits content within a JSON file based on the specified edit type. (Change/Modify/Add as needed)
-- Edit types:
+- Editable fields within `test["details"]`:
+  - "name"
+  - "config"
+  - "message"
+  - "options"
+  - "type"
+  - "locations"
+  - "steps"
+  - "tags"
+- Currently Existing Edit types (Add More!):
   - "id" : Don't use directly. Used with `edit("restore")`
   - "restore" : Don't use directly. Used with `full_restore()`
   - "xpath" : Converts and/or edits existing XPATH statements by REGEX
@@ -76,3 +87,17 @@ def main():
 - Deletes ALL tests and related JSON files in a specified directory and on Datadog, optionally using a regex.
 - Default regex targets files starting with "COPY\_".
 - This should rarely need to be done, if ever...
+
+## TESTING
+
+- Make/clone three empty Datadog tests called: `TEST_TEST`, `TEST_TEST_LAYER1`, `TEST_TEST_LAYER2`.
+- Create the following nested test structure as follows.
+
+```
+└── TEST_TEST (Main)
+    └── TEST_TEST_LAYER1 (Subtest)
+        └── TEST_TEST_LAYER2 (Sub-Subtest)
+```
+
+- Fetch `TEST_TEST` and use that for any testing you wish.
+- The reason why this needs to be done is for testing `full_restore()` and regenerating test layers.

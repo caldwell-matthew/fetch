@@ -297,10 +297,12 @@ def delete(t_file, dir):
         os.remove(os.path.join(dir + "/", t_file + ".json"))
         print(data["name"] + " deleted.")
         print(f"Related JSON file '{t_file}' deleted from " + dir)
+        return True
     except Exception as e:
         print("ERROR. Check if test " + t_file + " is being used by a parent or if exists")
         print(os.path.join(dir + "/", t_file + ".json"))
         print(e)
+        return False
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Delete all tests and related JSON files in a directory (with/without a regex)    

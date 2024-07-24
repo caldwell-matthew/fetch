@@ -33,6 +33,7 @@ Read the [Documentation](DOCS.md)
 
 ```
 python3 fetch.py              # Run Fetch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 pytest test.py                # Test without coverage
 pytest --cov=fetch test.py    # Test with coverage
 ```
