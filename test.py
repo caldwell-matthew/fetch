@@ -65,68 +65,68 @@ def test_traversal_editing():
     #     "steps": data["steps"],
     #     "tags": data["tags"]
     # }
-    # {
-    #     "details": {
-    #         "public_id": "PUBLIC_ID",
-    #         "status": "paused",
-    #         "steps": [
-    #             {
-    #                 "allow_failure": false,
-    #                 "is_critical": true,
-    #                 "name": "001.002.002_Login",
-    #                 "no_screenshot": false,
-    #                 "params": {
-    #                     "subtestPublicId": "dzw-q2w-3rd",
-    #                     "playingTabId": -1
-    #                 },
-    #                 "type": "playSubTest"
-    #             },
-    #         ],
-    #         "tags": [
-    #             "ADMIN"
-    #         ],
-    #         "config": {
-    #             "assertions": [],
-    #             "config_variables": [
-    #                 {
-    #                     "id": "dcbd1502-e595-4efe-bda7-ee1427c37116",
-    #                     "name": "MENTOR_ENV",
-    #                     "type": "global"
-    #                 }
-    #             ],
-    #             "set_cookie": "",
-    #             "variables": [],
-    #             "request": {
-    #                 "headers": {},
-    #                 "method": "GET",
-    #                 "url": "https://{{ MENTOR_ENV }}.mentorapm.com/login"
-    #             }
-    #         },
-    #         "locations": [
-    #             "aws:us-west-1"
-    #         ],
-    #         "message": "`000.000.000 RUN-0`\n- Wrapper to run all tests 1-10. \n- Datadog has a test execution time cap at ~20 minutes. \n- RUN tests are broken up to circumvent.",
-    #         "name": "T_NAME_HERERERE",
-    #         "options": {
-    #             "device_ids": [
-    #                 "chrome.laptop_large"
-    #             ],
-    #             "disable_cors": false,
-    #             "disable_csp": false,
-    #             "ignore_server_certificate_error": false,
-    #             "min_failure_duration": 0,
-    #             "min_location_failed": 1,
-    #             "monitor_options": {},
-    #             "no_screenshot": false,
-    #             "retry": {
-    #                 "count": 0,
-    #                 "interval": 300.0
-    #             },
-    #             "rum_settings": {
-    #                 "is_enabled": false
-    #             },
-    #             "tick_every": 300
-    #         },
-    #         "type": "browser"
-    #     }
-    # }
+
+    
+#     {
+#     "test_name": "TEST_TEST",
+#     "details": {
+#         "created_at": "created_at",
+#         "modified_at": "modified_at",
+#         "creator": {
+#             "name": "CREATOR",
+#             "handle": "HANDLE",
+#             "email": "EMAIL"
+#         },
+#         "monitor_id": 000000000,
+#         "public_id": "public_id", 
+#         "status": "paused",
+#         "steps": [],
+#         "tags": [],
+#         "config": {
+#             "assertions": [],
+#             "config_variables": [],
+#             "set_cookie": "",
+#             "variables": [],
+#             "request": {
+#                 "headers": {},
+#                 "method": "GET",
+#                 "url": "https://starting_url"
+#             }
+#         },
+#         "locations": [
+#             "gcp:us-west2"
+#         ],
+#         "message": "",
+#         "name": "TEST_TEST",
+#         "options": {
+#             "bindings": [],
+#             "enableProfiling": false,
+#             "enableSecurityTesting": false,
+#             "device_ids": [
+#                 "firefox.laptop_large",
+#                 "chrome.laptop_large",
+#                 "edge.laptop_large"
+#             ],
+#             "disable_cors": false,
+#             "disable_csp": false,
+#             "ignore_server_certificate_error": false,
+#             "min_failure_duration": 0,
+#             "min_location_failed": 1,
+#             "monitor_options": {
+#                 "notification_preset_name": "show_all"
+#             },
+#             "no_screenshot": false,
+#             "retry": {
+#                 "count": 0,
+#                 "interval": 300.0
+#             },
+#             "rum_settings": {
+#                 "application_id": "7372fdca-35b0-42f6-86e1-b994dc85d451",
+#                 "client_token_id": 85674,
+#                 "is_enabled": true
+#             },
+#             "tick_every": 300
+#         },
+#         "type": "browser"
+#     }
+# }

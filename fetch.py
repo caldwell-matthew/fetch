@@ -325,7 +325,7 @@ def nuke(dir, regex=r'^COPY_.*$'):
 # Main
 def main():
     if validate_api():
-        fetch()
+        fetch("single", "TEST_TEST", MAIN_DIR)
         # do something else...
         
 if __name__ == "__main__":
