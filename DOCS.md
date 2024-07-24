@@ -6,11 +6,10 @@
 - Afterwards, modify the `main()` function to reference whichever function you wish to run.
 
 ```
-# Main
 def main():
-    if validate_api():
-        fetch()
-        # do something else...
+  if validate_api():
+    fetch()
+    # do something else...
 ```
 
 - Start small. Don't try and modify every single one of your tests at once.

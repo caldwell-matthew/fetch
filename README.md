@@ -12,7 +12,8 @@ A multi-purpose script to 'fetch' and 'throw' Datadog tests.
 pip install datadog-api-client python-dotenv dotenv pytest pytest-cov
 ```
 
-- Create or locate your Datadog API and Application keys for `fetch` to reference. If you are setting this up for the first time, see the following links:
+- Create or locate your Datadog API and Application keys for `fetch` to reference.
+- If you are setting this up for the first time, see the following links:
 
   - https://docs.datadoghq.com/api/latest/synthetics
   - https://app.datadoghq.com/organization-settings/api-keys
@@ -27,7 +28,8 @@ DD_APP = "ENTER YOUR APP KEY HERE"
 
 # Getting Started
 
-Read the [Documentation](DOCS.md)
+[Fetch Documentation](DOCS.md)
+[Datadog Documentation](https://docs.datadoghq.com/api/latest/)
 
 # Running the Script
 
