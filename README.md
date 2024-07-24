@@ -1,6 +1,4 @@
-<img src="./fetch_logo.png" alt="drawing" height="300"/>
-
-## Fetch
+<img src="./fetch_logo.png" alt="drawing" height="200"/>
 
 A multi-purpose script to 'fetch' and 'throw' Datadog tests.
 
