@@ -1,0 +1,99 @@
+{
+    "test_name": "MOB.170_Nav_Dev_Logs",
+    "details": {
+        "name": "MOB.170_Nav_Dev_Logs",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.170` Mobile route check: /logz\n- Asserts PageTitle renders \"Dev Logs\" (from MOBILE_ROUTES in routing/config.ts).\n- Requires an authenticated session; run via MOB.999 suite, not standalone.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Nav"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /logz",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/logz"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test page title \"Dev Logs\"",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Dev Logs",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/logz",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Dev Logs\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent"
+            }
+        ]
+    }
+}

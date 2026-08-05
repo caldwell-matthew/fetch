@@ -4,6 +4,7 @@
 #   Description : Script to 'fetch' and 'throw' Datadog tests
 
 import json, os, re, certifi
+from datetime import datetime
 from dotenv import dotenv_values
 from datadog_api_client import ApiClient
 from datadog_api_client.v1 import Configuration
@@ -21,7 +22,7 @@ configuration.api_key["appKeyAuth"] = env.get("DD_APP")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Directory Setup
 MAIN_DIR = "./dd_tests/"
-BACKUP_DIR = "./dd_tests_copy/"
+BACKUP_DIR = "./dd_tests_backup/"
 os.makedirs(MAIN_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
 
@@ -37,8 +38,15 @@ def validate_api():
 # JSON Processing and Extracting 
 def process_to_json(data, file_name, dir=MAIN_DIR):
     file_path = os.path.join(dir, file_name)
+    # The API client returns datetime objects for created_at/modified_at, which json
+    # cannot serialize on its own. Emit them as ISO strings to match the stored format.
+    def encode(obj):
+        return obj.isoformat() if isinstance(obj, datetime) else str(obj)
+    # Serialize BEFORE opening the file. open(...,"w") truncates immediately, so a
+    # failure inside dumps() would otherwise wipe the existing test file.
+    payload = json.dumps(data, indent=4, default=encode)
     with open(file_path, "w") as file:
-        file.write(json.dumps(data, indent=4))
+        file.write(payload)
 
 def extract_json(file_name, dir=MAIN_DIR):
     file_path = os.path.join(dir, file_name + ".json")

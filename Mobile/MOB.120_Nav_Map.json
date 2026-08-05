@@ -1,0 +1,99 @@
+{
+    "test_name": "MOB.120_Nav_Map",
+    "details": {
+        "name": "MOB.120_Nav_Map",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.120` Mobile route check: /map\n- Asserts PageTitle renders \"The Map\" (from MOBILE_ROUTES in routing/config.ts).\n- Requires an authenticated session; run via MOB.999 suite, not standalone.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Nav"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /map",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/map"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test page title \"The Map\"",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "The Map",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"The Map\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent"
+            }
+        ]
+    }
+}

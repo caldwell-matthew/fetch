@@ -1,0 +1,122 @@
+{
+    "test_name": "MOB.140_Nav_Mobile_Jobs",
+    "details": {
+        "name": "MOB.140_Nav_Mobile_Jobs",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.140` Mobile route check: /asset-verify\n- Asserts PageTitle renders \"Mobile Jobs\" (from MOBILE_ROUTES in routing/config.ts).\n- Requires an authenticated session; run via MOB.999 suite, not standalone.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Nav"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /asset-verify",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test page title \"Mobile Jobs\"",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Mobile Jobs",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test mobile job search input is present",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            }
+        ]
+    }
+}
