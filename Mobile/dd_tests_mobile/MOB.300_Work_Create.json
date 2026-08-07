@@ -4,7 +4,7 @@
         "name": "MOB.300_Work_Create",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.300` Create a work order from mobile.\n- Tags the record's Problem Description with 'DD SYNTHETIC MOBILE' so synthetic data is findable.\n- MUTATES: creates a real work order on dev. Mobile has no delete for work orders,\n  so these accumulate and must be cleaned up from the desktop app.\n- The create button is hidden when offline or without work.create permission.",
+        "message": "`MOB.300` Create a work order from mobile.\n- Tags the record's Problem Description with 'DD SYNTHETIC MOBILE' so synthetic data is findable.\n- MUTATES: creates a real work order on dev. Mobile has no delete for work orders,\n  so these accumulate and must be cleaned up from the desktop app.\n- The create button is hidden when offline or without work.create permission.\n- Success is asserted by the create modal closing, which is durable; the toast\n  check is optional because ToastContainer autoCloses it after 5s.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -265,7 +265,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test success toast",
+                "name": "Test create modal closed (durable success signal)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Creating New Work Order"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Test success toast (optional: transient, autoClose 5000)",
                 "noScreenshot": false,
                 "params": {
                     "value": "Work order successfully created!"

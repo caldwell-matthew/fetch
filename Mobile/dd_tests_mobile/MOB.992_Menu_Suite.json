@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.200_Crew_Switch",
+    "test_name": "MOB.992_Menu_Suite",
     "details": {
-        "name": "MOB.200_Crew_Switch",
+        "name": "MOB.992_Menu_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.200` Switch crews from the mobile top header.\n- Clicks span.mobile-crew, opens RoleSelection, picks the 2nd crew, submits.\n- Fires the CHANGE_SESSION_ROLE mutation, so this MUTATES the session role.\n- Requires the test account to belong to at least 2 crews.\n- Runs last in MOB.999 because it changes session state for later steps.",
+        "message": "`MOB.992` Hamburger menu: open/close, resync, Transaction Log route, crew modal\ndismissal. READ-ONLY - the mutating crew switch (MOB.200) and logout (MOB.440) are\ndeliberately excluded and run standalone.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Crew",
-            "E2E"
+            "E2E",
+            "Suite",
+            "Menu"
         ],
         "locations": [
             "gcp:us-west2"
@@ -20,6 +21,16 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
+                    "name": "DATA_DOG_EMAIL",
+                    "type": "global"
+                },
+                {
+                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
+                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -32,6 +43,16 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
+                    "name": "DATA_DOG_EMAIL",
+                    "type": "global"
+                },
+                {
+                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
+                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -63,7 +84,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile home",
+                "name": "Navigate to mobile app",
                 "noScreenshot": false,
                 "params": {
                     "value": "{{ MOBDEV }}"
@@ -75,17 +96,41 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the header menu",
+                "name": "Type email",
                 "noScreenshot": false,
                 "params": {
+                    "value": "{{ DATA_DOG_EMAIL }}",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/login",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "//input[@name=\"email\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Next\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@type=\"submit\"]"
                                 }
                             ]
                         }
@@ -98,17 +143,41 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Switch Crews\"",
+                "name": "Type password",
                 "noScreenshot": false,
                 "params": {
+                    "value": "{{ DATA_DOG_PASSWORD }}",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/login",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]"
+                                    "value": "//input[@name=\"password\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Submit\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@type=\"submit\"]"
                                 }
                             ]
                         }
@@ -121,77 +190,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test \"Switch Crew\" modal opened",
+                "name": "Choose the \"development\" environment",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Switch Crew",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//p[normalize-space(.)=\"Switch Crew\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementContent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test current-crew label is shown",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Currently logged in as"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test crew radio options are listed",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//input[@type=\"radio\"])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Select the second crew",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//label[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Radio-label \")])[2]"
+                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][.//p[normalize-space(.)=\"development\"]])[1]"
                                 }
                             ]
                         }
@@ -204,30 +213,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Submit crew change",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test app shell still rendered after crew change",
+                "name": "Test authenticated mobile shell rendered",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -244,6 +230,58 @@
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.400_Menu_Open_Close",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "g2h-4ix-xuj",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.410_Menu_Resync",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "gtj-7bu-7sq",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.420_Menu_Transaction_Log",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "8rg-c5z-i3r",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.430_Crew_Modal_Dismiss",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "4mk-rc8-wpu",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
             }
         ]
     }

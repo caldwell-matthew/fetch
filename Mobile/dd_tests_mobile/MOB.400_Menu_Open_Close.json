@@ -1,14 +1,14 @@
 {
-    "test_name": "MOB.140_Nav_Mobile_Jobs",
+    "test_name": "MOB.400_Menu_Open_Close",
     "details": {
-        "name": "MOB.140_Nav_Mobile_Jobs",
+        "name": "MOB.400_Menu_Open_Close",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.140` Mobile route check: /asset-verify\n- Asserts PageTitle renders \"Mobile Jobs\" (from MOBILE_ROUTES in routing/config.ts).\n- Requires an authenticated session; run via MOB.999 suite, not standalone.",
+        "message": "`MOB.400` Hamburger menu opens and closes.\n- Asserts the always-present items render (ReSync / Switch Crews / Log Out), then\n  closes with Escape and asserts the dropdown is gone.\n- Route items are permission-gated so they are deliberately not asserted here.\n- Read-only.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Nav"
+            "Menu"
         ],
         "locations": [
             "gcp:us-west2"
@@ -62,10 +62,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to /asset-verify",
+                "name": "Navigate to mobile home",
                 "noScreenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                    "value": "{{ MOBDEV }}"
                 },
                 "type": "goToUrl"
             },
@@ -74,48 +74,83 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test page title \"Mobile Jobs\"",
+                "name": "Open the hamburger menu",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Mobile Jobs",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementContent"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test mobile job search input is present",
+                "name": "Test ReSync item is listed",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "ReSync"
                 },
-                "type": "assertElementPresent"
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test Switch Crews item is listed",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Switch Crews"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test Log Out item is listed",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Log Out"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu with Escape",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test menu closed",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Switch Crews"
+                },
+                "type": "assertPageLacks"
             }
         ]
     }

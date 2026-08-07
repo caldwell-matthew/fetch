@@ -1,15 +1,15 @@
 {
-    "test_name": "MOB.999_Mobile_Suite",
+    "test_name": "MOB.440_Logout",
     "details": {
-        "name": "MOB.999_Mobile_Suite",
+        "name": "MOB.440_Logout",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.999` Mobile suite (dev) - runs every mobile route check on a mobile viewport.\n- Logs in once, then chains each MOB.1xx route subtest plus the MOB.900 guard.\n- subtestPublicId values are PENDING-WIRE-UP until the children are thrown; see wire_suite.py.",
+        "message": "`MOB.440` Log out, including the 'Take Me Back' escape hatch.\n- Self-contained (own login steps) and deliberately NOT part of any suite: confirming\n  logout clears the Apollo store, wipes persisted transaction queues and redirects to\n  /login?src=mobile, which would break every subsequent subtest.\n- Order matters: the non-destructive 'Take Me Back' path is exercised first, then the\n  real logout last.\n- Ends the session by design; nothing may follow it.",
         "tags": [
             "Mobile",
             "env:dev",
-            "E2E",
-            "Suite"
+            "Menu",
+            "Login"
         ],
         "locations": [
             "gcp:us-west2"
@@ -235,143 +235,220 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.100_Nav_Asset_Lookup",
+                "name": "Open the hamburger menu (1)",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "bqj-mse-hma",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.110_Nav_Material_Lookup",
+                "name": "Click Log Out",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "6cw-n6g-778",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Log Out\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.120_Nav_Map",
+                "name": "Test logout confirmation shown",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "hu8-ry9-e6c",
-                    "playingTabId": -1
+                    "value": "Are you sure you want to log out?"
                 },
-                "type": "playSubTest"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.130_Nav_Transaction_Log",
+                "name": "Click Take Me Back",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "9hz-hdv-vdd",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Take Me Back\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.140_Nav_Mobile_Jobs",
+                "name": "Test logout cancelled",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "mdk-h4s-g3m",
-                    "playingTabId": -1
+                    "value": "Are you sure you want to log out?"
                 },
-                "type": "playSubTest"
+                "type": "assertPageLacks"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.150_Nav_Work_Orders",
+                "name": "Test still signed in",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "xjb-5za-3it",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "assertElementPresent"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.160_Nav_Asset_Collector",
+                "name": "Open the hamburger menu (2)",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "rgh-gnr-wau",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.170_Nav_Dev_Logs",
+                "name": "Click Log Out again",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "spi-745-suy",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Log Out\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.300_Work_Create",
+                "name": "Confirm logout",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "ib3-xew-j92",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Log Out\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.900_Online_Guard",
+                "name": "Wait for the redirect to /login",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "gn2-txi-94i",
-                    "playingTabId": -1
+                    "value": 5
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.200_Crew_Switch",
+                "name": "Test returned to the login page",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "md3-63d-k7c",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"email\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "assertElementPresent"
             }
         ]
     }
