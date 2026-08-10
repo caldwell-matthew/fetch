@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.300_Work_Create",
+    "test_name": "MOB.393_Work_Add_Form",
     "details": {
-        "name": "MOB.300_Work_Create",
+        "name": "MOB.393_Work_Add_Form",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.300` Create a work order from mobile.\n- Tags the record's Problem Description with 'DD SYNTHETIC MOBILE' so synthetic data is findable.\n- MUTATES: creates a real work order on dev. Mobile has no delete for work orders,\n  so these accumulate and must be cleaned up from the desktop app.\n- The create button is hidden when offline or without work.create permission.\n- Success is asserted by the create modal closing, which is durable; the toast\n  check is optional because ToastContainer autoCloses it after 5s.\n- If the affixed create button is missing, check the SESSION ROLE first. It renders\n  only for a role with work.create; the org has 'Admin', 'Admin (0000)' and\n  'Admin 0100' and only plain 'Admin' qualifies. The login role guard now catches\n  this up front.",
+        "message": "`MOB.393` Add a form to the fixture work order.\n- Single field (`formId`), picked by text.\n- Uses its own form id (`adhoc-form`) and its own toast text ('Form added'), unlike\n  the NewItemForm-based collections which use 'Item added'.\n- SCOPE: only covers INSERTING the form. Clicking through to fill the inserted form\n  out is a separate flow and is deliberately not covered here.\n- MUTATES: adds a permanent form to EYRpYJ9QYdQ1JFF10JtB0Q on every run.",
         "tags": [
             "Mobile",
             "env:dev",
             "Work Order",
             "CRUD",
-            "E2E"
+            "Forms"
         ],
         "locations": [
             "gcp:us-west2"
@@ -64,7 +64,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to /work",
+                "name": "Navigate to /work to warm the lookup cache",
                 "noScreenshot": false,
                 "params": {
                     "value": "https://dev.mentorapm.com/apm-mobile/work"
@@ -76,58 +76,46 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test page title \"Work Orders\"",
+                "name": "Wait for the work list and lookup prefetch",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Work Orders",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": 20
                 },
-                "type": "assertElementContent"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the create-work-order form",
+                "name": "Navigate to the fixture work order",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Affix-root \")]//button"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
                 },
-                "type": "click"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test create modal opened",
+                "name": "Wait for the detail view to render",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Creating New Work Order"
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
                 },
                 "type": "assertPageContains"
             },
@@ -136,17 +124,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Focus the Workflow lookup",
+                "name": "Open the Forms tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"workflowTitleId\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
                                 }
                             ]
                         }
@@ -159,41 +147,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Search for the Datadog Test workflow",
+                "name": "Open the add form",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Datadog Test",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"workflowTitleId\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick the \"Datadog Test\" workflow",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Datadog Test\")]"
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
                                 }
                             ]
                         }
@@ -206,41 +170,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type the synthetic marker into Problem Description",
+                "name": "Focus the form lookup",
                 "noScreenshot": false,
                 "params": {
-                    "value": "DD SYNTHETIC MOBILE",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"problemDesc\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Create Work Order\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Create Work Order\"]"
+                                    "value": "//*[@id=\"formId\"]"
                                 }
                             ]
                         }
@@ -253,7 +193,65 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the create mutation to resolve",
+                "name": "Wait for form options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick Inspection",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Inspection\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"adhoc-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the add mutation",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -265,10 +263,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test create modal closed (durable success signal)",
+                "name": "Test the form modal closed (durable success signal)",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Creating New Work Order"
+                    "value": "Submit"
                 },
                 "type": "assertPageLacks"
             },
@@ -277,10 +275,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "Test success toast (optional: transient, autoClose 5000)",
+                "name": "Test the 'Form added' toast (optional: transient)",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Work order successfully created!"
+                    "value": "Form added"
                 },
                 "type": "assertPageContains"
             }

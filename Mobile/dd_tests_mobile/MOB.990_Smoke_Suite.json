@@ -4,7 +4,7 @@
         "name": "MOB.990_Smoke_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
+        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.\n- Guards that the session role is exactly \"Admin\". The org has several\n  similarly-named roles and only this one can create/update work orders; drift\n  onto another otherwise surfaces as an unexplained missing control.\n- A wait sits between the environment picker and the shell assertion: choosing an\n  environment triggers a redirect into /apm-mobile, and asserting immediately races\n  the SPA mount. Observed failing while the very next step clicked the same burger\n  successfully.\n- The environment picker click is scoped to ACTIVE orgs only\n  (enviroment-btn--active). MultiLoginPage renders inactive orgs too, and\n  clicking one does not navigate - leaving the run stranded on /login/sso.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -90,6 +90,18 @@
                     "value": "{{ MOBDEV }}"
                 },
                 "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the SSO login form to hydrate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -200,13 +212,25 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][.//p[normalize-space(.)=\"development\"]])[1]"
+                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
                                 }
                             ]
                         }
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the app shell to mount after the env redirect",
+                "noScreenshot": false,
+                "params": {
+                    "value": 10
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -230,6 +254,64 @@
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu to read the session role",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Guard: session role is exactly \"Admin\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,

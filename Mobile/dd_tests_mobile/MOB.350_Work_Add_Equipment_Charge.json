@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.992_Menu_Suite",
+    "test_name": "MOB.350_Work_Add_Equipment_Charge",
     "details": {
-        "name": "MOB.992_Menu_Suite",
+        "name": "MOB.350_Work_Add_Equipment_Charge",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.992` Hamburger menu: open/close, resync, Transaction Log route, crew modal\ndismissal. READ-ONLY - the mutating crew switch (MOB.200) and logout (MOB.440) are\ndeliberately excluded and run standalone.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.\n- Guards that the session role is exactly \"Admin\". The org has several\n  similarly-named roles and only this one can create/update work orders; drift\n  onto another otherwise surfaces as an unexplained missing control.\n- A wait sits between the environment picker and the shell assertion: choosing an\n  environment triggers a redirect into /apm-mobile, and asserting immediately races\n  the SPA mount. Observed failing while the very next step clicked the same burger\n  successfully.\n- The environment picker click is scoped to ACTIVE orgs only\n  (enviroment-btn--active). MultiLoginPage renders inactive orgs too, and\n  clicking one does not navigate - leaving the run stranded on /login/sso.",
+        "message": "`MOB.350` Add an equipment charge to the fixture work order.\n- Visits /work FIRST to warm the cache: the equipment lookup is fetchPolicy\n  'cache-only' and is only populated by prefetchWorkData, which runs off the session\n  crew's own work list. The fixture must stay assigned to the test crew.\n- Submit is scoped to form=\"work-collection-form\" so it cannot match another\n  Submit control on the page.\n- MUTATES: adds a permanent equipment charge to EYRpYJ9QYdQ1JFF10JtB0Q on every run. Mobile\n  has no delete, so these accumulate and need cleaning up from desktop.",
         "tags": [
             "Mobile",
             "env:dev",
-            "E2E",
-            "Suite",
-            "Menu"
+            "Work Order",
+            "ELMO",
+            "CRUD"
         ],
         "locations": [
             "gcp:us-west2"
@@ -21,16 +21,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -43,16 +33,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -84,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile app",
+                "name": "Navigate to /work to warm the lookup cache",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ MOBDEV }}"
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
                 },
                 "type": "goToUrl"
             },
@@ -96,7 +76,31 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the SSO login form to hydrate",
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the detail view to render",
                 "noScreenshot": false,
                 "params": {
                     "value": 5
@@ -108,18 +112,99 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type email",
+                "name": "Test work order detail rendered",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_EMAIL }}",
+                    "value": "Status:"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Equipment tab",
+                "noScreenshot": false,
+                "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/login",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//input[@name=\"email\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Equipment\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the add-charge form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the equipment lookup",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"equipmentId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type into the equipment lookup to load options",
+                "noScreenshot": false,
+                "params": {
+                    "value": "AC Adapter",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"equipmentId\"]"
                                 }
                             ]
                         }
@@ -132,103 +217,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Next\"",
+                "name": "Wait for equipment options",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Type password",
-                "noScreenshot": false,
-                "params": {
-                    "value": "{{ DATA_DOG_PASSWORD }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Submit\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Choose the \"development\" environment",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the app shell to mount after the env redirect",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -237,40 +229,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test authenticated mobile shell rendered",
+                "name": "Pick the AC Adapter equipment option",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the menu to read the session role",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"AC Adapter\")]"
                                 }
                             ]
                         }
@@ -283,87 +252,83 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Guard: session role is exactly \"Admin\"",
+                "name": "Enter a quantity",
                 "noScreenshot": false,
                 "params": {
+                    "value": "1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                    "value": "//*[@id=\"quantity\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "typeText"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the menu",
+                "name": "Submit the charge",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"work-collection-form\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "pressKey"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.400_Menu_Open_Close",
+                "name": "Wait for the add mutation",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "g2h-4ix-xuj",
-                    "playingTabId": -1
+                    "value": 3
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.410_Menu_Resync",
+                "name": "Test the charge modal closed (durable success signal)",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "gtj-7bu-7sq",
-                    "playingTabId": -1
+                    "value": "Submit"
                 },
-                "type": "playSubTest"
+                "type": "assertPageLacks"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.420_Menu_Transaction_Log",
+                "isCritical": false,
+                "name": "Test the item-added toast (optional: transient)",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "8rg-c5z-i3r",
-                    "playingTabId": -1
+                    "value": "Item added"
                 },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.430_Crew_Modal_Dismiss",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "4mk-rc8-wpu",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
+                "type": "assertPageContains"
             }
         ]
     }

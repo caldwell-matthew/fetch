@@ -78,6 +78,14 @@ def test(name, message, steps, tags, extra_globals=()):
                 "set_cookie": "",
             },
             "options": {
+                # SINGLE DEVICE, DELIBERATELY. Datadog runs each device_id as its own
+                # CONCURRENT browser session, and every mutating test drives the same
+                # fixture work order - so two devices race on shared server state. It
+                # showed up as MOB.320 failing 'Test status is now "Complete"' while the
+                # other session was walking the same work order to a different status.
+                # Nothing in the test can fix that; the assertions are racing, not wrong.
+                # Worse, it hid itself: for several runs one device always died at login,
+                # so only one session actually ran and the suite looked clean.
                 "device_ids": ["chrome.tablet"],
                 "disable_cors": False, "disable_csp": False,
                 "ignore_server_certificate_error": False,
@@ -138,8 +146,54 @@ def push():
                 print(f"CREATE {d['name']} -> {r['public_id']}")
 
 
-def run(*names, timeout=1200):
-    # MOB.991 alone is ~90 steps including deliberate waits, so 600s was too tight.
+def _eta(api, pid):
+    """Median duration of recent runs, for the progress bar's denominator."""
+    try:
+        ds = [(r.get("result") or {}).get("duration")
+              for r in api.get_browser_test_latest_results(pid).to_dict()["results"][:20]]
+        ds = sorted(d / 1000 for d in ds if d)
+        return ds[len(ds) // 2] if ds else 400.0
+    except Exception:
+        return 400.0
+
+
+_last_logged = [0.0]
+
+
+def _progress(elapsed, eta, waiting):
+    """Live progress, in whichever form the output can actually show.
+
+    TTY      one line redrawn in place with \\r.
+    NOT TTY  a fresh line every 60s instead. \\r into a file is unreadable noise, but
+             printing NOTHING is worse - a backgrounded run then produces a completely
+             silent log for ~7 minutes, which is indistinguishable from a hung process.
+             Newline-delimited output is what makes `tail -f` work.
+    """
+    frac = min(elapsed / eta, 1.0) if eta else 0.0
+    filled = int(frac * 28)
+    over = " over median" if elapsed > eta else ""
+    bar = (f"[{'█' * filled}{'░' * (28 - filled)}] "
+           f"{int(elapsed // 60):02d}:{int(elapsed % 60):02d}"
+           f"/~{int(eta // 60):02d}:{int(eta % 60):02d}{over}  {waiting} running")
+    if sys.stdout.isatty():
+        sys.stdout.write(f"\r  {bar} ")
+        sys.stdout.flush()
+    elif elapsed - _last_logged[0] >= 60:
+        _last_logged[0] = elapsed
+        print(f"  {bar}", flush=True)
+
+
+def run(*names, timeout=2400):
+    """Trigger tests and poll until they finish, drawing a live progress bar.
+
+    The bar is an ELAPSED/ETA estimate, not real progress. Datadog publishes a result only
+    when a run finishes - there is no per-step feed to poll, confirmed by watching a run in
+    flight return the previous result the whole time. So the bar answers "is this normal or
+    is it stuck?", which is the actual question during a 6-minute wait.
+    """
+    # MOB.991 is ~150 steps across 9 subtests x 2 devices, plus queueing behind other
+    # triggers. 1200s reported 'timed out' on runs that later passed - which reads like a
+    # failure but is only the poller giving up.
     with ApiClient(_conf()) as c:
         api = SyntheticsApi(c)
         ids = remote_ids(api)
@@ -152,9 +206,13 @@ def run(*names, timeout=1200):
         trig = api.trigger_tests(body=body).to_dict()
         pending = {r["public_id"]: r["result_id"] for r in trig.get("results", [])}
         name_of = {v: k for k, v in ids.items()}
-        print(f"triggered {len(pending)} run(s); waiting...\n")
-        deadline, failed = time.time() + timeout, 0
+        etas = {pid: _eta(api, pid) for pid in pending}
+        eta = max(etas.values()) if etas else 400.0
+        print(f"triggered {len(pending)} run(s); median recent run {eta/60:.1f} min\n")
+        started = time.time()
+        deadline, failed = started + timeout, 0
         while pending and time.time() < deadline:
+            _progress(time.time() - started, eta, len(pending))
             time.sleep(15)
             for pid, rid in list(pending.items()):
                 try:
@@ -165,7 +223,12 @@ def run(*names, timeout=1200):
                 if res.get("status") is None and not r:
                     continue
                 ok = res.get("status") == 0 or r.get("passed")
-                print(f"{'PASS' if ok else 'FAIL'}  {name_of.get(pid, pid)}")
+                if sys.stdout.isatty():
+                    sys.stdout.write("\r" + " " * 78 + "\r")
+                done, total = r.get("stepCountCompleted"), r.get("stepCountTotal")
+                got = f"  {done}/{total} steps" if total else ""
+                print(f"{'PASS' if ok else 'FAIL'}  {name_of.get(pid, pid)}"
+                      f"{got}  {r.get('duration', 0)/1000:.0f}s")
                 if not ok:
                     failed += 1
                     if r.get("error"):
@@ -177,11 +240,87 @@ def run(*names, timeout=1200):
         return 1 if failed else 0
 
 
+def report(name, index=0):
+    """Print per-step and per-subtest outcomes for a recent run.
+
+    ALWAYS CHECK THE AGE BANNER FIRST. Reading a stale result as if it were the current
+    one has caused THREE separate misdiagnoses - each time producing a "fix" for a
+    locator that had already been replaced. Two things make it easy to do:
+      - every test runs on TWO devices, so one trigger yields two results that can fail
+        at completely different steps, and index 0 is only one of them
+      - a run takes ~20min, so the previous run's result sits there looking authoritative
+        the entire time the new one is in flight
+    Hence the header prints the check time, the age, and the sibling results.
+
+    NOTE ON KEYS - this cost a misdiagnosis once. The payload mixes conventions:
+        result.step_details          snake_case
+        <subtest row>.subTestStepDetails   camelCase
+    Reading the snake_case name on a subtest row silently yields None, which looks like
+    "no failing steps" and makes a failed subtest read as passing. Always trust the
+    row's own `passed` flag, not the absence of errors.
+    """
+    with ApiClient(_conf()) as c:
+        api = SyntheticsApi(c)
+        ids = remote_ids(api)
+        if name not in ids:
+            print("not found:", name)
+            return 1
+        pid = ids[name]
+        results = api.get_browser_test_latest_results(pid).to_dict()["results"]
+        if index >= len(results):
+            print("no such result index")
+            return 1
+        full = api.get_browser_test_result(pid, results[index]["result_id"]).to_dict()
+        res = full.get("result") or {}
+        siblings = [(i, r) for i, r in enumerate(results[:6])]
+
+    # check_time is epoch MILLISECONDS, not seconds - dividing wrong puts every run in 1970
+    ct = full.get("check_time") or results[index].get("check_time")
+    when, age = "unknown", ""
+    if ct:
+        secs = time.time() - ct / 1000.0
+        when = time.strftime("%H:%M:%S", time.localtime(ct / 1000.0))
+        age = f"  ({int(secs // 60)}m {int(secs % 60)}s ago)"
+        if secs > 900:
+            age += "   <-- STALE? a suite takes ~20min; a newer run may be in flight"
+
+    print(f"{name}  device={full.get('device_id')}  passed={res.get('passed')}")
+    print(f"run at {when}{age}")
+    if len(siblings) > 1:
+        print("other results (pass index N to read one):")
+        for i, r in siblings:
+            if i == index:
+                continue
+            rct = r.get("check_time")
+            rw = time.strftime("%H:%M:%S", time.localtime(rct / 1000.0)) if rct else "?"
+            print(f"  [{i}] {r.get('device_id','?'):20} {rw}  passed={r.get('result',{}).get('passed')}")
+    print()
+    for s in res.get("step_details") or []:
+        subs = s.get("subTestStepDetails")
+        if subs is None:
+            mark = "ERR" if s.get("error") else "ok "
+            print(f"  [{mark}] {s.get('description')}")
+            if s.get("error"):
+                print(f"        {str(s['error'])[:160]}")
+            continue
+        # a subtest row: trust `passed`, then dig into its own steps
+        ok = s.get("passed")
+        print(f"  [{'ok ' if ok else 'FAIL'}] {s.get('description')}  ({len(subs)} steps)")
+        for sub in subs:
+            if sub.get("error") or sub.get("passed") is False:
+                print(f"        ERR {sub.get('description')}")
+                if sub.get("error"):
+                    print(f"            {str(sub['error'])[:160]}")
+    return 0
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "push"
     if cmd == "push":
         push()
     elif cmd == "run":
         sys.exit(run(*sys.argv[2:]))
+    elif cmd == "report":
+        sys.exit(report(sys.argv[2], int(sys.argv[3]) if len(sys.argv) > 3 else 0))
     else:
         print(__doc__)

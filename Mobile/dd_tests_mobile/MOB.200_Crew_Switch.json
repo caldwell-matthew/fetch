@@ -4,7 +4,7 @@
         "name": "MOB.200_Crew_Switch",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.200` Switch crews and revert (Admin -> Operator -> Admin).\n- Always ENDS ON Admin, so the run is self-restoring and repeatable.\n- The outbound leg is optional: if the account is already on Operator, Submit is\n  disabled for the current role, and the critical return leg still lands on Admin.\n- Reached via the burger menu, not span.mobile-crew (that span is display:none\n  below 450px, so the menu path works at every viewport).\n- MUTATES then RESTORES: fires CHANGE_SESSION_ROLE twice.\n- Kept OUT of MOB.999: mobile jobs and work orders are crew-scoped, so running it\n  mid-suite changes the data other subtests depend on.\n- Self-contained: includes the login sequence, because this test runs on its\n  own rather than as a MOB.999 subtest.",
+        "message": "`MOB.200` Switch crews and revert (Admin -> Operator -> Admin).\n- Always ENDS ON Admin, so the run is self-restoring and repeatable.\n- The outbound leg is optional: if the account is already on Operator, Submit is\n  disabled for the current role, and the critical return leg still lands on Admin.\n- Reached via the burger menu, not span.mobile-crew (that span is display:none\n  below 450px, so the menu path works at every viewport).\n- MUTATES then RESTORES: fires CHANGE_SESSION_ROLE twice.\n- Kept OUT of MOB.999: mobile jobs and work orders are crew-scoped, so running it\n  mid-suite changes the data other subtests depend on.\n- Deliberately has NO role guard: this is the test that RESTORES the role, so\n  requiring the role to already be correct would defeat its purpose.\n- A wait sits between the environment picker and the shell assertion: choosing an\n  environment triggers a redirect into /apm-mobile, and asserting immediately races\n  the SPA mount. Observed failing while the very next step clicked the same burger\n  successfully.\n- The environment picker click is scoped to ACTIVE orgs only\n  (enviroment-btn--active). MultiLoginPage renders inactive orgs too, and\n  clicking one does not navigate - leaving the run stranded on /login/sso.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -89,6 +89,18 @@
                     "value": "{{ MOBDEV }}"
                 },
                 "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the SSO login form to hydrate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -199,13 +211,25 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][.//p[normalize-space(.)=\"development\"]])[1]"
+                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
                                 }
                             ]
                         }
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the app shell to mount after the env redirect",
+                "noScreenshot": false,
+                "params": {
+                    "value": 10
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -229,6 +253,18 @@
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to mobile home",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ MOBDEV }}"
+                },
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
@@ -315,7 +351,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//label[contains(normalize-space(.), \"Operator\")]"
+                                    "value": "//label[normalize-space(.)=\"Operator\"]"
                                 }
                             ]
                         }
@@ -442,7 +478,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//label[contains(normalize-space(.), \"Admin\")]"
+                                    "value": "//label[normalize-space(.)=\"Admin\"]"
                                 }
                             ]
                         }

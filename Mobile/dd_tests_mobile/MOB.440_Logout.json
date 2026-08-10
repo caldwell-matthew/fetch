@@ -4,7 +4,7 @@
         "name": "MOB.440_Logout",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.440` Log out, including the 'Take Me Back' escape hatch.\n- Self-contained (own login steps) and deliberately NOT part of any suite: confirming\n  logout clears the Apollo store, wipes persisted transaction queues and redirects to\n  /login?src=mobile, which would break every subsequent subtest.\n- Order matters: the non-destructive 'Take Me Back' path is exercised first, then the\n  real logout last.\n- Ends the session by design; nothing may follow it.",
+        "message": "`MOB.440` Log out, including the 'Take Me Back' escape hatch.\n- Self-contained (own login steps) and deliberately NOT part of any suite: confirming\n  logout clears the Apollo store, wipes persisted transaction queues and redirects to\n  /login?src=mobile, which would break every subsequent subtest.\n- Order matters: the non-destructive 'Take Me Back' path is exercised first, then the\n  real logout last.\n- Ends the session by design; nothing may follow it.\n- Guards that the session role is exactly \"Admin\". The org has several\n  similarly-named roles and only this one can create/update work orders; drift\n  onto another otherwise surfaces as an unexplained missing control.\n- A wait sits between the environment picker and the shell assertion: choosing an\n  environment triggers a redirect into /apm-mobile, and asserting immediately races\n  the SPA mount. Observed failing while the very next step clicked the same burger\n  successfully.\n- The environment picker click is scoped to ACTIVE orgs only\n  (enviroment-btn--active). MultiLoginPage renders inactive orgs too, and\n  clicking one does not navigate - leaving the run stranded on /login/sso.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -89,6 +89,18 @@
                     "value": "{{ MOBDEV }}"
                 },
                 "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the SSO login form to hydrate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -199,13 +211,25 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][.//p[normalize-space(.)=\"development\"]])[1]"
+                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
                                 }
                             ]
                         }
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the app shell to mount after the env redirect",
+                "noScreenshot": false,
+                "params": {
+                    "value": 10
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -229,6 +253,64 @@
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu to read the session role",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Guard: session role is exactly \"Admin\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,

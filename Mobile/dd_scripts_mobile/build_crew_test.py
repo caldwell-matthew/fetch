@@ -23,6 +23,14 @@ import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import BASE, step, xpath_el, go, test, write, HERE  # noqa: E402
 
+# MOB.200 runs standalone (it is deliberately kept out of every suite because switching
+# crews changes crew-scoped data other tests depend on), so it must carry its own login.
+# Those steps are read from MOB.000 rather than hand-maintained here - previously they
+# were bolted on by a one-off patch that lived only in the JSON, so regenerating this
+# script silently produced a test that never logged in and failed on the first burger click.
+LOGIN_STEPS = json.load(open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
+CREDS = ("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD")
+
 HOME = BASE + "/"
 BURGER = '//button[@aria-label="Toggle navigation"]'
 SWITCH_CREWS = '//button[.//div[normalize-space(.)="Switch Crews"]]'
@@ -32,9 +40,20 @@ HOME_CREW, OTHER_CREW = "Admin", "Operator"
 
 
 def radio(label):
-    # Mantine Radio renders a visible <label>; match on contained text (roles may carry
-    # prefixes/suffixes, same lesson as the emoji-prefixed workflow name).
-    return f'//label[contains(normalize-space(.), "{label}")]'
+    """Mantine Radio renders a visible <label>. Match EXACTLY, not with contains().
+
+    The org has several roles whose names share a prefix - "Admin" and "Admin (0000)"
+    both exist - so contains() can select the wrong one. That is not cosmetic: a Crew IS
+    a Role in MentorTwo, and permissions are aggregated from the groups linked to that
+    role, so landing on the wrong "Admin" silently changes the session's permission set.
+    It is what made CreateWorkButton return null (no work.create) and MOB.300 fail with
+    the affixed create button missing from the DOM.
+
+    Note this is the opposite call from the workflow picker in build_work_tests.py, which
+    needs contains() because its name carries an emoji prefix. Match exactly when names
+    share prefixes; match loosely when the name is decorated.
+    """
+    return f'//label[normalize-space(.)="{label}"]'
 
 
 def open_crew_modal(n):
@@ -55,7 +74,7 @@ write(test(
     "- MUTATES then RESTORES: fires CHANGE_SESSION_ROLE twice.\n"
     "- Kept OUT of MOB.999: mobile jobs and work orders are crew-scoped, so running it\n"
     "  mid-suite changes the data other subtests depend on.",
-    [
+    LOGIN_STEPS + [
         go("{{ MOBDEV }}", "mobile home"),
         *open_crew_modal(1),
         step("assertPageContains", "Test crew switcher opened", {"value": "Switch Crew"}),
@@ -81,38 +100,13 @@ write(test(
              {"element": xpath_el(HOME, BURGER)}),
     ],
     ["Mobile", "env:dev", "Crew", "E2E"],
+    extra_globals=CREDS,
 ))
 
-# ---------------------------------------------------------------- harden MOB.300
-# ALREADY APPLIED - this block is one-shot and is now disabled. It mutated
-# MOB.300_Work_Create.json through a raw open(...,"w"), bypassing dd_tools.write()'s
-# overwrite guard, and re-running it appended the same note to the message a second time.
-# The change it makes (modal-closed assertion critical, toast optional) is already baked
-# into the JSON, which is the source of truth. Re-enable only if you know why.
-if os.environ.get("DD_FORCE") != "1":
-    print("SKIP  MOB.300 hardening - already applied (set DD_FORCE=1 to re-run)")
-    raise SystemExit(0)
+# NOTE: a one-shot MOB.300 hardening block used to live here (modal-closed assertion
+# critical, toast optional). It has been APPLIED and is now DELETED rather than guarded:
+# it wrote MOB.300's JSON directly, bypassing dd_tools.write()'s overwrite guard, and
+# every DD_FORCE=1 run appended the same paragraph to the test message again. The change
+# lives in MOB.300_Work_Create.json, which is the source of truth.
 
-p = os.path.join(HERE, "MOB.300_Work_Create.json")
-d = json.load(open(p))
-steps = d["details"]["steps"]
-for s in steps:
-    if s["type"] == "assertPageContains" and "success toast" in s["name"]:
-        s["allowFailure"] = True
-        s["isCritical"] = False
-        s["name"] = "Test success toast (optional: transient, autoClose 5000)"
-if not any("modal closed" in s["name"] for s in steps):
-    idx = next(i for i, s in enumerate(steps) if s["type"] == "wait") + 1
-    idx = max(i for i, s in enumerate(steps) if s["type"] == "wait") + 1
-    steps.insert(idx, step(
-        "assertPageLacks",
-        "Test create modal closed (durable success signal)",
-        {"value": "Creating New Work Order"}))
-d["details"]["message"] += (
-    "\n- Success is asserted by the create modal closing, which is durable; the toast\n"
-    "  check is optional because ToastContainer autoCloses it after 5s.")
-with open(p, "w") as f:
-    f.write(json.dumps(d, indent=4))
-
-print("rebuilt MOB.200 with Admin -> Operator -> Admin revert")
-print("hardened MOB.300: modal-closed assertion critical, toast optional")
+print("rebuilt MOB.200 with login + Admin -> Operator -> Admin revert")
