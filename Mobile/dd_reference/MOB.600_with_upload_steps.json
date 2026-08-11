@@ -1,0 +1,549 @@
+{
+    "test_name": "MOB.600_Collector_Create_Asset",
+    "details": {
+        "name": "MOB.600_Collector_Create_Asset",
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "example": "12345678",
+                    "pattern": "{{ numeric(8) }}",
+                    "name": "RUNID",
+                    "type": "text"
+                }
+            ],
+            "set_cookie": "",
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "example": "25542859",
+                    "pattern": "{{ numeric(8) }}",
+                    "name": "RUNID",
+                    "type": "text"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            }
+        },
+        "message": "`MOB.600` Collect a new asset with the minimum required fields.\n- MUTATES AND CANNOT BE UNDONE: one permanent Asset per run. Mobile is delete-free, so\n  these accumulate on dev and need desktop cleanup. Named\n  `DD SYNTHETIC MOBILE {{ RUNID }}` so they are easy to find.\n- `{{ RUNID }}` is a per-run Datadog local variable, so the name is unique by\n  construction. A fixed marker would collide on the second run if Asset.name is\n  uniqueness-constrained, and that failure would not look like its cause.\n- Required fields are `name` and `typeId`. If Submit appears to do nothing, suspect a\n  required field the runtime schema adds - an invalid form is a SILENT no-op.\n- Asserts the form closing as the durable signal; the 'Asset collected' toast is\n  optional because it is transient.",
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "type": "browser",
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the asset collector",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-collector"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the collector to load its lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": 15
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the collector page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"main\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"h4\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_8a5d1357 \")]",
+                            "co": "[{\"text\":\"asset collector / lens\",\"textType\":\"directText\"}]",
+                            "ro": "//*[local-name()=\"h4\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_8a5d1357 \")]"
+                        },
+                        "targetOuterHTML": "<h4 class=\"m_8a5d1357 mantine-Title-root\" data-order=\"4\" style=\"--title-fw: var(--mantine-h4-font-weight); --title-lh: var(--mantine-h4-line-height); --title-fz: var(--mantine-h4-font-size);\">Asset Co"
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the new-asset form (affixed + button)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Affix-root \")]//button"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][3]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_7f854edf \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_87cf2631 \")]",
+                            "co": "",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" m_7f854edf \") and contains(concat(' ', normalize-space(@class), ' '), \" mantine-Affix-root \")]/*",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_7f854edf \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_87cf2631 \")]"
+                        },
+                        "targetOuterHTML": "<button class=\"mantine-focus-auto mantine-active m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root\" data-variant=\"gradient\" type=\"button\" style=\"--ai-size: calc(4.5rem * var(--"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the form to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the new-asset form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"asset-collector\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "/descendant::*[@role=\"dialog\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/descendant::*[@type=\"button\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_5df29311 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_6d731127 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_77c9d27d \")][2]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"create asset\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" m_6d731127 \") and contains(concat(' ', normalize-space(@class), ' '), \" mantine-Stack-root \")]/*/*[local-name()=\"button\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_5df29311 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_6d731127 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_77c9d27d \")][2]"
+                        },
+                        "targetOuterHTML": "<button class=\"mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root\" data-variant=\"filled\" data-size=\"xl\" data-block=\"true\" type=\"button\" form=\"asset"
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Enter the asset name",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"name\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@role=\"dialog\"]/descendant::*[@type=\"text\"][1]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_5df29311 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_b1336c6 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input-error \")][1]",
+                            "co": "[{\"text\":\"name*\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"name\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_5df29311 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_b1336c6 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input-error \")][1]"
+                        },
+                        "targetOuterHTML": "<input class=\"mui-mi-input-field form-input mui-mi-input-field-has-error form-input-error m_8fb7ebe7 mantine-Input-input mantine-TextInput-input\" data-variant=\"default\" maxlength=\"255\" autocomplete=\"o"
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Enter the asset description",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Created by Datadog Synthetics - safe to delete",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"desc\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][6]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"textarea\"][1]",
+                            "at": "/descendant::*[@autocomplete=\"new-password\" and @rows=\"5\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mantine-Textarea-input \")]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"textarea\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" mantine-Textarea-input \")]"
+                        },
+                        "targetOuterHTML": "<textarea class=\"mui-mi-input-field form-input mui-textarea-resize-vert m_8fb7ebe7 mantine-Input-input mantine-Textarea-input\" data-variant=\"default\" autocomplete=\"new-password\" rows=\"5\" aria-invalid="
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the asset type lookup",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"typeId\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][5]/*[local-name()=\"div\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"input\"][1]",
+                            "at": "/descendant::*[@required=\"\" and @value=\"\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input-error \")]",
+                            "co": "[{\"text\":\"asset type*\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\"typeId\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" form-input-error \")]"
+                        },
+                        "targetOuterHTML": "<input class=\"mui-mi-input-field form-input mui-mi-input-field-has-error form-input-error input m_8fb7ebe7 mantine-Input-input mantine-TextInput-input\" data-variant=\"default\" type=\"search\" autocomplet"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for asset type options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick Actuator Tools",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Actuator Tools\")]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][17]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][5]",
+                            "at": "/descendant::*[@role=\"option\" and @value=\"Actuator Tools\"]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_b1336c6 \")][3]/*[local-name()=\"div\"][5]",
+                            "co": "[{\"relation\":\"AFTER\",\"tagName\":\"DIV\",\"text\":\"a/c transformer electric\",\"textType\":\"innerText\"},{\"relation\":\"PARENT OF\",\"tagName\":\"DIV\",\"text\":\"actuator tools\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[@id=\":re1:\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_b1336c6 \")][3]/*[local-name()=\"div\"][5]"
+                        },
+                        "targetOuterHTML": "<div class=\"option m_92253aa5 mantine-Combobox-option\" data-combobox-option=\"true\" value=\"Actuator Tools\" id=\":re1:\" role=\"option\" style=\"font-size: 1rem;\"><div class=\"custom-option\"><div class=\"optio"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click on span \"Add Asset Photo\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"button\"][1]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][2]",
+                            "at": "/descendant::*[@role=\"dialog\"]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"form\"][1]/*[local-name()=\"div\"][1]/descendant::*[@type=\"button\"]/*[local-name()=\"span\"][1]/*[local-name()=\"span\"][2]",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_5df29311 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_b1336c6 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_811560b9 \")]",
+                            "co": "[{\"text\":\"add asset photo\",\"textType\":\"directText\"}]",
+                            "ro": "//*[text()[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u00c6\u00c7\u00c8\u00c9\u00ca\u00cb\u00cc\u00cd\u00ce\u00cf\u00d0\u00d1\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u00d9\u00da\u00db\u00dc\u00dd\u00de\u0178\u017d\u0160\u0152', 'abcdefghijklmnopqrstuvwxyz\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f0\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u00f9\u00fa\u00fb\u00fc\u00fd\u00fe\u00ff\u017e\u0161\u0153')) = \"add asset photo\"]]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_5df29311 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_b1336c6 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_811560b9 \")]"
+                        },
+                        "targetOuterHTML": "<span class=\"m_811560b9 mantine-Button-label\">Add Asset Photo</span>"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test custom JavaScript assertion",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const inputs = [...document.querySelectorAll('input[type=\"file\"]')];\nconst el = inputs.find(i => !i.capture);\nif (!el) return false;\nel.setAttribute('data-dd-upload', '1');\nObject.assign(el.style, {\n  display: 'block', opacity: '1', position: 'fixed',\n  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'\n});\nreturn true;\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Upload file",
+                "noScreenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Screenshot 2024-12-11 at 3.23.46\u202fPM.png",
+                            "size": 25762,
+                            "bucketKey": "browser-upload-file-step/4ty-vhq-3aa/2026-08-11T01:17:31.314568_2a1bff34-f062-4bb4-a6bf-9c9c3551f896.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd-upload=\"1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"input\"][3]",
+                            "at": "",
+                            "cl": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"input\"][3]",
+                            "clt": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"image/*\" multiple=\"\" style=\"display: block; opacity: 1; position: fixed; top: 0px; left: 0px; width: 240px; height: 40px; z-index: 99999;\" data-dd-upload=\"1\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the photo-source modal (its own X, NOT Escape)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(@class,\"mantine-Modal-content\")][contains(., \"Select Photo Source\")]//button[contains(@class,\"mantine-Modal-close\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the modal to close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the new asset",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"asset-collector\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][2]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"section\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][1]/*[local-name()=\"div\"][2]/*[local-name()=\"button\"][1]",
+                            "at": "",
+                            "cl": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" gradient-bg \")][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_6d731127 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_77c9d27d \")][2]",
+                            "co": "[{\"relation\":\"PARENT OF\",\"tagName\":\"button\",\"text\":\"create asset\",\"textType\":\"innerText\"}]",
+                            "ro": "//*[contains(concat(' ', normalize-space(@class), ' '), \" m_77c9d27d \") and contains(concat(' ', normalize-space(@class), ' '), \" mantine-Button-root \") and contains(concat(' ', normalize-space(@class), ' '), \" m_87cf2631 \") and contains(concat(' ', normalize-space(@class), ' '), \" mantine-UnstyledButton-root \") and @type=\"submit\"]",
+                            "clt": "/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" gradient-bg \")][2]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_6d731127 \")]/descendant::*[contains(concat(' ', normalize-space(@class), ' '), \" m_77c9d27d \")][2]"
+                        },
+                        "targetOuterHTML": "<button class=\"mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root\" data-variant=\"filled\" data-size=\"xl\" data-block=\"true\" type=\"submit\" form=\"asset"
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the collect mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the form closed (durable success signal)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Create Asset"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the form closed (affixed + button is back)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Affix-root \")]//button"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Test the 'Asset collected' toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Asset collected"
+                },
+                "type": "assertPageContains"
+            }
+        ],
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Collector",
+            "CRUD"
+        ]
+    }
+}

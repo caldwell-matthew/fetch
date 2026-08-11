@@ -320,3 +320,237 @@ with no toast proves case 1.
 
 **Fix:** keep `type="submit"` and let `handleSubmit` surface validation errors, or disable
 the button outright so the dead state is honest.
+
+---
+
+## 10. Mobile job status only ever moves forward — unverifying never walks it back
+
+**Evidence: Source** · `client/mobile/components/AssetVerification/VerificationCheckbox.tsx:41-46`
+
+```js
+const { status, assets, assetsVerified } = job.mobileJob;
+let newStatus = null;
+if (status === 'CANCELED' || status === 'CREATED') return;
+if (assetsVerified === assets?.length && status !== 'COMPLETED') newStatus = 'COMPLETED';
+if (assetsVerified && status === 'READY') newStatus = 'IN_PROGRESS';
+```
+
+This `update` runs for **both** directions — the same mutation verifies and unverifies. But
+no branch can ever produce `READY`, and none reverses `COMPLETED`. So:
+
+| Action | assetsVerified | Status after |
+|---|---|---|
+| verify first asset (from `READY`) | 1 | `IN_PROGRESS` |
+| verify last asset | n | `COMPLETED` |
+| **unverify one** | n−1 | **still `COMPLETED`** |
+| unverify all | 0 | **still `COMPLETED`** |
+
+**Impact:** a job can sit at `COMPLETED` while assets are demonstrably unverified, and a job
+knocked to `IN_PROGRESS` by a mis-tap never returns to `READY`. The progress counter and the
+status badge disagree, and the status is the field that reports upward. Anyone unchecking a
+box to correct a mistake leaves the job permanently misreported.
+
+*(`assetsVerified` itself is fine — it is an `@client` field recomputed from
+`assets { verified }` on every read, so it always reflects the optimistic write. I initially
+suspected an off-by-one here and confirmed from `graphql/localFields/MobileJob.ts` that there
+is none.)*
+
+**Test consequence — the inherited checklist's premise is wrong.** It calls verify → unverify
+"a natural self-reverting pair, making this one of the few mutating areas that can be fully
+repeatable." The *asset* flag reverts; the *job status* does not. A test that verifies every
+asset completes the job permanently.
+
+**Repeatable strategy instead:** use a fixture job that is **already `IN_PROGRESS` with ≥2
+assets**, and verify/unverify exactly **one**. Both status branches are then unreachable —
+`assetsVerified === assets.length` is false, and `status === 'READY'` is false — so the run
+mutates nothing but the single asset flag it restores.
+
+**Fix:** make the transition symmetric — recompute from `assetsVerified` in both directions
+(0 → `READY`, partial → `IN_PROGRESS`, full → `COMPLETED`).
+
+---
+
+## 11. Verification toast fires before the mutation is sent
+
+**Evidence: Source** · `client/mobile/components/AssetVerification/VerificationCheckbox.tsx:24`
+
+```js
+toast.success(`Asset ${flag ? 'verified' : 'unverified'}`);
+client.mutate({ mutation: VERIFY_ASSETDocument, ... });
+```
+
+The success toast is emitted **before** `client.mutate` is called, and nothing awaits or
+catches the result. A rejected mutation still reports "Asset verified".
+
+Same shape as `AdHocForm.tsx:127`, which calls `toast.success('Form added')` ahead of its
+own mutate — so this is a pattern worth a sweep, not a one-off.
+
+**Impact:** offline or on a server error, the user is told the asset was verified when it
+was not. This is the one module where that matters most: verification is the record that
+the asset was physically inspected.
+
+**Test consequence:** the toast is **not** proof of persistence here — it proves only that
+the handler ran. Assert the checkbox state or the Verified/Unverified filter contents
+instead, and treat the toast as incidental.
+
+---
+
+## 12. The asset *detail route* implements 6 of 15 template section types — the rest render a blank tab
+
+> **SCOPE CORRECTION (2026-08-10).** As first written this read as though it described the
+> asset tabs users actually see. It does not. There are **two separate tab systems**:
+>
+> | Where | Tabs | Source |
+> |---|---|---|
+> | `/asset-verify/:jobId/asset/:id` (`AssetDetails.tsx`) | template-driven | `MobileJobTemplateSectionType` |
+> | asset row expanded on the job page (`AssetLookupDetails`) | **hardcoded five** | synthetic template |
+>
+> The five tabs in normal use — General Info, Attributes, Photos, Docs, Work History — come
+> from `AssetLookupDetails/index.tsx:81`, which hardcodes them. `Work History` is not in the
+> enum at all, so it can only come from there. Everything below concerns the *other*
+> surface, the deep asset-detail route, and its practical impact depends on which section
+> types MobileJob templates are actually allowed to use — which the owner says is a
+> restricted set. Recorded as a latent robustness gap, **not** a user-facing bug.
+
+**Evidence: Source** · `client/mobile/components/AssetVerification/AssetDetails.tsx:201-243`
+vs `server/src/graphql/schema.graphql:14820`
+
+`MobileJobTemplateSectionType` defines fifteen values:
+
+```
+GENERAL_INFO  ATTRIBUTES  ATTACHMENTS  EVENT_READINGS  NOTES  CONDITION  FAILURES
+FORMS  ASSETS  EQUIPMENT_CHARGES  LABOR_CHARGES  MATERIAL_CHARGES  OTHER_CHARGES
+PERMITS  WARRANTIES
+```
+
+`AssetVerificationForm` maps only **six** — `GENERAL_INFO`, `ATTRIBUTES`, `ATTACHMENTS`,
+`CONDITION`, `EVENT_READINGS`, `FAILURES`. Any section using one of the other nine renders a
+`Tabs.Panel` with **no children at all**: the tab appears in the strip, is selectable, and
+shows an empty page. No "not supported" message, no fallback, no console warning.
+
+Three of the six are further gated on `job.mobileJob.workStageId`, so `CONDITION`,
+`EVENT_READINGS` and `FAILURES` also render empty on any job with no linked work stage —
+the fixture `Z0EVwQcdJZhMURcBFkp0E0` is exactly that case.
+
+**Impact:** a template author can add any section the enum allows and get a silently blank
+tab in the field. Nothing in the mobile UI distinguishes "this section is empty" from "this
+section type was never implemented", and nothing upstream stops the template being saved.
+
+**Fix:** render an explicit fallback for unhandled section types, and ideally constrain the
+template editor to the subset each app actually implements.
+
+**Test consequence:** per-tab **content** assertions are only meaningful for the six handled
+types, and only three of those work without a work stage. Tab tests here must be
+template-agnostic — assert the strip, the active state and switching — which is the same
+approach `MOB.330` takes for work orders and for the same underlying reason.
+
+---
+
+## 13. Escape discards the whole new-asset form, defeating a guard the code already has
+
+**Evidence: Runtime** · `client/mobile/components/AssetCollector/index.tsx:263-275`
+
+```jsx
+<Modal
+  opened={showForm}
+  title="Get New Asset"
+  closeOnClickOutside={false}   // deliberately protected
+  ...                           // closeOnEscape is NOT set -> defaults to true
+>
+```
+
+The author clearly thought about accidental dismissal — `closeOnClickOutside={false}` exists
+precisely so a stray tap outside does not throw away a part-filled asset. But `closeOnEscape`
+is left at its Mantine default of `true`, so **Escape discards the entire form**, including
+every field typed and every photo attached. There is no confirmation.
+
+Worse, it cascades. Adding a photo opens a *second* modal ("Select Photo Source") on top.
+One Escape closes **both** — the picker and the form underneath — so a user who opens the
+photo picker and hits Escape to back out of it loses all their work instead.
+
+**Impact:** silent data loss in the one flow where the user has done the most typing, and
+the inconsistency (click-outside guarded, Escape not) suggests it is an oversight rather
+than a decision.
+
+**Fix:** `closeOnEscape={false}` on the "Get New Asset" modal, matching the click-outside
+guard. If Escape should dismiss the photo picker, that inner modal can keep it.
+
+**Confirmed by a real run:** `MOB.600` pressed Escape to dismiss the photo picker and the
+next step failed with *"No element found using locator:
+`//button[@form="asset-collector"]`"* — the submit button was gone because the whole form
+had closed. The test now closes the picker via its own close button instead.
+
+---
+
+## 14. Attaching a photo from a browser fails the whole collect — and the UI reports success
+
+**Evidence: Runtime** (confirmed by the repo owner) ·
+`server/src/controllers/system/attachment/create/mobile.ts:177`
+
+Attachments can currently only be created from the **native mobile app**. Attempting it from
+a desktop browser fails server-side:
+
+```ts
+} catch (err) {
+    await tsx.rollback();
+    console.error('Error creating attachment records >:(', err);
+    throw new Error('Unable to create attachments');
+}
+```
+
+The user sees a red `Unable to create attachments` toast, and — per the owner — **no asset
+is created either**. So collecting an asset with a photo is impossible outside the native
+app, and the failure takes the asset with it.
+
+**Impact:** the browser build offers a photo picker (`AddPhotoOptions`'s "non react-native
+fallback", which explicitly builds `NativeFile` objects from `URL.createObjectURL`) for a
+flow the backend cannot complete. The affordance exists, is reachable, and cannot succeed.
+Anyone using mobile web rather than the native app loses the whole asset, not just the photo.
+
+**Fix / product question:** either support browser-originated attachments, or hide the photo
+controls when `window.ReactNativeWebView` is absent so the flow cannot be started.
+
+---
+
+### Why our test still went green — a lesson about "durable" assertions
+
+`MOB.600` passed this exact scenario. Worth recording how, because the mistake was subtle and
+repeated:
+
+| Assertion | Verdict | Why it was useless here |
+|---|---|---|
+| `assertPageLacks "Submit"` | passed | vacuous — the button reads "Create Asset" (§ below) |
+| `assertPageLacks "Create Asset"` | passed | the modal *did* close — closing is not creating |
+| `assertElementPresent` affixed + | passed | same: proves the form dismissed, nothing more |
+| `assertPageContains "Asset collected"` | **FAILED** | **the only truthful step — and it was optional** |
+
+Every "durable" signal described the *form*, and the form closed regardless of whether the
+mutation succeeded. The toast was the one assertion tied to the actual outcome, and it had
+been demoted to optional precisely because toasts are transient.
+
+**The rule that follows:** a mutating test must assert that **the record exists**, not that
+the form went away. UI state is a proxy; the record is the fact. Where a toast is the only
+available proof of the mutation, do not demote it without replacing it with something
+stronger — read the record back.
+
+**But the proxy is not always weak — it depends on where the close lives.** Audited MOB.300
+(create work order) expecting the same flaw, and it does not have it:
+
+| | MOB.300 create work | MOB.600 collect asset |
+|---|---|---|
+| where the close happens | inside Apollo's `update()` | `.then()` on a non-awaited call |
+| optimistic response | **none** on `createWork` | returns `optimisticResponse.collectAsset` |
+| so "modal closed" proves | the server confirmed | only that a promise resolved |
+
+`InsertForm/index.tsx:163` puts `toast.success` and `closeModal()` inside `update()`, and
+`createWork` has no `optimisticResponse` — so Apollo runs that block only on a successful
+server response. MOB.300's modal-closed assertion is therefore genuine proof of creation,
+and its intermittent toast failures were timing, not silent failures.
+
+`createAsset.ts:128` by contrast calls `apolloClient.mutate(...)` **without awaiting it** and
+returns the optimistic value at line 171, so the collector's form closes no matter what the
+server does.
+
+*The distinction to carry forward: a UI-state assertion is only as strong as the callback it
+is coupled to. Check whether the close is inside `update()` (server-confirmed) or in a
+`.then()` on an un-awaited mutation (proves nothing) before trusting it.*

@@ -1,10 +1,11 @@
 # Mobile App — Test Plan
 
-
 > **Legend**
 > `[x]` automated and passing · `[~]` partially automated · `[ ]` not yet automated
 > `[-]` not automatable in Datadog Synthetics — needs Playwright/Cypress or manual
 > Automated items name the test that covers them, e.g. *(MOB.150)*.
+> Bracketed **(trap N)** refers to *Locator & assertion traps* below — read those before
+> debugging a locator.
 
 ---
 
@@ -12,75 +13,204 @@
 
 | | |
 |---|---|
-| Tests | 32 live · 370 steps |
-| Suites | `MOB.990_Smoke` (read-only) · `MOB.991_WorkOrders` (mutates) · `MOB.992_Menu` (read-only) |
+| Tests | 38 live · 7 suites |
+| Read-only suites | `MOB.990_Smoke` · `MOB.992_Menu` · `MOB.995_AssetLookup` · `MOB.996_Search` |
+| Self-restoring | `MOB.993_AssetVerify` — ends every run exactly as it started |
+| Leaves residue | `MOB.991_WorkOrders` · `MOB.994_Collector` |
 | Standalone | `MOB.000_Login` · `MOB.200_Crew_Switch` (mutates) · `MOB.440_Logout` (ends session) |
-| Device | `chrome.tablet` **only** — single device is load-bearing, see below |
-| Optional steps | 14 — 8 are deliberate toast demotions (see below); all audited, Appendix B |
+| Device | `chrome.tablet` **only** — load-bearing, see trap 1 |
+| Optional steps | 14 — 8 are deliberate toast demotions (trap 6); all audited, Appendix D |
+| Status | **46 verified · 6 partial · 25 not automatable · 52 open** (last run 2026-08-10) |
 
-**Honest summary:** routes and chrome are well covered, and **Work Orders is now done** —
-`MOB.991` passed end to end on 2026-08-10 (13 subtests, 474s): create, read, all six status
-transitions, detail tabs, search/sort, all four ELMO charge types, and the Condition /
-Failure / Note / Form tabs. Every other module is still navigation only, and the
-highest-risk mobile surface (the offline queue) has **zero** coverage and cannot be reached
-with Datadog at all.
+**Where we actually are.**
 
-Three caveats behind that green run, none of which the checkmarks convey on their own:
-Assets / Attributes / Attachments are deliberately deferred to Verification & Collector;
-Permits, Warranties and filling out an inserted form are TODO pending read-only fixture
-data; and `MOB.393` is **one-shot** — it passed once and will fail on every later run until
-the fixture is cleaned from desktop.
+| Module | Depth |
+|---|---|
+| Work Orders | full CRUD — create, 6 status transitions, 4 charge types, 4 detail tabs |
+| Asset Verification | verify/unverify loop, counter, tabs, search/filter/sort |
+| Search & filter | both systems — simple (`MOB.530`) and StructuredQuery (`MOB.800`) |
+| Collector | create asset, proven by reading the record back |
+| Asset Lookup | search, expand, tabs |
+| Material Lookup · The Map | **navigation only** |
+| Offline queue | **zero** — the highest-risk surface, unreachable with Datadog |
 
-> ⚠️ **Never add a second device id.** Datadog runs each `device_ids` entry as its own
-> **concurrent** browser session, and every mutating test here drives the *same* fixture
-> work order — so two devices race on shared server state. Caught when `chrome.tablet`
-> failed `MOB.320 → Test status is now "Complete"` while the `chrome.mobile_small` session
-> was walking that same work order to a different status. The assertion was right; the
-> state moved underneath it. Datadog cannot serialize devices, and cannot bind a different
-> fixture per device without duplicating every test.
->
-> **It also hid itself.** For several runs one device kept failing at login, so only one
-> session actually ran — which read as a clean pass and masked the race entirely. MOB.350–380's
-> "four consecutive passes" were really four *single-device* runs. That evidence still
-> stands under the tablet-only config (it is the same one-session condition), but it was
-> luck, not design, and it is why the race went unnoticed for so long.
->
-> `set_device.py` enforces tablet-only and is idempotent; run it after any build script.
-> Cost accepted: no phone-width coverage. Layout regressions at 375px will go unseen, and
-> the `.mobile-crew` visibility bug (Bug #3) is no longer exercised.
+Five things the checkmarks do not convey on their own:
+
+- `MOB.393` (add form) is **one-shot** — it passed once and fails on every later run until
+  the fixture is cleaned from desktop (trap 10).
+- Attachments are blocked on the **backend**, not on test effort (trap 12).
+- `MOB.600` creates a permanent asset per run; `MOB.991` a permanent work order. Only
+  `MOB.993` is self-restoring.
+- **SB is proven on one list only** (the mobile job list). The other five modules rely on
+  that single instance — a search box elsewhere could be broken and nothing would catch it.
+- Sort **ordering** is never verified anywhere; only that the sort modal opens. Proving an
+  order needs two known records in a known order (Appendix D, Q7).
+
+## Fixtures
+
+| Fixture | Id | Used by | Must stay |
+|---|---|---|---|
+| Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.310–393 | assigned to crew `Admin` |
+| Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–520 | crew `Admin`, `IN_PROGRESS`, exactly **2 assets**, neither verified |
+| Asset | `Pump 0102` | MOB.390/391 (attached), MOB.700 (search) | exists, attached to the work order |
+| Asset type | `Actuator Tools` | MOB.600 | exists |
+
+Session role must be exactly **`Admin`** — not `Admin (0000)` or `Admin 0100`, which lack
+work create/update. Every login-bearing test asserts this immediately after login so drift
+fails fast with a legible message.
 
 ---
 
 ## Operational notes — read before adding tests
 
-- **Deep-link to records instead of navigating lists.** `WorkStageDetails` reads its id
-  from `useParams()` and queries directly, so `/apm-mobile/work/<id>` needs no list
-  traversal, no `loadedAll` wait, and no crew scoping. Work order fixture:
-  `EYRpYJ9QYdQ1JFF10JtB0Q`.
-- **Nothing in mobile can be deleted.** `DeleteButton` exists but is used nowhere in
-  `client/mobile`. Created work orders and collection children accumulate on dev forever
-  and must be cleaned from desktop. Created records are tagged `DD SYNTHETIC MOBILE`.
-- **Mutating tests must self-restore using *fixed* values.** Datadog can extract a value
-  but cannot interpolate it into an XPath, so "put it back how it was" is impossible.
-  Working pattern: outbound leg `optional`, return leg `critical`, always landing on a
-  known state (`MOB.200` crew, `MOB.320` status).
-- **Crew-scoped data is a trap.** `mobileJobsForCrew` and `workStages(crew: '<SESSION>')`
-  are both crew-scoped, so anything that switches crews changes what other tests see.
-  That is why `MOB.200` is not in any suite.
-- **`optional` steps can pass by hitting the WRONG element.** Not theoretical: MOB.320
-  carried 12 status-notes steps for a modal that never opens, and the paired
-  `//button[normalize-space(.)="Submit"]` matched another Submit on the page and
-  clicked it 6 times per run while reporting success. Keep optional steps rare, scope
-  their locators tightly, and audit them against a real run's `step_details`.
-- **Created work orders are not crew-assigned**, so they never appear in `/work` and
-  cannot be reopened from mobile. The creation toast is the only proof.
+- **Deep-link to records instead of navigating lists.** `WorkStageDetails` reads its id from
+  `useParams()` and queries directly, so `/apm-mobile/work/<id>` needs no list traversal, no
+  `loadedAll` wait, and no crew scoping.
+- **But Asset Verification's detail page is `cache-only`.** `Job.tsx` queries
+  `MOBILE_JOB_DETAILS` with `fetchPolicy:'cache-only'` and bails with
+  `if (!job || !schemaQuery) return null`, so a cold `/asset-verify/<id>` renders a **blank
+  page** — no network fallback. `index.tsx` fills that cache by batch-downloading job details
+  three at a time, so visiting `/asset-verify` first is REQUIRED. Use a readiness gate, not a
+  wait (trap 13).
+- **Work order lookups need the same warm-up.** They are `cache-only` and populated only by
+  `prefetchWorkData`, which `WorkOrders/index.tsx` gates on the crew's own work list. Each
+  test visits `/work` before deep-linking — do not remove that navigation.
+- **Nothing in mobile can be deleted** (trap 2). Created records accumulate on dev and must
+  be cleaned from desktop. They are tagged `DD SYNTHETIC MOBILE`.
+- **Mutating tests must self-restore using *fixed* values.** Datadog can extract a value but
+  cannot interpolate it into an XPath, so "put it back how it was" is impossible. Working
+  pattern: outbound leg `optional`, return leg `critical`, always landing on a known state
+  (`MOB.200` crew, `MOB.320` status).
+- **Crew-scoped data is a trap.** `mobileJobsForCrew` and `workStages(crew: '<SESSION>')` are
+  both crew-scoped, so anything that switches crews changes what other tests see. That is why
+  `MOB.200` is in no suite.
+- **Created work orders are not crew-assigned**, so they never appear in `/work` and cannot
+  be reopened from mobile.
+
+### Tooling
+
+| Command | Purpose |
+|---|---|
+| `dd_tools.py push` | sync `dd_tests_mobile/` → Datadog. **Exits non-zero on failure** — chain with `&&`, never `;` |
+| `dd_tools.py pull <name>` | fetch a test back after a Datadog-UI edit (strips step `public_id`) |
+| `dd_tools.py run <suite>` | trigger + poll, with a live progress bar (TTY) or a line/minute (logs) |
+| `dd_tools.py report <suite> [n]` | per-step results, with run age and sibling results |
+| `set_device.py` | enforce tablet-only; run after any build script |
+| `wire_suite.py` | fill in `subtestPublicId` after children exist |
+
+`write()` refuses to overwrite existing JSON unless `DD_FORCE=1` — because the JSON, not the
+generators, is the source of truth for anything hand-authored (trap 12).
+
+---
+
+## Locator & assertion traps
+
+*Sixteen ways a test here has already gone wrong. Most module notes are one-line pointers
+back to these.*
+
+**1 · Never add a second `device_id`.** Datadog runs each entry as its own **concurrent**
+browser session, and every mutating test drives the *same* fixture, so two devices race on
+shared server state. Caught when `chrome.tablet` failed `MOB.320 → status is now "Complete"`
+while the `chrome.mobile_small` session walked that work order elsewhere. Datadog cannot
+serialize devices or bind a fixture per device. **It also hides itself**: for several runs one
+device died at login, so only one session ran and the suite looked clean. Cost accepted: no
+phone-width coverage. `set_device.py` enforces this.
+
+**2 · Never write a delete step.** Deleting from mobile is supported only in a few very
+specific places, and finding a delete code path (e.g. the gear menu in `ui/Menu.tsx`) does
+**not** mean it is available or intended. Do not add one unless the repo owner names the exact
+flow. *(Concluded the opposite from the code once and was corrected — `bugs_found.md` §4.)*
+
+**3 · Mantine `keepMounted` produces duplicates.** Closed `Combobox` dropdowns and closed
+`Accordion.Panel`s stay in the DOM, so their contents still match locators and Datadog errors
+with *"Multiple elements found"* rather than choosing the visible one. Hit three times:
+MOB.390's score options, MOB.520's tab strips, MOB.700's result rows. **Fix structurally** —
+scope to the row/item under test, e.g. `(//*[contains(@class,"mantine-Accordion-item")])[1]//…`.
+Index into a global list only when order is guaranteed and documented.
+
+**4 · Mantine `Modal` unmounts its children.** The mirror image of trap 3: an element inside a
+closed modal **does not exist** until the modal opens. That is why the collector's gallery file
+input sits at index 3 and not 1 — the always-mounted capture icons come first.
+
+**5 · An assertion that cannot fail is indistinguishable from a passing test.**
+`assertPageLacks "Submit"` was vacuously true on MOB.600 for three runs because that form's
+button reads **"Create Asset"**. Text-absence checks silently degrade into no-ops whenever the
+text they name is not on the page. Always pair one with a **positive** assertion that fails
+loudly when its target is missing.
+
+**5b · Page-text assertions cannot tell content from CHROME.** `ActiveFilters` renders each
+filter as `<Pill>{label}{operator}{value}</Pill>`, so filtering for `Pump 0102` puts that
+string on the page whether or not anything matched — `assertPageContains "Pump 0102"` passes
+against **zero results**. The search box, sort label and status legend echo their values the
+same way. **Scope the assertion to the thing you actually mean**, e.g. a result row:
+`//*[contains(@class," mantine-Accordion-item ")][contains(., "Pump 0102")]`.
+A page-lacks is only safe when no chrome can echo the string — which is why MOB.800 clears
+filters between its two legs rather than stacking them.
+
+**6 · "The form closed" ≠ "the record was created".** Its strength depends entirely on the
+callback the close is wired to:
+
+| Pattern | Proves |
+|---|---|
+| `closeModal()` inside Apollo `update()`, no `optimisticResponse` | server confirmed — trustworthy (MOB.300) |
+| `.then()` on a non-awaited `mutate()` returning an optimistic value | **nothing** (MOB.600's `createAsset`) |
+
+Where it proves nothing, **read the record back** — MOB.600 asserts its own
+`DD SYNTHETIC MOBILE {{ RUNID }}` appears in the collected list.
+
+**7 · Toasts are transient, and sometimes fire before the mutation.** `VerificationCheckbox`
+and `AdHocForm` both call `toast.success` *before* `client.mutate`, un-awaited — so the toast
+proves the handler ran, not that anything persisted (`bugs_found.md` §11). Demote toasts to
+`optional`, but only after replacing them with something stronger (trap 6).
+
+**8 · An invalid form submits silently.** `SubmitButton` is
+`type={isValid ? 'submit' : 'button'}`, so pressing it while invalid does **nothing** — no
+error, no toast (`bugs_found.md` §9). "Clicked, no toast" is therefore ambiguous between
+"worked, toast missed" and "form was invalid". Required fields come from the **runtime**
+schema, which can demand more than the model file (this is how `unitPrice` broke MOB.380).
+
+**9 · `placeholder` is an attribute, not page text.** `assertPageContains "Find Mobile Job(s)"`
+can never match. Use `//input[@placeholder="Find Mobile Job(s)"]`. Cost two runs and briefly
+pointed the diagnosis at fixture data that was fine.
+
+**10 · Self-degrading pickers consume their own fixture.** Any dropdown that hides what is
+already attached passes once and then fails with *"No element found"* — that is the test
+having eaten its data, not a locator fault. Known instances: `AdHocForm`'s
+`!currentForms.has(name)` (MOB.393) and `ReassignWork`'s `notInCollection: true`. With mobile
+delete-free there is no in-app cleanup, so these are **inherently one-shot**.
+
+**11 · Client-side lookup filters are case-sensitive.** Several use
+`v.name.includes(str)` with only the query lowercased, so typing an exact visible name matches
+nothing (`bugs_found.md` §1). Tests focus the field **without typing** — an empty query lists
+everything — then pick by text. Do not "improve" them by adding a search term. Server-side
+lookups (Asset Lookup's `CONTAINS`) are unaffected.
+
+**12 · Hand-authored steps cannot be regenerated.** `uploadFiles` references a `bucketKey` in
+Datadog's storage and `SyntheticsApi` has **no** endpoint that mints one; such steps exist only
+because someone added them in the Datadog UI. Once a test carries one, `DD_FORCE=1` on its
+generator destroys it on the next push — exactly how MOB.200's login steps were lost. Pull the
+test down instead, and treat its JSON as permanent source of truth.
+
+**13 · Use a readiness gate, not a blind wait.** Assert each precondition — page title, then
+the list rendered, then loading labels gone, then the fixture row present — so a failure names
+its own cause. A 30s sleep produced only "blank page" and sent the diagnosis toward the fixture.
+
+**14 · FontAwesome icons render under their CANONICAL name, not the alias you imported.**
+`faSortAlt` renders `data-icon="arrow-down-arrow-up"` in FA6 — `sort-alt` is only an alias.
+A locator naming one variant fails on a healthy page. Match all four, as MOB.340 does:
+`//button[.//*[@data-icon="sort-alt" or contains(@class," fa-sort-alt ") or @data-icon="arrow-down-arrow-up" or contains(@class," fa-arrow-down-arrow-up ")]]`.
+Icon-only buttons have no accessible name either, so the icon *is* the locator.
+
+**15 · Measure indexes, never derive them.** Predicting the collector's file-input index from
+render order gave 1; the real answer was 3, because React runs effects depth-first. Measure in
+the console against the real page, and record that it was measured.
 
 ---
 
 # Tier 1 — Mobile-specific risk
 
-*Absent from the inherited checklist. This is what makes the app mobile rather than a
-narrow browser window, and it is where field failures actually come from.*
+*Absent from the inherited checklist. This is what makes the app mobile rather than a narrow
+browser window, and where field failures actually come from.*
 
 ## T1.1 Offline & the transaction queue
 
@@ -98,20 +228,21 @@ narrow browser window, and it is where field failures actually come from.*
 - [ ] Transaction Log lists completed/pending entries *(route reachable via MOB.130/MOB.420; contents unverified)*
 - [ ] Logout clears pending queues
 
-**Synthetics has no network-toggle step.** Everything `[-]` above needs Playwright/Cypress.
-This is the single biggest gap in the plan and no amount of Datadog work will close it.
+**Synthetics has no network-toggle step.** Everything `[-]` needs Playwright/Cypress. This is
+the single biggest gap and no amount of Datadog work will close it.
 
 ## T1.2 Uploads & attachments
 
 `UploadLink`, tus resumable uploads, `TusUnauthorizedRetry`, `uploadManager.enqueue`,
 `createThumbnailUpload`, and the `UploadLogs` status icon.
 
-- [ ] Attach a file via `uploadFiles` (supported — 22 uses in the existing corpus)
+- [-] Attach a file via `uploadFiles` — UI-authored only (trap 12), **and** attachments
+      fail server-side from a browser (`bugs_found.md` §14)
 - [ ] Upload status icon reflects in-flight uploads
 - [-] Upload resumes after interruption (tus)
 - [-] Unauthorized upload retries after token refresh
 - [-] Capture from camera (photo/video/HEIC)
-- [ ] **AT** — all attachment types, *by upload* (see Reusable Blocks)
+- [-] **AT** — all attachment types *(blocked on the backend — see Reusable Blocks)*
 
 ## T1.3 Session, auth & crew
 
@@ -123,23 +254,23 @@ This is the single biggest gap in the plan and no amount of Datadog work will cl
 - [ ] Role permissions gate menu items (`hidden: !permissions.*.read`)
 - [ ] Crew switch actually changes the visible work/mobile-job set
 
+> **Login is a shared prefix across all 6 login-bearing tests**, so one bad login takes down a
+> ~150-step suite and reports as a *Work Orders* failure. Treat a lone login failure as
+> environmental and re-run before changing anything — Datadog retries a locator for the whole
+> step timeout, so a merely slow page would have resolved. A 5s hydration wait precedes the
+> first keystroke in all 6 (`harden_login.py`, idempotent); it is cheap insurance, **not** a
+> proven fix.
+
 ## T1.4 Responsive / viewport
 
-*The inherited checklist has no viewport dimension at all, yet this already produced a
-real finding: `.mobile-crew` is `display:none` below 450px, so the crew shortcut is
-invisible on phones and only the burger path works.*
+> **Phone width (`chrome.mobile_small`) was REMOVED — do not simply re-add it** (trap 1). If
+> wanted back it must be a separate **read-only** test, never a second device on a mutating
+> suite. Both open items below are blocked on that.
 
 - [x] Tablet width (`chrome.tablet`) — all tests
-- [ ] **Phone width (`chrome.mobile_small`) — REMOVED, do not simply re-add.** It ran at
-      both widths until the parallel-device race above forced a single device. Re-adding
-      it to `device_ids` reintroduces the race and will produce confusing, non-reproducible
-      failures in the *mutating* tests. If phone width is wanted back, it has to be a
-      separate **read-only** test (render/layout assertions only, no mutations) that can
-      safely run concurrently — not a second device on `MOB.991`.
-- [ ] Crew shortcut visible ≥450px / hidden below *(needs the read-only phone test above;
-      Bug #3 is currently unexercised)*
-- [ ] Sticky search row and affixed create button remain reachable at phone width
-      *(same blocker)*
+- [ ] Crew shortcut visible ≥450px / hidden below *(needs that read-only phone test; Bug §3
+      is currently unexercised)*
+- [ ] Sticky search row and affixed create button remain reachable at phone width *(same blocker)*
 
 ## T1.5 Service worker & app updates
 
@@ -161,8 +292,8 @@ invisible on phones and only the burger path works.*
 
 `utils/WebviewBridge/ReactNativeBridge` (`haptic`, `window.ReactNativeWebView`).
 
-- [-] Haptics, native upload path, anything gated on `window.ReactNativeWebView` —
-      only active inside the native Expo shell, not in a browser test
+- [-] Haptics, native upload path, anything gated on `window.ReactNativeWebView` — only
+      active inside the native Expo shell, not in a browser test
 
 ---
 
@@ -170,16 +301,14 @@ invisible on phones and only the burger path works.*
 
 ## T2.1 Work Orders
 
-*The only module with real CRUD coverage. Uses fixture `EYRpYJ9QYdQ1JFF10JtB0Q`.*
-
-> **Assets, Attributes and Attachments are deliberately NOT covered here.** They overlap
-> with Asset Verification / Collector and will be tested there instead, to avoid
-> duplicating the same flows against two different fixtures.
+*Suite `MOB.991_WorkOrders_Suite` — 13 subtests, passed end to end 2026-08-10 (474s).
+**Mutates and leaves residue.** Fixture `EYRpYJ9QYdQ1JFF10JtB0Q`.*
 
 ### Create — entry points
 
-- [x] From Work Order module *(MOB.300)* — affixed `+` → workflow lookup → submit;
-      success asserted by the modal closing, toast check optional
+- [x] From Work Order module *(MOB.300)* — affixed `+` → workflow lookup → submit. Modal-close
+      is genuine proof here: `closeModal()` sits inside Apollo `update()` with no optimistic
+      response (trap 6)
 - [ ] From Work Order module *(second variant — entry point TBD)*
 - [ ] From Map
 - [ ] From Asset Register
@@ -191,64 +320,64 @@ invisible on phones and only the burger path works.*
 
 ### Change status
 
-- [x] Pending *(MOB.320)*
-- [x] In Progress *(MOB.320)*
-- [x] On Hold *(MOB.320)*
-- [x] Complete *(MOB.320)*
-- [x] Canceled *(MOB.320)*
-- [x] Ready *(MOB.320 — always the end state)*
+- [x] Pending · In Progress · On Hold · Complete · Canceled · Ready *(all six, MOB.320)*
 - [x] Status notes branch — **confirmed not applicable** to this fixture's template
 
-*All six covered. MOB.320 walks Pending → In Progress → On Hold → Complete → Canceled →
-Ready, verifying the status badge after each transition, and always finishes on Ready so
-the fixture is left in a known state. Verified repeatable across consecutive runs.*
+*MOB.320 walks all six transitions, verifying the badge after each, and always finishes on
+Ready so the fixture is left in a known state. Repeatable across consecutive runs.*
 
 ### ELMO charges
 
 - [x] Add equipment charges *(MOB.350)*
-- [x] Add labor charges *(MOB.360)* — needs `laborTypeId` + `qty`; craft list belongs to
+- [x] Add labor charges *(MOB.360)* — needs `laborTypeId` + `qty`; the craft list belongs to
       the selected user, so it searches `Dev Eloper` explicitly
-- [x] Add material charges *(MOB.370)* — uses type **Return**, not Issue: Issue is
-      validated against stock on hand and each one decrements it, so an Issue-based test
-      erodes its own fixture until it fails
-- [x] Add other charges *(MOB.380)* — needs `unitPrice`, which the model file does
-      not mark required (the runtime schema does)
+- [x] Add material charges *(MOB.370)* — uses type **Return**, not Issue: Issue is validated
+      against stock on hand and each one decrements it, so an Issue-based test erodes its own
+      fixture until it fails
+- [x] Add other charges *(MOB.380)* — needs `unitPrice`, which the model file does not mark
+      required but the runtime schema does (trap 8)
 - [ ] Verify financial transactions / GL distribution → estimate summary → cost summary
 
-*Reaching these lookups requires the fixture to stay assigned to the test crew: the
-lookups are `fetchPolicy: 'cache-only'` and are populated only by `prefetchWorkData`,
-which `WorkOrders/index.tsx` gates on the crew's own work list. Each test therefore
-visits `/work` before deep-linking to the fixture — do not remove that navigation.*
+### Tabs & forms
 
-*All four go through `InsertModalButton` → toast `"Item added"`.*
+- [x] Detail tabs render and switch *(MOB.330)* — template-agnostic, against Mantine
+      `role="tab"` / `data-active`
+- [x] Add condition score *(MOB.390)* — cascades asset → inspection group → inspection
+      element. Field ids do not match labels: "Inspection Group" is `assetStandardDetailId`,
+      "Condition Left" is `conditionScore`. Took six locator revisions — see traps 3 and 11,
+      and the score-picker note below
+- [x] Add failure *(MOB.391)* — each lookup is fed by the **previous** selection:
+      `repairTypes`/`rootCauseTypes` come from the chosen *failure type*, not a global list,
+      so a value that exists elsewhere may simply not be offered. `INSPECT` failed for that
+      reason; working values are **`MISSED`** + **`TIME`**
+- [x] Add job note *(MOB.392)* — Instructions is a **tiptap rich text editor**; the test types
+      into `//div[@contenteditable="true"]`, which Datadog drives fine. `name`/`noteType`
+      arrive prefilled via `defaultValues`
+- [x] Add form *(MOB.393)* — **one-shot, will now fail** until the fixture is cleaned from
+      desktop (trap 10). The `[x]` records that the flow works, not that it is repeatable
+- [ ] **TODO** Fill out an inserted form — clicking the inserted form redirects into a
+      separate flow. Scope undecided
+- [ ] **TODO** Permits — deferred by decision
+- [ ] **TODO** Warranties — deferred by decision
+- [ ] **TODO** Assign work stage — `ReassignWorkButton`, form id `crewform`. Self-degrading
+      (trap 10). Options: a non-mutating variant that opens the modal and cancels; a
+      desktop/API unassign step; or accept it as a one-shot manual check
+- [ ] General Info tab — edit all fields
+- [ ] Change status: form trigger
+- [ ] Change status: form trigger — create follow-up work
+- [ ] Change status: form trigger — add work stage
+- [ ] **TODO** Change status: permit — negative test *(blocked on permit fixture data)*
+- [ ] **TODO** Change status: permit — approve permit *(blocked on permit fixture data)*
+- [-] Submit form with signature widget — freehand canvas
+- [~] **SB** — search bar *(MOB.340)* — search box and Sort Criteria modal open and dismiss.
+      Does **not** verify results are filtered or ordered correctly: that needs known fixture
+      records in the crew's work list
 
-> **Assert the modal closed, never the toast.** Applied to all 8 mutating tests
-> (MOB.350–380, MOB.390–393) on 2026-08-10. Two independent problems made toast assertions
-> unusable as the critical signal:
-> 1. **Transient.** The toast auto-closes and races the assertion — confirmed on a run where
->    the material charge *was* created but `"Item added"` had already disappeared.
-> 2. **Ambiguous.** `SubmitButton` is `type={isValid ? 'submit' : 'button'}`, so an invalid
->    form makes the click a **silent no-op** — no submit, no error, no toast (`bugs_found.md`
->    §9). "Clicked, no toast" therefore meant *either* "worked, toast missed" *or* "form
->    invalid, nothing happened" — and the test could not say which. That ambiguity caused
->    several wrong diagnoses, each costing a ~20 min run.
->
-> The split fixes both: `assertPageLacks "Submit"` is **critical** (the form unmounts with
-> the modal via `{opened && Form(...)}`, so its absence proves the mutation resolved), and
-> the toast is **optional**. A still-open modal now means the form was invalid; a closed
-> modal with no toast means it was only timing. `Submit` is the collection forms' default
-> label — other buttons on the page read `SUBMIT` or `Create Work Order`, so no collision.
+> **The TODOs are blocked on fixture data, not effort.** Each needs read-only records on dev
+> (an approved permit, a warranty, a fillable form). A test written against whatever happens
+> to be there would assert on data that can change underneath it. Revisit once they exist.
 
-> **Rule: never write a delete step into a mobile test.** Deleting from mobile is supported
-> only in a few very specific places, and finding a delete code path (e.g. the gear menu in
-> `ui/Menu.tsx`) does **not** mean it is available or intended in that area. Do not add one
-> unless the repo owner names the exact flow. Every mutating test therefore leaves permanent
-> residue on the fixture, which must be cleaned from desktop — that constraint is deliberate,
-> not an oversight. *(I briefly concluded the opposite from the code and was corrected; the
-> retraction is recorded in `bugs_found.md` §4.)*
-
-> **Every tab's form has its own `id` — and two of them never toast.** There is no shared
-> submit button; `//button[@form="work-collection-form"]` only exists on the Notes form.
+> **Every tab's form has its own `id`, and two never toast.** There is no shared submit button.
 >
 > | Tab | Form id | Success toast |
 > |---|---|---|
@@ -257,202 +386,155 @@ visits `/work` before deep-linking to the fixture — do not remove that navigat
 > | Failures | `work-failure-form` | **none** |
 > | Forms | `adhoc-form` | `Form added` |
 >
-> Condition and Failure call `addToCollection()` directly with `done: closeModal`, and
-> `addToCollection` never toasts — only `NewItemForm`'s own `onSubmit` calls
-> `toast.success`. So a toast assertion on those two **could never pass**, however correct
-> the rest of the test was. Their only success signal is the modal closing, which is
-> another reason the durable assertion above is the right default rather than a workaround.
+> Condition and Failure call `addToCollection()` directly with `done: closeModal`, and that
+> helper never toasts — so a toast assertion on those two **could never pass**. Their only
+> success signal is the modal closing.
 
-### Tabs & forms
-
-- [x] Detail tabs render and switch *(MOB.330)* — template-agnostic, against
-      Mantine `role="tab"` / `data-active`; `keepMounted={false}` means a switch is a
-      real panel change, not styling
-- [x] Add condition score *(MOB.390 — verified 2026-08-10, 28 steps)* — cascades
-      asset → inspection group → inspection element. Field ids do not match labels:
-      "Inspection Group" is `assetStandardDetailId`, "Condition Left" is `conditionScore`.
-      Submits via `work-condition-form` and emits **no toast** — the modal closing is the
-      only success signal. Took six locator revisions; see the two notes below before
-      touching it.
-- [x] Add failure *(MOB.391 — verified 2026-08-10, 22 steps)* — asset, failure type, repair
-      type, root cause type. Each lookup is fed by the **previous** selection:
-      `repairTypes` / `rootCauseTypes` come from the chosen *failure type*
-      (`getOptions` → `failureType[type]`), not from a global list, so a value that exists
-      elsewhere in the app may simply not be offered here. `INSPECT` failed for exactly
-      that reason; the working value is **`MISSED`** with root cause **`TIME`**.
-- [x] Add job note *(MOB.392 — verified 2026-08-10, 13 steps)* — Instructions is a **tiptap
-      rich text editor**, not a plain field, so the test types into the `contenteditable`
-      div; `name`/`noteType` arrive prefilled via `defaultValues`. Datadog drives the
-      editor fine — `//div[@contenteditable="true"]` is enough, no special handling
-- [x] Add form *(MOB.393 — verified 2026-08-10, 14 steps)* — own form id (`adhoc-form`) and
-      own toast text ("Form added", not "Item added")
-      **⚠ PASSED ONCE AND WILL NOW FAIL** until the fixture is cleaned from desktop — see
-      the self-degrading note below. This `[x]` records that the flow works, not that the
-      test is repeatable.
-      **⚠ SELF-DEGRADING — will pass at most once.** `AdHocForm.tsx:127` filters the picker
-      with `!currentForms.has(v.name)`, so once "Inspection" is attached it vanishes from
-      its own dropdown and every later run fails *"No element found"*. Do not debug that as
-      a locator problem — it is the test having consumed its fixture. Second instance of
-      this trap (Assign Work Stage is the first), so treat it as a category: **any picker
-      that hides what is already attached needs a cleanup step to be repeatable.**
-      With mobile treated as delete-free there is no in-app cleanup, so **MOB.393 is
-      inherently one-shot** — it needs a desktop cleanup between runs or a dedicated
-      read-only fixture. Tracked as TODO, not solvable from inside the test.
-> **MOB.390 / MOB.391 — asset lookup gotcha.** Options come from the assets ATTACHED TO
-> THE WORK STAGE (`props.assets` in `Conditions/Form.tsx`), not a global list, and the
-> filter is `v.name.includes(str)` with `str` lowercased but the name left as-is. So
-> typing "Pump 0102" matches nothing even though the asset is attached. The tests focus
-> the field WITHOUT typing — an empty query returns every attached asset — then pick by
-> text. Do not "improve" these by adding a search term.
-
-> **MOB.390 — the score fields cannot be picked by option text.** `ListFilter` renders
-> each option as two sibling divs (`ListFilter/index.tsx:236`):
-> `<div class="option-title">1</div><div class="option-description">New Condition …</div>`.
-> They concatenate with **no separating space**, so the option's text is `1New Condition …`.
-> That defeats both obvious locators: `[normalize-space(.)="1"]` never matches, and
-> `[contains(normalize-space(.), "1")]` also matches 10/11/12 → *"Multiple elements found"*.
-> The tests match the title div instead:
-> `//*[@role="option"][.//*[contains(@class,"option-title")][normalize-space(.)="1"]]`.
-> Only needed where the label is a short numeric prefix of other labels — the text lookups
-> are unambiguous on full option text.
->
-> **…and that still is not unique, hence `[last()]`.** Mantine `Combobox` defaults to
-> `keepMounted`, so a dropdown's options stay in the DOM (portaled onto `<body>`) after it
-> closes. `conditionFound` and `conditionScore` are **both** `filterScores('conditionScores')`
-> — literally the same list — so once the first has been opened, `"2"` matches its leftover
-> option as well as the live one and Datadog errors instead of choosing. No text can separate
-> two identical lists, and the portal puts the dropdown outside the field's wrapper so an
-> ancestor scope cannot reach it either. `[last()]` works because leftovers accumulate in
-> field order and the test fills fields in field order — **filling them out of order would
-> silently break this.**
-
-> **Login is the single point of failure for every suite.** All 6 login-bearing tests share
-> the same opening steps, so one bad login takes down a whole ~150-step suite and reports as
-> a *Work Orders* failure — a misleading triage signal worth recognizing on sight.
->
-> Seen once: `Type email` → *No element found using locator: `//input[@name="email"]`*,
-> while the very next steps (Next / password / Submit / role guard) all passed. **Most
-> likely a dev deploy landing mid-run, not a test defect** — Datadog retries a locator for
-> the whole step timeout (~60s), so a merely slow page would have resolved. Treat a lone
-> login failure as environmental and re-run before changing anything.
->
-> A 5s wait now precedes the first keystroke in all 6 (`harden_login.py`, idempotent). It is
-> **cheap insurance, not a proven fix** — it would not have prevented the failure above. If
-> login flakes again with the wait in place, the cause is upstream of the tests.
-
-- [ ] **TODO** Fill out an inserted form — clicking the inserted form redirects into a
-      separate form-filling flow. Scope undecided; not covered by MOB.393
-- [ ] **TODO** Permits — deferred by decision
-- [ ] **TODO** Warranties — deferred by decision
-
-> **The three TODOs above are lower priority and blocked on fixture data.** Each needs
-> read-only records set up on dev that a test can assert against (an approved permit, a
-> warranty, a fillable form). Until that exists there is nothing stable to check, and a
-> test written against whatever happens to be there would assert on data that can change
-> underneath it. Revisit once the fixtures exist — not before.
-- [ ] **TODO** Assign work stage — `ReassignWorkButton`, form id `crewform`
-      *Not automatable as a repeatable test in its current form.* The crew lookup queries
-      with `notInCollection: true`, so it lists only crews **not already assigned**. Run
-      one assigns a crew; from run two that crew is gone from the dropdown and the pick
-      fails. Mobile has no unassign, so the test cannot reset itself — it would degrade
-      into a permanent failure rather than just leaving data behind.
-      Options if we want it: (a) a non-mutating variant that opens the modal, asserts the
-      crew list renders, and cancels; (b) a desktop/API cleanup step that unassigns
-      afterwards; (c) accept it as a one-shot manual check.
-- [ ] General Info tab — edit all fields
-- [ ] Change status: form trigger
-- [ ] Change status: form trigger — create follow-up work
-- [ ] Change status: form trigger — add work stage
-- [ ] **TODO** Change status: permit — negative test *(blocked on permit fixture data)*
-- [ ] **TODO** Change status: permit — approve permit *(blocked on permit fixture data)*
-- [-] Submit form with signature widget — freehand canvas
-- [~] **SB** — search bar *(MOB.340)* — search box and Sort Criteria modal open and
-      dismiss. Does NOT verify results are filtered or ordered correctly: that needs
-      known fixture records in the crew's work list, which we do not have.
+> **MOB.390's score fields cannot be picked by option text.** `ListFilter` renders each option
+> as two sibling divs that concatenate with **no space** (`1New Condition …`), so
+> `[normalize-space(.)="1"]` never matches and `contains(…,"1")` also matches 10/11/12. Match
+> the title div: `//*[@role="option"][.//*[contains(@class,"option-title")][normalize-space(.)="1"]]`
+> — then wrap in `[last()]`, because `conditionFound` and `conditionScore` load the *same*
+> list and the closed dropdown's copy lingers (trap 3). `[last()]` is only correct while the
+> fields are filled in field order.
 
 ## T2.2 Asset Verification
 
-*Navigation only (MOB.140). Crew-scoped (`mobileJobsForCrew`) — needs its own fixture
-mobile job before automation, same lesson as the work order fixture.*
+*Suite `MOB.993_AssetVerify_Suite` — 3 subtests, 76 steps, passed 2026-08-10 (237s).
+**The only fully self-restoring mutating suite** — preserve that: any new subtest must be
+read-only or restore what it changed.*
+
+| Route | Component |
+|---|---|
+| `/asset-verify` | job list — crew-scoped, `mobileJobsForCrew(app: ASSET_VERIFICATION)` |
+| `/asset-verify/:jobId` | job detail, asset list — queries by id, **`cache-only`** |
+| `/asset-verify/:jobId/asset/:verificationId` | asset detail form — template-driven tabs |
 
 ### Verification behavior
 
-- [ ] Verify asset
-- [ ] Verified asset displays on **Verified** tab
-- [ ] Verified asset does **not** display on **Unverified** tab
-- [ ] Asset list counter increments on verify
-- [ ] Unverify asset — counter decrements
-- [ ] Unverified asset displays on **Unverified** tab
-- [ ] Verify all assets
-- [ ] Verify status update (job list)
-- [ ] Verify status update (desktop) — *needs a desktop test, outside the MOB.\* suite*
+- [x] Verify asset *(MOB.510)*
+- [x] Verified asset displays on **Verified** tab *(MOB.510)*
+- [x] Asset list counter increments on verify *(MOB.510 — `1 out of 2 Assets Verified`)*
+- [x] Unverify asset — counter decrements *(MOB.510 — restores to `0 out of 2`)*
+- [x] Unverified asset displays on **Unverified** tab *(MOB.500 — at rest)*
+- [x] Verified tab is empty at rest *(MOB.500)*
+- [ ] Verified asset does **not** display on **Unverified** tab — *needs the two asset names;
+      count-based assertions cannot express "this specific row is absent"*
+- [ ] Verify status update (job list) — blocked by the same one-way status problem
 
-*Verify → assert → unverify → assert is a natural self-reverting pair, making this one of
-the few mutating areas that can be fully repeatable.*
+> **Why exactly one asset, on an already-`IN_PROGRESS` job.** Both status branches in
+> `VerificationCheckbox` become unreachable — `assetsVerified === assets.length` is `1 === 2`,
+> and `status === 'READY'` is false — so a run mutates nothing but the flag it restores. Point
+> these at a `READY` job, or verify both assets, and the fixture degrades permanently.
+> *(The inherited claim that verify/unverify is trivially repeatable was wrong: the asset flag
+> reverts, the job status does not.)*
+>
+> **MOB.500 doubles as a fixture guard**, asserting `0 out of 2 Assets Verified` before
+> anything mutates. If it fails, untick the stray asset — do not change the test.
+>
+> **The All/Verified/Unverified filter persists in `sessionStorage`** and a suite shares one
+> browser session, so no subtest may assume it starts on All.
 
 ### Status filters, sort, cards
 
-- [ ] Status filter: Ready / Canceled / Completed / In Progress
+- [x] Status filter: Ready / Canceled / Completed / In Progress *(MOB.530)* — the fixture is
+      `IN_PROGRESS`, so selecting `Ready` must **hide** it; that negative is what proves the
+      filter filters. Each click is paired with an untoggle
+- [x] Filter: All / Verified / Unverified *(MOB.500)*
+- [~] Asset card caret expand *(MOB.520)* — expand is covered, collapse is not
+- [~] Sort: open / dismiss *(MOB.530)* — **ordering is not verified.** Labels are
+      schema-derived (`${column.label} ▲/▼`) and proving an order needs ≥2 known records in a
+      known order; only one job here is known. Selecting would also persist to
+      `sessionStorage` and leak into later subtests
 - [ ] Status badge color — *assert the label; color is not expressible*
-- [ ] Asset list left / right arrow navigation
-- [ ] Sort: Created At ASC/DESC · Mobile Job ASC/DESC · Status ASC/DESC · close sort
-- [ ] Filter: All / Verified / Unverified
-- [ ] Asset card caret expand / close
+- [ ] Asset list left / right arrow navigation *(`RecordCycleButtons` on the asset detail
+      route — needs a `verificationId`)*
 
 ### Add assets
 
-- [ ] Add new asset → displays on **Unverified**
-- [ ] Add existing asset → displays on **Unverified**
+
+> Both are non-revertible and would permanently grow the fixture job, breaking the
+> verification assertions that name the asset count. They need a throwaway job plus a desktop
+> cleanup cadence.
 
 ### Asset data tabs
 
+*The tabs on an **expanded asset row**, hardcoded in `AssetLookupDetails/index.tsx:81` —
+General Info · Attributes · Photos · Docs · Work History. These are **not** the
+template-driven sections of the `/asset/:id` detail route; `Work History` is not even a
+`MobileJobTemplateSectionType`, which is the quickest way to tell the two apart. Being
+hardcoded, they are asserted **by name** rather than by index.*
+
+- [x] All five tabs render and switch *(MOB.520 — 30 steps)* — asserts the strip and each
+      tab's `data-active`, not panel contents: what a panel shows depends on the asset having
+      attributes / photos / work history, which the fixture does not guarantee. Locators are
+      scoped per accordion item (trap 3)
 - [ ] General Info — edit all fields
 - [ ] Failures — edit; verify message when asset has no default profile
 - [ ] Condition — edit; verify message when asset has no default standard
 - [ ] Attributes — edit / verify
 - [ ] Event Readings — edit / verify
-- [ ] Attachments — **AT**, and verify they land on the asset record
+- [-] Attachments — **AT**, and verify they land on the asset record *(backend blocker)*
 
 ### Counts & cross-platform
 
 - [ ] Mobile job count · statuses · asset count
-- [ ] Verify/unverify counter increments and decrements
 - [ ] Total count matches pie chart — *assert the numeric label, not the SVG*
-- [ ] Verify asset(s) update on Web / Mobile / Tablet
-- [ ] Verify mobile job status update on Web / Mobile / Tablet
 - [ ] Change all statuses · verify all assets · edit tab data
-- [ ] Add mobile job on desktop → mobile list updates
-- [ ] **SB** — search bar *(no "Collected By Me" in this module)*
-- [ ] Mobile job search: status filter Ready, type name, verify results
+- [x] **SB** — search bar *(MOB.530)* — **the only place the SB block is actually proven.**
+      Typing the fixture's own name matches; appending junk makes it disappear. That negative
+      leg is what MOB.340 cannot do on the work list, where no record is known-stable
+- [x] Mobile job search: status filter Ready, type name, verify results *(MOB.530)*
 
-*Mobile/Tablet variants are extra `device_ids` entries on one test — cheap. "Web" needs
-its own desktop test.*
+*"Web" needs its own desktop test. Mobile/Tablet variants cannot be extra `device_ids` on a
+mutating test (trap 1).*
 
 ## T2.3 Collector / Lens
 
-*Navigation only (MOB.160).*
+*Suite `MOB.994_Collector_Suite`. **Mutates and does NOT self-restore** — every run collects a
+permanent asset named `DD SYNTHETIC MOBILE <8 digits>`; cleanup is a desktop job.*
 
-- [ ] Create asset — no photo
-- [ ] Create asset — no photo, minimum fields
-- [ ] Edit asset — add photo / attachments
+- [x] Create asset — minimum fields, no photo *(MOB.600)* — name + desc + type
+      `Actuator Tools`. `{{ RUNID }}` makes the name unique per run, so a uniqueness
+      constraint cannot collide. **Proof of creation is a read-back**: the test asserts its own
+      asset appears in the collected list, because the form closes regardless (trap 6)
+- [-] Create asset **with a photo** — **impossible from a browser**, not a test gap. The
+      server rolls back and throws `Unable to create attachments`, and the asset is lost with
+      it (`bugs_found.md` §14)
+- [-] Edit asset — add photo / attachments *(same blocker)*
 - [ ] Edit asset — edit fields
-- [ ] Create asset with multiple attachments: Condition (3+) · Thermal (3+) ·
-      Nameplate (2) · Custom (2) · HEIC (2) · Video (1)
-- [ ] **AT** — all attachment types
-- [ ] **SB** — search bar
+- [-] Create asset with multiple attachments: Condition (3+) · Thermal (3+) · Nameplate (2) ·
+      Custom (2) · HEIC (2) · Video (1) *(same blocker)*
+- [-] **AT** — all attachment types *(same blocker)*
+
+> 🛑 **Do not re-add the upload step to `MOB.600`.** It was built, verified to execute, and
+> removed because attaching a photo fails the whole collect. The working recipe is preserved
+> in `Mobile/dd_reference/MOB.600_with_upload_steps.json` for when the backend supports it;
+> its `bucketKey` is namespaced to MOB.600's public id, so it can be restored into **this**
+> test but not copied into another. See traps 4, 12 and 14 for why that step was hard to
+> author: the input is created by `useFileDialog` with `display:none`, appended to `<body>`,
+> only exists while the photo modal is open, and is indistinguishable from three camera
+> inputs in the DOM.
 
 ## T2.4 Asset Lookup
 
-*Navigation only (MOB.100).*
+*Suite `MOB.995_AssetLookup_Suite` — **read-only**, safe to schedule.*
 
-- [ ] Tag Lookup button
-- [ ] Alphanumeric lookup
-- [-] Scan Barcode — requires camera
-- [ ] Asset card caret
-- [ ] **Add Work** button
-- [ ] Tabs: General Info · Attributes · Photos · Docs
-- [ ] Search: click, type asset name, click search button
-- [ ] **SB** — search bar
+- [x] Alphanumeric lookup *(MOB.700)* — searches `Pump 0102`; server-side `CONTAINS`, so
+      trap 11 does not apply here
+- [x] Asset card caret *(MOB.700)* — expands the first result
+- [x] Tabs render *(MOB.700)* — asserts the strip mounts and that **Work History** exists.
+      NB Work History embeds its own `StructuredQuery` (twice), so it is not a plain list
+- [-] **Tag Lookup / Scan Barcode** — one control, not two. `TagLookup` *is* the scanner
+      (`useBarcodeScanner` + a `capture:'environment'` dialog), and captured images route
+      through an **OpenAI call**, so it would be non-deterministic even if the camera worked
+
+*Both search systems here are owned by T3.3: the simple **SB** block, and **`StructuredQuery`**
+— this screen is its main home (the other is the Work History tab). `MOB.800` covers it.*
+
+> **There is no search button.** The `SearchInput` sits in a `<form onSubmit>`, so search is
+> submitted with **Enter**; the visible "Add N Asset(s)" button belongs to the embedded picker
+> flow. The inherited list also gave four tabs — there are **five**.
 
 ## T2.5 Material Lookup
 
@@ -464,7 +546,12 @@ its own desktop test.*
 - [ ] Reorder notifications
 - [ ] Cycle count
 - [ ] Transfers
-- [ ] **SB** — search bar
+
+*Search/sort here is the shared **SB** block, owned by T3.3.*
+
+> Issue/return move real stock. MOB.370 already showed Issue is validated against stock on
+> hand and decrements it, so any Issue-based test erodes its own fixture. Expect to need a
+> dedicated storeroom item, or a Return-only design, before automating these.
 
 ## T2.6 The Map
 
@@ -475,14 +562,15 @@ its own desktop test.*
 - [-] Create asset: lasso · marker · line · polygon
 - [-] Create work order: lasso · marker · line · polygon
 - [-] Get directions · get street view — leave the app
-- [ ] **SB** — search bar
+
+*Search here is the shared **SB** block, owned by T3.3.*
 
 ---
 
 # Tier 3 — Navigation & chrome
 
-*Well covered. Each nav test asserts `PageTitle`'s `h4` against `MOBILE_ROUTES`, which is
-the crew- and data-independent signal that a route rendered.*
+*Well covered. Each nav test asserts `PageTitle`'s `h4` against `MOBILE_ROUTES` — the crew-
+and data-independent signal that a route rendered.*
 
 ## T3.1 Routes
 
@@ -491,10 +579,8 @@ the crew- and data-independent signal that a route rendered.*
 - [x] Work Orders *(MOB.150)* · The Map *(MOB.120)* · Transaction Log *(MOB.130)*
 - [x] Dev Logs *(MOB.170)* — menu item hidden unless env is `development`/`development2`
 - [~] Mobile Jobs / Asset Verification *(MOB.140)* — page title asserted; the
-      "Find Mobile Job(s)" check is `optional` because that input renders only when the
-      crew has mobile jobs
-- [ ] Asset Verification Job Template — *desktop page `admin/mobilejobtemplate`, not a mobile route*
-- [ ] Mobile Work Template — *desktop page `admin/work-template`, not a mobile route*
+      "Find Mobile Job(s)" check is `optional` because that input renders only when the crew
+      has mobile jobs
 
 ## T3.2 Hamburger menu
 
@@ -505,13 +591,34 @@ the crew- and data-independent signal that a route rendered.*
 - [x] Switch Crews — Cancel *(MOB.430)*
 - [x] Log Out · confirm · Take Me Back *(MOB.440)*
 - [ ] Timestamp resync (module-level `ResyncButton`)
-- [-] Switch Crews — Close button — **this control does not exist**; both the crew and
-      logout modals open with `withCloseButton: false`. Dismissal is Cancel or click-outside.
+- [-] Switch Crews — Close button — **this control does not exist**; both the crew and logout
+      modals open with `withCloseButton: false`. Dismissal is Cancel or click-outside
 
 ## T3.3 Global
 
+*Owns the cross-module controls so they are built once. T2.x sections defer here.*
+
+*Suite `MOB.996_Search_Suite` — **read-only**, safe to schedule. Groups the shared controls
+so they are built once: `MOB.530` (simple) and `MOB.800` (StructuredQuery).*
+
 - [ ] Back arrow — `PageTitle` renders `faChevronDoubleLeft` calling `navigate(-1)`
-- [ ] **SB** — search bar
+- [~] **SB** — search bar — proven on the mobile job list *(MOB.530)*; the other five
+      modules still rely on that one instance
+- [x] `StructuredQuery` filter builder *(MOB.800 — verified 2026-08-10)* — `name contains`
+      shows the asset as a **result row**, a non-matching value hides it, and clearing
+      restores `Filters (0)`
+
+> **There are TWO independent search/filter systems in mobile — do not conflate them.**
+>
+> | | Where | What it is |
+> |---|---|---|
+> | **Simple** (`SB`) | every list screen | `SearchInput` free-text + `SortDropDown` + per-module status/segment filters |
+> | **Advanced** (`StructuredQuery`) | **Asset Lookup only**, plus the **Work History** tab (twice) | column/operator/value filter builder — `MultiValueSelector`, `ActiveFilters`, saved filters via `useFilterState` |
+>
+> `MOB.530` covers the **simple** system, and only on the mobile job list. `StructuredQuery`
+> is untested everywhere and is the larger of the two: it builds server-side query
+> conditions rather than filtering a loaded list, so a defect there returns *wrong data*
+> rather than a visibly broken control.
 
 ---
 
@@ -519,26 +626,61 @@ the crew- and data-independent signal that a route rendered.*
 
 ## SB — Standard search bar
 
-*Referenced by 6 modules. **Collapsed from v1**: the inherited list enumerated every sort
-permutation per module (~70 checklist items) for low defect yield. Build once as a subtest,
-reference everywhere, and cover the permutations in a single sort test rather than six.*
+*Referenced by 6 modules. **Collapsed from v1**, which enumerated every sort permutation per
+module (~70 items) for low defect yield. Build once as a subtest, reference everywhere.*
 
-- [ ] Click search bar · type term · verify results
-- [ ] Open **Sort By** dropdown, close modal
-- [ ] Sort options, once. NB the inherited labels were wrong: SortDropdown renders
+- [x] Click search bar · type term · verify results *(MOB.530 — job list)*
+- [x] Open **Sort By** dropdown, close modal *(MOB.340, MOB.530)*
+- [ ] Sort options, once. NB the inherited labels were wrong: `SortDropdown` renders
       `${column.label} ▲` / `▼`, not "Ascending"/"Descending". Columns are per-module —
-      WorkStage uses createdAt · status · _workSequence · priority · targetDueDate.
+      WorkStage uses createdAt · status · _workSequence · priority · targetDueDate
 
 ## AT — All attachment types
 
-*`uploadFiles` is supported, so attaching fixture files works; camera capture does not.*
+> ⚠️ **This block's original premise — "`uploadFiles` is supported, so attaching fixture files
+> works" — is disproven.** Two independent blockers: the step cannot be generated from our
+> pipeline (trap 12), and browser-originated attachments fail server-side, taking the parent
+> record with them (`bugs_found.md` §14). Attachment coverage is blocked on the **backend**,
+> not on test effort.
 
-- [ ] Photo · Video · HEIC · Document · Nameplate · Custom — *by upload*
+- [-] Photo · Video · HEIC · Document · Nameplate · Custom — *by upload*
 - [-] Any capture-from-camera path
 
 ---
 
-# Appendix A — Not automatable in Synthetics
+# Appendix A — Deliberately not covered
+
+*Decisions, not gaps. Recorded so they are not silently re-litigated, and kept out of the
+open count so "open" means remaining work.*
+
+| Item | Why not |
+|---|---|
+| **Add Work** from Asset Lookup (T2.4) | Creates a permanent work order and opens the same `WorkInsertForm` MOB.300 already covers. The only new behavior is the asset arriving as `defaultAsset` |
+| **Add new asset** to a verification job (T2.2) | Non-revertible; permanently grows the fixture job and breaks the `out of 2` assertions MOB.500/510 depend on |
+| **Add existing asset** to a verification job (T2.2) | Same |
+| **Verify all assets** (T2.2) | Flips the job to `COMPLETED`, and the status can never be moved back (`bugs_found.md` §10). Consumes the fixture permanently |
+
+Each of these becomes viable with a **throwaway fixture** plus a desktop cleanup cadence —
+that single change unlocks all four.
+
+# Appendix B — Out of scope: needs a desktop harness
+
+*Real coverage gaps, but not for a mobile Datadog suite. Listed so that "is this tested?"
+has an honest answer — no, and here is where it belongs.*
+
+| Item | From | Belongs in |
+|---|---|---|
+| Verify status update on desktop | T2.2 | desktop suite |
+| Verify asset(s) update on Web | T2.2 | desktop suite |
+| Verify mobile job status update on Web | T2.2 | desktop suite |
+| Add mobile job on desktop → mobile list updates | T2.2 | cross-platform test |
+| Asset Verification Job Template | T3.1 | `admin/mobilejobtemplate` — desktop page |
+| Mobile Work Template | T3.1 | `admin/work-template` — desktop page |
+
+The Mobile/Tablet halves of the "Web / Mobile / Tablet" items are **not** simply extra
+`device_ids` — that is trap 1, and it would race the mutating suites.
+
+# Appendix C — Not automatable in Synthetics
 
 Marked `[-]` throughout. These need Playwright/Cypress or manual testing — they are not
 "not yet".
@@ -547,40 +689,85 @@ Marked `[-]` throughout. These need Playwright/Cypress or manual testing — the
 |---|---|
 | Offline queue behavior (T1.1) | No network-toggle step exists. **Highest-value gap.** |
 | Upload resume / tus retry (T1.2) | Requires interrupting a transfer |
-| Camera capture (T1.2, T2.4) | Requires device camera |
+| Camera capture (T1.2, T2.3, T2.4) | Requires device camera; tag scan also calls OpenAI |
+| Browser-originated attachments (T2.3) | Backend limitation, not a harness one — `bugs_found.md` §14 |
 | Native shell bridge (T1.7) | Only active inside the Expo shell |
 | Map drawing tools (T2.6) | react-map-gl WebGL canvas, no stable DOM |
 | Signature widget (T2.1) | Freehand canvas |
 | Directions / street view (T2.6) | Navigate out of the app |
 | Color assertions | Assert the label instead |
 
-# Appendix B — Open questions
+# Appendix D — Open questions
 
 Resolving these lets us delete `optional` steps, which currently fail silently:
 
-1. ~~Does the fixture's work template set `requireStatusNotes`?~~ **Resolved: no.**
-   Confirmed from a run's `step_details` — `#statusNotes` never renders. The 12
-   hedging steps were removed; one of them had been clicking the wrong button.
-2. **Should `MOB.140`'s "Find Mobile Job(s)" check be critical?** Only if the test crew
-   always has at least one mobile job.
-3. ~~Do we want phone-width coverage?~~ **Resolved 2026-08-10: tablet only.** It ran at
-   both widths briefly; a second `device_ids` entry races the mutating tests against the
-   shared fixture (see the warning under *Coverage at a glance*). Phone width can only
-   come back as a separate read-only test.
-4. **How often should mutating suites run?** Every `MOB.991` run creates an undeletable
-   work order.
+1. ~~Does the fixture's work template set `requireStatusNotes`?~~ **Resolved: no.** Confirmed
+   from a run's `step_details`; the 12 hedging steps were removed, one of which had been
+   clicking the wrong button.
+2. **Should `MOB.140`'s "Find Mobile Job(s)" check be critical?** Only if the test crew always
+   has at least one mobile job.
+3. ~~Do we want phone-width coverage?~~ **Resolved 2026-08-10: tablet only** (trap 1).
+4. **How often should mutating suites run?** Every `MOB.991` run creates an undeletable work
+   order; every `MOB.994` run creates an undeletable asset.
 5. ~~Delete the superseded `MOB.999_Mobile_Suite`?~~ Done — deleted 2026-08-07.
-6. **Delete the orphaned `MOB.320_Work_Status_Menu`** (`jv4-76y-xea`)? It exists on
-   Datadog with no local file, left over from a rename.
+6. **Delete the orphaned `MOB.320_Work_Status_Menu`** (`jv4-76y-xea`)? It exists on Datadog
+   with no local file, left over from a rename.
+7. **Can we get the two fixture asset names** for `Z0EVwQcdJZhMURcBFkp0E0`? It unblocks the
+   one uncovered verification item ("verified asset absent from Unverified tab"), and would
+   give the asset list two known records in a known order — the missing ingredient for
+   verifying **sort ordering** rather than just that the sort modal opens.
+8. **How do multiple `StructuredQuery` filters combine — AND or OR?** Observed in a real run:
+   with `name contains "Pump 0102"` and `name contains "ZZZZ-NO-SUCH-ASSET"` both active, the
+   asset was **still listed**. That rules out plain AND, but does not distinguish OR
+   semantics from the second condition being dropped. `MOB.800` now clears between legs so it
+   does not depend on the answer. Worth resolving — if conditions are silently dropped, the
+   filter builder returns wrong data, which is the quiet failure mode that makes
+   StructuredQuery higher-risk than the simple search.
+9. **Does a text search discard active structured filters?** `AssetLookup`'s search `refetch`
+   passes `conditions: [...(props.query ?? [])]`, omitting the `query` derived from
+   `useFilterState` — so submitting a search after applying filters may drop them. Read from
+   source, not yet observed; a natural follow-up test once MOB.800 is stable.
 
-# Appendix C — What changed from v1
+# Appendix E — What changed from the inherited list
 
-- **Reordered by risk**, not by screen. Tier 1 is mobile-specific behavior, Tier 2 module
+- **Reordered by risk**, not by screen: Tier 1 mobile-specific behavior, Tier 2 module
   functionality, Tier 3 navigation.
-- **Added Tier 1 entirely** — offline/queue, uploads, session/auth, viewport, service
-  worker, geolocation, native bridge. None of this was in the inherited list.
-- **Collapsed the SB block** from ~12 items × 6 modules to one shared block plus a single
-  sort test.
-- **Marked 2 items as non-existent controls**: "Switch Crews — Close button", and flagged
-  the two §1 entries that are desktop admin pages rather than mobile routes.
-- **No inherited item was deleted** — everything from v1 appears somewhere here.
+- **Added Tier 1 entirely** — offline/queue, uploads, session/auth, viewport, service worker,
+  geolocation, native bridge. None of it was in v1.
+- **Collapsed the SB block** from ~12 items × 6 modules to one shared block.
+- **Corrected controls that do not exist**: "Switch Crews — Close button"; Asset Lookup's
+  "click search button"; Tag Lookup and Scan Barcode as separate items; Asset Lookup's tab
+  count (four listed, five real); and two §1 entries that are desktop admin pages.
+- **Corrected a wrong premise**: verify → unverify is *not* trivially repeatable (T2.2).
+- **Extracted the recurring failure modes** into *Locator & assertion traps* rather than
+  repeating them per module.
+- **No inherited item was deleted** — everything from v1 appears somewhere here. Items that
+  are decisions or desktop-scope moved to Appendices A and B rather than sitting in the open
+  count, so "open" now means remaining work.
+- **Extracted `Locator & assertion traps`** (16 entries) from what had been ~250 lines of
+  per-module blockquotes. Most were the same few root causes repeated.
+- **Split the shared controls into `MOB.996_Search_Suite`** rather than testing search and
+  filtering once per module.
+
+## Where to pick up
+
+Ranked by value, from the current state:
+
+1. **T1.3 — role permissions gate menu items · crew switch changes the visible set.** The
+   highest-risk reachable area left. Permissions already produced a real bug
+   (`bugs_found.md` §4b) and crew scoping has repeatedly misled diagnosis.
+2. **Appendix D Q8 / Q9** — how multiple StructuredQuery filters combine, and whether a text
+   search silently discards active filters. Both would be *wrong-data* defects, and the
+   harness for them now exists in `MOB.800`.
+3. **T3.3 back arrow · T3.2 timestamp resync** — trivial, read-only, closes out chrome.
+4. **T2.5 Material Lookup** — needs a fixture decision first: issue/return move real stock,
+   and MOB.370 already showed Issue erodes its own fixture.
+5. **One decision unlocks four items at once** — a throwaway fixture plus a desktop cleanup
+   cadence makes everything in Appendix A viable.
+
+*Possible simplification, not yet applied:* `MOB.800` clears filters via the drawer's
+"Clear all", which forces several open/close cycles (42 steps). The pills rendered by
+`FilterInfo` carry their own remove **X** and sit **outside** the drawer, which would cut
+this to roughly 30 steps. Scope any such locator to `.asset-lookup-active-filters` and click
+it with the drawer shut — pills render in *both* places at once, so an unscoped match hits
+two elements.

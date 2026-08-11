@@ -61,7 +61,18 @@ def go(url, label):
     return step("goToUrl", f"Navigate to {label}", {"value": url})
 
 
-def test(name, message, steps, tags, extra_globals=()):
+def localvar(name, pattern, example):
+    """A per-run generated variable, e.g. localvar("RUNID", "{{ numeric(8) }}", "12345678").
+
+    Datadog expands the pattern fresh on every run, so `{{ RUNID }}` in a step yields a new
+    value each time. Needed wherever a record has a uniqueness constraint - a fixed marker
+    string works for a work order description (MOB.300) but would collide on a second run
+    for anything the backend requires to be unique.
+    """
+    return {"name": name, "type": "text", "pattern": pattern, "example": example}
+
+
+def test(name, message, steps, tags, extra_globals=(), local_vars=()):
     """Envelope matching what fetch() writes: config keys snake_case (the SDK maps them
     to configVariables/setCookie), step keys camelCase. config.variables is the list the
     runner actually binds {{ NAME }} from - config_variables alone is not enough."""
@@ -72,9 +83,9 @@ def test(name, message, steps, tags, extra_globals=()):
             "tags": list(tags), "locations": ["gcp:us-west2"],
             "config": {
                 "assertions": [],
-                "config_variables": gvar("MOBDEV", *extra_globals),
+                "config_variables": gvar("MOBDEV", *extra_globals) + list(local_vars),
                 "request": {"headers": {}, "method": "GET", "url": "{{ MOBDEV }}"},
-                "variables": gvar("MOBDEV", *extra_globals),
+                "variables": gvar("MOBDEV", *extra_globals) + list(local_vars),
                 "set_cookie": "",
             },
             "options": {
@@ -130,20 +141,35 @@ def remote_ids(api):
 
 
 def push():
-    """Create missing MOB.* tests, update existing ones. Errors are surfaced, not
-    swallowed (unlike fetch.py's throw(), whose bare except hides failed creates)."""
+    """Create missing MOB.* tests, update existing ones.
+
+    RETURNS NON-ZERO IF ANY TEST FAILED TO SYNC, and prints a loud summary. That matters
+    more than it sounds: a push that errors while the caller keeps going leaves Datadog on
+    the OLD version of the test, and the run that follows reports PASS for code that was
+    never uploaded. That happened - a rejected `public_id` field silently kept MOB.600 three
+    steps behind while the local JSON looked right. Always chain with && , never ; .
+    """
+    failed = []
     with ApiClient(_conf()) as c:
         api = SyntheticsApi(c)
         ids = remote_ids(api)
         for f in sorted(glob.glob(os.path.join(HERE, "*.json"))):
             d = json.load(open(f))["details"]
-            body = SyntheticsBrowserTest(**{k: d[k] for k in BODY_KEYS})
-            if d["name"] in ids:
-                api.update_browser_test(ids[d["name"]], body)
-                print(f"update {d['name']}")
-            else:
-                r = api.create_synthetics_browser_test(body).to_dict()
-                print(f"CREATE {d['name']} -> {r['public_id']}")
+            try:
+                body = SyntheticsBrowserTest(**{k: d[k] for k in BODY_KEYS})
+                if d["name"] in ids:
+                    api.update_browser_test(ids[d["name"]], body)
+                    print(f"update {d['name']}")
+                else:
+                    r = api.create_synthetics_browser_test(body).to_dict()
+                    print(f"CREATE {d['name']} -> {r['public_id']}")
+            except Exception as e:
+                failed.append(d["name"])
+                print(f"FAILED {d['name']}: {str(e)[:200]}")
+    if failed:
+        print(f"\n*** {len(failed)} TEST(S) DID NOT SYNC - Datadog still has the old "
+              f"version. DO NOT trust a run until this is fixed: {failed}")
+    return 1 if failed else 0
 
 
 def _eta(api, pid):
@@ -240,6 +266,50 @@ def run(*names, timeout=2400):
         return 1 if failed else 0
 
 
+def pull(*names):
+    """Fetch tests FROM Datadog into dd_tests_mobile/, overwriting the local JSON.
+
+    The counterpart to push, for the one case the generators cannot cover: steps that can
+    only be authored in the Datadog UI. `uploadFiles` is the example - its `bucketKey`
+    points at a file in Datadog's own storage and no API endpoint mints one - and a
+    `Run JavaScript` step added alongside it is in the same boat.
+
+    Pull makes the JSON authoritative again after a UI edit, so the next push does not
+    revert it. It does NOT make the generator safe to re-run: rebuilding from
+    build_collector_tests.py still produces a test with no upload step. Once a test carries
+    hand-authored steps, the JSON is the source of truth permanently.
+    """
+    with ApiClient(_conf()) as c:
+        api = SyntheticsApi(c)
+        ids = remote_ids(api)
+        for name in names:
+            if name not in ids:
+                print("not found:", name)
+                continue
+            d = api.get_browser_test(ids[name]).to_dict()
+            # Take only the keys push sends back. The rest of the payload carries
+            # datetimes (created_at/modified_at) that json.dumps cannot serialise - the
+            # exact bug that once truncated fetch.py's output files to zero bytes.
+            details = {k: d[k] for k in BODY_KEYS if k in d}
+            # Datadog returns a per-step `public_id` on GET but REJECTS it on update:
+            #   "Additional properties are not allowed ('public_id' was unexpected)"
+            # Leaving it in makes the very next push fail - and if that failure is not
+            # noticed, the test on Datadog silently stays at the old version while the
+            # local JSON looks correct. Strip it here so a pull round-trips cleanly.
+            for st in details.get("steps", []):
+                st.pop("public_id", None)
+            path = os.path.join(HERE, name + ".json")
+            with open(path, "w") as f:
+                f.write(json.dumps({"test_name": name, "details": details}, indent=4))
+            kinds = {}
+            for s in details.get("steps", []):
+                kinds[s.get("type")] = kinds.get(s.get("type"), 0) + 1
+            print(f"PULLED {name}  ({len(details.get('steps', []))} steps)")
+            for t, n in sorted(kinds.items()):
+                print(f"         {n} x {t}")
+    return 0
+
+
 def report(name, index=0):
     """Print per-step and per-subtest outcomes for a recent run.
 
@@ -317,9 +387,11 @@ def report(name, index=0):
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "push"
     if cmd == "push":
-        push()
+        sys.exit(push())
     elif cmd == "run":
         sys.exit(run(*sys.argv[2:]))
+    elif cmd == "pull":
+        sys.exit(pull(*sys.argv[2:]))
     elif cmd == "report":
         sys.exit(report(sys.argv[2], int(sys.argv[3]) if len(sys.argv) > 3 else 0))
     else:
