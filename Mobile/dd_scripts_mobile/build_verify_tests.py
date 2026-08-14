@@ -38,7 +38,8 @@ FILTER STATE LEAKS BETWEEN SUBTESTS
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, av_job_gate,
+                      av_list_gate)  # noqa: E402
 
 FIXTURE_ID = "Z0EVwQcdJZhMURcBFkp0E0"
 FIXTURE_NAME = "DATADOG MOBILE JOB"
@@ -65,51 +66,34 @@ FIRST_CHECKBOX = '(//input[@type="checkbox"])[1]'
 
 
 def open_job():
-    """/asset-verify first is MANDATORY - the detail query is cache-only (see module docs).
+    """Delegates to the shared `av_job_gate` - do not re-implement this locally.
 
-    This is a READINESS GATE, not a fixed sleep. index.tsx exposes exactly the signals we
-    need, so each stage is asserted instead of guessed at:
+    It used to end with `go(JOB_URL)`, deep-linking straight to the job detail. That is a
+    FULL PAGE LOAD onto a `cache-only` route, which races the batched detail download and can
+    render the job with an EMPTY asset list. It cost most of 2026-08-12 on MOB.396 and four
+    wrong theories before the repo owner pointed out the obvious: the app has to load before a
+    person can click into the job, so the test must click too.
 
-        "Find Mobile Job(s)"          search box - the job list itself has rendered
-        "Fetching data for lookups"   dropdown prefetch in progress
-        "Fetching mobile job details" batched MOBILE_JOB_DETAILS downloads in progress
+    The standing rule that came out of it: **navigate by real user interaction; force-routing
+    is only acceptable where the target queries by id on mount** (work orders do, this does
+    not). `av_job_gate` also gates on the asset ROWS - a positive signal - because
+    `assertPageLacks("Fetching mobile job details")` is equally true before the download
+    starts and after it finishes.
 
-    Asserting the two loading labels are GONE proves the cache is warm. A blind wait cannot,
-    and the first version of this test used one: it waited 30s, moved on, and failed on a
-    blank detail page with nothing to say about why.
-
-    The staged asserts also localise the failure, which matters because the job list is
-    filtered by BOTH crew and app (`mobileJobsForCrew(app: ASSET_VERIFICATION)`). A job on
-    another crew, or an ASSET_COLLECTOR job, is silently absent here - and the only symptom
-    downstream is a blank page from the cache-only detail query.
+    These four tests passed with the old deep link on timing luck, not correctness.
     """
-    return [
-        go(JOBS_URL, "the asset verification job list"),
-        step("wait", "Wait for the page to mount", {"value": 10}),
-        step("assertElementContent", 'Test the "Mobile Jobs" page mounted',
-             {"check": "contains", "value": "Mobile Jobs",
-              "element": xpath_el(JOBS_URL, PAGE_TITLE)}),
-        step("wait", "Wait for the lookup prefetch and batched detail downloads",
-             {"value": 25}),
-        # The search box only renders once `data?.mobileJobs && sortedFilteredList` is
-        # truthy, so its presence IS the "list has rendered" signal.
-        # NB: placeholder is an ATTRIBUTE, not page text - assertPageContains can never
-        # match it. The first version of this gate used assertPageContains("Find Mobile
-        # Job(s)") and failed on a fully healthy page. MOB.140 already had this right.
-        step("assertElementPresent", "Test the job list rendered",
-             {"element": xpath_el(JOBS_URL, SEARCH_INPUT)}),
-        step("assertPageLacks", "Test the lookup prefetch finished",
-             {"value": "Fetching data for lookups"}),
-        step("assertPageLacks", "Test the batched job-detail downloads finished",
-             {"value": "Fetching mobile job details"}),
-        # Prove the fixture is actually IN this crew's ASSET_VERIFICATION list before
-        # deep-linking. Without this, a job on the wrong crew or with app=ASSET_COLLECTOR
-        # fails three steps later as an unexplained blank page.
-        step("assertPageContains", f'FIXTURE GUARD: "{FIXTURE_NAME}" is in this crew\'s list',
-             {"value": FIXTURE_NAME}),
-        go(JOB_URL, "the fixture verification job"),
-        step("wait", "Wait for the job detail to render", {"value": 5}),
-    ]
+    return av_job_gate(FIXTURE_ID, FIXTURE_NAME)
+
+
+def open_job_list():
+    """Readiness for the job LIST only - for tests whose subject is the list itself.
+
+    MOB.530 filters by the status legend, which lives on the LIST. When `open_job` was
+    pointed at the shared gate it inherited the click-into-the-job, and MOB.530 started
+    failing on a legend that was no longer on screen. Reaching for the nearest shared helper
+    is not always right: take the part that matches what the test is about.
+    """
+    return av_list_gate(FIXTURE_NAME)
 
 
 def set_filter(label):
@@ -320,7 +304,11 @@ write(test(
     "- Sort is opened and dismissed but NOT applied: its labels are schema-derived, proving\n"
     "  an order needs two known records, and a selection would persist in sessionStorage\n"
     "  into later subtests.",
-    open_job()[:-2] + [        # job list only - drop the deep-link into the fixture job
+    # `open_job_list()`, NOT `open_job()[:-2]`. The old slice dropped the last two steps to
+    # stay on the list, which silently broke when the gate's shape changed: the click-into-
+    # the-job survived the slice and MOB.530 started looking for the list's status legend on
+    # the DETAIL page. An index-based slice of a shared helper is a dependency on its length.
+    open_job_list() + [
         step("assertPageContains", "Baseline: the fixture job is listed",
              {"value": FIXTURE_NAME}),
 

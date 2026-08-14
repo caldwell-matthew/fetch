@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.520_AssetVerify_Asset_Tabs",
+    "test_name": "MOB.210_Perms_Menu_Gating",
     "details": {
-        "name": "MOB.520_AssetVerify_Asset_Tabs",
+        "name": "MOB.210_Perms_Menu_Gating",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.520` Expand an asset on the fixture job and step through all five data tabs.\n- READ-ONLY. Expanding an accordion row and switching tabs mutates nothing.\n- The tabs come from `AssetLookupDetails`, which HARDCODES them (`General Info \u00b7 Attributes \u00b7 Photos \u00b7 Docs \u00b7 Work History`) - they are NOT the\n  template-driven sections used by the `/asset/:id` detail route. `Work History` is\n  not even a `MobileJobTemplateSectionType`, which is how you can tell the two apart.\n- Asserts the tab strip and the active state on each tab, not panel contents: what a\n  panel renders depends on the asset having attributes / photos / work history, which\n  the fixture does not guarantee. Switching is the data-independent part.\n- Only one accordion row opens at a time (`Job.tsx` leaves Mantine's `multiple` off),\n  so exactly one tab strip exists and the by-name locators stay unique.",
+        "message": "`MOB.210` Prove the hamburger menu is gated by role permissions.\n- SELF-RESTORING: switches to a no-permission role and back to `Admin`.\n- Uses `Admin 0000` \u2014 CRUD all off, so `!permissions.*.read` hides **all six**\n  gated menu items at once (Collector, Mobile Jobs, Asset Lookup, Material Lookup,\n  Work Orders, Map).\n- The PROOF is the negative: `Work Orders` must vanish from the menu. Asserting the\n  items are present under `Admin` proves nothing on its own \u2014 they are always present\n  there (trap 5).\n- Every switch is critical and followed by a role assertion, unlike MOB.200 where the\n  outbound switch is optional and unverified.\n- Navigates home first: `Work Orders` appears as a PAGE TITLE on /work, which would\n  satisfy the assertion without the menu item existing (trap 5b).",
         "tags": [
             "Mobile",
             "env:dev",
-            "Asset Verification",
-            "read-only"
+            "Session",
+            "permissions",
+            "CRUD"
         ],
         "locations": [
             "gcp:us-west2"
@@ -63,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to the mobile job list",
+                "name": "Navigate to the mobile home page",
                 "noScreenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
                 },
                 "type": "goToUrl"
             },
@@ -75,139 +76,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the page to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Mobile Jobs\" page mounted",
-                "noScreenshot": false,
-                "params": {
-                    "check": "contains",
-                    "value": "Mobile Jobs",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementContent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the lookup prefetch and batched detail downloads",
-                "noScreenshot": false,
-                "params": {
-                    "value": 25
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the job list rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the lookup prefetch finished (feeds schemaQuery)",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Fetching data for lookups"
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the batched job-detail downloads finished",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Fetching mobile job details"
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "FIXTURE GUARD: \"DATADOG MOBILE JOB\" is in this crew's list",
-                "noScreenshot": false,
-                "params": {
-                    "value": "DATADOG MOBILE JOB"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"DATADOG MOBILE JOB\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the job detail to render",
+                "name": "Wait for the app shell",
                 "noScreenshot": false,
                 "params": {
                     "value": 5
@@ -219,41 +88,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "ASSET LIST GUARD: the job's asset rows have rendered",
+                "name": "Open the menu to read the session role",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent",
-                "timeout": 60
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"All\" filter",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//label[.//span[normalize-space(.)=\"All\"]]"
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
                                 }
                             ]
                         }
@@ -266,7 +111,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the All list to re-render",
+                "name": "Wait for the menu",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -278,17 +123,53 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Expand the first asset row",
+                "name": "Role is now \"Admin\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Admin"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Baseline: \"Work Orders\" is in the menu under Admin",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Work Orders"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the header menu",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
                                 }
                             ]
                         }
@@ -301,52 +182,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the asset detail panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 3
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test a tab strip is rendered",
+                "name": "Click Switch Crews",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"General Info\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]"
                                 }
                             ]
                         }
@@ -359,7 +205,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the crew list",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -371,40 +217,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"General Info\" tab is active",
+                "name": "Select Admin 0000",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Attributes\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"]"
+                                    "value": "//label[contains(normalize-space(.), \"0000\")]"
                                 }
                             ]
                         }
@@ -417,52 +240,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Attributes\" tab is active",
+                "name": "Submit the crew change",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Photos\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                    "value": "//button[normalize-space(.)=\"Submit\"]"
                                 }
                             ]
                         }
@@ -475,10 +263,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the crew change to resync",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 8
                 },
                 "type": "wait"
             },
@@ -487,40 +275,41 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Photos\" tab is active",
+                "name": "Navigate to the mobile home page",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
                 },
-                "type": "assertElementPresent"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Docs\" tab",
+                "name": "Wait for the app shell",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu to read the session role",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"]"
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
                                 }
                             ]
                         }
@@ -533,7 +322,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the menu",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -545,40 +334,53 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Docs\" tab is active",
+                "name": "Role is now \"0000\"",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "0000"
                 },
-                "type": "assertElementPresent"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Work History\" tab",
+                "name": "PROOF: \"Work Orders\" is hidden without read permission",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Work Orders"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the header menu",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
                                 }
                             ]
                         }
@@ -591,7 +393,30 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Click Switch Crews",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the crew list",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -603,23 +428,153 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Work History\" tab is active",
+                "name": "Select Admin (restore)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"][@data-active]"
+                                    "value": "//label[normalize-space(.)=\"Admin\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the crew change",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the crew change to resync",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the mobile home page",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the app shell",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu to read the session role",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Role is now \"Admin\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Admin"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: \"Work Orders\" is back in the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Work Orders"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
             }
         ]
     }

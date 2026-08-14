@@ -42,13 +42,35 @@ def gvar(*names):
     return [{"id": GLOBALS[n], "name": n, "type": "global"} for n in names]
 
 
-def step(type_, name, params, optional=False):
+def step(type_, name, params, optional=False, always=False, timeout=None):
     """optional=True lets a step fail without failing the test - for branches that only
     appear under some configuration (e.g. the status-notes modal, shown only when the
-    work template sets requireStatusNotes)."""
-    return {"allowFailure": optional, "alwaysExecute": False, "exitIfSucceed": False,
-            "isCritical": not optional, "name": name, "noScreenshot": False,
-            "params": params, "type": type_}
+    work template sets requireStatusNotes).
+
+    always=True sets Datadog's `alwaysExecute`, which runs the step even after an EARLIER
+    step failed. These are different things and the distinction matters:
+
+        optional  this step may fail        -> the TEST still passes
+        always    an earlier step DID fail  -> this step runs anyway; the test still fails
+
+    timeout=N sets Datadog's per-step `timeout` (seconds). Whether a step POLLS until that
+    timeout or checks once is the open question in Appendix F item 1 - if it polls, most of
+    the ~815s of blind `wait` steps in this suite can be replaced by gates that return as
+    soon as they are satisfied. The asset-list guard in `av_job_gate` is the first real use,
+    and doubles as that experiment.
+
+    Needed when a test must leave the world in a known state regardless of whether its
+    assertions held - MOB.550 asserts that a PREVIOUS run's data came back from the server,
+    and without `always` on the steps that write that data, a first failure would abort the
+    write and the test could never bootstrap itself. Restore/cleanup legs in mutating tests
+    are the other natural use.
+    """
+    d = {"allowFailure": optional, "alwaysExecute": always, "exitIfSucceed": False,
+         "isCritical": not optional, "name": name, "noScreenshot": False,
+         "params": params, "type": type_}
+    if timeout is not None:
+        d["timeout"] = timeout
+    return d
 
 
 def xpath_el(url, xp):
@@ -70,6 +92,100 @@ def localvar(name, pattern, example):
     for anything the backend requires to be unique.
     """
     return {"name": name, "type": "text", "pattern": pattern, "example": example}
+
+
+def jsassert(name, code, optional=False, always=False, timeout=None):
+    """A `Run JavaScript` assertion step. Passes when the code returns truthy.
+
+    IMPORTANT: unlike `uploadFiles`, this step type IS generatable from here - its params are
+    just {"code": ...} with no bucketKey, so no Datadog-UI authoring is needed (trap 12
+    applies to uploads only).
+
+    Use it to assert things the DOM cannot express: sessionStorage/localStorage contents, an
+    <input>'s VALUE (which is a property, not page text - trap 9), computed styles, or any
+    JS-only property such as an input's `capture` flag.
+    """
+    return step("assertFromJavascript", name, {"code": code}, optional=optional,
+                always=always, timeout=timeout)
+
+
+AV_JOBS_URL = BASE + "/asset-verify"
+AV_FIXTURE_JOB = "DATADOG MOBILE JOB"
+
+
+def av_list_gate(fixture=AV_FIXTURE_JOB):
+    """Readiness for the mobile job LIST - stops there, does not open a job.
+
+    Split out of `av_job_gate` on 2026-08-13: MOB.530 tests the LIST's status-filter legend,
+    and folding the click-into-the-job into the shared gate broke it (the legend is on the
+    list, not the detail). Callers that stay on the list use this; callers that need a job
+    detail use `av_job_gate`, which is this plus the click-through.
+    """
+    return [
+        go(AV_JOBS_URL, "the mobile job list"),
+        step("wait", "Wait for the page to mount", {"value": 10}),
+        step("assertElementContent", 'Test the "Mobile Jobs" page mounted',
+             {"check": "contains", "value": "Mobile Jobs",
+              "element": xpath_el(AV_JOBS_URL,
+                                  '//*[@id="page-title"]//h4[contains(normalize-space(.), '
+                                  '"Mobile Jobs")]')}),
+        step("wait", "Wait for the lookup prefetch and batched detail downloads",
+             {"value": 25}),
+        # placeholder is an ATTRIBUTE, not page text (trap 9)
+        step("assertElementPresent", "Test the job list rendered",
+             {"element": xpath_el(AV_JOBS_URL,
+                                  '//input[@placeholder="Find Mobile Job(s)"]')}),
+        # These two must NOT be converted to polling gates (Appendix F): a `lacks` assertion
+        # is true BEFORE the loading starts as well as after it finishes, so the 25s wait
+        # above is what gives them meaning.
+        step("assertPageLacks", "Test the lookup prefetch finished (feeds schemaQuery)",
+             {"value": "Fetching data for lookups"}),
+        step("assertPageLacks", "Test the batched job-detail downloads finished",
+             {"value": "Fetching mobile job details"}),
+        step("assertPageContains", f'FIXTURE GUARD: "{fixture}" is in this crew\'s list',
+             {"value": fixture}),
+    ]
+
+
+def av_job_gate(job_id, fixture=AV_FIXTURE_JOB):
+    """THE readiness gate for reaching an Asset Verification job detail. Use this - do not
+    hand-roll a shorter one.
+
+    `/asset-verify/<id>` queries MOBILE_JOB_DETAILS with `fetchPolicy: 'cache-only'` and
+    `Job.tsx` bails with `if (!job || !schemaQuery) return null`, so on a cold cache the page
+    renders NOTHING and every locator on it is legitimately missing. Both loading labels are
+    load-bearing:
+
+        "Fetching data for lookups"    feeds schemaQuery - WITHOUT THIS the detail page is
+                                       blank even though the job itself downloaded
+        "Fetching mobile job details"  the batched MOBILE_JOB_DETAILS downloads
+
+    This exists because the gate was trimmed twice and cost a run each time (MOB.545, then
+    MOB.396), both failing at the "All" filter with `No element found` - which looks like a
+    locator bug and is not. Copying the whole gate is the fix; centralising it is the reason
+    this function exists.
+    """
+    detail = f"{AV_JOBS_URL}/{job_id}"
+    detail = f"{AV_JOBS_URL}/{job_id}"
+    return av_list_gate(fixture) + [
+        # CLICK THE JOB, DO NOT DEEP-LINK. `goToUrl` is a full page load: it restarts the SPA
+        # on a `cache-only` route and races the batched detail download, so the detail can
+        # render with no asset rows. Clicking is client-side routing with the cache warm -
+        # and is what a real user does.
+        step("click", f'Open "{fixture}" by clicking its row (not a deep link)',
+             {"element": xpath_el(
+                 AV_JOBS_URL,
+                 f'//*[contains(concat(" ", normalize-space(@class), " "),'
+                 f' " mantine-Paper-root ")][contains(., "{fixture}")]')},
+             timeout=30),
+        step("wait", "Wait for the job detail to render", {"value": 5}),
+        # The asset list is a SEPARATE readiness signal from the page, and every caller's next
+        # move is to click a row. Polls (timeout=60) rather than sleeping.
+        step("assertElementPresent", "ASSET LIST GUARD: the job's asset rows have rendered",
+             {"element": xpath_el(
+                 detail, '(//*[contains(@class,"mantine-Accordion-item")])[1]')},
+             timeout=60),
+    ]
 
 
 def test(name, message, steps, tags, extra_globals=(), local_vars=()):

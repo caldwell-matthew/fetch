@@ -63,7 +63,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to the asset verification job list",
+                "name": "Navigate to the mobile job list",
                 "noScreenshot": false,
                 "params": {
                     "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
@@ -147,7 +147,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the lookup prefetch finished",
+                "name": "Test the lookup prefetch finished (feeds schemaQuery)",
                 "noScreenshot": false,
                 "params": {
                     "value": "Fetching data for lookups"
@@ -183,12 +183,24 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to the fixture verification job",
+                "name": "Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)",
                 "noScreenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"DATADOG MOBILE JOB\")]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "goToUrl"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -201,6 +213,30 @@
                     "value": 5
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ASSET LIST GUARD: the job's asset rows have rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
             },
             {
                 "allowFailure": false,

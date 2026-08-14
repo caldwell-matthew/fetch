@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.520_AssetVerify_Asset_Tabs",
+    "test_name": "MOB.395_Work_GenInfo_Edit",
     "details": {
-        "name": "MOB.520_AssetVerify_Asset_Tabs",
+        "name": "MOB.395_Work_GenInfo_Edit",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.520` Expand an asset on the fixture job and step through all five data tabs.\n- READ-ONLY. Expanding an accordion row and switching tabs mutates nothing.\n- The tabs come from `AssetLookupDetails`, which HARDCODES them (`General Info \u00b7 Attributes \u00b7 Photos \u00b7 Docs \u00b7 Work History`) - they are NOT the\n  template-driven sections used by the `/asset/:id` detail route. `Work History` is\n  not even a `MobileJobTemplateSectionType`, which is how you can tell the two apart.\n- Asserts the tab strip and the active state on each tab, not panel contents: what a\n  panel renders depends on the asset having attributes / photos / work history, which\n  the fixture does not guarantee. Switching is the data-independent part.\n- Only one accordion row opens at a time (`Job.tsx` leaves Mantine's `multiple` off),\n  so exactly one tab strip exists and the by-name locators stay unique.",
+        "message": "`MOB.395` Edit a field on the Work Order **General Info** tab and prove it persisted.\n- **SELF-RESTORING**: leg 1 writes `DD SYNTHETIC EDIT <runid>`, leg 2 writes\n  `DATADOG FIXTURE` back, so the fixture ends every run in the same known state.\n- Proof is a **reload**, not the toast. `GeneralInfo` passes an `optimisticResponse`,\n  so `Record Updated` fires from the optimistic write before the server replies\n  (trap 6). Each leg re-navigates and reads `#desc.value` from a fresh query.\n- The value is read with a **JS assertion** \u2014 an input's value is a property, not page\n  text, so `assertPageContains` cannot see it (trap 16).\n- Every write is click \u2192 **Control+A** \u2192 type, because Datadog's `typeText` APPENDS.\n  Without the select-all the description would grow by one marker every run.\n- `isValid && isDirty` gates the submit button, so writing the value the field already\n  holds produces a silent no-op (trap 8). `{{ RUNID }}` guarantees leg 1 is a real\n  change; leg 1 guarantees leg 2 is.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Asset Verification",
-            "read-only"
+            "CRUD",
+            "field-edit",
+            "Work Orders"
         ],
         "locations": [
             "gcp:us-west2"
@@ -21,6 +22,12 @@
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
                     "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
                 }
             ],
             "request": {
@@ -33,6 +40,12 @@
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
                     "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
                 }
             ],
             "set_cookie": ""
@@ -63,10 +76,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to the mobile job list",
+                "name": "Navigate to /work to warm the lookup cache",
                 "noScreenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
                 },
                 "type": "goToUrl"
             },
@@ -75,10 +88,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the page to mount",
+                "name": "Wait for the work list and lookup prefetch",
                 "noScreenshot": false,
                 "params": {
-                    "value": 10
+                    "value": 20
                 },
                 "type": "wait"
             },
@@ -87,127 +100,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Mobile Jobs\" page mounted",
+                "name": "Navigate to the fixture work order",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Mobile Jobs",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
                 },
-                "type": "assertElementContent"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the lookup prefetch and batched detail downloads",
-                "noScreenshot": false,
-                "params": {
-                    "value": 25
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the job list rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the lookup prefetch finished (feeds schemaQuery)",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Fetching data for lookups"
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the batched job-detail downloads finished",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Fetching mobile job details"
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "FIXTURE GUARD: \"DATADOG MOBILE JOB\" is in this crew's list",
-                "noScreenshot": false,
-                "params": {
-                    "value": "DATADOG MOBILE JOB"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"DATADOG MOBILE JOB\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the job detail to render",
+                "name": "Wait for the detail view to render",
                 "noScreenshot": false,
                 "params": {
                     "value": 5
@@ -219,41 +124,29 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "ASSET LIST GUARD: the job's asset rows have rendered",
+                "name": "Test work order detail rendered",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Status:"
                 },
-                "type": "assertElementPresent",
-                "timeout": 60
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"All\" filter",
+                "name": "Open the General Info tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//label[.//span[normalize-space(.)=\"All\"]]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"General Info\")]"
                                 }
                             ]
                         }
@@ -266,42 +159,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the All list to re-render",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Expand the first asset row",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the asset detail panel to mount",
+                "name": "Wait for the General Info panel to mount",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -313,17 +171,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test a tab strip is rendered",
+                "name": "FIELD GUARD: the Description input is on this tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"])[1]"
+                                    "value": "//*[@id=\"desc\"]"
                                 }
                             ]
                         }
@@ -336,17 +194,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"General Info\" tab",
+                "name": "Focus the Description field",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
+                                    "value": "//*[@id=\"desc\"]"
                                 }
                             ]
                         }
@@ -359,110 +217,56 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Select the existing text (typeText APPENDS without this)",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
                 },
-                "type": "wait"
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"General Info\" tab is active",
+                "name": "Type the Description value",
                 "noScreenshot": false,
                 "params": {
+                    "value": "DD SYNTHETIC EDIT {{ RUNID }}",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
+                                    "value": "//*[@id=\"desc\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "typeText"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Attributes\" tab",
+                "name": "Submit the General Info form",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Attributes\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Photos\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                    "value": "//button[@form=\"mobile-genInfo\"]"
                                 }
                             ]
                         }
@@ -475,10 +279,34 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Brief wait for the toast to appear",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Record Updated toast (optional: fires optimistically)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Record Updated"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the update mutation to reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
                 },
                 "type": "wait"
             },
@@ -487,40 +315,77 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Photos\" tab is active",
+                "name": "Navigate to /work to warm the lookup cache",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
                 },
-                "type": "assertElementPresent"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Docs\" tab",
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the detail view to render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the General Info tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"General Info\")]"
                                 }
                             ]
                         }
@@ -533,10 +398,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the General Info panel to mount",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -545,17 +410,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Docs\" tab is active",
+                "name": "FIELD GUARD: the Description input is on this tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"][@data-active]"
+                                    "value": "//*[@id=\"desc\"]"
                                 }
                             ]
                         }
@@ -568,17 +433,29 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Work History\" tab",
+                "name": "PROOF: after a reload the description is no longer the baseline",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('#desc');\nif (!el) return false;\nreturn el.value.trim() !== 'DATADOG FIXTURE';"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the Description field",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
+                                    "value": "//*[@id=\"desc\"]"
                                 }
                             ]
                         }
@@ -591,10 +468,72 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Select the existing text (typeText APPENDS without this)",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the Description value",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DATADOG FIXTURE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"desc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the restore",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"mobile-genInfo\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the restore mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 6
                 },
                 "type": "wait"
             },
@@ -603,23 +542,130 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Work History\" tab is active",
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the detail view to render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the General Info tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"][@data-active]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"General Info\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the General Info panel to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the Description input is on this tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"desc\"]"
                                 }
                             ]
                         }
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the description is exactly \"DATADOG FIXTURE\" again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('#desc');\nif (!el) return false;\nreturn el.value.trim() === 'DATADOG FIXTURE';"
+                },
+                "type": "assertFromJavascript"
             }
         ]
     }

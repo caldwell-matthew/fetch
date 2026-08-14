@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.990_Smoke_Suite",
+    "test_name": "MOB.220_Crew_Scoping",
     "details": {
-        "name": "MOB.990_Smoke_Suite",
+        "name": "MOB.220_Crew_Scoping",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
+        "message": "`MOB.220` Prove switching crew changes the visible mobile-job set.\n- SELF-RESTORING: switches crew and back to `Admin`.\n- Uses `Admin 0100` \u2014 read is ON, so the job list still loads. That isolates\n  CREW SCOPING from permissions: if the fixture job disappears here it is because the\n  crew changed, not because the role cannot read. Using `Admin 0000` would\n  confound the two.\n- The PROOF is the negative: `DATADOG MOBILE JOB` is listed under `Admin` and must NOT be\n  listed under another crew, because `mobileJobsForCrew` scopes by the session crew.\n- A crew is a role in MentorTwo, so switching role IS switching crew.",
         "tags": [
             "Mobile",
             "env:dev",
-            "E2E",
-            "Suite",
-            "Smoke"
+            "Session",
+            "permissions",
+            "CRUD"
         ],
         "locations": [
             "gcp:us-west2"
@@ -21,16 +21,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -43,16 +33,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -84,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile app",
+                "name": "Navigate to the mobile job list",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ MOBDEV }}"
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
                 },
                 "type": "goToUrl"
             },
@@ -96,10 +76,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the SSO login form to hydrate",
+                "name": "Wait for the job list",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 25
                 },
                 "type": "wait"
             },
@@ -108,159 +88,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type email",
+                "name": "Baseline: \"DATADOG MOBILE JOB\" is visible under Admin",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_EMAIL }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"email\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "DATADOG MOBILE JOB"
                 },
-                "type": "typeText"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Next\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Type password",
-                "noScreenshot": false,
-                "params": {
-                    "value": "{{ DATA_DOG_PASSWORD }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Submit\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Choose the \"development\" environment",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the app shell to mount after the env redirect",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test authenticated mobile shell rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the menu to read the session role",
+                "name": "Open the header menu",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -283,7 +123,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Guard: session role is exactly \"Admin\"",
+                "name": "Click Switch Crews",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -293,142 +133,271 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the menu",
+                "name": "Wait for the crew list",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "value": 2
                 },
-                "type": "pressKey"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.100_Nav_Asset_Lookup",
+                "name": "Select Admin 0100",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "bqj-mse-hma",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[contains(normalize-space(.), \"0100\")]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.110_Nav_Material_Lookup",
+                "name": "Submit the crew change",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "6cw-n6g-778",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Submit\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.120_Nav_Map",
+                "name": "Wait for the crew change to resync",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "hu8-ry9-e6c",
-                    "playingTabId": -1
+                    "value": 8
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.130_Nav_Transaction_Log",
+                "name": "Navigate to the mobile job list",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "9hz-hdv-vdd",
-                    "playingTabId": -1
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
                 },
-                "type": "playSubTest"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.140_Nav_Mobile_Jobs",
+                "name": "Wait for the job list to reload for the new crew",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "mdk-h4s-g3m",
-                    "playingTabId": -1
+                    "value": 25
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.150_Nav_Work_Orders",
+                "name": "PROOF: \"DATADOG MOBILE JOB\" is not visible to another crew",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "xjb-5za-3it",
-                    "playingTabId": -1
+                    "value": "DATADOG MOBILE JOB"
                 },
-                "type": "playSubTest"
+                "type": "assertPageLacks"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.160_Nav_Asset_Collector",
+                "name": "Open the header menu",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "rgh-gnr-wau",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.170_Nav_Dev_Logs",
+                "name": "Click Switch Crews",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "spi-745-suy",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.900_Online_Guard",
+                "name": "Wait for the crew list",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "gn2-txi-94i",
-                    "playingTabId": -1
+                    "value": 2
                 },
-                "type": "playSubTest"
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select Admin (restore)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[normalize-space(.)=\"Admin\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the crew change",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the crew change to resync",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the mobile job list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the job list to reload",
+                "noScreenshot": false,
+                "params": {
+                    "value": 25
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: \"DATADOG MOBILE JOB\" is visible again",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DATADOG MOBILE JOB"
+                },
+                "type": "assertPageContains"
             }
         ]
     }

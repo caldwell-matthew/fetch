@@ -244,7 +244,7 @@ a "Switch Crews — Close button" item testing a control that does not exist.
 
 **Evidence: Operational** (not a code bug — an environment hazard)
 
-Dev has at least `Admin`, `Admin (0000)` and `Admin 0100`. Only plain `Admin` can
+Dev has at least `Admin`, `Admin (0000)` and `Admin (0100)`. Only plain `Admin` can
 create/update work orders. Because **a Crew *is* a Role** in MentorTwo and permissions are
 aggregated from the groups linked to it, being on the wrong one silently removes abilities.
 
@@ -554,3 +554,219 @@ server does.
 *The distinction to carry forward: a UI-state assertion is only as strong as the callback it
 is coupled to. Check whether the close is inside `update()` (server-confirmed) or in a
 `.then()` on an un-awaited mutation (proves nothing) before trusting it.*
+
+---
+
+## 18. `SubmitButton` ignores the label its caller passes as children
+
+**Severity:** cosmetic · **Found:** 2026-08-12, building MOB.710 · **Source-read, not observed**
+
+`SubmitButton` renders its label from a prop, in the JSX child position:
+
+```jsx
+// mobile/components/ui/SubmitButton.tsx
+export default function SubmitButton({ isValid, buttonText = 'Submit', onClick, ...btnProps }) {
+    return <Button ... {...btnProps}>{buttonText}</Button>;
+}
+```
+
+`btnProps` carries `children` when a caller writes the label between the tags, but an
+explicit JSX child **wins over a spread `children` prop** — so a caller that passes its label
+as children gets `Submit` on screen instead. `EditForm` does exactly that:
+
+```jsx
+// AssetLookup/AssetLookupDetails/EditForm.tsx:63-70
+<SubmitButton isValid={validSubmit} onClick={...}>Update Asset</SubmitButton>
+```
+
+Callers that use the `buttonText` prop are unaffected.
+
+**Why it is filed here rather than fixed in a locator:** this is the same class of problem as
+`bugs_found.md` §9's silent no-op — the code reads as though it does one thing and renders
+another, and a test written from the source would assert a button label that never appears.
+That is precisely how MOB.600 spent three runs asserting a form had closed by looking for a
+button that read **"Create Asset"** when the real label was different.
+
+**What MOB.710 does about it:** it does not depend on the answer. The modal's submit is
+matched as `normalize-space(.)="Submit" or normalize-space(.)="Update Asset"`, scoped to the
+modal so the `or` cannot match two buttons; the General Info form's submit is matched by
+`@form="mobile-genInfo"`, which has no label dependency at all. **Not verified against a
+running page** — the locator was deliberately built so it did not have to be.
+
+---
+
+## 19. Event readings report success, update the timeline, and advance the progress bar without waiting for the server
+
+**Severity:** medium · **Found:** 2026-08-12, building MOB.550 · **Verified by run**
+
+`AssetVerificationEventReadings.onSubmit` (`EventReadings/index.tsx:57-106`):
+
+```js
+client.mutate({ mutation: CREATE_EVENT, context: { waitForKeys: [assetId] }, variables: { data: event } });
+// ...not awaited, no update(), no .then(), no onError
+if (events.length) {
+    setSubmitCount(c => c + 1);
+    toast.success('Event readings captured.');
+    client.writeQuery({ query: ASSET_EVENT_READING_HISTORY, ... });  // hand-written local entry
+}
+```
+
+The mutation is fired and dropped. The success toast, the `N of M recorded recently (in 24h)`
+progress bar, and the reading rendered beside its reading type **all** come from the local
+`writeQuery`, so a technician sees a complete, confident success for a reading the server may
+have rejected.
+
+**What makes this worse than §11's toast-before-mutation:** the fabricated state is *durable*.
+The Apollo cache is persisted to IndexedDB (`persistCache` + LocalForage, `graphql/index.tsx:146`),
+and nothing re-reads that query from the network:
+
+| | |
+|---|---|
+| `clearCache` (`AssetVerification/utils/index.ts:179`) | rewrites only `MOBILE_JOB_DETAILS` and `FETCH_MOBILE_JOB_TEST`; `assetEventReadingHistory` is a **root** field so `cache.gc()` keeps it |
+| the prefetch (`utils/index.ts:106-113`) | `apolloClient.query(...)` at the default **cache-first** policy — returns the local entry without a request |
+
+So a reading that never reached the server keeps displaying as recorded, across reloads and
+across resyncs, until the persisted cache is cleared. There is no in-app path back to the truth.
+
+**Verified, not inferred.** MOB.550 writes `4242`/`1337` and a *later* run — fresh browser
+profile, empty IndexedDB, history necessarily fetched from the server — reads them back. That
+run passed, so `CREATE_EVENT` **does** persist on the happy path. What is untested, and
+unprovable from the browser, is the failure path: nothing in the UI would distinguish it.
+
+**Suggested fix:** move the toast and the `writeQuery` into the mutation's `update()` (the
+pattern `InsertForm/index.tsx:163` already uses and §14 credits for MOB.300 being trustworthy),
+or await the mutation and surface an error. Either makes the displayed state mean something.
+
+---
+
+## 20. Submitting the search box silently discards every active structured filter
+
+**Severity:** high — silently wrong data · **Found:** 2026-08-12 · **Confirmed by run** (MOB.820)
+
+On Asset Lookup, applying a structured filter and then pressing Enter in the search box
+returns results that **ignore the filter**, while the UI continues to report the filter as
+active. A technician sees `Filters (1)` and a filtered-looking screen showing unfiltered data.
+
+`AssetLookup/index.tsx` sends the filter conditions in two places and they disagree:
+
+```js
+line  62  useQuery   query: { conditions: [...(props.query || query || [])] }   // WITH filters
+line 142  refetch    query: { conditions: [...(props.query ?? [])] }            // WITHOUT
+```
+
+`query` (lowercase, from `useFilterState`) is the structured-filter payload. `props.query` is
+only set when AssetLookup is **embedded** (the asset-picker flow), so on the standalone page
+it is `undefined` and the search form's `refetch` sends `conditions: []`.
+
+**Observed, not inferred.** MOB.820 filters on `Name contains ZZZZ-NO-SUCH-ASSET` (matching
+nothing), confirms `Pump 0102` is hidden, then searches for it:
+
+| step | result |
+|---|---|
+| baseline search, no filter | `Pump 0102` present ✓ |
+| apply non-matching filter | `Pump 0102` hidden ✓ |
+| submit the search box | `Filters (1)` still shown, **`Pump 0102` back in the results** ✗ |
+
+That last row is the bug: the filter is applied to the display and not to the query.
+
+**The race did not save it.** The same handler calls `setSearchText`, which is a `useQuery`
+variable, so a second request that *does* carry the filters is issued alongside the filter-less
+`refetch`. The filter-less response wins in practice — so reasoning from the two code paths
+alone ("maybe they cancel out") would have been wrong in the optimistic direction.
+
+**Suggested fix:** make line 142 match line 62 — `conditions: [...(props.query || query || [])]`.
+
+**Test status:** MOB.820 now asserts the **actual, buggy** behaviour so the suite stays green
+and the defect stays pinned. It is a characterization test: **when this bug is fixed, MOB.820
+will fail**, and its message says so. Do not "repair" it then — flip the assertions back to
+the correct behaviour and delete this entry.
+
+---
+
+## 21. The Permits tab renders a blank panel when there are no permits
+
+**Severity:** low (UX) · **Found:** 2026-08-12, building MOB.394 · **Source-read**
+
+`PermitsStats` (`WorkOrders/components/Permits.tsx:9-12`) maps straight over the list with no
+guard for the empty case:
+
+```jsx
+const PermitsStats = ({ permits }) => {
+    return (<>
+        {permits.map((s, i) => ( ...card... ))}
+    </>);
+};
+```
+
+With no permits it returns an empty fragment, so the tab opens onto **nothing** — no message,
+no placeholder. A technician cannot tell "this work order has no permits" apart from "the tab
+failed to load", which is exactly the ambiguity `bugs_found.md` §12 describes for
+unimplemented section types.
+
+**Every sibling tab handles this and Permits is the outlier:**
+
+| Tab | Empty state |
+|---|---|
+| Warranties | `No Warranties Found...` (`Warrenties.tsx:85`) |
+| Attributes | `No asset attributes found.` (`DetailPage/Attributes.tsx:81`) |
+| **Permits** | **nothing** |
+
+**Suggested fix:** match the siblings — `if (!permits.length) return <Text>No Permits
+Found...</Text>;`
+
+**Testing consequence, which is why this is filed rather than just noted:** an empty Permits
+tab gives a test nothing to assert beyond the tab being active, and asserting a blank panel is
+a check that cannot fail (trap 5). `MOB.394` is only meaningful because the repo owner added a
+real permit to the fixture on 2026-08-12. If that permit is ever removed, MOB.394 fails and
+the cause is fixture data, not code. Adding the empty-state text would also make the
+no-permits case testable in its own right.
+
+---
+
+## 22. `useMediaQuery` is called inside a loop callback, so segmented-control labels render nondeterministically
+
+**Severity:** medium (React correctness) · **Found:** 2026-08-12, debugging MOB.396 · **Source-read; NOT the cause of that failure — see Status**
+
+`SegmentedControlWithIcons` (`components/helper-components/SegmentedControlWithIcons/index.tsx:13-20`):
+
+```jsx
+export const SegmentedControlWithIcons = ({ options, minWidth, value: selectedValue, ...props }) => {
+    const showDisplayLabel = (value: string) => {
+        if (minWidth === undefined || minWidth === null) return true;
+        else if (minWidth && useMediaQuery(`(min-width: ${minWidth}px)`))   // ← hook, conditionally, in a callback
+            return true;
+        else return value === selectedValue;
+    };
+    ...options.map(({ value, icon, label }) => ({ label: showDisplayLabel(value) ? <div>…<span>{label}</span></div> : <Icon/> }))
+```
+
+`useMediaQuery` is a hook, but it is called from a plain function that runs **inside `.map()`**,
+and only on one branch. That breaks the Rules of Hooks twice over: the call is conditional, and
+it happens a variable number of times per render (once per option that reaches that branch).
+React's hook state is positional, so the values returned drift between renders.
+
+**Status: real, but NOT the cause of the failure it was filed from.** It was filed while
+debugging `MOB.396`, whose `All`-filter click failed where `MOB.545`'s identical one passed.
+Switching the locator to the radio input failed too — because the control is a Mantine
+`<SegmentedControl>` that presents as a **button**, not a `<label>`/`<input>` pair. The click
+was then removed entirely: `All` is the default filter the page lands on, so clicking it was
+always a no-op that could only ever fail. **Two theories (a trimmed readiness gate, then this
+one) were wrong before the simplest question got asked — does that click need to happen at
+all?**
+
+The hooks violation below is still a genuine defect found by reading the code; it is simply
+not what broke that test, and no test now depends on the label rendering.
+
+**Why it matters beyond tests:** the same nondeterminism decides what a technician sees. A
+control that sometimes shows `All / Unverified / Verified` and sometimes shows three bare icons
+is a usability problem, and the hook-order drift can affect any other hook in the component.
+
+**Suggested fix:** hoist the hook to the component body —
+`const wide = useMediaQuery(minWidth ? \`(min-width: ${minWidth}px)\` : '(min-width: 0px)');`
+then `showDisplayLabel = (value) => minWidth == null || wide || value === selectedValue;`
+
+**Test-side workaround already applied:** `dd_tools.av_job_gate` now matches the underlying
+radio input (`//label[.//input[@value="All"]]`), which is always present regardless of whether
+the text label rendered. **Do not go back to matching the visible text on any segmented
+control.** Note `build_verify_tests.py`'s `filt()` helper still uses the text form for
+MOB.500–530; those pass today but are exposed to the same flakiness.

@@ -41,7 +41,7 @@ STRUCTURED QUERY MECHANICS (AssetLookup)
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, HERE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import BASE, HERE, step, xpath_el, go, test, write, jsassert  # noqa: E402
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -101,10 +101,10 @@ write(test(
     "  useQuery variables and Apollo re-runs on change.",
     [
         go(LOOKUP_URL, "asset lookup"),
-        step("wait", "Wait for the page to mount", {"value": 5}),
+        step("wait", "Let the page begin loading", {"value": 2}),
         step("assertElementContent", 'Test the "Asset Lookup" page rendered',
              {"check": "contains", "value": "Asset Lookup",
-              "element": xpath_el(LOOKUP_URL, PAGE_TITLE)}),
+              "element": xpath_el(LOOKUP_URL, PAGE_TITLE)}, timeout=30),
 
         # -------- build a matching filter
         step("click", "Open the Filters drawer",
@@ -120,9 +120,9 @@ write(test(
         step("click", "Add the filter", {"element": xpath_el(LOOKUP_URL, ADD_FILTER)}),
         step("wait", "Wait for the filter to apply", {"value": 3}),
         step("pressKey", "Close the Filters drawer", {"value": "Escape"}),
-        step("wait", "Wait for the results to re-query", {"value": 6}),
+        step("wait", "Let the re-query start", {"value": 2}),
         step("assertElementPresent", f"PROOF: {ASSET} is a RESULT ROW, not just a filter pill",
-             {"element": xpath_el(LOOKUP_URL, result_row(ASSET))}),
+             {"element": xpath_el(LOOKUP_URL, result_row(ASSET))}, timeout=30),
 
         # -------- CLEAR FIRST, then test the negative in isolation.
         # The first version added a second, contradictory filter on the same field and
@@ -176,7 +176,13 @@ write(test(
 # ---------------------------------------------------------------- suite
 login_steps = json.load(
     open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-CHILDREN = ["MOB.530_AssetVerify_Search_Filter_Sort", "MOB.800_Search_StructuredQuery"]
+# Keep this list COMPLETE. MOB.810 was appended to the suite JSON by hand once, and the
+# next DD_FORCE=1 rebuild silently dropped it — the suite then ran green with the test
+# missing entirely, which is indistinguishable from it passing (trap 5 / trap 12).
+CHILDREN = ["MOB.530_AssetVerify_Search_Filter_Sort",
+            "MOB.800_Search_StructuredQuery",
+            "MOB.810_Search_Sort_Apply",
+            "MOB.820_Search_Filter_Then_Search"]   # keep COMPLETE - trap 12
 
 write(test(
     "MOB.996_Search_Suite",
@@ -198,3 +204,119 @@ write(test(
 ))
 
 print("wrote MOB.800 (structured query), MOB.996 (search suite)")
+
+
+# ---------------------------------------------------------------- sort, applied
+# THE LAST SB ITEM: "sort options, once".
+#
+# Labels are built as `${column.label} ${dir === 'ASC' ? '▲' : '▼'}`, so for MobileJob's
+# createdAt column they read exactly "Created At ▲" / "Created At ▼".
+#
+# WHAT THIS PROVES, AND WHAT IT DOES NOT
+#   Selecting a sort and reading it back proves the control accepts and RETAINS the choice -
+#   and because SortDropDown writes to sessionStorage (`mobile-MobileJob-sort`) while
+#   AssetVerification reads it on mount, navigating away and back proves the selection
+#   genuinely PERSISTS rather than just sitting in component state.
+#   It does NOT prove the list is ordered correctly. That needs two known records in a known
+#   order, and only one job in this list is known (Appendix D, Q7). Do not read more into a
+#   green run here than that.
+#
+# NB the assertion reads the control's own value, which is chrome (trap 5b). That is
+# legitimate HERE because the control's state is the thing under test - but it is the reason
+# this cannot stand in for an ordering assertion.
+JOBS_URL_ = BASE + "/asset-verify"
+WORK_URL_ = BASE + "/work"
+SORT_BTN_ = ('//button[.//*[@data-icon="sort-alt"'
+             ' or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ")'
+             ' or @data-icon="arrow-down-arrow-up"'
+             ' or contains(concat(" ", normalize-space(@class), " "),'
+             ' " fa-arrow-down-arrow-up ")]]')
+# `FormFieldContainer` uses its `id` as the LABEL's htmlFor, and SortDropDown passes
+# `id={''}` to the Select — so NO element carries id="mobile-MobileJob-sort". The first
+# version located on that id and found nothing. Scope to the modal instead.
+# ...and `//input` inside the modal matches MORE THAN ONE element (Mantine renders a hidden
+# companion input alongside the visible Select). Target the Select's own class.
+SORT_SELECT = ('//*[contains(concat(" ", normalize-space(@class), " "),'
+               ' " mantine-Modal-content ")][contains(., "Sort Criteria")]'
+               '//input[contains(concat(" ", normalize-space(@class), " "),'
+               ' " mantine-Select-input ")]')
+# Read the persisted sort straight out of sessionStorage. SortDropDown writes it there
+# (`mobile-<model>-sort`) and AssetVerification reads it back on mount, so this both proves
+# the selection took AND that it survives a page load - neither of which the UI exposes as
+# page text.
+SORT_STORED = ("const raw = sessionStorage.getItem('mobile-MobileJob-sort');\n"
+               "if (!raw) return false;\n"
+               "return JSON.parse(raw).label === '{}';")
+SORT_ASC = "Created At ▲"
+SORT_DESC = "Created At ▼"
+
+
+def open_sort():
+    return [
+        # POLLS for the sort button (timeout=40) instead of the caller sleeping 25s first.
+        # Datadog steps poll until their timeout - measured 58.2s against a 60s limit on
+        # 2026-08-13 - so a gate returns as soon as it is satisfied. See Appendix F.
+        step("click", "Open the sort dropdown", {"element": xpath_el(JOBS_URL_, SORT_BTN_)},
+             timeout=40),
+        step("wait", "Wait for the sort modal", {"value": 2}),
+        step("assertPageContains", "The Sort Criteria modal opened", {"value": "Sort Criteria"}),
+    ]
+
+
+def choose_sort(label):
+    return [
+        step("click", "Open the sort options",
+             {"element": xpath_el(JOBS_URL_, SORT_SELECT)}),
+        step("wait", "Wait for the sort options", {"value": 2}),
+        step("click", f'Pick "{label}"',
+             {"element": xpath_el(
+                 JOBS_URL_, f'//*[@role="option"][normalize-space(.)="{label}"]')}),
+        step("wait", "Wait for the sort to apply", {"value": 3}),
+        # SortDropDown calls setOpen(false) on selection, so the modal closes itself.
+        step("assertPageLacks", "The sort modal closed on selection",
+             {"value": "Sort Criteria"}),
+    ]
+
+
+write(test(
+    "MOB.810_Search_Sort_Apply",
+    "`MOB.810` Apply a sort and prove the choice persists.\n"
+    "- READ-ONLY.\n"
+    f"- Selects `{SORT_ASC}`, then navigates away and back and re-reads it — proving the\n"
+    "  choice survives a page load via `sessionStorage` (`mobile-MobileJob-sort`), not just\n"
+    "  that the dropdown accepted a click.\n"
+    "- Then switches to the descending option to show both directions are selectable.\n"
+    "- **Does NOT verify ordering.** That needs two known records in a known order and only\n"
+    "  one job in this list is known (Appendix D, Q7). A green run here means the control\n"
+    "  works, not that the list is sorted correctly.\n"
+    "- Leaves the sort set for the rest of the browser session. Harmless: no other subtest\n"
+    "  asserts on list order.",
+    [
+        go(JOBS_URL_, "the mobile job list"),
+        # 25s -> 5s: open_sort's click polls up to 40s, so the fixed sleep only has to cover
+        # initial paint. Appendix F conversion, 2026-08-13.
+        step("wait", "Let the page begin loading", {"value": 5}),
+    ] + open_sort() + choose_sort(SORT_ASC) + [
+        # Mantine Select shows the chosen label inside an <input>, and an input's value is a
+        # PROPERTY, not page text - assertPageContains can never see it (trap 9, the same
+        # mistake as the placeholder). Read the persisted value directly instead, which is
+        # also a stronger claim: it proves the write happened, not that a control looks right.
+        jsassert(f'The choice was persisted as "{SORT_ASC}"', SORT_STORED.format(SORT_ASC)),
+        # Navigate away and back: sessionStorage is what carries the choice across a mount.
+        go(WORK_URL_, "/work"),
+        step("wait", "Wait for the work list", {"value": 8}),
+        go(JOBS_URL_, "back to the mobile job list"),
+        # Kept at 5s rather than 0: the claim is that the choice survived a PAGE LOAD, so the
+        # page must actually have started loading before the assertion reads sessionStorage
+        # (which persists regardless and would otherwise pass instantly, proving less).
+        step("wait", "Let the page begin loading", {"value": 5}),
+        jsassert(f'PROOF: "{SORT_ASC}" survived a page load', SORT_STORED.format(SORT_ASC),
+                 timeout=40),
+    ] + open_sort() + choose_sort(SORT_DESC) + [
+        jsassert(f'The descending option applied ("{SORT_DESC}")',
+                 SORT_STORED.format(SORT_DESC)),
+    ],
+    TAGS + ["SB"],
+))
+
+print("wrote MOB.810 (sort applied + persisted)")

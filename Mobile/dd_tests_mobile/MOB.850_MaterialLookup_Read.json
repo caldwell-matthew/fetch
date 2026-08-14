@@ -1,16 +1,15 @@
 {
-    "test_name": "MOB.990_Smoke_Suite",
+    "test_name": "MOB.850_MaterialLookup_Read",
     "details": {
-        "name": "MOB.990_Smoke_Suite",
+        "name": "MOB.850_MaterialLookup_Read",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
+        "message": "`MOB.850` Storeroom dropdown and material search.\n- READ-ONLY. Selecting a storeroom and searching moves no stock.\n- Proves search with a matched pair: `Adamantium` must SHOW the fixture item, and a\n  non-matching term must HIDE it. The negative leg is what proves the search filters\n  rather than merely accepting text.\n- Typing APPENDS in Datadog, so the junk term is appended to the matching one instead\n  of needing a clear step.",
         "tags": [
             "Mobile",
             "env:dev",
-            "E2E",
-            "Suite",
-            "Smoke"
+            "Material Lookup",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -21,16 +20,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -43,16 +32,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -84,10 +63,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile app",
+                "name": "Navigate to material lookup",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ MOBDEV }}"
+                    "value": "https://dev.mentorapm.com/apm-mobile/material-lookup"
                 },
                 "type": "goToUrl"
             },
@@ -96,10 +75,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the SSO login form to hydrate",
+                "name": "Wait for the page to mount",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 6
                 },
                 "type": "wait"
             },
@@ -108,146 +87,42 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type email",
+                "name": "Test the \"Material Lookup\" page rendered",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_EMAIL }}",
+                    "check": "contains",
+                    "value": "Material Lookup",
                     "element": {
-                        "url": "https://dev.mentorapm.com/login",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//input[@name=\"email\"]"
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Material Lookup\")]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "typeText"
+                "type": "assertElementContent"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Next\"",
+                "name": "Test the storeroom dropdown renders",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/login",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Type password",
-                "noScreenshot": false,
-                "params": {
-                    "value": "{{ DATA_DOG_PASSWORD }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Submit\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Choose the \"development\" environment",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the app shell to mount after the env redirect",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test authenticated mobile shell rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "//*[@id=\"storeroomLocationId\"]"
                                 }
                             ]
                         }
@@ -260,17 +135,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the menu to read the session role",
+                "name": "Open the storeroom dropdown",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "//*[@id=\"storeroomLocationId\"]"
                                 }
                             ]
                         }
@@ -283,152 +158,166 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Guard: session role is exactly \"Admin\"",
+                "name": "Wait for storeroom options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick Central Storeroom",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Central Storeroom\")]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the menu",
+                "name": "Wait for the material list to load",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "value": 8
                 },
-                "type": "pressKey"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.100_Nav_Asset_Lookup",
+                "name": "Focus the material search",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "bqj-mse-hma",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.110_Nav_Material_Lookup",
+                "name": "Search for Adamantium",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "6cw-n6g-778",
-                    "playingTabId": -1
+                    "value": "Adamantium",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "typeText"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.120_Nav_Map",
+                "name": "Wait for the search debounce",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "hu8-ry9-e6c",
-                    "playingTabId": -1
+                    "value": 4
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.130_Nav_Transaction_Log",
+                "name": "PROOF: the search finds 000-000-000 Adamantium",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "9hz-hdv-vdd",
-                    "playingTabId": -1
+                    "value": "000-000-000 Adamantium"
                 },
-                "type": "playSubTest"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.140_Nav_Mobile_Jobs",
+                "name": "Append junk so the query cannot match",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "mdk-h4s-g3m",
-                    "playingTabId": -1
+                    "value": "ZZZZ-NO-SUCH-ITEM",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "typeText"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.150_Nav_Work_Orders",
+                "name": "Wait for the search debounce",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "xjb-5za-3it",
-                    "playingTabId": -1
+                    "value": 4
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.160_Nav_Asset_Collector",
+                "name": "PROOF: a non-matching search hides 000-000-000 Adamantium",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "rgh-gnr-wau",
-                    "playingTabId": -1
+                    "value": "000-000-000 Adamantium"
                 },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.170_Nav_Dev_Logs",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "spi-745-suy",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.900_Online_Guard",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "gn2-txi-94i",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
+                "type": "assertPageLacks"
             }
         ]
     }

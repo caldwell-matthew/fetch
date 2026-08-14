@@ -1,15 +1,15 @@
 {
-    "test_name": "MOB.520_AssetVerify_Asset_Tabs",
+    "test_name": "MOB.590_AssetVerify_Unverified_Tab",
     "details": {
-        "name": "MOB.520_AssetVerify_Asset_Tabs",
+        "name": "MOB.590_AssetVerify_Unverified_Tab",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.520` Expand an asset on the fixture job and step through all five data tabs.\n- READ-ONLY. Expanding an accordion row and switching tabs mutates nothing.\n- The tabs come from `AssetLookupDetails`, which HARDCODES them (`General Info \u00b7 Attributes \u00b7 Photos \u00b7 Docs \u00b7 Work History`) - they are NOT the\n  template-driven sections used by the `/asset/:id` detail route. `Work History` is\n  not even a `MobileJobTemplateSectionType`, which is how you can tell the two apart.\n- Asserts the tab strip and the active state on each tab, not panel contents: what a\n  panel renders depends on the asset having attributes / photos / work history, which\n  the fixture does not guarantee. Switching is the data-independent part.\n- Only one accordion row opens at a time (`Job.tsx` leaves Mantine's `multiple` off),\n  so exactly one tab strip exists and the by-name locators stay unique.",
+        "message": "`MOB.590` A verified asset disappears from **Unverified** and appears on **Verified**.\n- **SELF-RESTORING**: verifies, asserts, then unverifies. The restore legs are\n  `alwaysExecute`, so a failed assertion cannot leave the fixture with a verified asset \u2014\n  the fixture contract is *exactly 2 assets, neither verified*, and MOB.500/510 depend\n  on it.\n- Acts on **`Tank 0000` by name**: the checkbox is the one inside that asset's row.\n  MOB.510 uses `(//input[@type='checkbox'])[1]` \u2014 whichever asset happens to be first \u2014\n  which was unavoidable before Q7 and breaks silently if the sort changes.\n- The **negative** leg is the proof: absence from `Unverified` is what shows the filter\n  reflects verification state. Presence on `Verified` alone would also be satisfied by a\n  filter that does nothing.",
         "tags": [
             "Mobile",
             "env:dev",
             "Asset Verification",
-            "read-only"
+            "CRUD"
         ],
         "locations": [
             "gcp:us-west2"
@@ -243,7 +243,211 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"All\" filter",
+                "name": "BASELINE: Tank 0000 is present before verifying",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Tank 0000\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Verify Tank 0000",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Tank 0000\")]//input[@type=\"checkbox\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the verify mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the \"Unverified\" filter",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[.//span[normalize-space(.)=\"Unverified\"]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the list to re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: \"Tank 0000\" is GONE from the Unverified tab once verified",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tank 0000"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the \"Verified\" filter",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[.//span[normalize-space(.)=\"Verified\"]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the list to re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Tank 0000\" is on the Verified tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Tank 0000\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Unverify Tank 0000 from the Verified tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Tank 0000\")]//input[@type=\"checkbox\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the unverify mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch back to the \"All\" filter",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -259,49 +463,15 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the All list to re-render",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Expand the first asset row",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the asset detail panel to mount",
+                "name": "Wait for the list to restore",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -310,10 +480,10 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test a tab strip is rendered",
+                "name": "RESTORED: \"Tank 0000\" is listed again under All",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -323,303 +493,14 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"])[1]"
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Tank 0000\")]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"General Info\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"General Info\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Attributes\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Attributes\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Photos\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Photos\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Docs\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Docs\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Work History\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Work History\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
+                "type": "assertElementPresent",
+                "timeout": 30
             }
         ]
     }

@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.520_AssetVerify_Asset_Tabs",
+    "test_name": "MOB.580_AssetVerify_Sort_Ordering",
     "details": {
-        "name": "MOB.520_AssetVerify_Asset_Tabs",
+        "name": "MOB.580_AssetVerify_Sort_Ordering",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.520` Expand an asset on the fixture job and step through all five data tabs.\n- READ-ONLY. Expanding an accordion row and switching tabs mutates nothing.\n- The tabs come from `AssetLookupDetails`, which HARDCODES them (`General Info \u00b7 Attributes \u00b7 Photos \u00b7 Docs \u00b7 Work History`) - they are NOT the\n  template-driven sections used by the `/asset/:id` detail route. `Work History` is\n  not even a `MobileJobTemplateSectionType`, which is how you can tell the two apart.\n- Asserts the tab strip and the active state on each tab, not panel contents: what a\n  panel renders depends on the asset having attributes / photos / work history, which\n  the fixture does not guarantee. Switching is the data-independent part.\n- Only one accordion row opens at a time (`Job.tsx` leaves Mantine's `multiple` off),\n  so exactly one tab strip exists and the by-name locators stay unique.",
+        "message": "`MOB.580` **Sorting actually reorders the list** \u2014 the SB block's last open item.\n- READ-ONLY. Changes only the sort selection.\n- **Nothing in this suite proved this before.** MOB.340/530 prove the sort modal opens;\n  MOB.810 proves a choice persists to `sessionStorage`. Neither shows the rows came out\n  in that order. Doing so needs two records whose order is known in advance, which is\n  what Appendix D Q7 unblocked: `A/C Motor 0002` sorts before `Tank 0000` ascending.\n- The assertion compares **positions** and requires **both** assets to be found first,\n  so it cannot pass on an empty or half-rendered list (trap 5). *The first row is X* is\n  weaker \u2014 it passes when the second row is missing entirely.\n- Leaves the Asset sort set in `sessionStorage`. Harmless: every test that clicks an\n  asset now targets it **by name**, not by position.",
         "tags": [
             "Mobile",
             "env:dev",
             "Asset Verification",
-            "read-only"
+            "read-only",
+            "SB"
         ],
         "locations": [
             "gcp:us-west2"
@@ -243,7 +244,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"All\" filter",
+                "name": "Open the sort dropdown",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -253,20 +254,21 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//label[.//span[normalize-space(.)=\"All\"]]"
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the All list to re-render",
+                "name": "Wait for the sort modal",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -278,7 +280,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Expand the first asset row",
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -288,7 +302,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
                                 }
                             ]
                         }
@@ -301,7 +315,43 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the asset detail panel to mount",
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Name \u25b2\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25b2\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the list to re-order",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -313,30 +363,20 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test a tab strip is rendered",
+                "name": "PROOF (ascending): \"A/C Motor 0002\" is listed before \"Tank 0000\"",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"])[1]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')]\n  .map(e => e.textContent || '');\nconst a = items.findIndex(t => t.indexOf('A/C Motor 0002') !== -1);\nconst b = items.findIndex(t => t.indexOf('Tank 0000') !== -1);\nif (a < 0 || b < 0) return false;\nreturn a < b;"
                 },
-                "type": "assertElementPresent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"General Info\" tab",
+                "name": "Open the sort dropdown",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -346,7 +386,55 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
                                 }
                             ]
                         }
@@ -359,7 +447,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the options",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -371,7 +459,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"General Info\" tab is active",
+                "name": "Pick \"Name \u25bc\"",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -381,20 +469,46 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25bc\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Attributes\" tab",
+                "name": "Wait for the list to re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF (descending): the order REVERSED \u2014 \"Tank 0000\" now precedes \"A/C Motor 0002\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')]\n  .map(e => e.textContent || '');\nconst a = items.findIndex(t => t.indexOf('Tank 0000') !== -1);\nconst b = items.findIndex(t => t.indexOf('A/C Motor 0002') !== -1);\nif (a < 0 || b < 0) return false;\nreturn a < b;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -404,7 +518,55 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"]"
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
                                 }
                             ]
                         }
@@ -417,7 +579,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the options",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -429,7 +591,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Attributes\" tab is active",
+                "name": "Pick \"Name \u25b2\"",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -439,187 +601,39 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"][@data-active]"
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25b2\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Photos\" tab",
+                "name": "Wait for the list to re-order",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
+                    "value": 3
                 },
                 "type": "wait"
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Photos\" tab is active",
+                "name": "RESTORED: ascending order again",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')]\n  .map(e => e.textContent || '');\nconst a = items.findIndex(t => t.indexOf('A/C Motor 0002') !== -1);\nconst b = items.findIndex(t => t.indexOf('Tank 0000') !== -1);\nif (a < 0 || b < 0) return false;\nreturn a < b;"
                 },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Docs\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Docs\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Work History\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Work History\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.520_AssetVerify_Asset_Tabs",
+    "test_name": "MOB.870_MaterialLookup_Stocking",
     "details": {
-        "name": "MOB.520_AssetVerify_Asset_Tabs",
+        "name": "MOB.870_MaterialLookup_Stocking",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.520` Expand an asset on the fixture job and step through all five data tabs.\n- READ-ONLY. Expanding an accordion row and switching tabs mutates nothing.\n- The tabs come from `AssetLookupDetails`, which HARDCODES them (`General Info \u00b7 Attributes \u00b7 Photos \u00b7 Docs \u00b7 Work History`) - they are NOT the\n  template-driven sections used by the `/asset/:id` detail route. `Work History` is\n  not even a `MobileJobTemplateSectionType`, which is how you can tell the two apart.\n- Asserts the tab strip and the active state on each tab, not panel contents: what a\n  panel renders depends on the asset having attributes / photos / work history, which\n  the fixture does not guarantee. Switching is the data-independent part.\n- Only one accordion row opens at a time (`Job.tsx` leaves Mantine's `multiple` off),\n  so exactly one tab strip exists and the by-name locators stay unique.",
+        "message": "`MOB.870` Stock the fixture item through the **Stock Item** tab of the adjust modal.\n- \u26a0\ufe0f **LEAVES RESIDUE \u2014 NOT self-restoring.** Stocking only adds; there is no negative to\n  net it back. Every run raises `000-000-000 Adamantium`'s quantity by **1**, permanently. Accepted by\n  the repo owner 2026-08-12, same standing trade-off as MOB.600 / MOB.991 / MOB.987.\n  Kept at 1 so the drift stays slow. **Do not increase the amount.**\n- Distinct from **MOB.860**: same modal, different tab, different mutation\n  (`STOCK_STOREROOM_ITEM` vs the quantity adjustment) and different required fields.\n  Folding them together would make a failure ambiguous between two code paths.\n- **Both `Stocked Quantity` and `Unit Price` are required.** Filling only the quantity\n  leaves `SubmitButton` as `type=\"button\"` \u2014 a silent no-op with no error and no toast\n  (trap 8), which is exactly how `unitPrice` broke MOB.380. Read from\n  `stockingFormSchema` rather than assumed.\n- The modal closing is genuine proof: `close()` is inside the mutation's `update()` with\n  no `optimisticResponse` (`StockAdjustments.tsx:74-91`), so it only fires on a confirmed\n  server response (trap 6). That callback also writes the server's returned\n  `inventoryQuantity` back into the cache.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Asset Verification",
-            "read-only"
+            "Material Lookup",
+            "CRUD",
+            "residue"
         ],
         "locations": [
             "gcp:us-west2"
@@ -63,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to the mobile job list",
+                "name": "Navigate to material lookup",
                 "noScreenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                    "value": "https://dev.mentorapm.com/apm-mobile/material-lookup"
                 },
                 "type": "goToUrl"
             },
@@ -78,7 +79,7 @@
                 "name": "Wait for the page to mount",
                 "noScreenshot": false,
                 "params": {
-                    "value": 10
+                    "value": 6
                 },
                 "type": "wait"
             },
@@ -87,19 +88,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Mobile Jobs\" page mounted",
+                "name": "Test the \"Material Lookup\" page rendered",
                 "noScreenshot": false,
                 "params": {
                     "check": "contains",
-                    "value": "Mobile Jobs",
+                    "value": "Material Lookup",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Material Lookup\")]"
                                 }
                             ]
                         }
@@ -112,148 +113,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the lookup prefetch and batched detail downloads",
-                "noScreenshot": false,
-                "params": {
-                    "value": 25
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the job list rendered",
+                "name": "Open the storeroom dropdown",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the lookup prefetch finished (feeds schemaQuery)",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Fetching data for lookups"
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the batched job-detail downloads finished",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Fetching mobile job details"
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "FIXTURE GUARD: \"DATADOG MOBILE JOB\" is in this crew's list",
-                "noScreenshot": false,
-                "params": {
-                    "value": "DATADOG MOBILE JOB"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"DATADOG MOBILE JOB\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the job detail to render",
-                "noScreenshot": false,
-                "params": {
-                    "value": 5
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "ASSET LIST GUARD: the job's asset rows have rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent",
-                "timeout": 60
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"All\" filter",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//label[.//span[normalize-space(.)=\"All\"]]"
+                                    "value": "//*[@id=\"storeroomLocationId\"]"
                                 }
                             ]
                         }
@@ -266,7 +136,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the All list to re-render",
+                "name": "Wait for storeroom options",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -278,17 +148,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Expand the first asset row",
+                "name": "Pick Central Storeroom",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Central Storeroom\")]"
                                 }
                             ]
                         }
@@ -301,7 +171,113 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the asset detail panel to mount",
+                "name": "Wait for the material list to load",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the material search",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Adamantium",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Adamantium",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search debounce",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The fixture item is listed",
+                "noScreenshot": false,
+                "params": {
+                    "value": "000-000-000 Adamantium"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the stock modal for 000-000-000 Adamantium",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//tr[contains(normalize-space(.), \"000-000-000 Adamantium\")]//button[.//*[@data-icon=\"arrow-up-right-from-square\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-up-right-from-square \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the modal",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -313,40 +289,29 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test a tab strip is rendered",
+                "name": "The modal opened on the adjustment tab",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"])[1]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Current Quantity"
                 },
-                "type": "assertElementPresent"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"General Info\" tab",
+                "name": "Switch to the \"Stock Item\" tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
+                                    "value": "//label[normalize-space(.)=\"Stock Item\"]"
                                 }
                             ]
                         }
@@ -359,7 +324,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Wait for the stocking form",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -371,17 +336,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"General Info\" tab is active",
+                "name": "FIELD GUARD: the Stocked Quantity input rendered",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
+                                    "value": "//*[@id=\"quantity\"]"
                                 }
                             ]
                         }
@@ -394,17 +359,40 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Attributes\" tab",
+                "name": "FIELD GUARD: the Unit Price input rendered (REQUIRED \u2014 leaving it empty makes Submit a silent no-op)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"]"
+                                    "value": "//*[@id=\"unitPrice\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus Stocked Quantity",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"quantity\"]"
                                 }
                             ]
                         }
@@ -417,52 +405,41 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Stock a quantity of 1 (kept small \u2014 this is permanent)",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Attributes\" tab is active",
-                "noScreenshot": false,
-                "params": {
+                    "value": "1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"][@data-active]"
+                                    "value": "//*[@id=\"quantity\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "typeText"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Photos\" tab",
+                "name": "Focus Unit Price",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                    "value": "//*[@id=\"unitPrice\"]"
                                 }
                             ]
                         }
@@ -475,52 +452,41 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Enter a unit price of 1",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Photos\" tab is active",
-                "noScreenshot": false,
-                "params": {
+                    "value": "1",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"][@data-active]"
+                                    "value": "//*[@id=\"unitPrice\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "typeText"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Docs\" tab",
+                "name": "Submit the stocking form",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"]"
+                                    "value": "//button[normalize-space(.)=\"Submit\"]"
                                 }
                             ]
                         }
@@ -533,10 +499,34 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Brief wait for the toast",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Stocked toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Storeroom item stocked"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the stock mutation to settle",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
                 },
                 "type": "wait"
             },
@@ -545,81 +535,12 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Docs\" tab is active",
+                "name": "PROOF: the stocking was accepted \u2014 the modal closed, which only happens inside the mutation's update() with no optimisticResponse",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Current Quantity"
                 },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Work History\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Work History\" tab is active",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
+                "type": "assertPageLacks"
             }
         ]
     }

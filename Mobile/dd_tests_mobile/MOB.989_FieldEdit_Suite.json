@@ -1,16 +1,15 @@
 {
-    "test_name": "MOB.990_Smoke_Suite",
+    "test_name": "MOB.989_FieldEdit_Suite",
     "details": {
-        "name": "MOB.990_Smoke_Suite",
+        "name": "MOB.989_FieldEdit_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
+        "message": "Editing existing records \u2014 the write path every module has and none of the read-only\nsuites cover.\n- Both children MUTATE but are **self-restoring**: each writes a run-unique marker and\n  then restores `DATADOG FIXTURE`.\n- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose \u2014 that suite is documented as\n  read-only and safe to schedule, and quietly adding a mutating child to it would make\n  that promise false.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
-            "E2E",
-            "Suite",
-            "Smoke"
+            "field-edit",
+            "suite"
         ],
         "locations": [
             "gcp:us-west2"
@@ -318,10 +317,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.100_Nav_Asset_Lookup",
+                "name": "MOB.395_Work_GenInfo_Edit",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "bqj-mse-hma",
+                    "subtestPublicId": "u27-rct-k3q",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -331,10 +330,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.110_Nav_Material_Lookup",
+                "name": "MOB.710_AssetLookup_Field_Edit",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "6cw-n6g-778",
+                    "subtestPublicId": "qiv-neu-bkp",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
@@ -344,88 +343,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.120_Nav_Map",
+                "name": "MOB.545_AssetVerify_Attribute_Edit",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "hu8-ry9-e6c",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.130_Nav_Transaction_Log",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "9hz-hdv-vdd",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.140_Nav_Mobile_Jobs",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "mdk-h4s-g3m",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.150_Nav_Work_Orders",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "xjb-5za-3it",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.160_Nav_Asset_Collector",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "rgh-gnr-wau",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.170_Nav_Dev_Logs",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "spi-745-suy",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.900_Online_Guard",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "gn2-txi-94i",
+                    "subtestPublicId": "7y8-mba-vuf",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

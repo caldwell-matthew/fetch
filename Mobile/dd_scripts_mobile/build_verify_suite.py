@@ -19,7 +19,15 @@ from dd_tools import step, test, write, HERE  # noqa: E402
 
 login_steps = json.load(open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 CREDS = ("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD")
-CHILDREN = ["MOB.500_AssetVerify_Job_Read", "MOB.510_AssetVerify_Verify_Unverify"]
+# keep COMPLETE - a child missing here is silently dropped on the next DD_FORCE rebuild
+# and the suite then passes with the test ABSENT (trap 12). This list had drifted:
+# MOB.520 and MOB.560 were live in the JSON but missing here.
+CHILDREN = ["MOB.500_AssetVerify_Job_Read",
+            "MOB.510_AssetVerify_Verify_Unverify",
+            "MOB.520_AssetVerify_Asset_Tabs",
+            "MOB.560_AssetVerify_Counts_Badges",
+            "MOB.580_AssetVerify_Sort_Ordering",
+            "MOB.590_AssetVerify_Unverified_Tab"]
 
 write(test(
     "MOB.993_AssetVerify_Suite",

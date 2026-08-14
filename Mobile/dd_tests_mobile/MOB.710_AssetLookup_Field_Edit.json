@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.800_Search_StructuredQuery",
+    "test_name": "MOB.710_AssetLookup_Field_Edit",
     "details": {
-        "name": "MOB.800_Search_StructuredQuery",
+        "name": "MOB.710_AssetLookup_Field_Edit",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.800` Build a structured filter on Asset Lookup and prove it filters.\n- READ-ONLY. Filters are client state feeding query variables; nothing is written.\n- This is the **advanced** filter system, distinct from the simple search/sort in\n  MOB.530. It builds SERVER-SIDE query conditions, so a defect returns wrong data\n  rather than a visibly broken control.\n- Proves filtering with a matched pair: `name contains Pump 0102` must SHOW the asset,\n  and `name contains ZZZZ-NO-SUCH-ASSET` must HIDE it. The negative leg is the one that proves\n  the filter is actually applied rather than merely accepted.\n- Each leg runs with EXACTLY ONE filter active \u2014 the test clears between them. Adding a\n  second contradictory filter did not hide the asset, so multi-filter combination is\n  not AND as assumed; that is an open question, not something to build on.\n- The positive leg asserts on a RESULT ROW, not page text: the active-filter pill\n  echoes the value you filtered on, so page-contains would pass against zero results.\n- The drawer does not close itself after 'Add Filter' (`addFilter` only calls\n  `onChange`), so the test closes it. No re-search is needed: `filters` feeds the\n  useQuery variables and Apollo re-runs on change.",
+        "message": "`MOB.710` Edit a single field through the per-field pencil on Asset Lookup.\n- **SELF-RESTORING**: leg 1 writes `DD SYNTHETIC EDIT <runid>` to `Pump 0102`'s\n  description, leg 2 writes `DATADOG FIXTURE` back.\n- **This is the most reused edit surface in the app.** `AssetLookupDetails` is rendered\n  by Asset Lookup, by the Collector's asset details (`Details.tsx`), and by the asset\n  rows inside an Asset Verification job \u2014 so one test covers all three entry points.\n- **The closing modal proves nothing here.** `modal.close()` is called immediately after\n  a non-awaited `client.mutate`, outside `update()`\n  (`AssetLookupDetails/index.tsx:147-167`) \u2014 the untrustworthy half of trap 6. Each leg\n  re-navigates and reads the value back from a fresh query.\n- The read-back targets the **Description table cell**, not the page: the asset's\n  description is also rendered in the accordion header, so a page-level assertion would\n  be satisfied by chrome (trap 5b).\n- Only `name`, `desc`, `typeId` and `tagId` are visible by default \u2014 `RecordInfoTable`\n  persists the column selection in `localStorage`, and `typeId` is forced\n  `allowUpdate: false`, so `desc` is the natural editable target.\n- The pencil is icon-only: `faEdit` \u2192 `pen-to-square`, looked up rather than guessed\n  (trap 14), and scoped to the row whose label reads `Description`.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Search",
-            "read-only",
-            "StructuredQuery"
+            "CRUD",
+            "field-edit",
+            "Asset Lookup"
         ],
         "locations": [
             "gcp:us-west2"
@@ -22,6 +22,12 @@
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
                     "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
                 }
             ],
             "request": {
@@ -34,6 +40,12 @@
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
                     "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
                 }
             ],
             "set_cookie": ""
@@ -76,10 +88,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the page begin loading",
+                "name": "Wait for the page to mount",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 5
                 },
                 "type": "wait"
             },
@@ -88,33 +100,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Asset Lookup\" page rendered",
-                "noScreenshot": false,
-                "params": {
-                    "check": "contains",
-                    "value": "Asset Lookup",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementContent",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the Filters drawer",
+                "name": "Focus the search input",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -124,7 +110,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[contains(concat(\" \", normalize-space(@class), \" \"), \" asset-lookup-filter-button \")]"
+                                    "value": "//input[@name=\"asset-search\"]"
                                 }
                             ]
                         }
@@ -137,7 +123,125 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the drawer",
+                "name": "Search for Pump 0102",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Pump 0102",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter - there is no search button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test Pump 0102 is in the results",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Pump 0102"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand the first result",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the detail panel to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Description edit form (leg 1)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//tr[.//b[normalize-space(.)=\"Description\"]]//button[.//*[@data-icon=\"pen-to-square\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-pen-to-square \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the edit modal",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -149,7 +253,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the Filters drawer opened",
+                "name": "The edit modal opened on the Description field",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -159,7 +263,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add Filter\"]"
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"desc\"]"
                                 }
                             ]
                         }
@@ -172,7 +276,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Field select",
+                "name": "Focus the Description field",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -182,7 +286,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"fieldId\"]"
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"desc\"]"
                                 }
                             ]
                         }
@@ -195,10 +299,96 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for Field options",
+                "name": "Select the existing text (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the Description value",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC EDIT {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"desc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the edit",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[normalize-space(.)=\"Submit\" or normalize-space(.)=\"Update Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast to appear",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Description updated toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "updated"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the update mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
                 },
                 "type": "wait"
             },
@@ -207,56 +397,22 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Pick Field = \"Name\"",
+                "name": "Navigate to asset lookup",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
                 },
-                "type": "click"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Operator select",
+                "name": "Wait for the page to mount",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"operator\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for Operator options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
+                    "value": 5
                 },
                 "type": "wait"
             },
@@ -265,7 +421,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Pick Operator = \"contains\"",
+                "name": "Focus the search input",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -275,7 +431,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"contains\"]"
+                                    "value": "//input[@name=\"asset-search\"]"
                                 }
                             ]
                         }
@@ -288,7 +444,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Enter the value Pump 0102",
+                "name": "Search for Pump 0102",
                 "noScreenshot": false,
                 "params": {
                     "value": "Pump 0102",
@@ -299,7 +455,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"value\"]"
+                                    "value": "//input[@name=\"asset-search\"]"
                                 }
                             ]
                         }
@@ -312,45 +468,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Add the filter",
+                "name": "Submit the search (Enter - there is no search button)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add Filter\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the filter to apply",
-                "noScreenshot": false,
-                "params": {
-                    "value": 3
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Close the Filters drawer",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Escape"
+                    "value": "Enter"
                 },
                 "type": "pressKey"
             },
@@ -359,10 +480,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the re-query start",
+                "name": "Wait for the search results",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 8
                 },
                 "type": "wait"
             },
@@ -371,312 +492,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF: Pump 0102 is a RESULT ROW, not just a filter pill",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Pump 0102\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Reopen the Filters drawer",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[contains(concat(\" \", normalize-space(@class), \" \"), \" asset-lookup-filter-button \")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the drawer",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Clear the matching filter (Clear all is inside the drawer)",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Clear all\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the unfiltered re-query",
-                "noScreenshot": false,
-                "params": {
-                    "value": 4
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the Field select",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"fieldId\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for Field options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick Field = \"Name\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the Operator select",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"operator\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for Operator options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick Operator = \"contains\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"contains\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Enter a value that cannot match",
-                "noScreenshot": false,
-                "params": {
-                    "value": "ZZZZ-NO-SUCH-ASSET",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"value\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Add the non-matching filter",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add Filter\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the filter to apply",
-                "noScreenshot": false,
-                "params": {
-                    "value": 3
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Close the Filters drawer",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Escape"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the results to re-query",
-                "noScreenshot": false,
-                "params": {
-                    "value": 6
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "PROOF: the non-matching filter hides Pump 0102",
+                "name": "Test Pump 0102 is in the results",
                 "noScreenshot": false,
                 "params": {
                     "value": "Pump 0102"
                 },
-                "type": "assertPageLacks"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Reopen the Filters drawer to clear",
+                "name": "Expand the first result",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -686,7 +514,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[contains(concat(\" \", normalize-space(@class), \" \"), \" asset-lookup-filter-button \")]"
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
                                 }
                             ]
                         }
@@ -699,10 +527,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the drawer",
+                "name": "Wait for the detail panel to mount",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -711,7 +539,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Clear all filters",
+                "name": "PROOF: after a reload the description is no longer the baseline",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const row = [...document.querySelectorAll('tr')].find(t => {\n  const b = t.querySelector('b');\n  return b && b.textContent.trim() === 'Description';\n});\nif (!row || row.cells.length < 2) return false;\nreturn row.cells[1].textContent.trim() !== 'DATADOG FIXTURE';"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Description edit form (restore)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -721,7 +561,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Clear all\"]"
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//tr[.//b[normalize-space(.)=\"Description\"]]//button[.//*[@data-icon=\"pen-to-square\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-pen-to-square \")]]"
                                 }
                             ]
                         }
@@ -734,7 +574,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the clear",
+                "name": "Wait for the edit modal",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -746,10 +586,59 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the Filters drawer",
+                "name": "The edit modal opened on the Description field",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"desc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the Description field",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"desc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select the existing text (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
                 },
                 "type": "pressKey"
             },
@@ -758,10 +647,81 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the unfiltered re-query",
+                "name": "Type the Description value",
                 "noScreenshot": false,
                 "params": {
-                    "value": 6
+                    "value": "DATADOG FIXTURE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"desc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the edit",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[normalize-space(.)=\"Submit\" or normalize-space(.)=\"Update Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast to appear",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Description updated toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "updated"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the update mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
                 },
                 "type": "wait"
             },
@@ -770,12 +730,154 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "RESTORED: no filters remain",
+                "name": "Navigate to asset lookup",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Filters (0)"
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Pump 0102",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Pump 0102",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter - there is no search button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test Pump 0102 is in the results",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Pump 0102"
                 },
                 "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand the first result",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the detail panel to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the description cell reads exactly \"DATADOG FIXTURE\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const row = [...document.querySelectorAll('tr')].find(t => {\n  const b = t.querySelector('b');\n  return b && b.textContent.trim() === 'Description';\n});\nif (!row || row.cells.length < 2) return false;\nreturn row.cells[1].textContent.trim() === 'DATADOG FIXTURE';"
+                },
+                "type": "assertFromJavascript"
             }
         ]
     }

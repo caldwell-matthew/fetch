@@ -2,7 +2,7 @@
 
 WHY
   The account's role is shared mutable state between a human using the app and the test
-  suite, and three roles share the "Admin" prefix - "Admin", "Admin (0000)", "Admin 0100".
+  suite, and three roles share the "Admin" prefix - "Admin", "Admin (0000)", "Admin (0100)".
   Only plain "Admin" can create/update work orders. When the account drifts onto one of
   the others, CreateWorkButton renders null and the suite fails with a mystery "Affix
   button missing from the DOM" - which cost several rounds of misdiagnosis.
@@ -18,7 +18,7 @@ WHERE THE ROLE IS READABLE
         <Stack><div>Switch Crews</div><div ...>{role}</div></Stack>
   The burger is width-independent, so that is the reliable place to read it.
 
-  The assertion is an EXACT match on the role div, so "Admin 0100" and "Admin (0000)"
+  The assertion is an EXACT match on the role div, so "Admin (0100)" and "Admin (0000)"
   correctly fail it. Do not loosen this to contains().
 """
 import json, glob, os, sys

@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.990_Smoke_Suite",
+    "test_name": "MOB.987_EventReadings_Suite",
     "details": {
-        "name": "MOB.990_Smoke_Suite",
+        "name": "MOB.987_EventReadings_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
+        "message": "Event readings \u2014 meter capture on an asset.\n- \u26a0\ufe0f **LEAVES RESIDUE**: one `Event` record per leg, per run, and mobile is delete-free.\n- Kept OUT of `MOB.993_AssetVerify_Suite` on purpose: that suite is documented as\n  self-restoring, and adding this child would make that promise false.\n- **The first ever run FAILS its opening assertion by design** \u2014 that assertion proves\n  the server returned a reading written by a PREVIOUS run, and on run one there is none.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
-            "E2E",
-            "Suite",
-            "Smoke"
+            "Asset Verification",
+            "residue",
+            "suite"
         ],
         "locations": [
             "gcp:us-west2"
@@ -318,114 +318,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.100_Nav_Asset_Lookup",
+                "name": "MOB.550_AssetVerify_Event_Readings",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "bqj-mse-hma",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.110_Nav_Material_Lookup",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "6cw-n6g-778",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.120_Nav_Map",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "hu8-ry9-e6c",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.130_Nav_Transaction_Log",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "9hz-hdv-vdd",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.140_Nav_Mobile_Jobs",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "mdk-h4s-g3m",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.150_Nav_Work_Orders",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "xjb-5za-3it",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.160_Nav_Asset_Collector",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "rgh-gnr-wau",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.170_Nav_Dev_Logs",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "spi-745-suy",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.900_Online_Guard",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "gn2-txi-94i",
+                    "subtestPublicId": "xri-3es-pcs",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

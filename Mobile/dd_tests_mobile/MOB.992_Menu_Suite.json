@@ -4,7 +4,7 @@
         "name": "MOB.992_Menu_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.992` Hamburger menu: open/close, resync, Transaction Log route, crew modal\ndismissal. READ-ONLY - the mutating crew switch (MOB.200) and logout (MOB.440) are\ndeliberately excluded and run standalone.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.\n- Guards that the session role is exactly \"Admin\". The org has several\n  similarly-named roles and only this one can create/update work orders; drift\n  onto another otherwise surfaces as an unexplained missing control.\n- A wait sits between the environment picker and the shell assertion: choosing an\n  environment triggers a redirect into /apm-mobile, and asserting immediately races\n  the SPA mount. Observed failing while the very next step clicked the same burger\n  successfully.\n- The environment picker click is scoped to ACTIVE orgs only\n  (enviroment-btn--active). MultiLoginPage renders inactive orgs too, and\n  clicking one does not navigate - leaving the run stranded on /login/sso.",
+        "message": "`MOB.992` Hamburger menu: open/close, resync, Transaction Log route, crew modal\ndismissal. READ-ONLY - the mutating crew switch (MOB.200) and logout (MOB.440) are\ndeliberately excluded and run standalone.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -361,6 +361,32 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "4mk-rc8-wpu",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.450_Global_Back_Arrow",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "ae4-qv4-rmb",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.460_Global_Module_Resync",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "mqp-nhp-tgc",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

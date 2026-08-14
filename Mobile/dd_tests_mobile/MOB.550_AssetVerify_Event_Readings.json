@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.520_AssetVerify_Asset_Tabs",
+    "test_name": "MOB.550_AssetVerify_Event_Readings",
     "details": {
-        "name": "MOB.520_AssetVerify_Asset_Tabs",
+        "name": "MOB.550_AssetVerify_Event_Readings",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.520` Expand an asset on the fixture job and step through all five data tabs.\n- READ-ONLY. Expanding an accordion row and switching tabs mutates nothing.\n- The tabs come from `AssetLookupDetails`, which HARDCODES them (`General Info \u00b7 Attributes \u00b7 Photos \u00b7 Docs \u00b7 Work History`) - they are NOT the\n  template-driven sections used by the `/asset/:id` detail route. `Work History` is\n  not even a `MobileJobTemplateSectionType`, which is how you can tell the two apart.\n- Asserts the tab strip and the active state on each tab, not panel contents: what a\n  panel renders depends on the asset having attributes / photos / work history, which\n  the fixture does not guarantee. Switching is the data-independent part.\n- Only one accordion row opens at a time (`Job.tsx` leaves Mantine's `multiple` off),\n  so exactly one tab strip exists and the by-name locators stay unique.",
+        "message": "`MOB.550` Capture event readings (meter readings) on an asset.\n- \u26a0\ufe0f **LEAVES RESIDUE**: `CREATE_EVENT` creates a record per leg and mobile is\n  delete-free. Same accepted trade-off as MOB.600 / MOB.991.\n- **Every UI signal on this screen is fake.** `onSubmit` fires `client.mutate` without\n  awaiting it, then unconditionally shows the toast and hand-writes the reading into the\n  Apollo cache with `writeQuery`. Toast, counter and rendered value all appear even if\n  the server rejected the mutation (trap 6, `bugs_found.md` \u00a711).\n- **A reload cannot fix that here.** The cache is persisted to IndexedDB\n  (`persistCache` + LocalForage), `clearCache` does not evict `assetEventReadingHistory`\n  (a root field, so `gc()` keeps it), and the prefetch re-queries **cache-first** \u2014 so\n  nothing re-reads it from the server. Within one run, \"stored\" and \"cached locally\"\n  are indistinguishable.\n- **So the proof is the NEXT run.** Datadog starts each run with an empty profile, so\n  the opening assertion \u2014 that the field already shows `4242` or `1337` \u2014\n  can only be satisfied by data the **server** returned, written by a previous run.\n  **The first ever run fails that assertion, correctly**; it passes from the second on.\n  Accepting either value keeps a half-finished previous run from wedging the next one.\n- `filledInputs` is only recomputed on the form's `onBlur`, so a `Tab` keypress arms the\n  Submit button \u2014 without it the click is a silent no-op (trap 8).\n- Assertions read `textContent`, which cannot see an input's value, so they can never be\n  satisfied by the number just typed (trap 16).",
         "tags": [
             "Mobile",
             "env:dev",
+            "CRUD",
             "Asset Verification",
-            "read-only"
+            "residue"
         ],
         "locations": [
             "gcp:us-west2"
@@ -243,30 +244,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"All\" filter",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//label[.//span[normalize-space(.)=\"All\"]]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the All list to re-render",
+                "name": "Let the asset list settle on its default (All) filter",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -278,7 +256,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Expand the first asset row",
+                "name": "Open Tank 0000's full-page detail",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -288,7 +266,55 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                    "value": "(//span[contains(normalize-space(.), \"Tank 0000\")])[last()]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the asset detail route",
+                "noScreenshot": false,
+                "params": {
+                    "value": 6
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The full-page asset detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Asset Type:"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Event Readings tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Event Readings\")]"
                                 }
                             ]
                         }
@@ -301,7 +327,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the asset detail panel to mount",
+                "name": "Wait for the Event Readings panel",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -313,7 +339,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test a tab strip is rendered",
+                "name": "FIELD GUARD: the readings form rendered",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -323,7 +349,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"])[1]"
+                                    "value": "(//form[@id=\"av-event-readings\"]//input)[1]"
                                 }
                             ]
                         }
@@ -336,7 +362,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"General Info\" tab",
+                "name": "SERVER PROOF: a previous run's reading (4242 or 1337) came back from the server on a COLD cache",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const form = document.querySelector('#av-event-readings');\nif (!form) return false;\nconst boxes = form.querySelectorAll(':scope > div > div');\nconst first = boxes[0];\nif (!first) return false;\nconst txt = first.textContent || '';\nreturn ['4242', '1337'].some(v => txt.indexOf(v) !== -1);"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the first reading field (leg 1)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -346,7 +384,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
+                                    "value": "(//form[@id=\"av-event-readings\"]//input)[1]"
                                 }
                             ]
                         }
@@ -356,10 +394,46 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Enter a reading of 4242",
+                "noScreenshot": false,
+                "params": {
+                    "value": "4242",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//form[@id=\"av-event-readings\"]//input)[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tab out to trigger the form's onBlur (arms the Submit button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the blur handler re-render the footer",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -368,10 +442,10 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"General Info\" tab is active",
+                "name": "Submit the readings",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -381,30 +455,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Attributes\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"]"
+                                    "value": "//button[@form=\"av-event-readings\"]"
                                 }
                             ]
                         }
@@ -414,10 +465,10 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Brief wait for the toast",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -425,34 +476,47 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
-                "alwaysExecute": false,
+                "allowFailure": true,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Attributes\" tab is active",
+                "isCritical": false,
+                "name": "Readings captured toast (optional: transient, and it fires unconditionally)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Attributes\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Event readings captured."
                 },
-                "type": "assertElementPresent"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Photos\" tab",
+                "name": "Let the field remount with the new previous-entry",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The reading 4242 is now rendered as the field's previous entry (leg 1)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const form = document.querySelector('#av-event-readings');\nif (!form) return false;\nconst boxes = form.querySelectorAll(':scope > div > div');\nconst first = boxes[0];\nif (!first) return false;\nconst txt = first.textContent || '';\nreturn ['4242'].some(v => txt.indexOf(v) !== -1);"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the first reading field (leg 2 - leaves the known end state)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -462,7 +526,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                    "value": "(//form[@id=\"av-event-readings\"]//input)[1]"
                                 }
                             ]
                         }
@@ -472,10 +536,46 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Enter a reading of 1337",
+                "noScreenshot": false,
+                "params": {
+                    "value": "1337",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//form[@id=\"av-event-readings\"]//input)[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tab out to trigger the form's onBlur (arms the Submit button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the blur handler re-render the footer",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -484,10 +584,10 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Photos\" tab is active",
+                "name": "Submit the readings",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -497,30 +597,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Switch to the \"Docs\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"]"
+                                    "value": "//button[@form=\"av-event-readings\"]"
                                 }
                             ]
                         }
@@ -530,10 +607,10 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel to mount",
+                "name": "Brief wait for the toast",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -541,85 +618,40 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
-                "alwaysExecute": false,
+                "allowFailure": true,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test the \"Docs\" tab is active",
+                "isCritical": false,
+                "name": "Readings captured toast (optional: transient, and it fires unconditionally)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Docs\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Event readings captured."
                 },
-                "type": "assertElementPresent"
+                "type": "assertPageContains"
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Work History\" tab",
+                "name": "Let the field remount with the new previous-entry",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel to mount",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
+                    "value": 3
                 },
                 "type": "wait"
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Work History\" tab is active",
+                "name": "The reading 1337 is now rendered as the field's previous entry (leg 2 - leaves the known end state)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"][@data-active]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const form = document.querySelector('#av-event-readings');\nif (!form) return false;\nconst boxes = form.querySelectorAll(':scope > div > div');\nconst first = boxes[0];\nif (!first) return false;\nconst txt = first.textContent || '';\nreturn ['1337'].some(v => txt.indexOf(v) !== -1);"
                 },
-                "type": "assertElementPresent"
+                "type": "assertFromJavascript"
             }
         ]
     }

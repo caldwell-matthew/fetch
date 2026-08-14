@@ -36,6 +36,13 @@ def validate_api():
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # JSON Processing and Extracting 
+# TODO (found 2026-08-12 during a pre-delete backup): FILES ARE NAMED BY TEST NAME, SO
+# DUPLICATE NAMES SILENTLY OVERWRITE EACH OTHER. Datadog allows several tests to share a
+# name - this account has `000.000.000_RUN-1` x6 and `Mobile` x2 - so a "full" fetch of 321
+# tests wrote only 315 files and lost 6 of them without a warning. That makes the backup
+# quietly incomplete, which is worse than no backup because it looks trustworthy.
+# Fix: when a name collides, suffix with the public_id (e.g. `<name>__<public_id>.json`),
+# or always do so. Workaround used meanwhile: re-save the duplicates by public_id afterwards.
 def process_to_json(data, file_name, dir=MAIN_DIR):
     file_path = os.path.join(dir, file_name)
     # The API client returns datetime objects for created_at/modified_at, which json

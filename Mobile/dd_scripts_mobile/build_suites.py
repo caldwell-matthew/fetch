@@ -52,7 +52,17 @@ write(suite(
     "- MUTATES dev: MOB.300 creates a work order that cannot be deleted from mobile\n"
     "  (tagged 'DD SYNTHETIC MOBILE'), and MOB.320 changes the fixture's status before\n"
     "  reverting it to Ready. Consider running this on demand rather than on a schedule.",
-    ["MOB.300_Work_Create", "MOB.310_Work_Read", "MOB.320_Work_Status_Update"],
+    # COMPLETE, IN RUN ORDER. This list had drifted badly: it named only the first three
+    # while ten more (the detail tabs and every charge type) had been appended to the JSON by
+    # build_work_ui_tests / build_charge_tests / build_tab_tests. One DD_FORCE rebuild here
+    # would have silently deleted all ten and the suite would still have reported PASS -
+    # trap 12, and by far the largest instance of it found so far.
+    ["MOB.300_Work_Create", "MOB.310_Work_Read", "MOB.320_Work_Status_Update",
+     "MOB.330_Work_Detail_Tabs", "MOB.340_Work_Search_Sort",
+     "MOB.350_Work_Add_Equipment_Charge", "MOB.360_Work_Add_Labor_Charge",
+     "MOB.370_Work_Add_Material_Charge", "MOB.380_Work_Add_Other_Charge",
+     "MOB.390_Work_Add_Condition", "MOB.391_Work_Add_Failure",
+     "MOB.392_Work_Add_Note", "MOB.393_Work_Add_Form"],
     ["Mobile", "env:dev", "E2E", "Suite", "Work Order", "CRUD"],
 ))
 
@@ -61,10 +71,14 @@ write(suite(
     "`MOB.992` Hamburger menu: open/close, resync, Transaction Log route, crew modal\n"
     "dismissal. READ-ONLY - the mutating crew switch (MOB.200) and logout (MOB.440) are\n"
     "deliberately excluded and run standalone.",
+    # COMPLETE - MOB.450/460 are appended by build_chrome_tests.py, so they must be named
+    # here too or a rebuild of THIS script drops them (trap 12).
     ["MOB.400_Menu_Open_Close", "MOB.410_Menu_Resync", "MOB.420_Menu_Transaction_Log",
-     "MOB.430_Crew_Modal_Dismiss"],
+     "MOB.430_Crew_Modal_Dismiss", "MOB.450_Global_Back_Arrow",
+     "MOB.460_Global_Module_Resync"],
     ["Mobile", "env:dev", "E2E", "Suite", "Menu"],
 ))
 
 print("wrote MOB.990_Smoke_Suite, MOB.991_WorkOrders_Suite, MOB.992_Menu_Suite")
-print("MOB.999_Mobile_Suite is now superseded - left in place pending your call on deleting it")
+# MOB.999_Mobile_Suite was deleted from Datadog on 2026-08-07; the "pending your call"
+# message that used to print here outlived the decision by five days.
