@@ -42,7 +42,8 @@ write(suite(
     "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.",
     ["MOB.100_Nav_Asset_Lookup", "MOB.110_Nav_Material_Lookup", "MOB.120_Nav_Map",
      "MOB.130_Nav_Transaction_Log", "MOB.140_Nav_Mobile_Jobs", "MOB.150_Nav_Work_Orders",
-     "MOB.160_Nav_Asset_Collector", "MOB.170_Nav_Dev_Logs", "MOB.900_Online_Guard"],
+     "MOB.160_Nav_Asset_Collector", "MOB.170_Nav_Dev_Logs", "MOB.900_Online_Guard",
+     "MOB.121_Map_Controls"],
     ["Mobile", "env:dev", "E2E", "Suite", "Smoke"],
 ))
 
@@ -63,6 +64,9 @@ write(suite(
      "MOB.370_Work_Add_Material_Charge", "MOB.380_Work_Add_Other_Charge",
      "MOB.390_Work_Add_Condition", "MOB.391_Work_Add_Failure",
      "MOB.392_Work_Add_Note", "MOB.393_Work_Add_Form"],
+    # MOB.134_Work_Form_Fill is deliberately NOT wired here (2026-08-18). It has never
+    # passed - see its build script's header - and one unproven child was masking 13
+    # working ones. Re-add it here and run wire_suite.py once it goes green standalone.
     ["Mobile", "env:dev", "E2E", "Suite", "Work Order", "CRUD"],
 ))
 

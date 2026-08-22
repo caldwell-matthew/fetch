@@ -1,0 +1,380 @@
+{
+    "test_name": "MOB.470_Header_Status_Icons",
+    "details": {
+        "name": "MOB.470_Header_Status_Icons",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.470` The header's status icons, version string and crew shortcut (T3.2).\n- READ-ONLY. The crew modal is opened and dismissed with Escape; nothing is submitted,\n  so no crew changes (unlike `MOB.200`).\n- **The version string is the reason this test exists.** `Version: ` +\n  `window.__mentorapm.shortVersion` is the only place a synthetic run can see which\n  build is live \u2014 the cheapest real deploy signal available \u2014 and nothing asserted it.\n  Checked twice: the rendered prefix, and a JS read proving the value behind it is\n  non-empty, because `'Version: ' + undefined` still renders the prefix (trap 5).\n- **Network icon:** the ONLINE half is provable here (`wifi` present *and*\n  `wifi-slash` absent, so a component stuck offline fails). The offline half needs the\n  network toggled off \u2014 Appendix C.\n- **Pending-transaction icon:** `if (!count) return null`, and the count is always 0\n  while online, so the only online assertion is absence. That proves the `!count`\n  branch and nothing else \u2014 stated plainly rather than dressed up (trap 5).\n- **The upload icon is deliberately not tested.** It is rendered as\n  `{!!window.ReactNativeWebView && <UploadStatusIcon />}`, so it never mounts in a\n  browser (T1.7). The checklist had carried it as open work blocked on \"an in-flight\n  upload\"; the real blocker was one line higher up. The absence of the bridge is\n  asserted so that reasoning is checked, not assumed.\n- **The crew shortcut is a second entry point** to the modal `MOB.430` reaches from the\n  menu \u2014 `<span class=\"mobile-crew\">` beside the logo.\n- Icon names were **measured** (trap 14): `wifi`, `wifi-slash`, `upload`, `code-fork`.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Menu",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the mobile home page",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the app shell and GET_SESSION settle",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NETWORK: the online wifi icon is rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@data-icon=\"wifi\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-wifi \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NETWORK: the OFFLINE icon is not \u2014 the pair is what makes this a real check",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('[data-icon=\"wifi-slash\"], .fa-wifi-slash');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Sanity: the runner really is online (navigator.onLine)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return navigator.onLine === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PENDING TX: no upload icon while online \u2014 the `!count` branch",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('[data-icon=\"upload\"], .fa-upload');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The ReactNativeWebView bridge is absent, so UploadStatusIcon cannot mount",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !window.ReactNativeWebView;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the header menu",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "VERSION: the menu renders a version item",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Version: "
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "VERSION: it carries the code-fork icon",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@data-icon=\"code-fork\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-code-fork \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: the version has a real value \u2014 'Version: ' + undefined renders too",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = window.__mentorapm && window.__mentorapm.shortVersion;\nif (!v || !String(v).trim()) return false;\n// and the DOM must actually be showing that value, not just the prefix\nreturn (document.body.innerText || '').includes('Version: ' + v);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CREW SHORTCUT: the crew label is rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mobile-crew \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click the crew label beside the logo",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mobile-crew \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the RoleSelection modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: the crew shortcut opens the same RoleSelection modal as the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Submit"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Dismiss the modal without submitting \u2014 nothing changes",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: back on Home with the header intact",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@data-icon=\"wifi\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-wifi \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            }
+        ]
+    }
+}

@@ -4,7 +4,7 @@
         "name": "MOB.990_Smoke_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
+        "message": "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.\n- Includes **MOB.346_Work_Scheduled_View** (added 2026-08-18): read-only and self-restoring, so it belongs in a read-only suite. It toggles the work list between the scheduled and plain views via the hamburger item and restores the default, with the restore leg alwaysExecute.\n- Includes **MOB.171_DevLogs_Contents** (2026-08-20): the Dev Logs screen's controls. READ-ONLY and self-restoring \u2014 it clicks only Refresh, never `Clear Logs` (destructive) or `Email me the JSON` (POSTs to /api/attachment/email).\n- Includes **MOB.910_Offline_UI** (2026-08-21): dispatches a window `offline` event to flip `useNetwork` and asserts the UI's reaction, then restores with `alwaysExecute`. READ-ONLY. It does NOT prove the transaction queue \u2014 navigator.onLine never changes.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -426,6 +426,71 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "gn2-txi-94i",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.121_Map_Controls",
+                "noScreenshot": false,
+                "type": "playSubTest",
+                "params": {
+                    "subtestPublicId": "9nx-557-9c5",
+                    "playingTabId": -1
+                }
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.180_Home_Screen",
+                "noScreenshot": false,
+                "type": "playSubTest",
+                "params": {
+                    "subtestPublicId": "agr-zbt-jkf",
+                    "playingTabId": -1
+                }
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.346_Work_Scheduled_View",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "4gh-ted-cuw",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.171_DevLogs_Contents",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "ur9-zj5-mxc",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.910_Offline_UI",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "5m7-7rn-s37",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

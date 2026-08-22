@@ -84,8 +84,14 @@ def warm_cache_and_open():
         # Settle before asserting: coming off the heavy /work load, the detail view can lag.
         # Observed failing with `Page does not contain "Status:"` while MOB.310 - which
         # deep-links straight here without the warm-up - passed in the same run.
-        step("wait", "Wait for the detail view to render", {"value": 5}),
-        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}),
+        # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
+        # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
+        # gate returns as soon as it is satisfied. The 20s /work wait above is NOT convertible:
+        # it warms the lookup cache and its only readiness signals are negative (a `lacks` on a
+        # loading label is true before loading starts too) or a colour, which is not assertable.
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             timeout=30),
     ]
 
 

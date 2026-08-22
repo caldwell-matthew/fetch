@@ -26,8 +26,11 @@ CHILDREN = ["MOB.500_AssetVerify_Job_Read",
             "MOB.510_AssetVerify_Verify_Unverify",
             "MOB.520_AssetVerify_Asset_Tabs",
             "MOB.560_AssetVerify_Counts_Badges",
+            "MOB.570_AssetVerify_Asset_Cycling",
             "MOB.580_AssetVerify_Sort_Ordering",
-            "MOB.590_AssetVerify_Unverified_Tab"]
+            "MOB.590_AssetVerify_Unverified_Tab",
+            "MOB.131_Transaction_Log_Contents",
+            "MOB.575_AssetVerify_Failure_Condition_Forms"]
 
 write(test(
     "MOB.993_AssetVerify_Suite",

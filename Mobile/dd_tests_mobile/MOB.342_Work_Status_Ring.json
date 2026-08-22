@@ -1,0 +1,417 @@
+{
+    "test_name": "MOB.342_Work_Status_Ring",
+    "details": {
+        "name": "MOB.342_Work_Status_Ring",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.342` The work list's status ring and its clickable legend (T2.1).\n- READ-ONLY. `selectedStatus` is component state; nothing is written or persisted.\n- The analogue of `MOB.560`, which does this for the mobile job list.\n- **Withdrawn once and rebuilt.** The first version failed on a locator that was\n  correct \u2014 the crew's work list was empty (`bugs_found.md` \u00a725). Rebuilt after work\n  orders were assigned, and after re-measuring the list with the diagnostic probe\n  rather than assuming what was in it.\n- **The proof is a COMPUTED STYLE, and that is not a shortcut.** A work row never\n  renders its status as text \u2014 `listFieldsToDisplay` is `_assets` and `address` only \u2014\n  so status lives solely in the row's `borderLeft`. Every rendered row must be\n  `rgb(155, 203, 82)` (`STATUS_COLORS.Ready` = `#9BCB52`).\n- **This closes the `status badge colour` item**, which this checklist had guessed was\n  \"likely an honest `[-]`\". Colour is unreachable from an XPath, not from JS.\n- \u26a0\ufe0f **The exclusion half is NOT proven, and cannot be yet.** Every work order in the\n  crew's list is `Ready`, so the legend has one entry and there is no status to filter\n  to that would hide anything. A single-status list cannot distinguish \"filtered\n  correctly\" from \"did not filter at all\" (trap 5). **To complete it:** set one work\n  order to `In Progress`, then assert no row is Ready-green while that status is\n  selected.\n- \u26a0\ufe0f **Legend counts are NOT compared to rendered row counts.** Virtuoso virtualises the\n  list, so the DOM holds only what is on screen while the legend counts the whole set.\n  Measured as unequal; that is the component working, not a bug.\n- The count in `Ready (n)` is deliberately not matched \u2014 it tracks the crew's list.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 the work order list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the workstage pages and the lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The work list rendered its search box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 1/3: the initial fetch finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Retrieving assigned work"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 2/3: paging through workstages finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "workstages found"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 3/3: the per-stage detail downloads finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "workstages downloaded"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "WORK ROW GUARD: at least one work order rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"Description:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The status ring rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(@class,\"mantine-RingProgress-root\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The legend renders at least one `Status (n)` entry",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nreturn items.length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "A \"Ready (n)\" legend entry is present",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(normalize-space(.), \"Ready (\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: rows are rendered",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nreturn ROWS().length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select the Ready status in the legend",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(normalize-space(.), \"Ready (\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: the Ready entry now renders as SELECTED (Highlight emits a <mark>)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('li mark')]\n  .some(m => (m.textContent || '').includes('Ready'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: rows survive the Ready filter, and all are still Ready-green",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst rows = ROWS();\n// Non-vacuous: a filter that emptied the list would pass an all-match test.\nif (!rows.length) return false;\nreturn rows.every(r => getComputedStyle(r).borderLeftColor === 'rgb(155, 203, 82)');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Deselect Ready (the legend toggles)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//li[contains(normalize-space(.), \"Ready (\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list restore",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: nothing in the legend is marked selected",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('li mark')].length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the unfiltered list is back",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"Description:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            }
+        ]
+    }
+}

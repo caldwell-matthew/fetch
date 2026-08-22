@@ -4,7 +4,7 @@
         "name": "MOB.989_FieldEdit_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "Editing existing records \u2014 the write path every module has and none of the read-only\nsuites cover.\n- Both children MUTATE but are **self-restoring**: each writes a run-unique marker and\n  then restores `DATADOG FIXTURE`.\n- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose \u2014 that suite is documented as\n  read-only and safe to schedule, and quietly adding a mutating child to it would make\n  that promise false.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
+        "message": "Editing existing records \u2014 the write path every module has and none of the read-only\nsuites cover.\n- Both children MUTATE but are **self-restoring**: each writes a run-unique marker and\n  then restores `DATADOG FIXTURE`.\n- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose \u2014 that suite is documented as\n  read-only and safe to schedule, and quietly adding a mutating child to it would make\n  that promise false.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.\n- **MOB.134_Work_Form_Fill is permanently archived (2026-08-21).** Final attempt measured that typed text never reaches the field at all \u2014 see dd_tests_mobile/_archive/README.md. Do not re-wire it without new evidence.",
         "tags": [
             "Mobile",
             "env:dev",

@@ -4,7 +4,7 @@
         "name": "MOB.399_Work_Warranties",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.399` The **Warranties** tab renders its real content.\n- READ-ONLY. `WarrentyList` displays only; there is no form.\n- The fixture carries a **real warranty** (added by the repo owner 2026-08-12), so this\n  asserts actual content: `Expiration Date` for a Time warranty or `Exp. Reading` for a\n  reading-based one. **The `No Warranties Found...` empty state is deliberately NOT\n  accepted** \u2014 allowing it would leave an escape hatch that passes on a tab rendering\n  nothing (trap 5).\n- Separate from the red `Assets Related to the Work Order are under Warranty` banner,\n  which is driven by `hasActiveWarranties` and is not the tab.",
+        "message": "`MOB.399` The **Warranties** tab renders its real content.\n- READ-ONLY. `WarrentyList` displays only; there is no form.\n- The fixture carries a **real warranty** (added by the repo owner 2026-08-12), so this\n  asserts actual content: `Expiration Date` for a Time warranty or `Exp. Reading` for a\n  reading-based one. **The `No Warranties Found...` empty state is deliberately NOT\n  accepted** \u2014 allowing it would leave an escape hatch that passes on a tab rendering\n  nothing (trap 5).\n- **Also covers the red `Assets Related to the Work Order are under Warranty` banner**\n  (added 2026-08-20). It is driven by `hasActiveWarranties`, NOT by the tab, so the two\n  can legitimately disagree: the tab lists every warranty, the banner appears only while\n  one is still ACTIVE. The assertion is therefore a **consistency** check, not a\n  presence check \u2014 see the note in the generator.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -99,10 +99,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the detail view to render",
+                "name": "Let the detail view begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -116,7 +116,8 @@
                 "params": {
                     "value": "Status:"
                 },
-                "type": "assertPageContains"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -185,6 +186,18 @@
                 "noScreenshot": false,
                 "params": {
                     "code": "\nconst t = (document.body.textContent || '');\nreturn ['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading']\n  .some(k => t.indexOf(k) !== -1);\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BANNER: its presence agrees with whether a warranty is still active",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst BANNER = 'Assets Related to the Work Order are under Warranty';\nconst t = document.body.innerText || '';\nconst banner = t.indexOf(BANNER) !== -1;\nconst hasAnyWarranty = ['Expiration Date', 'Exp. Reading', 'Remaining Days']\n    .some(k => t.indexOf(k) !== -1);\nif (!hasAnyWarranty) return !banner;          // no warranties at all -> no banner\nconst days = [...t.matchAll(/Remaining Days:?\\s*(-?[0-9]+)/g)].map(m => parseInt(m[1], 10));\nif (!days.length) return true;                 // reading-based only: nothing parseable here\nconst anyLive = days.some(d => d > 0);\nreturn banner === anyLive;\n"
                 },
                 "type": "assertFromJavascript"
             }

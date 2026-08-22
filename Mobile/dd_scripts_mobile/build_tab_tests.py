@@ -82,8 +82,14 @@ def open_fixture():
         go(WORK_URL, "/work to warm the lookup cache"),
         step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
         go(STAGE_URL, "the fixture work order"),
-        step("wait", "Wait for the detail view to render", {"value": 5}),
-        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}),
+        # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
+        # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
+        # gate returns as soon as it is satisfied. The 20s /work wait above is NOT convertible:
+        # it warms the lookup cache and its only readiness signals are negative (a `lacks` on a
+        # loading label is true before loading starts too) or a colour, which is not assertable.
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             timeout=30),
     ]
 
 
@@ -250,25 +256,45 @@ write(test(
 ))
 
 # ---------------------------------------------------------------- forms
-# AdHocForm is its own form (id="adhoc-form", SubmitButton form="adhoc-form") and toasts
-# 'Form added' - NOT the 'Item added' used by the NewItemForm collections. Adding the form
-# is all this covers; opening the inserted form to fill it out is a separate flow, marked
-# TODO in the checklist.
+# MOB.393 WAS MUTATING AND IS NOW NOT - DO NOT PUT IT BACK.
+#   It used to add the `Inspection` form for real. AdHocForm's picker hides forms already
+#   attached (`!currentForms.has(name)`), so it passed exactly ONCE and then failed on every
+#   later run at "Pick Inspection" - trap 10, the test eating its own fixture. That kept the
+#   whole 13-child MOB.991 suite permanently red, which is worse than a missing test: a suite
+#   nobody expects to be green stops being read, and the other 12 results go unnoticed.
+#
+#   The repo owner chose the repeatable variant 2026-08-13: open the modal, prove the picker
+#   renders, cancel. It does NOT prove a form persists - but that proof only ever worked once,
+#   and the fixture still carries the `Inspection` form from that run, which MOB.134 now uses
+#   to cover the far more valuable fill-out flow.
 write(test(
     "MOB.393_Work_Add_Form",
-    "`MOB.393` Add a form to the fixture work order.\n"
-    "- Single field (`formId`), picked by text.\n"
-    "- Uses its own form id (`adhoc-form`) and its own toast text ('Form added'), unlike\n"
-    "  the NewItemForm-based collections which use 'Item added'.\n"
-    "- SCOPE: only covers INSERTING the form. Clicking through to fill the inserted form\n"
-    "  out is a separate flow and is deliberately not covered here.\n"
-    f"- MUTATES: adds a permanent form to {FIXTURE_ID} on every run.",
+    "`MOB.393` The **add-form** modal opens and offers its picker.\n"
+    "- **READ-ONLY BY DESIGN — do not make it submit again.** It used to add the `Inspection`\n"
+    "  form for real, and AdHocForm hides forms already attached, so it passed once and then\n"
+    "  failed forever at *Pick Inspection* (trap 10), keeping all of `MOB.991` red.\n"
+    "- What it proves: the Forms tab opens, the add modal opens, and the form picker renders\n"
+    "  with options. What it does NOT prove: that adding one persists.\n"
+    "- The fill-out flow — which is the valuable half — is covered by **MOB.134**, using the\n"
+    "  `Inspection` form this test attached on its single successful run.",
     open_fixture() + [
-        step("click", "Open the Forms tab", {"element": xpath_el(STAGE_URL, tab("Form"))}),
-        step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
-        *lookup("formId", "form", FORM_NAME),
-    ] + submit_and_assert(SUBMIT_ADHOC, toast="Form added"),
-    TAGS + ["Forms"],
+        step("click", "Open the Forms tab", {"element": xpath_el(STAGE_URL, tab("Form"))},
+             timeout=30),
+        step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)},
+             timeout=30),
+        step("wait", "Wait for the modal", {"value": 2}),
+        step("assertElementPresent", "PROOF: the form picker rendered",
+             {"element": xpath_el(STAGE_URL, '//*[@id="formId"]')}, timeout=30),
+        step("click", "Open the picker",
+             {"element": xpath_el(STAGE_URL, '//*[@id="formId"]')}, timeout=30),
+        step("wait", "Wait for options", {"value": 2}),
+        step("assertElementPresent", "PROOF: the picker offers at least one form",
+             {"element": xpath_el(STAGE_URL, '(//*[@role="option"])[1]')}, timeout=30),
+        step("pressKey", "Cancel without adding", {"value": "Escape"}, always=True),
+        step("wait", "Let the modal close", {"value": 2}, always=True),
+        step("pressKey", "Close the add modal", {"value": "Escape"}, always=True),
+    ],
+    TAGS + ["Forms", "read-only"],
 ))
 
 print("wrote MOB.390 (condition), MOB.391 (failure), MOB.392 (note), MOB.393 (form)")

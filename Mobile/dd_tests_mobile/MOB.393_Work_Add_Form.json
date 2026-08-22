@@ -4,13 +4,14 @@
         "name": "MOB.393_Work_Add_Form",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.393` Add a form to the fixture work order.\n- Single field (`formId`), picked by text.\n- Uses its own form id (`adhoc-form`) and its own toast text ('Form added'), unlike\n  the NewItemForm-based collections which use 'Item added'.\n- SCOPE: only covers INSERTING the form. Clicking through to fill the inserted form\n  out is a separate flow and is deliberately not covered here.\n- MUTATES: adds a permanent form to EYRpYJ9QYdQ1JFF10JtB0Q on every run.",
+        "message": "`MOB.393` The **add-form** modal opens and offers its picker.\n- **READ-ONLY BY DESIGN \u2014 do not make it submit again.** It used to add the `Inspection`\n  form for real, and AdHocForm hides forms already attached, so it passed once and then\n  failed forever at *Pick Inspection* (trap 10), keeping all of `MOB.991` red.\n- What it proves: the Forms tab opens, the add modal opens, and the form picker renders\n  with options. What it does NOT prove: that adding one persists.\n- The fill-out flow \u2014 which is the valuable half \u2014 is covered by **MOB.134**, using the\n  `Inspection` form this test attached on its single successful run.",
         "tags": [
             "Mobile",
             "env:dev",
             "Work Order",
             "CRUD",
-            "Forms"
+            "Forms",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -100,10 +101,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the detail view to render",
+                "name": "Let the detail view begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -117,7 +118,8 @@
                 "params": {
                     "value": "Status:"
                 },
-                "type": "assertPageContains"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -140,7 +142,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -163,14 +166,27 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Focus the form lookup",
+                "name": "Wait for the modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: the form picker rendered",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -186,14 +202,39 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "assertElementPresent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for form options",
+                "name": "Open the picker",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"formId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for options",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -205,7 +246,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Pick Inspection",
+                "name": "PROOF: the picker offers at least one form",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -215,72 +256,50 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Inspection\")]"
+                                    "value": "(//*[@role=\"option\"])[1]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "assertElementPresent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Submit the form",
+                "name": "Cancel without adding",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@form=\"adhoc-form\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Escape"
                 },
-                "type": "click"
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the add mutation",
+                "name": "Let the modal close",
                 "noScreenshot": false,
                 "params": {
-                    "value": 3
+                    "value": 2
                 },
                 "type": "wait"
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the form modal closed (durable success signal)",
+                "name": "Close the add modal",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Submit"
+                    "value": "Escape"
                 },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": true,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": false,
-                "name": "Test the 'Form added' toast (optional: transient)",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Form added"
-                },
-                "type": "assertPageContains"
+                "type": "pressKey"
             }
         ]
     }

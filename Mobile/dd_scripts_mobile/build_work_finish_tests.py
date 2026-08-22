@@ -71,8 +71,14 @@ def open_work_detail():
         go(WORK_URL, "/work to warm the lookup cache"),
         step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
         go(WORK_DETAIL, "the fixture work order"),
-        step("wait", "Wait for the detail view to render", {"value": 5}),
-        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}),
+        # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
+        # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
+        # gate returns as soon as it is satisfied. The 20s /work wait above is NOT convertible:
+        # it warms the lookup cache and its only readiness signals are negative (a `lacks` on a
+        # loading label is true before loading starts too) or a colour, which is not assertable.
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             timeout=30),
     ]
 
 
@@ -153,9 +159,9 @@ write(test(
     av_job_gate(JOB_ID) + [
         step("click", f"Open {FIXTURE_ASSET}'s full-page detail",
              {"element": xpath_el(JOB_DETAIL, ASSET_LINK)}),
-        step("wait", "Wait for the asset detail route", {"value": 6}),
+        step("wait", "Let the asset detail route begin rendering", {"value": 2}),
         step("assertPageContains", "The full-page asset detail rendered",
-             {"value": "Asset Type:"}),
+             {"value": "Asset Type:"}, timeout=30),
         step("click", 'Click "Add Work"',
              {"element": xpath_el(
                  JOB_DETAIL, '//button[contains(normalize-space(.), "Add Work")]')}),
@@ -297,6 +303,36 @@ return ['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading']
   .some(k => t.indexOf(k) !== -1);
 """
 
+# THE BANNER IS NOT THE TAB, and asserting it bare would be a time bomb.
+# `WorkDetails.tsx:80` shows the red Alert when `hasActiveWarranties(workStage)` holds, which
+# needs a warranty that is still live - `expirationDate > now` for a time warranty, or
+# `currentReading < expirationReading` for a reading-based one. The Warranties TAB, by
+# contrast, lists warranties whether or not they have expired.
+#
+# So "the banner is present" is not a safe assertion: the day the fixture's warranty expires
+# it would fail, and the failure would say nothing about the code. Assert the CONSISTENCY of
+# the two instead - whichever way the fixture falls, one of the branches must hold, and a
+# banner that appears with no warranty (or vanishes with a live one) fails either way. This
+# is the same exclusive-or shape MOB.720 uses, and it cannot rot.
+#
+# `Remaining Days` is rendered per warranty by WarrentyList; a positive value means live.
+# The parse is deliberately forgiving - if no number can be read, the check falls back to
+# asserting only that the banner does not appear on a tab with NO warranties at all, which is
+# still a real (if weaker) statement rather than a vacuous one.
+WARRANTY_BANNER = """
+const BANNER = 'Assets Related to the Work Order are under Warranty';
+const t = document.body.innerText || '';
+const banner = t.indexOf(BANNER) !== -1;
+const hasAnyWarranty = ['Expiration Date', 'Exp. Reading', 'Remaining Days']
+    .some(k => t.indexOf(k) !== -1);
+if (!hasAnyWarranty) return !banner;          // no warranties at all -> no banner
+const days = [...t.matchAll(/Remaining Days:?\\s*(-?[0-9]+)/g)].map(m => parseInt(m[1], 10));
+if (!days.length) return true;                 // reading-based only: nothing parseable here
+const anyLive = days.some(d => d > 0);
+return banner === anyLive;
+"""
+
+
 write(test(
     "MOB.399_Work_Warranties",
     "`MOB.399` The **Warranties** tab renders its real content.\n"
@@ -306,8 +342,11 @@ write(test(
     "  reading-based one. **The `No Warranties Found...` empty state is deliberately NOT\n"
     "  accepted** — allowing it would leave an escape hatch that passes on a tab rendering\n"
     "  nothing (trap 5).\n"
-    "- Separate from the red `Assets Related to the Work Order are under Warranty` banner,\n"
-    "  which is driven by `hasActiveWarranties` and is not the tab.",
+    "- **Also covers the red `Assets Related to the Work Order are under Warranty` banner**\n"
+    "  (added 2026-08-20). It is driven by `hasActiveWarranties`, NOT by the tab, so the two\n"
+    "  can legitimately disagree: the tab lists every warranty, the banner appears only while\n"
+    "  one is still ACTIVE. The assertion is therefore a **consistency** check, not a\n"
+    "  presence check — see the note in the generator.",
     open_work_detail() + [
         step("click", 'Open the "Warranties" tab',
              {"element": xpath_el(WORK_DETAIL, tab("Warranties"))}),
@@ -316,6 +355,8 @@ write(test(
              {"element": xpath_el(WORK_DETAIL, tab("Warranties") + "[@data-active]")}),
         jsassert("PROOF: the panel rendered warranty content or its empty state, "
                  "not a blank tab", WARRANTY_CONTENT),
+        jsassert("BANNER: its presence agrees with whether a warranty is still active",
+                 WARRANTY_BANNER),
     ],
     ["Mobile", "env:dev", "Work Order", "read-only"],
 ))
@@ -364,9 +405,22 @@ login_steps = json.load(
 # job's filter control twice while running second; MOB.545 does the identical thing and
 # passes when nothing has visited /work before it. Running it first is the experiment AND,
 # if it works, the fix. Do not reorder this list for tidiness.
+#
+# ⚠️ KEEP THIS LIST IN SYNC WITH THE JSON. On 2026-08-20 regenerating this script SILENTLY
+# DROPPED FIVE CHILDREN - MOB.341/342/343/344/345 - because they had been wired into
+# MOB.986's JSON directly and never back-ported here. Nothing warned; the suite simply came
+# out five subtests shorter, and only a diff against a backup caught it. That is trap 19 in
+# the direction people do not expect: the JSON ahead of the generator, not behind it.
+# Before regenerating ANY suite, diff its children against the JSON:
+#     python3 -c "import json;d=json.load(open('MOB.986_WorkOrders_Extra_Suite.json'))\
+#       ['details'];print([s['name'] for s in d['steps'] if 'subtestPublicId' in (s.get('params') or {})])"
 CHILDREN = ["MOB.396_Work_Create_From_Asset", "MOB.394_Work_Permits",
             "MOB.397_Work_Assign_Followup", "MOB.398_Work_Assign_Stage_Modal",
-            "MOB.399_Work_Warranties"]
+            "MOB.399_Work_Warranties", "MOB.122_Map_Create_Work",
+            # the work LIST tests, added to the JSON 2026-08-18 and back-ported here 08-20
+            "MOB.341_Work_Map_Toggle", "MOB.343_Work_List_Search_Filter",
+            "MOB.344_Work_List_Row_Navigate", "MOB.342_Work_Status_Ring",
+            "MOB.345_Work_Sort_Persist"]
 
 write(test(
     "MOB.986_WorkOrders_Extra_Suite",
@@ -374,7 +428,7 @@ write(test(
     "- ⚠️ **LEAVES RESIDUE**: MOB.396 and MOB.397 each create a real work order per run.\n"
     "  MOB.398 and MOB.399 are read-only.\n"
     "- Kept separate from `MOB.991_WorkOrders_Suite` so a slow, residue-heavy set can be run\n"
-    "  on its own — 991 is already 13 children.\n"
+    "  on its own — and because 991 is at Datadog's execution ceiling (Appendix F0).\n"
     "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
     "  run wire_suite.py after pushing them.",
     login_steps + [step("playSubTest", c,

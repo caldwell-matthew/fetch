@@ -99,10 +99,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the detail view to render",
+                "name": "Let the detail view begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -116,7 +116,8 @@
                 "params": {
                     "value": "Status:"
                 },
-                "type": "assertPageContains"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

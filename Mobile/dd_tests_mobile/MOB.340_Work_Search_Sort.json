@@ -99,10 +99,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the work list to finish downloading",
+                "name": "Let the work list begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 10
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -127,7 +127,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

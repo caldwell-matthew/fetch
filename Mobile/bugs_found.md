@@ -14,6 +14,50 @@ Each entry says how strongly it is evidenced, because that varies a lot:
 
 ---
 
+## Index
+
+*Re-verified against `MentorTwo@5cdeece5b7` (development, 2026-08-20) where the check was
+cheap — those rows say **confirmed**. The rest were not re-read and may have been fixed since
+they were written; treat them as leads, not as current facts.*
+
+⚠️ **Do not renumber.** `testing_checklist.md` cross-references §1, §4, §9, §10, §11, §14,
+§20, §21, §23, §24, §25 and §26 by number. **§15–§17 do not exist** — they never did, and
+nothing references them; the gap is not a missing entry.
+
+| § | Finding | Evidence | Status |
+|---|---|---|---|
+| 1 | Lookup searches are case-sensitive (pattern, not one-off) | Runtime | open — tests route around it |
+| 2 | `CreateWorkButton` reads the session non-reactively | Source | ⚠️ re-check — a `useQuery` now sits alongside the `readQuery` |
+| 3 | Crew shortcut invisible at phone width | Source | open, **unexercised** — needs the phone-width test T1.4 blocks on |
+| 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | **confirmed** — 0 imports |
+| 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | open |
+| 4c | Adding a form is self-degrading — succeeds only once | Runtime | open — why `MOB.393` is read-only |
+| 5 | Created work orders are not crew-assigned | Runtime | open |
+| 6 | Crew and logout modals have no close control | Source | **confirmed** — `withCloseButton: false` |
+| 7 | Several roles share the `Admin` prefix with different permissions | Operational | open — load-bearing for the role guards |
+| 8 | `hooks/NetworkStatus.tsx` is an empty file | Source | **confirmed** — still 0 bytes |
+| 9 | An invalid form submits silently | Source | **confirmed** — now asserted directly by `MOB.347` |
+| 10 | Mobile job status only moves forward | Runtime | open — blocks 4 items |
+| 11 | Verification toast fires before the mutation | Source | open |
+| 12 | Asset detail route implements 6 of 15 template section types | Source | **confirmed** — still 6 |
+| 13 | Escape discards the whole new-asset form | Source | open |
+| 14 | Browser-originated attachments fail the whole collect | Runtime | open — blocks all attachment coverage |
+| 18 | `SubmitButton` ignores the label passed as children | Source | **confirmed** — `buttonText` only |
+| 19 | Event readings report success without waiting for the server | Source | open |
+| 20 | Submitting search discards active structured filters | Runtime | open — `MOB.820` characterises it |
+| 21 | Permits tab renders blank with no permits | Source | **confirmed** — no empty state |
+| 22 | `useMediaQuery` inside a loop callback | Source | open |
+| 23 | `HomeWidgets` hardcodes counts / queries the wrong thing | Source | **confirmed** — dead code, 0 imports |
+| 24 | `Supersesed` misspelling in the status legend | Source | **confirmed** — `StatusSummary/index.tsx:47` |
+| 25 | The `Admin` crew's work list is empty on dev | Operational | 🔄 **SUPERSEDED 2026-08-20** — work orders were assigned; see the entry |
+| 26 | Asset Type edits on the AV detail "save" and revert | Runtime | **open — highest severity here** |
+
+**If you fix one, mark it here rather than deleting the entry** — several are referenced from
+the checklist as the reason a test is shaped the way it is, and a deleted entry turns that
+reasoning into a dangling pointer.
+
+---
+
 ## 1. Several lookup searches are case-sensitive (pattern, not one-off)
 
 **Evidence: Runtime** · `LaborCharges.tsx`, `Conditions/Form.tsx`
@@ -770,3 +814,290 @@ radio input (`//label[.//input[@value="All"]]`), which is always present regardl
 the text label rendered. **Do not go back to matching the visible text on any segmented
 control.** Note `build_verify_tests.py`'s `filt()` helper still uses the text form for
 MOB.500–530; those pass today but are exposed to the same flakiness.
+
+---
+
+## 23. `HomeWidgets` hardcodes the work-order count, and queries mobile jobs for both cards
+
+*Found 2026-08-18, by reading `client/mobile/routing/HomeWidgets.tsx`. **Dead code today** —
+see the severity note — but recorded because it is one import away from shipping.*
+
+`routing/HomeWidgets.tsx` exports two dashboard cards, `AssetVerificationSummary` and
+`WorkOrderSummary`. Three problems, in ascending order:
+
+1. **`WorkOrderSummary` renders a literal.** The "completed" figure is
+   `<Text size="sm">{'2 / 13'} Completed</Text>` — not derived from anything. Every user would
+   see `2 / 13`, always.
+2. **`WorkOrderSummary` queries the wrong model.** It runs `FETCH_MOBILE_JOB_TEST` — the same
+   query as the *Asset Verification* card — and feeds those mobile jobs into its
+   `JobStatusSummary` ring. So the Work Orders card would draw a chart of mobile jobs.
+3. **Both cards pass a no-op `onSelect`,** each with an in-source comment declining to fix it
+   (`/** Someone should fix this. Not me since i have more ts errors to clear up*/`). Clicking a
+   legend entry does nothing, while the card's own `onClick` navigates away underneath it.
+
+Also note the query name itself — `FETCH_MOBILE_JOB_TEST` — is what the home screen would be
+built on.
+
+**Severity: latent, not live.** `HomeWidgets.tsx` is **never imported anywhere** in the
+repo — `routing/Home.tsx` does not reference it, and it renders six navigation tiles instead.
+Nothing a user can reach today displays `2 / 13`.
+
+**Why it is still worth filing:** the file is not marked as scratch, sits in `routing/`
+alongside the live `Home.tsx`, and would become user-visible the moment someone adds one
+import. The hardcoded literal in particular is the kind of thing that reads as working during
+a demo.
+
+**Suggested fix:** delete the file, or — if the cards are wanted — derive the count from a
+work-stage query and give `WorkOrderSummary` its own document rather than reusing the mobile
+job one.
+
+**Test-side note:** no test targets this, and none should. Recorded in
+`testing_checklist.md` → T2.7 as dead code so a future component-by-component audit does not
+log it as a coverage gap.
+
+---
+
+## 24. `WorkStatusSummary` misspells "Superseded" as "Supersesed" in the status legend
+
+*Found 2026-08-18. Live, user-visible, trivial to fix.*
+
+`client/mobile/components/WorkOrders/components/StatusSummary/index.tsx:47`:
+
+```
+Superseded: { status: 'Supersesed', value: 0, tooltip: '' },
+```
+
+The **key** is spelled correctly, so the status maps and counts fine; the **display string** is
+not. That string becomes the legend label and the tooltip on the work-list status ring
+(`WorkOrders/index.tsx:186`), so any work order in the Superseded state is labelled
+`Supersesed` to the user.
+
+**Severity: cosmetic, but on a live screen** — this renders on the Work Orders list, which is
+one of the most-visited pages in mobile.
+
+**Suggested fix:** correct the string literal to `'Superseded'`.
+
+⚠️ **Test-side consequence — match the typo until it is fixed.** The work-list status legend is
+currently untested (`testing_checklist.md` → T2.1, *Work list chrome*). Whoever writes that
+test must assert `Supersesed`, and should re-check this section first: when the typo is fixed
+the assertion flips, and a test that quietly matched on a prefix like `Superse` would hide the
+change rather than catch it.
+
+---
+
+## 25. The `Admin` crew's work list is empty on dev — and one test has been passing against it
+
+> 🔄 **SUPERSEDED 2026-08-20 — the list is no longer empty.** The repo owner assigned work
+> orders to the crew, and set one to `In Progress`. **The entry is kept because the ANALYSIS
+> below is still the reference for how this list is populated** — the four server-side rules,
+> and the SQL to check each — and because several tests are still shaped by what it found.
+>
+> What changed downstream, all on 2026-08-20:
+> - **`work_list_gate`'s timing assumption broke.** Its LOADEDALL checks are `assertPageLacks`
+>   on progress labels, which cannot poll, so they were really a race against the download.
+>   Empty list → instant; populated list → outran 20s and then 45s. Three tests failed on it,
+>   and the fix was structural: `dd_tools.work_cache_warm()` for callers that only need a warm
+>   cache, and positive polling gates elsewhere (checklist trap 21).
+> - **Virtualisation started to bite.** Virtuoso mounts only what is on screen; with an empty
+>   list everything fitted, so the long-standing "rows are virtualised" warning had no teeth.
+>   It broke `MOB.346`, which anchored on the `Today` group header (checklist trap 22).
+> - **Two blocked items became possible**: `MOB.342`'s status-ring **exclusion** leg (it needed
+>   a second status) and `MOB.349` record cycling (it needs ≥2 work orders).
+> - **`MOB.340`'s vacuous search** — the concern below that it had been asserting its controls
+>   against an empty list — is now moot going forward, though it says nothing about the runs
+>   that already passed.
+
+*Found 2026-08-18 while building `MOB.341`/`MOB.342`. Filed as a fixture defect with a
+test-quality consequence, not as an application bug — but see the last section, because §5
+makes it one from a user's point of view.*
+
+### What was measured
+
+`MOB.342_Work_Status_Ring` failed on a row locator that turned out to be correct. Rather than
+guess between "wrong locator" and "no data" — the two have opposite fixes —
+`MOB.978_DIAG_WorkList_Probe` asked both questions in one run:
+
+| probe | result |
+|---|---|
+| `RingProgress` rendered | **PASS** |
+| legend has a `Status (n)` entry | **FAIL** |
+| body contains `Ready (` | **FAIL** |
+| any element with class `*Paper*` | **FAIL** |
+| body contains `Description:` / `Assets:` / `Address:` | **FAIL** ×3 |
+| Virtuoso scroller mounted | **PASS** |
+| `input[placeholder="Find Workstage(s)"]` present | **PASS** |
+
+The page mounts completely — search box, scroll container, status ring — and contains **zero
+work stages**. `WorkStatusSummary` still renders its `RingProgress`, with `sections=[]`; the
+legend filters out every entry via `v.quantity > 0`.
+
+Note `loadedAll` is **true** in this state: it is
+`!!edges && edges.length === pageInfo.totalCount`, and with an empty list that is `!![]`
+(true) and `0 === 0`. So the list is not still loading. It is loaded, and empty.
+
+### The test-quality consequence
+
+**`MOB.340_Work_Search_Sort` has been green against an empty list.** Its assertions are: the
+search box is present, typing puts text in it, the Sort Criteria modal opens and closes. All
+four are true with no data on the page. It proves those controls *mount*; it has never proved
+that searching filters anything or that sorting orders anything.
+
+This is trap 5 in its purest form — and it hid for as long as it did precisely because
+**nothing had ever asserted that a work row renders at all**. `MOB.310`/`MOB.320` reach the
+fixture work order by deep link (`WorkStageDetails` queries by id), and `MOB.134` visits
+`/work` only to warm the lookup cache before deep-linking. The list page's *contents* were
+never on any test's path.
+
+### WHY it is empty — the server rule, read from source
+
+`server/src/controllers/work/workStage/find/getWorkStages/utils/getCrew.ts`. When `crew` is
+`'<SESSION>'` (which is what mobile always sends), a work stage is returned **only if all of
+these hold**:
+
+1. **Assigned to your crew** — `EXISTS (SELECT * FROM workstageassignment WHERE
+   workStageId = workstage.id AND roleId = <your role id>)`. A crew *is* a role in MentorTwo,
+   so this is the session's role.
+2. **Status is one of `In Progress`, `On Hold`, `Ready`** — *or* `Complete`/`Pending` whose
+   `statusDate` is inside the retention window (`mobilejobtemplate.workRetentionHours`,
+   default **48 hours**), which additionally requires the workflow to have a mobile template.
+   Note `Canceled`, `Requested`, `Not Completed` and `Superseded` are **never** returned.
+3. **NOT tied to an asset verification job** —
+   `NOT EXISTS (SELECT * FROM mobilejob WHERE workStageId = workstage.id)`. The source comment
+   is explicit that these workstages exist to hold the failure/condition data for a mobile job
+   and are deliberately hidden from the work list.
+4. **If the role's `mobileDownloadMode` is `SCHEDULED`** — a `scheduledevent` for the crew
+   within **±7 days**. The column defaults to `ASSIGNED` (`Role.ts`), so this usually does not
+   apply, but a role configured to `SCHEDULED` with no events would show an empty list even
+   with everything else correct.
+
+Two things worth noting for anyone diagnosing this:
+
+- **The status filter that reads like the obvious culprit is not applied to mobile.**
+  `getWorkStages/index.ts:30` sets `q.status = [{in: [...]}]` only `if (args.crew !==
+  '<SESSION>')`. Mobile is excluded from *that* filter and subject to the stricter rule above.
+- **`Ready` is allowed**, so `MOB.320` leaving the fixture at `Ready` is not the cause.
+
+### Which rule the fixture trips — not yet determined
+
+Rule 2 is ruled out (the fixture ends `Ready`). That leaves 1, 3 or 4, and they cannot be told
+apart from the client:
+
+- **Rule 1** is the plainest explanation and matches §5 — the fixture was described there as
+  *manually assigned*, and an assignment that was once set can be changed or lost.
+- **Rule 3 is the interesting one.** A mobile job's workstage is hidden by design, and
+  `MOB.575` drives Failure/Condition through `job.mobileJob.workStageId`. If the AV fixture
+  job's `workStageId` **is** `EYRpYJ9QYdQ1JFF10JtB0Q`, then the work fixture is the mobile
+  job's workstage, and its absence from the list is **correct behaviour, not a fixture error**
+  — it would also mean the work-order tests and the asset-verification tests have been sharing
+  one record.
+- **Rule 4** would be a role misconfiguration.
+
+**How to check, in order:** `SELECT * FROM workstageassignment WHERE workStageId =
+'EYRpYJ9QYdQ1JFF10JtB0Q'` (rule 1) · `SELECT * FROM mobilejob WHERE workStageId =
+'EYRpYJ9QYdQ1JFF10JtB0Q'` (rule 3) · `SELECT mobileDownloadMode FROM role WHERE name =
+'Admin'` (rule 4). One query settles it; nothing in the client can.
+
+### Why more test runs cannot fix it
+
+`MOB.300` creates a work order every run, but per §5 created work orders are **not
+crew-assigned**, so they never enter `workStages(crew: '<SESSION>')` and never appear in
+`/work`. Mobile can therefore create work it can never afterwards see in its own list — §5
+recorded that as a property of the create flow; this section is what it looks like from the
+list end, which is that the list is permanently empty.
+
+**Severity: high for coverage, and arguably a real product issue.** The Work Orders list is
+one of the six things on the home screen. On dev, as the `Admin` crew, it shows nothing.
+
+**Suggested fix:** get one work stage to satisfy all four rules for the `Admin` role — in
+practice, assign a work order to the `Admin` crew and leave it `Ready`, making sure it is not
+the workstage behind a mobile job (rule 3). That single change unblocks the withdrawn
+status-ring test, gives `MOB.340` something to actually assert, and makes `MOB.341`'s map view
+show a marker.
+
+⚠️ **Do not "fix" this by relaxing the server rule.** Rules 2 and 3 are deliberate — they keep
+a technician's device from downloading terminal work and stop mobile-job workstages appearing
+as if they were ordinary work. The gap is in the dev data, not in `getCrew.ts`.
+
+**Test-side state:** `MOB.341_Work_Map_Toggle` was rewritten to be data-independent (it
+discriminates list-vs-map by the Virtuoso scroller and the Mapbox canvas) and is green.
+`MOB.342` was deleted rather than left red; its design is preserved in
+`testing_checklist.md` → T2.1. `MOB.978_DIAG_WorkList_Probe` is kept, paused and in no suite,
+until the fixture is fixed — then delete it.
+
+---
+
+## 26. Asset Type appears editable on the Asset Verification asset detail, "saves", and silently reverts
+
+**Evidence: Runtime** (observed by the repo owner, 2026-08-20) · `DetailPage/GeneralInfo.tsx`,
+`AssetVerification/AssetGeneralInfo.tsx`, `AssetLookup/AssetLookupDetails/index.tsx`
+
+On the Asset Verification asset detail, the **Asset Type** field renders as editable. Changing
+it and submitting shows a **`Record Updated`** toast — and then the value reverts to what it
+was. Nothing tells the user the change did not take.
+
+### Mechanism
+
+Two different components render an asset's General Info, and only one of them protects this
+field.
+
+| Screen | Renders | Asset Type editable? |
+|---|---|---|
+| Asset Lookup · Collector details · AV job asset **rows** | `AssetLookupDetails` → `RecordInfoTable` | **No.** `index.tsx:45-49` overrides the column with `allowUpdate: false`, and `RecordInfoTable.tsx:92` renders the pencil only when `col.allowUpdate && canEdit` |
+| AV asset **detail** (`/asset-verify/:jobId/asset/:verificationId`) | `AssetGeneralInfo` → `DetailPage/GeneralInfo` | **Yes** — its fields come from the MobileJobTemplate's section fields, which carry their own `allowUpdate`, and nothing overrides `typeId` |
+
+`GeneralInfo.updateRecord` then submits every dirty field through **`UPDATE_ASSET`**:
+
+```js
+client.mutate({
+  mutation: props.updateMutation,          // UPDATE_ASSET
+  variables: { id: props.record.id, data: updatedFields },
+  optimisticResponse: { [mutationName]: { ...props.record, ...values, ... } },
+  update() { toast.success('Record Updated'); }
+});
+```
+
+But changing an asset's type is not an `UPDATE_ASSET` operation — the app's own dedicated
+path is **`UPDATE_TYPE_OF_ASSET`**, which additionally takes `copyNewAttributes` because
+changing type has to decide what happens to the existing attributes. So:
+
+1. the optimistic response paints the new type immediately,
+2. `update()` fires `Record Updated` **off the optimistic response**, before any server reply,
+3. the server does not apply `typeId`, and
+4. the cache reconciles against the real response — the field reverts.
+
+The toast is therefore actively misleading: it reports success for a write that never
+happened. (This is the same optimistic-toast hazard as §11 and trap 6, but here the write
+does not merely go unconfirmed — it is *known* not to be applied.)
+
+### Related: the guarded path is unreachable, so the guard never runs
+
+`AssetLookupDetails` **does** implement the correct flow — `index.tsx:180` intercepts
+`column.id === 'typeId'` and opens `CopyAttributesConfirmation`, which asks whether to delete
+existing attributes before loading the new type's, then calls `UPDATE_TYPE_OF_ASSET` with the
+answer. That is the right design.
+
+It can never run. The same file sets `allowUpdate: false` on `typeId`, so no pencil renders,
+so `onEditButtonClick` is never called with that column. `CopyAttributesConfirmation` and the
+`UPDATE_TYPE_OF_ASSET` call are referenced from nowhere else in `client/mobile` or
+`client/src` — **dead code**.
+
+So mobile has the careful path disabled and the careless path exposed.
+
+### Suggested fix
+
+Either make the AV detail route `typeId` through the same `CopyAttributesConfirmation` /
+`UPDATE_TYPE_OF_ASSET` flow, or mark the field non-editable there as `AssetLookupDetails`
+already does. Whichever is chosen, `GeneralInfo` should not toast success from inside an
+optimistic `update()` for a field the mutation cannot write.
+
+⚠️ **If the AV path is wired to the real mutation, note what the happy path does**: the
+confirmation's first button is *"Update The Asset Type And Attributes"*, whose own text reads
+*"delete all existing asset attributes … This action cannot be undone."*
+
+### Test status
+
+**Not covered, and deliberately so.** The checklist previously called the `typeId` branch the
+highest-value gap in T2.4 on the strength of reading the handler; that was wrong — the branch
+is unreachable from Asset Lookup. A characterization test on the AV path is possible (change
+the type, assert the toast, re-navigate, assert it reverted) and would fail when the bug is
+fixed, in the manner of `MOB.820`. It needs an owner decision first.

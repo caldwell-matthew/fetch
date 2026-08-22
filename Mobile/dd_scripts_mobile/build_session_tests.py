@@ -33,7 +33,7 @@ FIXING WHAT MOB.200 DOES NOT PROVE
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, HERE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import BASE, HERE, step, xpath_el, go, test, write, jsassert  # noqa: E402
 
 HOME = BASE + "/"
 JOBS_URL = BASE + "/asset-verify"
@@ -47,6 +47,28 @@ WORK_MENU_ITEM = "Work Orders"
 
 NO_READ = "0000"     # Create/Read/Update/Delete all off -> every gated menu item hidden
 READ_ONLY = "0100"   # read on, so lists still load - isolates CREW SCOPING from permissions
+
+# ---------------------------------------------------------------- home tiles (added 2026-08-18)
+# The SAME six permissions gate the hamburger menu AND the six tiles on `routing/Home.tsx`.
+# MOB.210 already lands on the home page three times and asserted nothing about it, so the
+# tile checks below cost a handful of steps and take gating coverage from ONE gate to SEVEN.
+#
+# Locate tiles by their icon ALT, never by their title text. Home's `Link` renders
+# `<img alt="icon for {title} url">`; the menu renders the same six titles with an `<img>`
+# that has NO alt. A text match would therefore pass with every tile missing (trap 5b) -
+# and it is the menu that MOB.210 has open two lines earlier.
+HOME_TILES = ["Asset Collector / Lens", "Mobile Jobs", "Asset Lookup",
+              "Material Lookup", "Work Orders", "The Map"]
+TILE_SEL = 'img[alt^="icon for "]'
+
+
+def tiles_present(n):
+    """Datadog has no assertElementAbsent, and the alt text is an ATTRIBUTE rather than page
+    text (trap 9), so tile counting is a JS step in both directions."""
+    return jsassert(
+        f"HOME TILES: exactly {n} permission-gated tile(s) rendered",
+        f"return document.querySelectorAll('{TILE_SEL}').length === {n};",
+        timeout=30)
 
 
 def role_option(digits=None, exact=None):
@@ -90,6 +112,16 @@ write(test(
     f"- Uses `Admin {NO_READ}` — CRUD all off, so `!permissions.*.read` hides **all six**\n"
     "  gated menu items at once (Collector, Mobile Jobs, Asset Lookup, Material Lookup,\n"
     "  Work Orders, Map).\n"
+    "- **Covers the six HOME TILES as well as the menu** (added 2026-08-18). The same six\n"
+    "  permissions gate both, and this test already landed on Home three times without\n"
+    "  asserting anything about it — so gating coverage went from ONE gate to SEVEN for a\n"
+    "  handful of steps.\n"
+    "- Tiles are counted via JS on `img[alt^=\"icon for \"]`, because Datadog has no\n"
+    "  `assertElementAbsent` and the alt text is an attribute, not page text (trap 9).\n"
+    "  The menu's own icons carry no `alt`, so the count cannot pick them up — and every\n"
+    "  tile assertion runs with the menu CLOSED (trap 5b).\n"
+    "- `No valid permissions` is the POSITIVE half of the proof: six absence checks would\n"
+    "  pass on a blank page too (trap 5).\n"
     "- The PROOF is the negative: `Work Orders` must vanish from the menu. Asserting the\n"
     "  items are present under `Admin` proves nothing on its own — they are always present\n"
     "  there (trap 5).\n"
@@ -104,6 +136,13 @@ write(test(
         step("assertPageContains", f'Baseline: "{WORK_MENU_ITEM}" is in the menu under Admin',
              {"value": WORK_MENU_ITEM}),
         step("pressKey", "Close the menu", {"value": "Escape"}),
+        # Menu CLOSED from here on - Mantine unmounts Menu.Dropdown, so nothing below can be
+        # satisfied by the menu items echoing the same six titles.
+        tiles_present(len(HOME_TILES)),
+        step("assertElementPresent",
+             f'Baseline: the "{WORK_MENU_ITEM}" home TILE is present under Admin',
+             {"element": xpath_el(HOME, f'//img[@alt="icon for {WORK_MENU_ITEM} url"]')},
+             timeout=30),
     ] + switch_to(f"Admin {NO_READ}", role_option(digits=NO_READ)) + [
         go(HOME, "the mobile home page"),
         step("wait", "Wait for the app shell", {"value": 5}),
@@ -112,6 +151,12 @@ write(test(
              f'PROOF: "{WORK_MENU_ITEM}" is hidden without read permission',
              {"value": WORK_MENU_ITEM}),
         step("pressKey", "Close the menu", {"value": "Escape"}),
+        # The POSITIVE half of the gating proof. Six absence checks would all pass on a
+        # blank page too; this one fails loudly if Home rendered nothing at all (trap 5).
+        step("assertPageContains",
+             'PROOF: Home falls through to its "No valid permissions" empty state',
+             {"value": "No valid permissions"}),
+        tiles_present(0),
     ] + switch_to("Admin (restore)", role_option(exact="Admin")) + [
         go(HOME, "the mobile home page"),
         step("wait", "Wait for the app shell", {"value": 5}),
@@ -119,6 +164,9 @@ write(test(
         step("assertPageContains", f'RESTORED: "{WORK_MENU_ITEM}" is back in the menu',
              {"value": WORK_MENU_ITEM}),
         step("pressKey", "Close the menu", {"value": "Escape"}),
+        tiles_present(len(HOME_TILES)),
+        step("assertPageLacks", 'RESTORED: the empty state is gone',
+             {"value": "No valid permissions"}),
     ],
     TAGS + ["CRUD"],
 ))

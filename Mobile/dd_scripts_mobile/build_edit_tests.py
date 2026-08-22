@@ -122,8 +122,14 @@ def open_work_geninfo():
         go(WORK_URL, "/work to warm the lookup cache"),
         step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
         go(WORK_DETAIL, "the fixture work order"),
-        step("wait", "Wait for the detail view to render", {"value": 5}),
-        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}),
+        # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
+        # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
+        # gate returns as soon as it is satisfied. The 20s /work wait above is NOT convertible:
+        # it warms the lookup cache and its only readiness signals are negative (a `lacks` on a
+        # loading label is true before loading starts too) or a colour, which is not assertable.
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             timeout=30),
         step("click", "Open the General Info tab",
              {"element": xpath_el(WORK_DETAIL, GENINFO_TAB)}),
         step("wait", "Wait for the General Info panel to mount", {"value": 3}),

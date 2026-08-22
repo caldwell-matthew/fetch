@@ -1,0 +1,1172 @@
+{
+    "test_name": "MOB.134_Work_Form_Fill",
+    "details": {
+        "name": "MOB.134_Work_Form_Fill",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.134` **Fill out an inserted form** \u2014 T2.1's last forms item.\n- **SELF-RESTORING**: leg 1 writes `DD FORM EDIT`, leg 2 clears the field back to empty,\n  which MOB.977 measured as its rest state.\n- **Targets `#apm-dv-tabpanel`, NOT `#senor-work-form`.** `FormDetails.tsx:106` renders\n  the desktop form whenever `screen.availWidth >= 750`; chrome.tablet is above that, so\n  the phone container this test used to target cannot exist here. That, not a locator\n  typo, is why it never passed.\n- **Opens the FIRST form card in the visible panel** rather than naming one. The\n  `Inspection` form it used to name is no longer on the fixture (MOB.977 probe C3), and\n  matching that name as a substring spans Mantine's keepMounted tab panels (trap 3).\n- **Fields save on BLUR, one at a time** \u2014 there is no form-level submit, so the test\n  types then Tabs. Typing alone saves nothing.\n- The `Field updated` toast IS server-confirmed (inside `update()`, no\n  `optimisticResponse`) but transient, so it is asserted before the 5000ms autoClose and\n  still only optional. **The durable proof is the re-navigation + JS read.**\n- Each leg walks work list \u2192 work order \u2192 Forms tab \u2192 the card, because\n  `MOBILE_WORK_FORM` is `cache-only` and the page renders blank if deep-linked.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "CRUD",
+            "field-edit",
+            "Work Orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 1/2: the /work/:id route mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 2/2: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Forms tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the forms list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the first form card in the visible panel",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form page render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form rendered its field container",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"apm-dv-tabpanel\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the form has an editable field",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@id=\"apm-dv-tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" ws-form-widget \")]//input[not(@type=\"checkbox\") and not(@type=\"radio\") and not(@type=\"hidden\") and not(@type=\"file\")])[2]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: the container holds at least one .ws-form-widget input",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: the first .ws-form-widget input is VISIBLE",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.length > 0 && isVis(inW[0]);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: SOME editable input in the container is visible",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn all.some(isVis);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: the first VISIBLE input is inside a .ws-form-widget",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nconst v = all.find(isVis);\nreturn !!v && !!v.closest('.ws-form-widget');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG CAUSE: inW[0].offsetParent is null",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.length > 0 && inW[0].offsetParent === null;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG CAUSE: inW[0] has ZERO client rects",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.length > 0 && inW[0].getClientRects().length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG CAUSE: inW[0] computes to display:none or visibility:hidden",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nif (!inW.length) return false;\nconst st = getComputedStyle(inW[0]);\nreturn st.display === 'none' || st.visibility === 'hidden';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG INDEX: the first VISIBLE widget input is inW[0]",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.findIndex(isVis) === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG INDEX: the first VISIBLE widget input is inW[1]",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.findIndex(isVis) === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG INDEX: the first VISIBLE widget input is inW[2]",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.findIndex(isVis) === 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG INDEX: the first VISIBLE widget input is inW[3]",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.findIndex(isVis) === 3;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG INDEX: the first VISIBLE widget input is inW[4]",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst isVis = e => !!(e.offsetParent || e.getClientRects().length);\nconst all = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type));\nconst inW = all.filter(e => e.closest('.ws-form-widget'));\nreturn inW.findIndex(isVis) === 4;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the first field (the marker)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@id=\"apm-dv-tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" ws-form-widget \")]//input[not(@type=\"checkbox\") and not(@type=\"radio\") and not(@type=\"hidden\") and not(@type=\"file\")])[2]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select the existing text (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the marker",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD FORM EDIT",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@id=\"apm-dv-tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" ws-form-widget \")]//input[not(@type=\"checkbox\") and not(@type=\"radio\") and not(@type=\"hidden\") and not(@type=\"file\")])[2]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG-1: the input holds the typed text BEFORE the blur (the marker)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst inW = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type)).filter(e => e.closest('.ws-form-widget'));\nif (inW.length < 2) return false;\nreturn inW[1].value.trim() === 'DD FORM EDIT';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tab out \u2014 the field saves on BLUR, not on change",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG-2: a toast is on screen after the blur (the marker)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /Field updated|Record Updated|updated/i.test(document.body.innerText || '');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG-3: the value SURVIVED the blur in the DOM (the marker)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst inW = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type)).filter(e => e.closest('.ws-form-widget'));\nif (inW.length < 2) return false;\nreturn inW[1].value.trim() === 'DD FORM EDIT';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Field updated toast (optional: transient, but server-confirmed \u2014 it fires inside update() with no optimisticResponse)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Field updated"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the update mutation settle",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 1/2: the /work/:id route mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 2/2: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Forms tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the forms list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the first form card in the visible panel",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form page render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form rendered its field container",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"apm-dv-tabpanel\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the form has an editable field",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@id=\"apm-dv-tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" ws-form-widget \")]//input[not(@type=\"checkbox\") and not(@type=\"radio\") and not(@type=\"hidden\") and not(@type=\"file\")])[2]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: after re-navigating, the field came back holding the marker",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst inW = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type)).filter(e => e.closest('.ws-form-widget'));\nif (inW.length < 2) return false;\nconst v = inW[1].value.trim();\nreturn v === 'DD FORM EDIT';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the first field (the empty rest state)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@id=\"apm-dv-tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" ws-form-widget \")]//input[not(@type=\"checkbox\") and not(@type=\"radio\") and not(@type=\"hidden\") and not(@type=\"file\")])[2]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select the existing text (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Delete the selection \u2014 the field's rest state is empty",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Delete"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG-1: the input holds the typed text BEFORE the blur (the empty rest state)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst inW = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type)).filter(e => e.closest('.ws-form-widget'));\nif (inW.length < 2) return false;\nreturn inW[1].value.trim() === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tab out \u2014 the field saves on BLUR, not on change",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG-2: a toast is on screen after the blur (the empty rest state)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /Field updated|Record Updated|updated/i.test(document.body.innerText || '');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG-3: the value SURVIVED the blur in the DOM (the empty rest state)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst inW = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type)).filter(e => e.closest('.ws-form-widget'));\nif (inW.length < 2) return false;\nreturn inW[1].value.trim() === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Field updated toast (optional: transient, but server-confirmed \u2014 it fires inside update() with no optimisticResponse)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Field updated"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the update mutation settle",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 1/2: the /work/:id route mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 2/2: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Forms tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the forms list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the first form card in the visible panel",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form page render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form rendered its field container",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"apm-dv-tabpanel\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the form has an editable field",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@id=\"apm-dv-tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" ws-form-widget \")]//input[not(@type=\"checkbox\") and not(@type=\"radio\") and not(@type=\"hidden\") and not(@type=\"file\")])[2]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the field is empty again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.getElementById('apm-dv-tabpanel');\nif (!c) return false;\nconst inW = [...c.querySelectorAll('input')].filter(e => !['checkbox','radio','hidden','file'].includes(e.type)).filter(e => e.closest('.ws-form-widget'));\nif (inW.length < 2) return false;\nconst v = inW[1].value.trim();\nreturn v === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

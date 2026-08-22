@@ -96,9 +96,12 @@ write(test(
              {"check": "contains", "value": "Work Orders",
               "element": xpath_el(WORK_URL,
                   '//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]')}),
-        step("wait", "Wait for the work list to finish downloading", {"value": 10}),
+        # Appendix F: 10s -> 3s. The search box appearing IS the readiness signal, so the
+        # click polls for it (timeout=30) rather than the test sleeping for a fixed 10s.
+        step("wait", "Let the work list begin rendering", {"value": 3}),
         # --- search ---
-        step("click", "Focus the search box", {"element": xpath_el(WORK_URL, SEARCH)}),
+        step("click", "Focus the search box", {"element": xpath_el(WORK_URL, SEARCH)},
+             timeout=30),
         step("typeText", "Type a search term",
              {"value": "a", "element": xpath_el(WORK_URL, SEARCH)}),
         step("wait", "Wait for the 300ms search debounce", {"value": 2}),

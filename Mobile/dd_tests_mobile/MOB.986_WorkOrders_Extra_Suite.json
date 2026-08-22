@@ -4,7 +4,7 @@
         "name": "MOB.986_WorkOrders_Extra_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "Work Order entry points, follow-up work, crew assignment and warranties.\n- \u26a0\ufe0f **LEAVES RESIDUE**: MOB.396 and MOB.397 each create a real work order per run.\n  MOB.398 and MOB.399 are read-only.\n- Kept separate from `MOB.991_WorkOrders_Suite` so a slow, residue-heavy set can be run\n  on its own \u2014 991 is already 13 children.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
+        "message": "Work Order entry points, follow-up work, crew assignment and warranties.\n- \u26a0\ufe0f **LEAVES RESIDUE**: MOB.396 and MOB.397 each create a real work order per run.\n  MOB.398 and MOB.399 are read-only.\n- Kept separate from `MOB.991_WorkOrders_Suite` so a slow, residue-heavy set can be run\n  on its own \u2014 and because 991 is at Datadog's execution ceiling (Appendix F0).\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -373,6 +373,84 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "yjs-4e5-ckh",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.122_Map_Create_Work",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "4vg-eum-pwu",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.341_Work_Map_Toggle",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "pte-wvd-yd7",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.343_Work_List_Search_Filter",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "sy2-es2-iy4",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.344_Work_List_Row_Navigate",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "htm-9v8-89j",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.342_Work_Status_Ring",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "8r3-u7t-sj4",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.345_Work_Sort_Persist",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "yez-6ci-re2",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

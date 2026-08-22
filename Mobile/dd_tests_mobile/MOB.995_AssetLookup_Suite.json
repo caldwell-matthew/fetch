@@ -4,7 +4,7 @@
         "name": "MOB.995_AssetLookup_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "Asset Lookup - READ-ONLY, safe to schedule.\n- Logs in once, then chains its subtests in the same browser session.\n- Mutates nothing: no records are created, so unlike MOB.991/MOB.994 this leaves no\n  residue on dev.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
+        "message": "Asset Lookup - READ-ONLY, safe to schedule.\n- Logs in once, then chains its subtests in the same browser session.\n- Mutates nothing: no records are created, so unlike MOB.991/MOB.994 this leaves no\n  residue on dev.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.\n- **MOB.711_AssetLookup_Column_Search was un-wired 2026-08-21** after two failures on the column-picker locator. Low-value surface (a filter over checkboxes); parked rather than guessed at a third time \u2014 see _archive/README.md.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -322,6 +322,32 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "bgu-6gr-qk8",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.720_AssetLookup_Event_Readings",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "kd2-vvd-tna",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.730_AssetLookup_Proximity",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "h32-n8u-8j8",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

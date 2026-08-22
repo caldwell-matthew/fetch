@@ -38,8 +38,8 @@ FILTER STATE LEAKS BETWEEN SUBTESTS
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, step, xpath_el, go, test, write, av_job_gate,
-                      av_list_gate)  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, av_job_gate,  # noqa: E402
+                      av_list_gate, jsassert)
 
 FIXTURE_ID = "Z0EVwQcdJZhMURcBFkp0E0"
 FIXTURE_NAME = "DATADOG MOBILE JOB"
@@ -238,7 +238,28 @@ write(test(
         step("wait", "Wait for the asset detail panel to mount", {"value": 3}),
         step("assertElementPresent", "Test a tab strip is rendered",
              {"element": xpath_el(JOB_URL, f'({FIRST_ITEM}//*[@role="tab"])[1]')}),
-    ] + tab_steps,
+    ] + tab_steps + [
+        # COLLAPSE - added 2026-08-21. Expand was covered from the start and collapse never
+        # was, which left the caret half-proven: a control that opens but cannot close is a
+        # real (and common) defect. Mantine's Accordion.Control carries `aria-expanded`, so
+        # the state is readable directly rather than inferred from whether the panel's
+        # contents happen to be matchable - and `keepMounted` means those contents stay in
+        # the DOM when closed (trap 3), so asserting their ABSENCE would be wrong here.
+        jsassert("The asset row reports itself EXPANDED before collapsing",
+                 "const c = document.querySelector("
+                 "'.mantine-Accordion-item .mantine-Accordion-control');\n"
+                 "if (!c) return false;\n"
+                 "return c.getAttribute('aria-expanded') === 'true';", timeout=30),
+        step("click", "Collapse the asset row again",
+             {"element": xpath_el(JOB_URL, ACCORDION)}, always=True),
+        step("wait", "Let the panel close", {"value": 2}, always=True),
+        jsassert("COLLAPSED: the row reports itself closed — the caret toggles both ways",
+                 "const c = document.querySelector("
+                 "'.mantine-Accordion-item .mantine-Accordion-control');\n"
+                 "if (!c) return false;\n"
+                 "return c.getAttribute('aria-expanded') === 'false';",
+                 always=True, timeout=30),
+    ],
     TAGS + ["read-only"],
 ))
 

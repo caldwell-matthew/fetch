@@ -324,6 +324,19 @@
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.610_Collector_Search",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "nyi-ide-i5e",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
             }
         ]
     }

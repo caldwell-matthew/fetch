@@ -1,0 +1,784 @@
+{
+    "test_name": "MOB.345_Work_Sort_Persist",
+    "details": {
+        "name": "MOB.345_Work_Sort_Persist",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.345` The work list's sort choice is applied, **persisted**, and really reorders\nthe rows (T2.1). *(The test name understates it \u2014 kept because renaming would orphan its\nDatadog `public_id`.)*\n- **SELF-RESTORING, and it has to be.** The choice lives in\n  `sessionStorage['mobile-WorkStage-sort']` and Datadog reuses one browser session across a suite, so\n  a run ending on a non-default sort would change what every later work-order subtest\n  sees. Restore leg is `alwaysExecute` (trap 16c).\n- **It proves ORDERING too, without reading the sort column.** No column here is both\n  sortable and visible \u2014 the options are `Status`/`Priority`/`Created At`/`Target Due\n  Date` and a row shows `_assets`/`address`/name/desc \u2014 but the sort column never has\n  to be read. `applySortValue` makes `DESC = reverse(sortBy(list))`, so **descending\n  must be the exact reverse of ascending**, whatever the rows are called. Nothing is\n  hardcoded, unlike `MOB.580` which names two assets.\n- **Datadog cannot pass a value between steps**, so the capture step stashes the order\n  in a test-owned `sessionStorage` key as a side effect; a cleanup step deletes it.\n  That key is scratch space, not app state.\n- \u26a0\ufe0f **Virtuoso virtualises the list.** If it outgrows one screen, ASC and DESC would\n  render different subsets \u2014 so the comparison checks same-length and same-membership\n  BEFORE checking reversal, making that failure mode self-identifying rather than\n  looking like a sort bug.\n- The capture requires **>=2 rows**; fewer makes any ordering claim vacuous (trap 5).\n- **The assertion is JS against sessionStorage** (trap 16), not against the control. A\n  matching \"the input displays the label\" check was written and **failed while the\n  storage check beside it passed** \u2014 so Mantine's `Select` does not hold the human\n  label as its input value (most likely the option id). It was removed rather than\n  guessed at: the storage key is the app's contract, the DOM shape is Mantine's.\n- Restores to `Created At \u25bc`, which is the component's own default\n  (`setOrderBy(formatSortValue(createdAt, 'DESC'))`). \u26a0\ufe0f It restores the *value*, not\n  the absence of the key \u2014 a first-ever run starts with no key at all, and this leaves\n  one set to the default. That is deliberate: it is the state every later subtest\n  expects, and it is what the component would have written itself.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Search",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 the work order list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the workstage pages and the lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The work list rendered its search box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 1/3: the initial fetch finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Retrieving assigned work"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 2/3: paging through workstages finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "workstages found"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 3/3: the per-stage detail downloads finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "workstages downloaded"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "WORK ROW GUARD: at least one work order rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"Description:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu (to switch to the List view)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Toggle Work Order List View\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][contains(normalize-space(.), \"Toggle Work Order List View\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-render in the other view",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "VIEW: sessionStorage['toggle_mobile_v_work'] is now 'false'",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return sessionStorage.getItem('toggle_mobile_v_work') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Created At \u25b2\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Created At \u25b2\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-sort and the choice persist",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: the choice persisted to sessionStorage[\"mobile-WorkStage-sort\"]",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const raw = sessionStorage.getItem('mobile-WorkStage-sort');\nif (!raw) return false;\nlet v; try { v = JSON.parse(raw); } catch (e) { return false; }\nreturn v && v.label === 'Created At \u25b2';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CAPTURE: record the ascending row order (needs >=2 rows to mean anything)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst o = ORDER();\n// <2 rows makes any ordering claim vacuous (trap 5), so fail loudly instead.\nif (o.length < 2) return false;\nsessionStorage.setItem('__dd345_asc', JSON.stringify(o));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Created At \u25bc\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Created At \u25bc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-sort and the choice persist",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: sessionStorage holds the default \"Created At \u25bc\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const raw = sessionStorage.getItem('mobile-WorkStage-sort');\nif (!raw) return false;\nlet v; try { v = JSON.parse(raw); } catch (e) { return false; }\nreturn v && v.label === 'Created At \u25bc';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close and the list re-sort",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: ASC and DESC rendered the SAME NUMBER of rows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn desc.length === asc.length;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: ASC and DESC rendered the SAME SET of rows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn [...asc].sort().join('\\u0000') === [...desc].sort().join('\\u0000');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: the rendered order actually CHANGED between ASC and DESC",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn desc.join('\\u0000') !== asc.join('\\u0000');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: the list is in SCHEDULED view (group headers present) \u2014 which would explain a non-reversal, since ScheduledWork re-buckets rows by group",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('button')].filter(b => /^(Past Due|Today|Tomorrow|Future)\\b/.test((b.textContent||'').trim())).length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: descending is the EXACT REVERSE of ascending \u2014 the sort really reorders",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\n// Virtuoso virtualises: if the list ever outgrows one screen, ASC and DESC would\n// render DIFFERENT SUBSETS. Check membership first so that failure mode is\n// distinguishable from a genuine sort bug.\nif (desc.length !== asc.length) return false;\nconst sameSet = [...asc].sort().join('\\u0000') === [...desc].sort().join('\\u0000');\nif (!sameSet) return false;\n// applySortValue: ASC = sortBy(list), DESC = reverse(sortBy(list)).\nreturn desc.join('\\u0000') === [...asc].reverse().join('\\u0000');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP: drop the test-owned scratch key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd345_asc');\nreturn sessionStorage.getItem('__dd345_asc') === null;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu (to switch to the Scheduled view)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Toggle Work Order Scheduled View\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][contains(normalize-space(.), \"Toggle Work Order Scheduled View\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-render in the other view",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "VIEW: sessionStorage['toggle_mobile_v_work'] is now 'true'",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return sessionStorage.getItem('toggle_mobile_v_work') === 'true';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

@@ -68,6 +68,13 @@ write(test(
              {"element": xpath_el(LOOKUP_URL, SEARCH)}),
         step("click", "Focus the search input",
              {"element": xpath_el(LOOKUP_URL, SEARCH)}),
+        # SELECT-ALL FIRST. `AssetLookup/index.tsx:47` now persists the query to
+        # `sessionStorage['asset_lookup_query']` (2026-08-21, "fix: clear persisted asset
+        # lookup search"), and a Datadog SUITE SHARES ONE BROWSER SESSION - so the box can
+        # arrive pre-populated from whatever searched before it. `typeText` APPENDS (trap 17),
+        # which would make this "Pump 0102Pump 0102" and match nothing.
+        step("pressKey", "Select any persisted query first (typeText APPENDS — trap 17)",
+             {"value": "a", "modifiers": ["Control"]}),
         step("typeText", f"Search for {ASSET}",
              {"value": ASSET, "element": xpath_el(LOOKUP_URL, SEARCH)}),
         step("pressKey", "Submit the search (Enter - there is no search button)",
@@ -99,8 +106,17 @@ write(test(
     "  residue on dev.\n"
     "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
     "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", "MOB.700_AssetLookup_Search",
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})],
+    # ⚠️ KEEP IN SYNC WITH THE JSON. Regenerating this script on 2026-08-21 silently DROPPED
+    # `MOB.720` from the suite, because it had been wired into MOB.995's JSON directly and
+    # never back-ported here - the same trap 19 (reverse direction) that removed five children
+    # from MOB.986. Nothing warns; the suite just comes out shorter. Before regenerating any
+    # suite, diff its children against the JSON.
+    login_steps + [step("playSubTest", c,
+                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
+                   for c in ["MOB.700_AssetLookup_Search",
+                             "MOB.720_AssetLookup_Event_Readings",
+                             "MOB.730_AssetLookup_Proximity"]],
+    # NB MOB.711 (column-picker search) is deliberately NOT here - un-wired 2026-08-21.
     ["Mobile", "env:dev", "Asset Lookup", "suite", "read-only"],
     extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
 ))

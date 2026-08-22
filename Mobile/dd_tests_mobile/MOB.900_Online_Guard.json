@@ -1,86 +1,149 @@
 {
-    "test_name": "MOB.900_Online_Guard",
-    "details": {
-        "name": "MOB.900_Online_Guard",
-        "type": "browser",
-        "status": "paused",
-        "message": "`MOB.900` Regression guard: the offline notice must not appear during a normal online run.\n- Asserts OFFLINE_FEATURE_MESSAGE (mobile/constants.ts) is absent on the home screen.\n- NOTE: Synthetics cannot take the browser offline, so this only catches the\n  false-positive direction (offline UI showing while actually online).",
-        "tags": [
-            "Mobile",
-            "env:dev",
-            "Offline"
-        ],
-        "locations": [
-            "gcp:us-west2"
-        ],
-        "config": {
-            "assertions": [],
-            "config_variables": [
-                {
-                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
-                    "name": "MOBDEV",
-                    "type": "global"
-                }
-            ],
-            "request": {
-                "headers": {},
-                "method": "GET",
-                "url": "{{ MOBDEV }}"
-            },
-            "variables": [
-                {
-                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
-                    "name": "MOBDEV",
-                    "type": "global"
-                }
-            ],
-            "set_cookie": ""
-        },
-        "options": {
-            "device_ids": [
-                "chrome.tablet"
-            ],
-            "disable_cors": false,
-            "disable_csp": false,
-            "ignore_server_certificate_error": false,
-            "min_failure_duration": 0,
-            "min_location_failed": 1,
-            "monitor_options": {},
-            "no_screenshot": false,
-            "retry": {
-                "count": 1,
-                "interval": 300.0
-            },
-            "rum_settings": {
-                "is_enabled": false
-            },
-            "tick_every": 86400
-        },
-        "steps": [
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Navigate to mobile home",
-                "noScreenshot": false,
-                "params": {
-                    "value": "{{ MOBDEV }}"
-                },
-                "type": "goToUrl"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Guard: offline message must not be shown",
-                "noScreenshot": false,
-                "params": {
-                    "value": "This feature requires an internet connection."
-                },
-                "type": "assertPageLacks"
-            }
-        ]
+ "test_name": "MOB.900_Online_Guard",
+ "details": {
+  "name": "MOB.900_Online_Guard",
+  "type": "browser",
+  "status": "paused",
+  "message": "`MOB.900` Regression guard: the offline notice must not appear during a normal online run.\n- Asserts `OFFLINE_FEATURE_MESSAGE` (`mobile/constants.ts`) is absent on the home screen.\n- **Strengthened 2026-08-20.** It used to be a lone `assertPageLacks`, which is trap 5's\n  assertion-that-cannot-fail: it passes on a blank page, an error page, or a page that\n  never loaded. It now anchors on the welcome banner and the tiles first, and confirms\n  `navigator.onLine`, so the absence is evidence rather than a tautology.\n- NOTE: Synthetics cannot take the browser offline, so this only ever catches the\n  false-positive direction (offline UI showing while online). The other half needs Appendix C.\n- Wired into `MOB.990_Smoke` 2026-08-20 \u2014 before that it had NEVER RUN.",
+  "tags": [
+   "Mobile",
+   "env:dev",
+   "Offline",
+   "read-only"
+  ],
+  "locations": [
+   "gcp:us-west2"
+  ],
+  "config": {
+   "assertions": [],
+   "config_variables": [
+    {
+     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+     "name": "MOBDEV",
+     "type": "global"
     }
+   ],
+   "request": {
+    "headers": {},
+    "method": "GET",
+    "url": "{{ MOBDEV }}"
+   },
+   "variables": [
+    {
+     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+     "name": "MOBDEV",
+     "type": "global"
+    }
+   ],
+   "set_cookie": ""
+  },
+  "options": {
+   "device_ids": [
+    "chrome.tablet"
+   ],
+   "disable_cors": false,
+   "disable_csp": false,
+   "ignore_server_certificate_error": false,
+   "min_failure_duration": 0,
+   "min_location_failed": 1,
+   "monitor_options": {},
+   "no_screenshot": false,
+   "retry": {
+    "count": 1,
+    "interval": 300.0
+   },
+   "rum_settings": {
+    "is_enabled": false
+   },
+   "tick_every": 86400
+  },
+  "steps": [
+   {
+    "allowFailure": false,
+    "alwaysExecute": false,
+    "exitIfSucceed": false,
+    "isCritical": true,
+    "name": "Navigate to mobile home",
+    "noScreenshot": false,
+    "params": {
+     "value": "{{ MOBDEV }}"
+    },
+    "type": "goToUrl"
+   },
+   {
+    "allowFailure": false,
+    "alwaysExecute": false,
+    "exitIfSucceed": false,
+    "isCritical": true,
+    "name": "Let the home screen render",
+    "noScreenshot": false,
+    "params": {
+     "value": 3
+    },
+    "type": "wait"
+   },
+   {
+    "allowFailure": false,
+    "alwaysExecute": false,
+    "exitIfSucceed": false,
+    "isCritical": true,
+    "name": "POSITIVE ANCHOR: the home screen actually rendered",
+    "noScreenshot": false,
+    "params": {
+     "value": "Welcome,"
+    },
+    "type": "assertPageContains",
+    "timeout": 60
+   },
+   {
+    "allowFailure": false,
+    "alwaysExecute": false,
+    "exitIfSucceed": false,
+    "isCritical": true,
+    "name": "POSITIVE ANCHOR: the module tiles rendered",
+    "noScreenshot": false,
+    "params": {
+     "element": {
+      "url": "{{ MOBDEV }}",
+      "userLocator": {
+       "failTestOnCannotLocate": true,
+       "values": [
+        {
+         "type": "xpath",
+         "value": "(//img[starts-with(@alt, \"icon for \")])[1]"
+        }
+       ]
+      }
+     }
+    },
+    "type": "assertElementPresent",
+    "timeout": 60
+   },
+   {
+    "allowFailure": false,
+    "alwaysExecute": false,
+    "exitIfSucceed": false,
+    "isCritical": true,
+    "name": "Guard: offline message must not be shown",
+    "noScreenshot": false,
+    "params": {
+     "value": "This feature requires an internet connection."
+    },
+    "type": "assertPageLacks"
+   },
+   {
+    "allowFailure": false,
+    "alwaysExecute": false,
+    "exitIfSucceed": false,
+    "isCritical": true,
+    "name": "The runner really is online (so the absence above means something)",
+    "noScreenshot": false,
+    "params": {
+     "code": "return navigator.onLine === true;"
+    },
+    "type": "assertFromJavascript",
+    "timeout": 30
+   }
+  ]
+ }
 }

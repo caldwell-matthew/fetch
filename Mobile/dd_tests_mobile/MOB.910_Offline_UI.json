@@ -1,0 +1,426 @@
+{
+    "test_name": "MOB.910_Offline_UI",
+    "details": {
+        "name": "MOB.910_Offline_UI",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.910` **The app's reaction to going offline** \u2014 a surface Appendix C called\nunreachable until 2026-08-21.\n- **How**: the app reads `useNetwork()`, which is `useWindowEvent('offline', ...)`, so a\n  JS step dispatches that event and flips every offline branch. Proven first by\n  `MOB.975_DIAG_Offline` (ten probes, green) rather than assumed.\n- **Covers**: `NetworkStatusIcon`'s offline half (`MOB.470` could only ever assert the\n  online one), the Asset Lookup **tile** gate on Home, and the Asset Lookup **menu item**\n  gate in `TopHeader`.\n- **Every negative is paired with a baseline asserted BEFORE the dispatch** \u2014 otherwise\n  \"the tile is absent\" would be equally true of a page that never rendered (trap 5). It\n  also asserts the OTHER tiles and menu items survive, so this reads as gating rather\n  than a broken render.\n- \ud83d\uded1 **It does NOT prove the transaction queue.** `navigator.onLine` stays true (asserted\n  explicitly), so requests still go out. The queue is untested here **and in Jest** \u2014\n  `QueueLink`/`PersistedQueueLink`/`SerializeLink`/`ErrorLink` have no tests at all.\n- **SELF-RESTORING**, restore legs `alwaysExecute`: a suite shares one browser session, so\n  a run left offline would hide half the app from every later subtest.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Offline",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the home screen",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let home render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the home screen rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Welcome,"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: the ONLINE wifi icon is showing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi\"]') && !document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: the Asset Lookup TILE is present on Home",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tiles = () => [...document.querySelectorAll('img[alt^=\"icon for \"]')].map(i => i.getAttribute('alt') || '');\nreturn tiles().some(a => /Asset Lookup/i.test(a));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: the Asset Lookup MENU ITEM is present",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = () => [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items().some(t => /^Asset Lookup$/.test(t));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Dispatch a window 'offline' event",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('offline'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let React re-render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "POSITIVE: the offline icon (wifi-slash) is now showing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "POSITIVE: the online icon is gone \u2014 the swap really happened",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('[data-icon=\"wifi\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NEGATIVE: the Asset Lookup TILE is hidden (Home gates it on `online`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tiles = () => [...document.querySelectorAll('img[alt^=\"icon for \"]')].map(i => i.getAttribute('alt') || '');\nreturn !tiles().some(a => /Asset Lookup/i.test(a));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NEGATIVE: the other tiles are STILL there \u2014 only the online-gated one went",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tiles = () => [...document.querySelectorAll('img[alt^=\"icon for \"]')].map(i => i.getAttribute('alt') || '');\nreturn tiles().length >= 3;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu again",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NEGATIVE: the Asset Lookup MENU ITEM is hidden while offline",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = () => [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nif (!items().length) return false;\nreturn !items().some(t => /^Asset Lookup$/.test(t));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The rest of the menu is intact \u2014 this is gating, not a broken render",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = () => [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items().some(t => /Work Orders|Transaction Log/.test(t));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LIMIT: navigator.onLine is STILL true \u2014 this proves UI reaction, NOT the queue",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return navigator.onLine === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Dispatch a window 'online' event",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('online'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let React re-render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the online wifi icon is back and wifi-slash is gone",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi\"]') && !document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the Asset Lookup tile is back on Home",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tiles = () => [...document.querySelectorAll('img[alt^=\"icon for \"]')].map(i => i.getAttribute('alt') || '');\nreturn tiles().some(a => /Asset Lookup/i.test(a));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

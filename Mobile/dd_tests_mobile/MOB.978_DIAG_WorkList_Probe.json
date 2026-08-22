@@ -1,0 +1,750 @@
+{
+    "test_name": "MOB.978_DIAG_WorkList_Probe",
+    "details": {
+        "name": "MOB.978_DIAG_WorkList_Probe",
+        "type": "browser",
+        "status": "paused",
+        "message": "**TEMPORARY DIAGNOSTIC \u2014 not coverage. Delete once the row locator is settled.**\n- Answers in ONE run why `work_list_gate()`'s row guard found nothing while every\n  other readiness check on /work passed.\n- Every probe is `optional`, so the test passes and `report` shows which probes failed.\n- Distinguishes **a wrong locator** from **an empty crew work list** \u2014 they need\n  opposite fixes, and no existing test can tell them apart (MOB.340 asserts only the\n  search box; MOB.134 only warms the cache).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "diagnostic"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
+                    "name": "DATA_DOG_EMAIL",
+                    "type": "global"
+                },
+                {
+                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
+                    "name": "DATA_DOG_PASSWORD",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
+                    "name": "DATA_DOG_EMAIL",
+                    "type": "global"
+                },
+                {
+                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
+                    "name": "DATA_DOG_PASSWORD",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to mobile app",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ MOBDEV }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the SSO login form to hydrate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type email",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ DATA_DOG_EMAIL }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"email\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Next\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@type=\"submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type password",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ DATA_DOG_PASSWORD }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"password\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Submit\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@type=\"submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Choose the \"development\" environment",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the app shell to mount after the env redirect",
+                "noScreenshot": false,
+                "params": {
+                    "value": 10
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test authenticated mobile shell rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu to read the session role",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Guard: session role is exactly \"Admin\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 the work order list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list load fully (generous \u2014 this is a probe)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "N>=1  rows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn WROWS() >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "N>=2  rows  (needed for any SORT-ORDER test)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn WROWS() >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "N>=3  rows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn WROWS() >= 3;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "N>=5  rows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn WROWS() >= 5;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "N>=10 rows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn WROWS() >= 10;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "LEGEND has Ready",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn LEG().some(t => t.startsWith('Ready ('));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "LEGEND has In Progress",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn LEG().some(t => t.startsWith('In Progress ('));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "LEGEND has On Hold",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn LEG().some(t => t.startsWith('On Hold ('));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "LEGEND has Complete",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn LEG().some(t => t.startsWith('Complete ('));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "LEGEND has >=2 distinct statuses (needed for a NEGATIVE filter leg)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn LEG().length >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "LEGEND total == row count (sanity: the ring describes THIS list)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nconst tot = LEG().reduce((a, t) => a + (+(t.match(/\\((\\d+)\\)/) || [0, 0])[1]), 0);\nreturn tot === WROWS();"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "ONE status covers every row (if PASS, no negative filter leg exists)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nconst n = WROWS();\nreturn LEG().some(t => (+(t.match(/\\((\\d+)\\)/) || [0, 0])[1]) === n);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "ROW border colour is readable via getComputedStyle",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nconst r = ROWS()[0];\nif (!r) return false;\nconst c = getComputedStyle(r).borderLeftColor;\nreturn /^rgb/.test(c);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "ROW border colour is the READY green rgb(155, 203, 82)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nconst r = ROWS()[0];\nif (!r) return false;\nreturn getComputedStyle(r).borderLeftColor === 'rgb(155, 203, 82)';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "ROWS have >=2 DISTINCT border colours (a mixed-status list)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nconst s = new Set(ROWS().map(r => getComputedStyle(r).borderLeftColor));\nreturn s.size >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT any option is rendered at all",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn document.querySelectorAll('[role=\"option\"]').length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT count >= 6",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn document.querySelectorAll('[role=\"option\"]').length >= 6;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT count >= 10",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn document.querySelectorAll('[role=\"option\"]').length >= 10;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT label 'Work Sequence \u25b2' exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn OPT('Work Sequence \u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT label 'Sequence \u25b2' exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn OPT('Sequence \u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT label 'Status \u25b2' exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn OPT('Status \u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT label 'Priority \u25b2' exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn OPT('Priority \u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT label 'Created At \u25b2' exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn OPT('Created At \u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT label 'Target Due Date \u25b2' exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn OPT('Target Due Date \u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "OPT every option ends with an arrow (so none is a bare 'Collected By Me')",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nconst o = OPTS();\nreturn o.length > 0 && o.every(t => /[\u25b2\u25bc]$/.test(t));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SORT dropdown button is present",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nconst WROWS = () => ROWS().length;\nconst LEG = () => [...document.querySelectorAll('li')]\n  .map(e => (e.textContent || '').trim())\n  .filter(t => /^[A-Za-z ]+\\(\\d+\\)$/.test(t));\nconst OPTS = () => [...document.querySelectorAll('[role=\"option\"]')]\n  .map(e => (e.textContent || '').trim());\nconst OPT = (label) => OPTS().indexOf(label) !== -1;\nreturn !!document.querySelector('button [data-icon=\"sort-alt\"], button [data-icon=\"arrow-down-arrow-up\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            }
+        ]
+    }
+}

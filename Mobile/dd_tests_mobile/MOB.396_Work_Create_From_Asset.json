@@ -88,10 +88,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the page to mount",
+                "name": "Let the page begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 10
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -118,7 +118,8 @@
                         }
                     }
                 },
-                "type": "assertElementContent"
+                "type": "assertElementContent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -256,18 +257,6 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the asset list settle on its default (All) filter",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
                 "name": "Open Tank 0000's full-page detail",
                 "noScreenshot": false,
                 "params": {
@@ -291,10 +280,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the asset detail route",
+                "name": "Let the asset detail route begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 6
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -308,7 +297,8 @@
                 "params": {
                     "value": "Asset Type:"
                 },
-                "type": "assertPageContains"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

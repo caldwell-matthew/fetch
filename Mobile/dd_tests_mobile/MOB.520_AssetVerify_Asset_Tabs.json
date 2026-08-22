@@ -75,10 +75,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the page to mount",
+                "name": "Let the page begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 10
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -105,7 +105,8 @@
                         }
                     }
                 },
-                "type": "assertElementContent"
+                "type": "assertElementContent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -620,6 +621,67 @@
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The asset row reports itself EXPANDED before collapsing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.querySelector('.mantine-Accordion-item .mantine-Accordion-control');\nif (!c) return false;\nreturn c.getAttribute('aria-expanded') === 'true';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Collapse the asset row again",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the panel close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "COLLAPSED: the row reports itself closed \u2014 the caret toggles both ways",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = document.querySelector('.mantine-Accordion-item .mantine-Accordion-control');\nif (!c) return false;\nreturn c.getAttribute('aria-expanded') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

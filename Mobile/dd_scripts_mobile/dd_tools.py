@@ -109,6 +109,24 @@ def jsassert(name, code, optional=False, always=False, timeout=None):
                 always=always, timeout=timeout)
 
 
+# The header back arrow (`PageTitle`, faChevronDoubleLeft). Every plausible canonical name is
+# matched because that icon is the one trap 14 was WRITTEN about: it was guessed as
+# `chevron-double-left`, then `angles-left`, and is really `chevrons-left` - two wasted runs.
+# Shared so a third caller cannot re-guess it. NB it does not exist on Home: `PageTitle`
+# returns null when location.pathname === '/'.
+BACK_ARROW = ('//*[@id="page-title"]//*[@data-icon="chevrons-left"'
+              ' or contains(concat(" ", normalize-space(@class), " "), " fa-chevrons-left ")'
+              ' or @data-icon="chevron-double-left"'
+              ' or contains(concat(" ", normalize-space(@class), " "), " fa-chevron-double-left ")'
+              ' or @data-icon="angles-left"'
+              ' or contains(concat(" ", normalize-space(@class), " "), " fa-angles-left ")]')
+
+# A work list row. `WorkListItem` is a bare Mantine Paper with no id or test hook, so it is
+# identified by the one label every row carries and nothing else on the list page does:
+# "Description:" (WorkListItem renders it unconditionally, even when desc is empty).
+WORK_ROW = ('(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")]'
+            '[contains(., "Description:")])')
+
 AV_JOBS_URL = BASE + "/asset-verify"
 AV_FIXTURE_JOB = "DATADOG MOBILE JOB"
 
@@ -123,12 +141,14 @@ def av_list_gate(fixture=AV_FIXTURE_JOB):
     """
     return [
         go(AV_JOBS_URL, "the mobile job list"),
-        step("wait", "Wait for the page to mount", {"value": 10}),
+        # Appendix F: 10s -> 3s; the title assertion polls instead. The 25s BELOW stays -
+        # it is what gives the two `assertPageLacks` checks their meaning.
+        step("wait", "Let the page begin rendering", {"value": 3}),
         step("assertElementContent", 'Test the "Mobile Jobs" page mounted',
              {"check": "contains", "value": "Mobile Jobs",
               "element": xpath_el(AV_JOBS_URL,
                                   '//*[@id="page-title"]//h4[contains(normalize-space(.), '
-                                  '"Mobile Jobs")]')}),
+                                  '"Mobile Jobs")]')}, timeout=30),
         step("wait", "Wait for the lookup prefetch and batched detail downloads",
              {"value": 25}),
         # placeholder is an ATTRIBUTE, not page text (trap 9)
@@ -185,6 +205,130 @@ def av_job_gate(job_id, fixture=AV_FIXTURE_JOB):
              {"element": xpath_el(
                  detail, '(//*[contains(@class,"mantine-Accordion-item")])[1]')},
              timeout=60),
+    ]
+
+
+WORK_URL = BASE + "/work"
+
+
+def work_list_gate(wait=20, require_row=True):
+    """Readiness for the WORK ORDER LIST. Added 2026-08-18 for the same reason
+    `av_job_gate` exists: MOB.340 and MOB.134 had each grown their own warm-up and neither
+    waited on `loadedAll`.
+
+    `loadedAll` is load-bearing on this page in a way it is not elsewhere. The map toggle is
+    written `onClick={() => loadedAll ? setMapView(!mapView) : undefined}` - so before the
+    list finishes downloading, clicking it is a SILENT NO-OP. A test that clicked too early
+    would report a successful click, observe nothing, and (if it asserted only page text)
+    still pass. That is trap 5 wearing a different hat.
+
+    There is no positive `loadedAll` flag in the DOM, so it is inferred from the three
+    LoadingProgress labels being gone. Those are `assertPageLacks` checks and therefore
+    vacuously true BEFORE loading starts as well as after it finishes - the `wait` above
+    them is what gives them meaning. Do not convert them to polling gates (Appendix F).
+
+    require_row=False DROPS the final row guard. Needed because the `Admin` crew's work list
+    is EMPTY on dev - measured 2026-08-18 by MOB.978_DIAG_WorkList_Probe, which found zero
+    Paper elements and a legend with no entries while the RingProgress, the Virtuoso
+    scroller and the search box all rendered. `loadedAll` is still true in that state
+    (`!![]` is true and `0 === 0`), so the page is fully loaded and interactive - there is
+    simply nothing in it. Note this ALSO means MOB.340 has been asserting its search and
+    sort controls against an empty list all along (trap 5).
+    """
+    return [
+        go(WORK_URL, "/work — the work order list"),
+        step("wait", "Let the work list begin rendering", {"value": 3}),
+        step("assertElementContent", 'The "Work Orders" page mounted',
+             {"check": "contains", "value": "Work Orders",
+              "element": xpath_el(WORK_URL,
+                                  '//*[@id="page-title"]//h4[contains(normalize-space(.),'
+                                  ' "Work Orders")]')}, timeout=30),
+        step("wait", "Wait for the workstage pages and the lookup prefetch",
+             {"value": wait}),
+        # placeholder is an ATTRIBUTE, not page text (trap 9)
+        step("assertElementPresent", "The work list rendered its search box",
+             {"element": xpath_el(WORK_URL,
+                                  '//input[@placeholder="Find Workstage(s)"]')}),
+        step("assertPageLacks", "LOADEDALL 1/3: the initial fetch finished",
+             {"value": "Retrieving assigned work"}),
+        step("assertPageLacks", "LOADEDALL 2/3: paging through workstages finished",
+             {"value": "workstages found"}),
+        step("assertPageLacks", "LOADEDALL 3/3: the per-stage detail downloads finished",
+             {"value": "workstages downloaded"}),
+    ] + ([
+        step("assertElementPresent", "WORK ROW GUARD: at least one work order rendered",
+             {"element": xpath_el(WORK_URL, WORK_ROW + "[1]")}, timeout=60),
+    ] if require_row else [])
+
+
+def work_view_toggle(to, always=False):
+    """Switch the work list between the SCHEDULED and plain LIST views, via the hamburger.
+
+    `to` is "List" or "Scheduled" - the view you want to END UP IN.
+
+    WHY A SHARED HELPER. `TopHeader/index.tsx:131` renders one menu item whose label FLIPS:
+    `Toggle Work Order ${scheduledView ? 'List' : 'Scheduled'} View`. So the item you click is
+    named after the view you are going TO, and the label is also the only proof of which view
+    you are currently in. That is fiddly enough to get wrong twice, and this repo has already
+    paid for hand-rolled copies once - three tests each grew their own `av_job_gate` and all
+    three were subtly wrong. One copy, here.
+
+    ⚠️ THE ITEM ONLY EXISTS FOR A `SCHEDULED` ROLE. It is hidden unless
+    `mobileDownloadMode === 'SCHEDULED' && permissions.work.read`. The `Admin` fixture role was
+    set to SCHEDULED on 2026-08-20; if that is ever reverted, every caller of this breaks at
+    the click, and the fix is a fixture change, not a locator change.
+
+    ⚠️ IT PERSISTS. The toggle writes `sessionStorage['toggle_mobile_v_work']`, and a Datadog
+    suite shares ONE browser session - so a test that switches views MUST switch back, with
+    `always=True` on the restore leg (trap 16c). Leaving the list view on would change what
+    every later work-order subtest sees.
+    """
+    burger = '//button[@aria-label="Toggle navigation"]'
+    item = (f'//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")]'
+            f'[contains(normalize-space(.), "Toggle Work Order {to} View")]')
+    want = "false" if to == "List" else "true"
+    return [
+        step("click", f"Open the menu (to switch to the {to} view)",
+             {"element": xpath_el(WORK_URL, burger)}, always=always, timeout=30),
+        step("wait", "Let the menu open", {"value": 1}, always=always),
+        step("click", f'Click "Toggle Work Order {to} View"',
+             {"element": xpath_el(WORK_URL, item)}, always=always, timeout=30),
+        step("wait", "Let the list re-render in the other view", {"value": 3}, always=always),
+        # The app's own contract, not the icon (trap 16).
+        jsassert(f"VIEW: sessionStorage['toggle_mobile_v_work'] is now '{want}'",
+                 "return sessionStorage.getItem('toggle_mobile_v_work') === "
+                 f"'{want}';", always=always, timeout=30),
+    ]
+
+
+def work_cache_warm(wait=30):
+    """Visit /work purely to WARM the lookup cache, with no readiness claims.
+
+    Added 2026-08-20 as the non-racy alternative to `work_list_gate` for callers that only
+    need the cache warm before deep-linking a work order - MOB.134, MOB.347.
+
+    WHY NOT work_list_gate: its three LOADEDALL checks are `assertPageLacks` on the
+    LoadingProgress labels, and a *lacks* assertion CANNOT POLL - it is already true before
+    loading starts, so its only meaning comes from the blind wait in front of it. That was
+    fine while the crew's work list was empty. It is not fine now the list has stages: the
+    per-stage downloads outran a 20s settle, then outran 45s, and the gate failed in MOB.134,
+    MOB.346 and MOB.990 alike. Raising the number again is guessing, not gating.
+
+    So this asserts only what it can assert POSITIVELY (the page mounted) and otherwise just
+    waits. A test that needs real readiness should gate on ITS OWN positive signal - see
+    MOB.346, which polls for the `Today` group header, the thing it is testing anyway.
+    """
+    return [
+        go(WORK_URL, "/work — warm the work lookup cache"),
+        step("wait", "Let the work list begin rendering", {"value": 3}),
+        step("assertElementContent", 'The "Work Orders" page mounted',
+             {"check": "contains", "value": "Work Orders",
+              "element": xpath_el(WORK_URL,
+                                  '//*[@id="page-title"]//h4[contains(normalize-space(.),'
+                                  ' "Work Orders")]')}, timeout=30),
+        # Blind on purpose: there is no positive DOM signal for "the lookup prefetch
+        # finished", and the negative ones cannot poll. Do not convert this to an assertion.
+        step("wait", "Let the lookup prefetch run", {"value": wait}),
     ]
 
 

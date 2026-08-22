@@ -4,7 +4,7 @@
         "name": "MOB.210_Perms_Menu_Gating",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.210` Prove the hamburger menu is gated by role permissions.\n- SELF-RESTORING: switches to a no-permission role and back to `Admin`.\n- Uses `Admin 0000` \u2014 CRUD all off, so `!permissions.*.read` hides **all six**\n  gated menu items at once (Collector, Mobile Jobs, Asset Lookup, Material Lookup,\n  Work Orders, Map).\n- The PROOF is the negative: `Work Orders` must vanish from the menu. Asserting the\n  items are present under `Admin` proves nothing on its own \u2014 they are always present\n  there (trap 5).\n- Every switch is critical and followed by a role assertion, unlike MOB.200 where the\n  outbound switch is optional and unverified.\n- Navigates home first: `Work Orders` appears as a PAGE TITLE on /work, which would\n  satisfy the assertion without the menu item existing (trap 5b).",
+        "message": "`MOB.210` Prove the hamburger menu is gated by role permissions.\n- SELF-RESTORING: switches to a no-permission role and back to `Admin`.\n- Uses `Admin 0000` \u2014 CRUD all off, so `!permissions.*.read` hides **all six**\n  gated menu items at once (Collector, Mobile Jobs, Asset Lookup, Material Lookup,\n  Work Orders, Map).\n- **Covers the six HOME TILES as well as the menu** (added 2026-08-18). The same six\n  permissions gate both, and this test already landed on Home three times without\n  asserting anything about it \u2014 so gating coverage went from ONE gate to SEVEN for a\n  handful of steps.\n- Tiles are counted via JS on `img[alt^=\"icon for \"]`, because Datadog has no\n  `assertElementAbsent` and the alt text is an attribute, not page text (trap 9).\n  The menu's own icons carry no `alt`, so the count cannot pick them up \u2014 and every\n  tile assertion runs with the menu CLOSED (trap 5b).\n- `No valid permissions` is the POSITIVE half of the proof: six absence checks would\n  pass on a blank page too (trap 5).\n- The PROOF is the negative: `Work Orders` must vanish from the menu. Asserting the\n  items are present under `Admin` proves nothing on its own \u2014 they are always present\n  there (trap 5).\n- Every switch is critical and followed by a role assertion, unlike MOB.200 where the\n  outbound switch is optional and unverified.\n- Navigates home first: `Work Orders` appears as a PAGE TITLE on /work, which would\n  satisfy the assertion without the menu item existing (trap 5b).",
         "tags": [
             "Mobile",
             "env:dev",
@@ -153,6 +153,43 @@
                     "value": "Escape"
                 },
                 "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "HOME TILES: exactly 6 permission-gated tile(s) rendered",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.querySelectorAll('img[alt^=\"icon for \"]').length === 6;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Baseline: the \"Work Orders\" home TILE is present under Admin",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//img[@alt=\"icon for Work Orders url\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -370,6 +407,31 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "PROOF: Home falls through to its \"No valid permissions\" empty state",
+                "noScreenshot": false,
+                "params": {
+                    "value": "No valid permissions"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "HOME TILES: exactly 0 permission-gated tile(s) rendered",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.querySelectorAll('img[alt^=\"icon for \"]').length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the header menu",
                 "noScreenshot": false,
                 "params": {
@@ -575,6 +637,31 @@
                     "value": "Escape"
                 },
                 "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "HOME TILES: exactly 6 permission-gated tile(s) rendered",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.querySelectorAll('img[alt^=\"icon for \"]').length === 6;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the empty state is gone",
+                "noScreenshot": false,
+                "params": {
+                    "value": "No valid permissions"
+                },
+                "type": "assertPageLacks"
             }
         ]
     }

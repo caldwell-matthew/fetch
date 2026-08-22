@@ -1,0 +1,299 @@
+{
+    "test_name": "MOB.730_AssetLookup_Proximity",
+    "details": {
+        "name": "MOB.730_AssetLookup_Proximity",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.730` The **\"Near Me\" radius menu** on Asset Lookup \u2014 a feature that landed\n2026-08-21 and was found by diffing `client/mobile`, not by a walk.\n- \ud83d\uded1 **No radius is ever clicked.** Each one calls `getCurrentPosition`, which a\n  Synthetics runner cannot satisfy \u2014 10s of timeout and a `toast.error`, proving nothing.\n  **The menu is reachable; the location is Appendix C.**\n- **The negative is the point**: `Update my location` and `Clear` sit behind\n  `{!!value && ...}`, so they must be ABSENT with no radius set \u2014 asserted alongside the\n  five radii being PRESENT, so it cannot pass on a menu that never opened (trap 5).\n- The button's label is state, not decoration \u2014 `Near Me` vs `Within {n} mi` \u2014 so\n  asserting it doubles as the baseline guard.\n- \u26a0\ufe0f **Persists and auto-locates**: a stored\n  `sessionStorage['asset_lookup_proximity_radius']` makes the page request geolocation on\n  MOUNT, for every later subtest in the shared session. This test asserts the key is\n  empty before and after, and must never be what sets it.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Lookup",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the page mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: no radius is stored in sessionStorage['asset_lookup_proximity_radius']",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = sessionStorage.getItem('asset_lookup_proximity_radius');\nreturn v === null || v === 'null' || v === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Near Me\" button renders \u2014 the no-radius label",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(normalize-space(.), \"Near Me\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Near Me\" menu",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//button[contains(normalize-space(.), \"Near Me\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The menu is headed \"Search radius\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Search radius"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "All five radii are offered \u2014 5 / 10 / 25 / 50 / 100 miles, and only those",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nconst want = [\"5 miles\", \"10 miles\", \"25 miles\", \"50 miles\", \"100 miles\"];\nconst got = items.filter(t => /^\\d+ miles$/.test(t));\nreturn got.length === want.length && want.every(w => got.includes(w));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Update my location\" and \"Clear\" are ABSENT while no radius is set",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn !items.includes('Update my location') && !items.includes('Clear');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu WITHOUT choosing a radius (a click would call getCurrentPosition \u2014 Appendix C)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GUARD: nothing was chosen \u2014 the menu is closed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.filter(t => /^\\d+ miles$/.test(t)).length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEAN: sessionStorage['asset_lookup_proximity_radius'] is still empty",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = sessionStorage.getItem('asset_lookup_proximity_radius');\nreturn v === null || v === 'null' || v === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the button still reads \"Near Me\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(normalize-space(.), \"Near Me\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            }
+        ]
+    }
+}

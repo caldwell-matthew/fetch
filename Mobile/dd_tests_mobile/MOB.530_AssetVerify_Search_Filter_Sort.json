@@ -76,10 +76,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the page to mount",
+                "name": "Let the page begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 10
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -106,7 +106,8 @@
                         }
                     }
                 },
-                "type": "assertElementContent"
+                "type": "assertElementContent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
