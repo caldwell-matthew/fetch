@@ -15,19 +15,35 @@ WHY THIS SCREEN NEEDED A DIFFERENT PROOF STRATEGY THAN EVERY OTHER TEST HERE
   AND A RELOAD DOES NOT FIX IT - THIS IS THE PART THAT MATTERS.
     The Apollo cache is PERSISTED to IndexedDB (`persistCache` + LocalForage,
     graphql/index.tsx:146), so navigating away and back restores the same locally-written
-    entry. Worse, nothing re-fetches it:
-      - `clearCache` (AssetVerification/utils/index.ts:179) rewrites only MOBILE_JOB_DETAILS
-        and FETCH_MOBILE_JOB_TEST. `assetEventReadingHistory` is a ROOT query field, so it
-        stays reachable and `cache.gc()` will not collect it.
-      - the prefetch calls `apolloClient.query(ASSET_EVENT_READING_HISTORY)` with the default
-        cache-first policy, so it returns the poisoned cache without touching the network.
-    Within a single run there is NO way to distinguish "the server stored it" from "the app
-    wrote it to its own cache". The reload trick that proves MOB.395/545/710 does not work
-    here, and using it anyway would have produced a confident green that meant nothing.
+    entry. Within a single run there is NO way to distinguish "the server stored it" from
+    "the app wrote it to its own cache". The reload trick that proves MOB.395/545/710 does
+    not work here, and using it anyway would have produced a confident green that meant
+    nothing.
+
+  ⚠️ HOW THE CACHE HOLDS THE FAKE VALUE CHANGED ON 2026-08-25 (commit c93877db1e), AND THE
+  OLD EXPLANATION HERE WAS WRONG FOR TWO WEEKS. It used to argue:
+        "`clearCache` rewrites only MOBILE_JOB_DETAILS / FETCH_MOBILE_JOB_TEST, and
+         `assetEventReadingHistory` is a ROOT query field, so `cache.gc()` will not collect
+         it; the prefetch then re-queries cache-first and returns the poisoned cache."
+    None of that describes the code any more. The screen no longer reads a root field at all:
+      - it reads `useFragment(ASSET_LATEST_READINGS)` off the NORMALISED `Asset:{id}` entity,
+      - and `onSubmit` writes the fake value back with `cache.writeFragment` on that entity.
+    A normalised field follows different eviction rules than a root one, so the specific
+    retention argument above no longer holds.
+  ⭐ THE CONCLUSION SURVIVED THE REWRITE ANYWAY - and is now stronger, not weaker. Verified
+    2026-09-08, by reading the queries rather than assuming: `ASSET_LATEST_READINGS` is spread
+    into the mobile job's own asset fragments (queries/index.gql.ts:40 and :92), so the job
+    download carries `latestReadings` FROM THE SERVER on every cold start. The opening
+    assertion is therefore still a genuine server proof, and it no longer depends on a root
+    field happening to survive `gc()` - it depends on a payload the job cannot render without.
+  🛑 THE LESSON, WORTH MORE THAN THE ROW: this test stayed GREEN throughout, for a reason its
+    own documentation got wrong. A passing test whose stated mechanism is false is more
+    dangerous than a failing one, because the false reason is what the next person debugging
+    it will trust. Re-read this block against the source whenever EventReadings changes.
 
 THE PROOF THAT DOES WORK: THE NEXT RUN'S COLD CACHE
   Datadog starts each run in a fresh browser profile, so IndexedDB is EMPTY and the app must
-  fetch `assetEventReadingHistory` from the server. Therefore:
+  fetch the asset's `latestReadings` from the server as part of the job download. Therefore:
 
       this run writes a known value  ->  the NEXT run opens on a cold cache and sees it
 
@@ -148,10 +164,14 @@ write(test(
     "  Apollo cache with `writeQuery`. Toast, counter and rendered value all appear even if\n"
     "  the server rejected the mutation (trap 6, `bugs_found.md` §11).\n"
     "- **A reload cannot fix that here.** The cache is persisted to IndexedDB\n"
-    "  (`persistCache` + LocalForage), `clearCache` does not evict `assetEventReadingHistory`\n"
-    "  (a root field, so `gc()` keeps it), and the prefetch re-queries **cache-first** — so\n"
-    "  nothing re-reads it from the server. Within one run, \"stored\" and \"cached locally\"\n"
-    "  are indistinguishable.\n"
+    "  (`persistCache` + LocalForage), so within one run \"stored\" and \"cached locally\" are\n"
+    "  indistinguishable.\n"
+    "  ⚠️ **The MECHANISM changed on 2026-08-25 and this note was wrong for two weeks** — the\n"
+    "  screen no longer reads the root `assetEventReadingHistory` field; it reads\n"
+    "  `useFragment(ASSET_LATEST_READINGS)` off the normalised `Asset` and writes the fake\n"
+    "  value back with `writeFragment`. ⭐ **The conclusion survived**: `ASSET_LATEST_READINGS`\n"
+    "  is spread into the job's own asset fragments, so a cold profile must fetch it from the\n"
+    "  server — a stronger guarantee than the old one. Verified 2026-09-08.\n"
     "- **So the proof is the NEXT run.** Datadog starts each run with an empty profile, so\n"
     f"  the opening assertion — that the field already shows `{READING_A}` or `{READING_B}` —\n"
     "  can only be satisfied by data the **server** returned, written by a previous run.\n"

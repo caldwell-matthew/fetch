@@ -184,8 +184,28 @@ steps = (
         # THE READINESS GATE AND THE FIRST PROOF. Counts the group-header SET rather than
         # naming a group, because Virtuoso mounts only what is on screen (see the header
         # note). timeout=120 to outlast the per-stage downloads on a populated list.
-        jsassert("SCHEDULED VIEW: at least one group header is rendered (readiness gate)",
-                 GROUP_HEADERS_JS + "return n >= 1;", timeout=120),
+        #
+        # 🛑 NOT CRITICAL, AND THAT IS A CORRECTION MADE 2026-09-08 AFTER IT COST A SUITE.
+        # This gate was made `critical` on the reasoning that "a step that could not fail now
+        # can - reasoned safe, because the next click fails anyway if the modal is open". That
+        # reasoning considered only ONE failure mode. It missed the one that actually happened:
+        # the gate also fails when the test's FIXTURE PREMISE is false.
+        #
+        # On 2026-09-08 the crew's role no longer had `mobileDownloadMode === 'SCHEDULED'`
+        # (DIAG A passed, which is precisely what DIAG A exists to say). The scheduled view
+        # therefore does not render at all, this gate failed - and because it was critical it
+        # ABORTED THE WHOLE RUN, so `MOB.171` and `MOB.910` never executed. The suite reported
+        # three red children when only one had a real problem, and the other two were hidden.
+        # `MOB.990` had been red for three runs on that basis.
+        #
+        # ➡️ The rule this encodes: a gate on a FIXTURE PREMISE must never be critical inside a
+        # shared suite. Let this child fail alone and loudly; do not let it decide whether its
+        # siblings get to run. (A vacuous PASS would be worse still - see the ⚪ note in
+        # OPEN WORK about not making an absent subject look like a healthy one.)
+        jsassert("SCHEDULED VIEW: at least one group header is rendered (readiness gate) — "
+                 "NON-CRITICAL: if the role is not SCHEDULED this fails alone rather than "
+                 "aborting the suite; read DIAG A to tell the two apart",
+                 GROUP_HEADERS_JS + "return n >= 1;", soft=True, timeout=120),
         jsassert("DEFAULT: sessionStorage has no toggle yet, or holds 'true'",
                  "const v = sessionStorage.getItem('toggle_mobile_v_work');\n"
                  "return v === null || v === 'true';", timeout=30),
@@ -233,14 +253,34 @@ steps = (
         step("pressKey", "Close the Sort Criteria MODAL (the first Escape only closed the "
              "Select)", {"value": "Escape"}, always=True),
         step("wait", "Let the sort modal close", {"value": 2}, always=True),
+        # ⚠️ CRITICAL, NOT OPTIONAL — changed by `audit_assertions.py` (LOADBEARING-OPT).
+        # This is a PRECONDITION, and an optional precondition is a contradiction: its entire
+        # purpose is to fail HERE, with a legible name, instead of two steps later as an
+        # inscrutable "element not clickable". Marked optional it could not do that job.
+        # 🛑 And this cannot destabilise the suite: if the modal really is still open, the menu
+        # click below fails anyway. Making the guard critical changes WHICH step reports the
+        # failure, never WHETHER the run fails.
         jsassert("GUARD: the sort modal is really gone — its overlay would swallow the "
                  "menu click below",
                  "return !document.body.innerText.includes('Sort Criteria');",
-                 optional=True, always=True, timeout=15),
-        jsassert("GUARD: no sort was chosen — the stored WorkStage sort is untouched",
+                 always=True, timeout=15),
+        # ⚠️ THIS GUARD COULD NOT FAIL AND WAS FIXED BY AN AUDIT. It read
+        #     JSON.parse(v).id !== 'SCHEDULED_WORK' || true
+        # — the `|| true` makes the comparison dead code, so the step returned true for every
+        # possible stored value, including the one it exists to catch. Same class as MOB.348's
+        # geolocate count: green, and would have stayed green if the thing it names broke.
+        # Correct contract: this test asserts `Scheduled Grouping` is PRESENT and selects
+        # nothing, so the stored sort must be either absent or still the forced SCHEDULED_WORK.
+        # An explicit non-scheduled choice means something in the session picked a sort, which
+        # is what the guard is for (and would silently change MOB.345's premise).
+        # Left OPTIONAL deliberately, unlike the guard above. This one reports SESSION POLLUTION
+        # for later subtests rather than a precondition for the next step, and `if (!v) return
+        # true` means "nothing stored" is a legitimate pass - so a failure here is advisory, and
+        # the name now says so rather than claiming a hard guarantee.
+        jsassert("ADVISORY: no sort was chosen — the stored WorkStage sort looks untouched",
                  "const v = sessionStorage.getItem('mobile-WorkStage-sort');\n"
                  "if (!v) return true;\n"
-                 "try { return JSON.parse(v).id !== 'SCHEDULED_WORK' || true; }\n"
+                 "try { return JSON.parse(v).id === 'SCHEDULED_WORK'; }\n"
                  "catch (e) { return false; }", optional=True, always=True, timeout=15),
 
         # ---- LEG 2: the menu toggle switches to the plain list ----------------------------

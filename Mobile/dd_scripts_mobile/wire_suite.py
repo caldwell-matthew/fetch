@@ -21,7 +21,21 @@ SCRIPTS = os.path.dirname(os.path.abspath(__file__))   # Mobile/dd_scripts
 MOBILE = os.path.dirname(SCRIPTS)                      # Mobile
 REPO = os.path.dirname(MOBILE)                         # repo root (fetch/)
 HERE = os.path.join(MOBILE, "dd_tests_mobile")
-SUITES = sorted(glob.glob(os.path.join(HERE, "MOB.9*Suite.json")))
+# Anything that CHAINS CHILDREN needs wiring, not just files named "*Suite".
+# 🛑 `MOB.9*Suite.json` missed `MOB.999_Verify_Scratch.json`, so the scratch harness was never
+# wired and never pushed - which silently made `verify.py` non-functional: it pushes, wires,
+# pushes, then runs a suite whose only child is still the literal string `PENDING-WIRE-UP`.
+# Select by CONTENT (does it contain a playSubTest step?) rather than by filename, so a suite
+# can never again be skipped for being named something unexpected.
+def _chains_children(path):
+    try:
+        d = json.load(open(path))["details"]
+    except Exception:
+        return False
+    return any(s.get("type") == "playSubTest" for s in d.get("steps", []))
+
+
+SUITES = sorted(p for p in glob.glob(os.path.join(HERE, "*.json")) if _chains_children(p))
 
 conf = Configuration(ssl_ca_cert=certifi.where())
 env = dotenv_values(os.path.join(REPO, ".env"))

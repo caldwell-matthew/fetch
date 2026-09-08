@@ -73,11 +73,13 @@ def pick(select_id, label, value):
     """
     return [
         step("click", f"Open the {label} select",
-             {"element": xpath_el(LOOKUP_URL, f'//*[@id="{select_id}"]')}),
+             {"element": xpath_el(LOOKUP_URL, f'//*[@id="{select_id}"]')}, timeout=30),
         step("wait", f"Wait for {label} options", {"value": 2}),
+        # Every Mantine menu/option click polls — the lesson MOB.974 run 1 paid for.
         step("click", f'Pick {label} = "{value}"',
              {"element": xpath_el(
-                 LOOKUP_URL, f'//*[@role="option"][normalize-space(.)="{value}"]')}),
+                 LOOKUP_URL, f'//*[@role="option"][normalize-space(.)="{value}"]')},
+             timeout=30),
     ]
 
 
@@ -108,12 +110,16 @@ write(test(
 
         # -------- build a matching filter
         step("click", "Open the Filters drawer",
-             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}),
+             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, timeout=30),
         step("wait", "Wait for the drawer", {"value": 2}),
         # "Add Filter" is unique to the drawer; the trigger button itself reads "Filters (N)",
         # so asserting the word "Filters" would match the closed state too (trap 5).
+        # ⚠️ POLLING GATE, not a bare assertion. This had no timeout and leaned on the fixed
+        # `wait 2` above — trap 21's shape: a timer, not a gate. It failed once on a slow run
+        # with "No element found", a full suite lost to 2s of drawer render. 30s costs nothing
+        # when the drawer is already up.
         step("assertElementPresent", "Test the Filters drawer opened",
-             {"element": xpath_el(LOOKUP_URL, ADD_FILTER)}),
+             {"element": xpath_el(LOOKUP_URL, ADD_FILTER)}, timeout=30),
     ] + pick("fieldId", "Field", "Name") + pick("operator", "Operator", "contains") + [
         step("typeText", f"Enter the value {ASSET}",
              {"value": ASSET, "element": xpath_el(LOOKUP_URL, '//*[@id="value"]')}),
@@ -181,8 +187,19 @@ login_steps = json.load(
 # missing entirely, which is indistinguishable from it passing (trap 5 / trap 12).
 CHILDREN = ["MOB.530_AssetVerify_Search_Filter_Sort",
             "MOB.800_Search_StructuredQuery",
+            # MOB.805 sits next to MOB.800: same drawer, same screen. It builds its own filter
+            # and clears it, so it neither depends on nor disturbs MOB.800's legs.
+            "MOB.805_Search_Filter_Edit",
+            # MOB.806 follows MOB.805: same drawer, and it never ADDS a filter, so it
+            # cannot disturb the one MOB.805 builds and clears.
+            "MOB.806_Search_MultiValue",
             "MOB.810_Search_Sort_Apply",
-            "MOB.820_Search_Filter_Then_Search"]   # keep COMPLETE - trap 12
+            "MOB.820_Search_Filter_Then_Search",
+            # ⚠️ MOB.535 MUST STAY LAST. It is the only child here that CLEARS
+            # `mobile-MobileJob-sort` on the way out; MOB.810 deliberately leaves a sort set
+            # and asserts it persisted, so clearing it earlier in the chain would break that
+            # test. Last also means a leaked sort from a mid-run failure cannot reach anything.
+            "MOB.535_AssetVerify_Sort_Ordering"]   # keep COMPLETE - trap 12
 
 write(test(
     "MOB.996_Search_Suite",

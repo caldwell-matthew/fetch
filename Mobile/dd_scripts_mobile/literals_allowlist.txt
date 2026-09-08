@@ -1,0 +1,53 @@
+# Literals that check_literals.py must NOT report as MISSING.
+#
+# 🛑 FIXTURE DATA ONLY. Every line here is a string that lives in the dev DATABASE and is
+# therefore correctly absent from client/mobile and client/src.
+#
+# ⚠️ NEVER allowlist a UI string to silence this check. A UI string that has gone missing is
+# the entire finding - that is how MOB.730/731/974 sat broken for two weeks, one of them
+# passing vacuously. If you are tempted, the right move is to fix the test or delete it.
+#
+# Adding a line is a claim: "this is data, not UI, and no rename in the app can affect it."
+# One entry per line. `#` starts a comment. Matching is exact, after `{{ ... }}` is stripped.
+
+# ---- work order fixtures ------------------------------------------------------------------
+Datadog Test                    # the workflow MOB.300/122/396/397 create against
+DD SYNTHETIC MOBILE {{ RUNID }} # MOB.600's per-run asset name; RUNID is a Datadog variable
+
+# ---- mobile job / asset verification fixtures ---------------------------------------------
+DATADOG MOBILE JOB              # the crew's fixture job - the FIXTURE GUARD in 12 tests
+
+# ---- charge lookup values (ELMO) ----------------------------------------------------------
+AC Adapter                      # MOB.350 equipment
+Account Executive               # MOB.360 craft
+0000-0000 Diaphragm Pump        # MOB.370 material item
+Actuator Tools                  # MOB.600 asset type
+
+# ---- condition / failure lookup values ----------------------------------------------------
+Mounting/Support                # MOB.390 inspection element
+BELT (R-L1)                     # MOB.391 failure component
+MISSED                          # MOB.391 failure cause
+
+# ---- material lookup fixtures -------------------------------------------------------------
+Central Storeroom               # MOB.850/860/870 storeroom, and MOB.370's location
+000-000-000 Adamantium          # the cycle-count / stocking fixture item
+Error Correction                # MOB.860 adjustment reason
+
+# ---- not fixture data, but not app text either --------------------------------------------
+___DUMP___                      # MOB.979's own sentinel - the probe prints it, the app never
+                                # renders it. Delete this line when MOB.979 is deleted.
+
+# ---- asset-verification fixture assets ----------------------------------------------------
+Tank 0000                       # the fixture job's first asset (7 tests)
+A/C Motor 0002                  # its second - MOB.570's wrap-around and MOB.580's ordering
+Structural                      # MOB.390 inspection group
+
+# ---- values a self-restoring test writes and reads back ------------------------------------
+# These are asserted because a PREVIOUS run wrote them. They are data by construction.
+DATADOG FIXTURE                 # MOB.395 / MOB.710 restore the description to this
+DECEMBER 2002                   # MOB.545's baseline "Year Of Manufacture"
+
+# ---- values injected by a test's own stub --------------------------------------------------
+# MOB.358 stubs Mapbox reverse-geocoding; these are the stub's response, not app text.
+Illinois
+United States

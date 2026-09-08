@@ -18,11 +18,11 @@ Datadog's own storage, and `SyntheticsApi` has **no endpoint that mints one** (t
 like this exist only because a human authored them in the Datadog UI. No build script here can
 produce it, and `DD_FORCE=1` on a generator would destroy it rather than recreate it.
 
-**Why the live test does not have it.** The upload step was built, verified to execute, and
-then removed — attaching a photo makes the server roll back and throw
-`Unable to create attachments`, taking the whole asset with it (`bugs_found.md` §14). That is
-a **backend** limitation, not a test-authoring one, so the recipe was preserved here against
-the day it is fixed.
+**Status: the live test HAS these steps again.** They were removed for a while because
+attaching a photo made the server roll back and throw `Unable to create attachments`, taking
+the whole asset with it (`bugs_found.md` §14). **That backend bug is fixed** — `MOB.600` now
+runs 23/23 green with the upload in place. This file stays as the master copy of the recipe,
+because the step still cannot be regenerated if it is ever lost again.
 
 **What it encodes that took real effort to find** (traps 4, 12, 14, 15):
 
@@ -32,8 +32,18 @@ the day it is fixed.
 - its index is **3**, measured — render order predicts 1, and React running effects
   depth-first is why that prediction is wrong
 
-**⚠️ Restorable into `MOB.600` only.** The `bucketKey` is namespaced to MOB.600's public id, so
-these steps can be put back into *that* test and cannot be copied into another.
+**✅ The `bucketKey` IS PORTABLE between tests — measured, and it reverses what this file used
+to claim.** The old claim was that the key is namespaced to MOB.600's public id (the path looks
+like `browser-upload-file-step/<public_id>/<timestamp>.json`) and so could never be copied into
+another test. That was an **inference from the path shape, never a measurement**, and it was
+wrong. `MOB.621_Collector_Photo_Add` copies these steps into a *different* test and runs green:
+**Datadog re-namespaces the key to the receiving test on push** (`4ty-vhq-3aa` → `uv3-88w-i8i`).
+
+This is the difference between "every upload test needs a human to author its step in the
+Datadog UI first" and "upload coverage can be generated for any screen". It is the latter. The
+pattern to copy is in `build_photo_add_test.py`: read the reveal + `uploadFiles` steps out of
+`MOB.600`'s JSON at build time rather than pasting them, so there stays exactly one copy of the
+only working recipe and a build fails loudly if it ever goes missing.
 
 **To restore:** copy the file over `dd_tests_mobile/MOB.600_Collector_Create_Asset.json`, then
 `push`. Do not run `build_collector_tests.py` afterwards — it would overwrite the upload step

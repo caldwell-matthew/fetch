@@ -387,14 +387,14 @@
                 "timeout": 30
             },
             {
-                "allowFailure": true,
+                "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
-                "isCritical": false,
-                "name": "The geolocate control renders inside the form (using it is Appendix C)",
+                "isCritical": true,
+                "name": "The geolocate control renders inside the form \u2014 anchored on the ICON, so it fails if the control disappears (using it is MOB.911's job)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const f = document.getElementById('locationform');\nif (!f) return false;\nreturn f.querySelectorAll('button, [role=button]').length >= 2;"
+                    "code": "const f = document.getElementById('locationform');\nif (!f) return false;\nconst icon = f.querySelector('[data-icon=\"location-crosshairs\"], .fa-location-crosshairs');\nif (!icon) return false;\n// and it must sit inside a real ActionIcon, not be a loose decorative svg\nreturn !!icon.closest('.mantine-ActionIcon-root');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -476,10 +476,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The location form is gone \u2014 nothing was submitted",
+                "name": "The location form was DISMISSED and the page is still alive",
                 "noScreenshot": false,
                 "params": {
-                    "code": "return !document.getElementById('locationform');"
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.getElementById('locationform');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

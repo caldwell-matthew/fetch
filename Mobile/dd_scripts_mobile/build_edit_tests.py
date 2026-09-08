@@ -15,9 +15,12 @@ THE PLAN SAID SEVEN TESTS. THERE ARE NOT SEVEN SURFACES.
                                  attributes. Not built yet: which attributes exist on the
                                  fixtures is DB data, not source.
 
-  Photos/Docs are attachments (backend-blocked, bugs_found.md 14) and Work History is
-  read-only, so they are not edit surfaces at all. Recorded because "5 tabs" implied five
-  tests and would have produced four near-duplicates of MOB.710.
+  Photos/Docs are attachments and Work History is read-only, so they are not edit surfaces at
+  all. Recorded because "5 tabs" implied five tests and would have produced four near-duplicates
+  of MOB.710.
+  (This used to add "backend-blocked, bugs_found.md 14". **§14 is fixed** - MOB.600 runs green
+  with a real uploadFiles step, and MOB.621/622/741 cover the attachment surfaces. It changes
+  nothing above: they are still not EDIT surfaces.)
 
 WHY BOTH TESTS ARE TWO-LEGGED, AND WHY THAT IS NOT DECORATION
   Leg 1 writes `DD SYNTHETIC EDIT {{ RUNID }}`; leg 2 writes the fixed BASELINE back. Three

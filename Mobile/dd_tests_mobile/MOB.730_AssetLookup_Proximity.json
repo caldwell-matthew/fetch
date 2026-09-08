@@ -4,7 +4,7 @@
         "name": "MOB.730_AssetLookup_Proximity",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.730` The **\"Near Me\" radius menu** on Asset Lookup \u2014 a feature that landed\n2026-08-21 and was found by diffing `client/mobile`, not by a walk.\n- \ud83d\uded1 **No radius is ever clicked.** Each one calls `getCurrentPosition`, which a\n  Synthetics runner cannot satisfy \u2014 10s of timeout and a `toast.error`, proving nothing.\n  **The menu is reachable; the location is Appendix C.**\n- **The negative is the point**: `Update my location` and `Clear` sit behind\n  `{!!value && ...}`, so they must be ABSENT with no radius set \u2014 asserted alongside the\n  five radii being PRESENT, so it cannot pass on a menu that never opened (trap 5).\n- The button's label is state, not decoration \u2014 `Near Me` vs `Within {n} mi` \u2014 so\n  asserting it doubles as the baseline guard.\n- \u26a0\ufe0f **Persists and auto-locates**: a stored\n  `sessionStorage['asset_lookup_proximity_radius']` makes the page request geolocation on\n  MOUNT, for every later subtest in the shared session. This test asserts the key is\n  empty before and after, and must never be what sets it.",
+        "message": "`MOB.730` The **\"Near Me\" radius menu** on Asset Lookup \u2014 a feature that landed\n2026-08-21 and was found by diffing `client/mobile`, not by a walk.\n- \ud83d\uded1 **No radius is ever clicked.** Each one calls `getCurrentPosition`, which a\n  Synthetics runner cannot satisfy \u2014 10s of timeout and a `toast.error`, proving nothing.\n  **The menu is reachable; the location is Appendix C.**\n- **The negative is the point**: `Update my location` and `Clear` sit behind\n  `{!!value && ...}`, so they must be ABSENT with no radius set \u2014 asserted alongside the\n  five radii being PRESENT, so it cannot pass on a menu that never opened (trap 5).\n- The button's label is state, not decoration \u2014 `Near Me` vs `Within {n} mi` \u2014 so\n  asserting it doubles as the baseline guard.\n- \ud83d\uded1 **UNIT-AGNOSTIC BY REQUIREMENT, not by taste.** The radius options are\n  `${radius} ${distanceUnit}` and BOTH halves come from the **browser locale**\n  (`utils/distance`): `5/10/25/50/100 mi` imperial, `10/25/50/100/200 km` metric.\n  This test pinned `N miles` until 2026-09-08 and had been broken since the 09-02\n  localization commit. \u26a0\ufe0f **The failure was two-sided**: the positive check went red,\n  and its paired absence check started passing **vacuously** \u2014 a green step that could\n  never fail again. The set assertion now also rejects a MIX of units.\n- \u26a0\ufe0f **Persists and auto-locates**: a stored\n  `sessionStorage['asset_lookup_proximity_radius']` makes the page request geolocation on\n  MOUNT, for every later subtest in the shared session. This test asserts the key is\n  empty before and after, and must never be what sets it.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -150,6 +150,42 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "SETTLE GATE: the search input is interactive \u2014 the page finished its first render",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the first asset query settle before touching the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the \"Near Me\" menu",
                 "noScreenshot": false,
                 "params": {
@@ -174,24 +210,23 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the menu open",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
                 "name": "The menu is headed \"Search radius\"",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Search radius"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-label \")][normalize-space(.)=\"Search radius\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "assertPageContains",
+                "type": "assertElementPresent",
                 "timeout": 30
             },
             {
@@ -199,10 +234,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "All five radii are offered \u2014 5 / 10 / 25 / 50 / 100 miles, and only those",
+                "name": "All five radii are offered, and they are exactly ONE locale's set \u2014 5/10/25/50/100 mi or 10/25/50/100/200 km, never a mix",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nconst want = [\"5 miles\", \"10 miles\", \"25 miles\", \"50 miles\", \"100 miles\"];\nconst got = items.filter(t => /^\\d+ miles$/.test(t));\nreturn got.length === want.length && want.every(w => got.includes(w));"
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nconst got = items.filter(t => /^\\d+ (mi|km)$/.test(t));\nconst IMPERIAL = [\"5 mi\", \"10 mi\", \"25 mi\", \"50 mi\", \"100 mi\"];\nconst METRIC = [\"10 km\", \"25 km\", \"50 km\", \"100 km\", \"200 km\"];\nconst same = (a, b) => a.length === b.length && b.every(x => a.includes(x));\nreturn got.length === 5 && (same(got, IMPERIAL) || same(got, METRIC));"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -249,10 +284,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "GUARD: nothing was chosen \u2014 the menu is closed",
+                "name": "GUARD: nothing was chosen \u2014 the menu is closed (MEANINGFUL ONLY because the same /^\\d+ (mi|km)$/ matched five items above \u2014 do not decouple them)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.filter(t => /^\\d+ miles$/.test(t)).length === 0;"
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.filter(t => /^\\d+ (mi|km)$/.test(t)).length === 0;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

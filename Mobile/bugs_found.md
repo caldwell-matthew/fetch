@@ -20,37 +20,52 @@ Each entry says how strongly it is evidenced, because that varies a lot:
 cheap — those rows say **confirmed**. The rest were not re-read and may have been fixed since
 they were written; treat them as leads, not as current facts.*
 
+*§27–§31 were added 2026-08-21/23 while building the geolocation and offline tests, and were
+read against `client/mobile` at that time. **§28's runtime half is still unconfirmed** — it
+says so in the row.*
+
+⚠️ **Keep this file current as work happens, not in a catch-up pass.** §29 and §31 were both
+found days before they were written down, and lived only as comments inside test generators —
+where nobody looking for app bugs would ever find them. If a finding is about the APP, it
+belongs here; if it is about a TEST, it belongs in `testing_checklist.md`.
+
 ⚠️ **Do not renumber.** `testing_checklist.md` cross-references §1, §4, §9, §10, §11, §14,
 §20, §21, §23, §24, §25 and §26 by number. **§15–§17 do not exist** — they never did, and
 nothing references them; the gap is not a missing entry.
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 1 | Lookup searches are case-sensitive (pattern, not one-off) | Runtime | open — tests route around it |
-| 2 | `CreateWorkButton` reads the session non-reactively | Source | ⚠️ re-check — a `useQuery` now sits alongside the `readQuery` |
-| 3 | Crew shortcut invisible at phone width | Source | open, **unexercised** — needs the phone-width test T1.4 blocks on |
-| 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | **confirmed** — 0 imports |
-| 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | open |
-| 4c | Adding a form is self-degrading — succeeds only once | Runtime | open — why `MOB.393` is read-only |
-| 5 | Created work orders are not crew-assigned | Runtime | open |
-| 6 | Crew and logout modals have no close control | Source | **confirmed** — `withCloseButton: false` |
-| 7 | Several roles share the `Admin` prefix with different permissions | Operational | open — load-bearing for the role guards |
-| 8 | `hooks/NetworkStatus.tsx` is an empty file | Source | **confirmed** — still 0 bytes |
-| 9 | An invalid form submits silently | Source | **confirmed** — now asserted directly by `MOB.347` |
-| 10 | Mobile job status only moves forward | Runtime | open — blocks 4 items |
-| 11 | Verification toast fires before the mutation | Source | open |
-| 12 | Asset detail route implements 6 of 15 template section types | Source | **confirmed** — still 6 |
-| 13 | Escape discards the whole new-asset form | Source | open |
-| 14 | Browser-originated attachments fail the whole collect | Runtime | open — blocks all attachment coverage |
-| 18 | `SubmitButton` ignores the label passed as children | Source | **confirmed** — `buttonText` only |
-| 19 | Event readings report success without waiting for the server | Source | open |
-| 20 | Submitting search discards active structured filters | Runtime | open — `MOB.820` characterises it |
-| 21 | Permits tab renders blank with no permits | Source | **confirmed** — no empty state |
-| 22 | `useMediaQuery` inside a loop callback | Source | open |
-| 23 | `HomeWidgets` hardcodes counts / queries the wrong thing | Source | **confirmed** — dead code, 0 imports |
-| 24 | `Supersesed` misspelling in the status legend | Source | **confirmed** — `StatusSummary/index.tsx:47` |
+| 1 | Lookup searches are case-sensitive (pattern, not one-off) | Runtime | ✅ **FIXED 2026-08-24** |
+| 2 | `CreateWorkButton` reads the session non-reactively | Source | ✅ **FIXED 2026-08-24** — `useQuery(GET_SESSIONDocument)` |
+| 3 | Crew shortcut invisible at phone width | Source | ✅ **FIXED 2026-08-24** — shown at all widths |
+| 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | ✅ **FIXED 2026-08-24** — dead component deleted |
+| 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | ✅ **FIXED 2026-08-24** |
+| 4c | Adding a form is self-degrading — succeeds only once | Runtime | ✅ **FIXED 2026-08-24** — duplicate filter kept; picker now says so |
+| 5 | Created work orders are not crew-assigned | Runtime | ✅ **FIXED 2026-08-24** — session `useQuery` + Pending/Requested → Ready |
+| 6 | Crew and logout modals have no close control | Source | ✅ **FIXED 2026-08-24** — `withCloseButton: true` |
+| 7 | Several roles share the `Admin` prefix with different permissions | Operational | open — env/data, not an app-code fix |
+| 8 | `hooks/NetworkStatus.tsx` is an empty file | Source | ✅ **FIXED 2026-08-24** — empty file deleted |
+| 9 | An invalid form submits silently | Source | ✅ **FIXED 2026-08-24** — button stays `type="submit"` |
+| 10 | Mobile job status only moves forward | Runtime | ✅ **FIXED 2026-08-24** |
+| 11 | Verification toast fires before the mutation | Source | ✅ **FIXED 2026-08-24** |
+| 12 | Asset detail route implements 6 of 15 template section types | Source | ✅ **FIXED 2026-08-24** — unhandled tabs show a fallback |
+| 13 | Escape discards the whole new-asset form | Source | ✅ **FIXED 2026-08-24** — `closeOnEscape={false}` |
+| 14 | Browser-originated attachments fail the whole collect | Runtime | ✅ **FIXED** — verified by test, not by report |
+| 18 | `SubmitButton` ignores the label passed as children | Source | ✅ **FIXED 2026-08-24** |
+| 19 | Event readings report success without waiting for the server | Source | ✅ **FIXED 2026-08-24** |
+| 20 | Submitting search discards active structured filters | Runtime | ✅ **FIXED 2026-08-24** — **flip `MOB.820` assertions** |
+| 21 | Permits tab renders blank with no permits | Source | ✅ **FIXED 2026-08-24** |
+| 22 | `useMediaQuery` inside a loop callback | Source | ✅ **FIXED 2026-08-24** |
+| 23 | `HomeWidgets` hardcodes counts / queries the wrong thing | Source | ✅ **FIXED 2026-08-24** — dead file deleted |
+| 24 | `Supersesed` misspelling in the status legend | Source | ✅ **FIXED 2026-08-24** — assert `Superseded` |
 | 25 | The `Admin` crew's work list is empty on dev | Operational | 🔄 **SUPERSEDED 2026-08-20** — work orders were assigned; see the entry |
-| 26 | Asset Type edits on the AV detail "save" and revert | Runtime | **open — highest severity here** |
+| 26 | Asset Type edits on the AV detail "save" and revert | Runtime | ✅ **FIXED 2026-08-24** — `typeId` locked on AV detail |
+| 27 | `useGeolocation` is dead code — but carries a full Jest suite | Source | ✅ **FIXED 2026-08-24** — hook and tests deleted |
+| 28 | `GeolocateButton`'s offline message sits behind a `disabled` element's own `onClick` | Source | ✅ **FIXED 2026-08-24** — enabled control + `aria-disabled` |
+| 29 | A Mapbox failure makes Geolocate fail **silently** | Source | ✅ **FIXED 2026-08-24** |
+| 30 | The offline transaction queue has **no tests in either harness** | Source | ✅ **FIXED 2026-08-24** — Jest for Queue/Persist/Serialize/Error |
+| 31 | A deploy takes over a running session silently, and deletes the cache it was using | Source | ✅ **FIXED 2026-08-24** — `controllerchange` reloads once |
+| 32 | Work-stage Docs upload gated on `asset.create` | Source | ✅ **FIXED 2026-08-24** — gate passed in from the call site |
 
 **If you fix one, mark it here rather than deleting the entry** — several are referenced from
 the checklist as the reason a test is shaped the way it is, and a deleted entry turns that
@@ -59,6 +74,11 @@ reasoning into a dangling pointer.
 ---
 
 ## 1. Several lookup searches are case-sensitive (pattern, not one-off)
+
+> ## ✅ FIXED 2026-08-24
+>
+> Craft, condition-asset, and failure-asset lookups now lower-case both sides of
+> `.includes`. Tests can search by the visible name.
 
 **Evidence: Runtime** · `LaborCharges.tsx`, `Conditions/Form.tsx`
 
@@ -113,6 +133,11 @@ simplified to search by name — until then, adding a search term silently break
 
 ## 2. `CreateWorkButton` reads the session non-reactively
 
+> ## ✅ FIXED 2026-08-24
+>
+> `CreateWorkButton` now uses `useQuery(GET_SESSIONDocument)` so it re-renders
+> when the session lands in cache.
+
 **Evidence: Source** (latent — *not* the cause of the failures we chased; see §7)
 `client/mobile/components/WorkOrders/components/InsertForm/index.tsx`
 
@@ -141,6 +166,11 @@ why we have not observed it directly.
 
 ## 3. Crew shortcut is invisible on phone-width screens
 
+> ## ✅ FIXED 2026-08-24
+>
+> `.mobile-crew` is `display: block` at all widths. The current crew name is
+> visible and tappable on phone-sized screens, not only ≥450px.
+
 **Evidence: Runtime** · `client/mobile/components/index.css:193`
 
 ```css
@@ -164,6 +194,12 @@ width-independent.
 ---
 
 ## 4. Treat mobile as delete-free — `DeleteButton` is dead code
+
+> ## ✅ FIXED 2026-08-24
+>
+> Unused `DeleteButton` (and its Jest file) deleted. Mobile stays delete-free;
+> do not write a delete step into any mobile test unless the owner names the
+> exact flow.
 
 **Evidence: Source** · `client/mobile/components/ui/DeleteButton.tsx`
 
@@ -194,6 +230,10 @@ strategy: no create/delete pair can self-clean, so every mutating test leaves re
 ---
 
 ## 4b. `WorkCollectionMenu` checks a permission field that does not exist
+
+> ## ✅ FIXED 2026-08-24
+>
+> Guard is now `if (!wPerms?.delete && !wPerms?.update && !wPerms?.create) return null;`
 
 **Evidence: Source** · `client/mobile/components/WorkOrders/components/ui/Menu.tsx:29-30`
 
@@ -228,6 +268,13 @@ a hidden menu. The `?.` on the line above shows the author knew the value was nu
 
 ## 4c. Adding a form is self-degrading — it can only ever succeed once
 
+> ## ✅ FIXED 2026-08-24
+>
+> The picker still hides forms already on the stage (duplicates are not a
+> supported mobile action). It now states that explicitly:
+> *"Forms already on this work stage are not listed."*
+> `MOB.393` remains one-shot / read-only for that reason.
+
 **Evidence: Source** · `client/mobile/components/WorkOrders/components/Forms/AdHocForm.tsx:127`
 
 ```js
@@ -258,6 +305,13 @@ never attached. Marked TODO in the checklist rather than papered over.
 
 ## 5. Created work orders are not crew-assigned
 
+> ## ✅ FIXED 2026-08-24
+>
+> Create-work reads the session with `useQuery` (same as `CreateWorkButton`)
+> so `roleId` is assigned from the live role. Newly created stages in
+> Pending or Requested are then updated to Ready so `getCrew.ts` still
+> returns them after a resync. Server download rules were not relaxed.
+
 **Evidence: Runtime** (confirmed in-app)
 
 A work order created from mobile is not assigned to any crew, and the mobile list queries
@@ -274,6 +328,11 @@ manually-assigned fixture (`EYRpYJ9QYdQ1JFF10JtB0Q`).
 
 ## 6. Crew and logout modals have no close control
 
+> ## ✅ FIXED 2026-08-24
+>
+> Switch Crews, the header crew shortcut, and Log Out now open with
+> `withCloseButton: true`. Cancel / Take Me Back remain.
+
 **Evidence: Source** · `client/mobile/components/Layout/TopHeader/index.tsx`
 
 Both are opened with `{ centered: true, withCloseButton: false }`, so neither has an X.
@@ -285,6 +344,9 @@ a "Switch Crews — Close button" item testing a control that does not exist.
 ---
 
 ## 7. Several roles share the "Admin" prefix with different permissions
+
+> Left as **operational** (2026-08-24). This is environment/role data, not an
+> app-code defect. Tests already assert the logged-in role is exactly `Admin`.
 
 **Evidence: Operational** (not a code bug — an environment hazard)
 
@@ -307,6 +369,10 @@ moment the role was restored to exact `Admin`.
 ---
 
 ## 8. `hooks/NetworkStatus.tsx` is an empty file
+
+> ## ✅ FIXED 2026-08-24
+>
+> The 0-byte file was deleted. Network state still comes from Mantine's `useNetwork()`.
 
 **Evidence: Source** · `client/mobile/hooks/NetworkStatus.tsx` — 0 bytes.
 
@@ -332,6 +398,11 @@ Synthetics; they need Playwright/Cypress or manual testing.
 ---
 
 ## 9. An invalid form submits silently — no error, no feedback
+
+> ## ✅ FIXED 2026-08-24
+>
+> `SubmitButton` always uses `type="submit"` so `handleSubmit` can surface
+> validation errors. Invalid state is still shown via `opacity: 0.5` and no haptic.
 
 **Evidence: Source** · `client/mobile/components/ui/SubmitButton.tsx:13`
 
@@ -368,6 +439,11 @@ the button outright so the dead state is honest.
 ---
 
 ## 10. Mobile job status only ever moves forward — unverifying never walks it back
+
+> ## ✅ FIXED 2026-08-24
+>
+> Status is recomputed from `assetsVerified` in both directions: 0 → `READY`,
+> partial → `IN_PROGRESS`, full → `COMPLETED`.
 
 **Evidence: Source** · `client/mobile/components/AssetVerification/VerificationCheckbox.tsx:41-46`
 
@@ -416,6 +492,12 @@ mutates nothing but the single asset flag it restores.
 
 ## 11. Verification toast fires before the mutation is sent
 
+> ## ✅ FIXED 2026-08-24
+>
+> The verify/unverify toast now fires from the mutation `update()`, and a rejected
+> mutate shows an error toast. Same for Ad Hoc Form (`toast.success('Form added')`
+> is inside `update()` once the new form is present).
+
 **Evidence: Source** · `client/mobile/components/AssetVerification/VerificationCheckbox.tsx:24`
 
 ```js
@@ -440,6 +522,14 @@ instead, and treat the toast as incidental.
 ---
 
 ## 12. The asset *detail route* implements 6 of 15 template section types — the rest render a blank tab
+
+> ## ✅ FIXED 2026-08-24
+>
+> Unhandled `MobileJobTemplateSectionType` values now render
+> *"This section is not available on mobile."* CONDITION / EVENT_READINGS /
+> FAILURES without a linked work stage render
+> *"This section requires a linked work stage."* The six implemented types
+> are unchanged.
 
 > **SCOPE CORRECTION (2026-08-10).** As first written this read as though it described the
 > asset tabs users actually see. It does not. There are **two separate tab systems**:
@@ -492,6 +582,11 @@ approach `MOB.330` takes for work orders and for the same underlying reason.
 
 ## 13. Escape discards the whole new-asset form, defeating a guard the code already has
 
+> ## ✅ FIXED 2026-08-24
+>
+> The "Get New Asset" modal now has `closeOnEscape={false}`, matching
+> `closeOnClickOutside={false}`.
+
 **Evidence: Runtime** · `client/mobile/components/AssetCollector/index.tsx:263-275`
 
 ```jsx
@@ -527,6 +622,23 @@ had closed. The test now closes the picker via its own close button instead.
 ---
 
 ## 14. Attaching a photo from a browser fails the whole collect — and the UI reports success
+
+> ## ✅ FIXED — verified by test, not by report
+>
+> Browser-originated attachments now work. **`MOB.600` runs 23/23 green with a real
+> `uploadFiles` step**, creating the asset *and* its attachment, and asserting the asset back by
+> read-back (`DD SYNTHETIC MOBILE {{ RUNID }}` in the collected list). Two further tests cover
+> the surface: **`MOB.621`** uploads a photo into the collector carousel without submitting, and
+> **`MOB.741`** uploads through the work-stage Docs tab.
+>
+> ⚠️ **Two consequences worth carrying forward:**
+> 1. **`MOB.600`'s residue grew.** Every run now leaves a permanent **attachment** as well as a
+>    permanent asset. The desktop cleanup job has more to do than it did.
+> 2. **The reasoning below is still the reason this entry is kept.** The "why our test still went
+>    green" section is not about this bug — it is about assertions that describe the *form*
+>    instead of the *record*, and it stands unchanged.
+>
+> The original report follows, unedited.
 
 **Evidence: Runtime** (confirmed by the repo owner) ·
 `server/src/controllers/system/attachment/create/mobile.ts:177`
@@ -603,6 +715,11 @@ is coupled to. Check whether the close is inside `update()` (server-confirmed) o
 
 ## 18. `SubmitButton` ignores the label its caller passes as children
 
+> ## ✅ FIXED 2026-08-24
+>
+> Label is now `buttonText ?? children ?? 'Submit'`. `EditForm`'s
+> `Update Asset` children render as the visible label.
+
 **Severity:** cosmetic · **Found:** 2026-08-12, building MOB.710 · **Source-read, not observed**
 
 `SubmitButton` renders its label from a prop, in the JSX child position:
@@ -640,6 +757,12 @@ running page** — the locator was deliberately built so it did not have to be.
 ---
 
 ## 19. Event readings report success, update the timeline, and advance the progress bar without waiting for the server
+
+> ## ✅ FIXED 2026-08-24
+>
+> Toast, progress, and `writeQuery` now run in `Promise.all(mutations).then(...)`.
+> A rejected mutate surfaces `Failed to save event readings.` and does not write
+> the local history.
 
 **Severity:** medium · **Found:** 2026-08-12, building MOB.550 · **Verified by run**
 
@@ -685,6 +808,15 @@ or await the mutation and surface an error. Either makes the displayed state mea
 
 ## 20. Submitting the search box silently discards every active structured filter
 
+> ## ✅ FIXED 2026-08-24
+>
+> Search, tag capture, tag clear, and `fetchMore` now send
+> `conditions: [...(props.query || query || [])]`, matching the `useQuery`.
+>
+> ⚠️ **`MOB.820` will fail.** It characterises the old buggy behaviour. Flip its
+> assertions back to "filter stays applied after search" and drop this entry's
+> "open" status — do not "repair" the test to keep matching the old bug.
+
 **Severity:** high — silently wrong data · **Found:** 2026-08-12 · **Confirmed by run** (MOB.820)
 
 On Asset Lookup, applying a structured filter and then pressing Enter in the search box
@@ -729,6 +861,10 @@ the correct behaviour and delete this entry.
 
 ## 21. The Permits tab renders a blank panel when there are no permits
 
+> ## ✅ FIXED 2026-08-24
+>
+> Empty list now renders `No Permits Found...`, matching Warranties.
+
 **Severity:** low (UX) · **Found:** 2026-08-12, building MOB.394 · **Source-read**
 
 `PermitsStats` (`WorkOrders/components/Permits.tsx:9-12`) maps straight over the list with no
@@ -768,6 +904,11 @@ no-permits case testable in its own right.
 ---
 
 ## 22. `useMediaQuery` is called inside a loop callback, so segmented-control labels render nondeterministically
+
+> ## ✅ FIXED 2026-08-24
+>
+> The hook is hoisted to the component body:
+> `const wide = useMediaQuery(minWidth != null ? \`(min-width: ${minWidth}px)\` : '(min-width: 0px)');`
 
 **Severity:** medium (React correctness) · **Found:** 2026-08-12, debugging MOB.396 · **Source-read; NOT the cause of that failure — see Status**
 
@@ -819,6 +960,10 @@ MOB.500–530; those pass today but are exposed to the same flakiness.
 
 ## 23. `HomeWidgets` hardcodes the work-order count, and queries mobile jobs for both cards
 
+> ## ✅ FIXED 2026-08-24
+>
+> `client/mobile/routing/HomeWidgets.tsx` deleted. It had no imports.
+
 *Found 2026-08-18, by reading `client/mobile/routing/HomeWidgets.tsx`. **Dead code today** —
 see the severity note — but recorded because it is one import away from shipping.*
 
@@ -858,6 +1003,11 @@ log it as a coverage gap.
 ---
 
 ## 24. `WorkStatusSummary` misspells "Superseded" as "Supersesed" in the status legend
+
+> ## ✅ FIXED 2026-08-24
+>
+> Display string is `'Superseded'`. Tests for the legend must assert that spelling,
+> not `Supersesed`.
 
 *Found 2026-08-18. Live, user-visible, trivial to fix.*
 
@@ -1028,6 +1178,13 @@ until the fixture is fixed — then delete it.
 
 ## 26. Asset Type appears editable on the Asset Verification asset detail, "saves", and silently reverts
 
+> ## ✅ FIXED 2026-08-24
+>
+> AV detail `AssetGeneralInfo` now passes `typeId: { allowUpdate: false }`, matching
+> Asset Lookup. The field is no longer editable there, so it cannot toast success
+> for a write `UPDATE_ASSET` cannot apply. The dedicated `UPDATE_TYPE_OF_ASSET`
+> flow remains unused (still dead on Asset Lookup).
+
 **Evidence: Runtime** (observed by the repo owner, 2026-08-20) · `DetailPage/GeneralInfo.tsx`,
 `AssetVerification/AssetGeneralInfo.tsx`, `AssetLookup/AssetLookupDetails/index.tsx`
 
@@ -1101,3 +1258,265 @@ highest-value gap in T2.4 on the strength of reading the handler; that was wrong
 is unreachable from Asset Lookup. A characterization test on the AV path is possible (change
 the type, assert the toast, re-navigate, assert it reverted) and would fail when the bug is
 fixed, in the manner of `MOB.820`. It needs an owner decision first.
+
+
+---
+
+## §27 · `useGeolocation` is dead code — and it is the *tested* half of geolocation
+
+> ## ✅ FIXED 2026-08-24
+>
+> `useGeolocation` and its Jest suite were deleted, along with the commented
+> Map import. Live geolocation remains `GeolocateButton` / `ProximityMenu`.
+
+**Evidence: Source — confirmed 2026-08-23.**
+
+`hooks/useGeolocation.ts` has exactly one consumer, and it is commented out:
+
+```
+components/Map/index.tsx:22    // import { useGeolocation } from '../../hooks';
+components/Map/index.tsx:61    // const userLocation = useGeolocation({ timeout: 500000000 });
+```
+
+Nothing else imports it (`hooks/index.ts` re-exports it; that is the only other reference).
+
+**Why it is worth an entry rather than a shrug** — this is the same shape as §4
+(`DeleteButton`) and §23 (`HomeWidgets`), but with a twist that inverts the usual priority
+argument: **it has a six-case Jest suite** (`hooks/__jest__/useGeolocation.test.ts`), while
+`QueueLink`, `PersistedQueueLink`, `SerializeLink` and `ErrorLink` — the offline queue, the
+highest-risk surface in the app — have **none at all** (§30). Test effort exists; it is
+pointed at the dead hook.
+
+Two smaller things, noted only because whoever revives it will hit them:
+- the effect closes over `options` with an empty dep array (`useGeolocation.ts:34`), so option
+  changes after mount are ignored — a stale closure that is harmless only because nothing
+  calls it;
+- it is the only geolocation consumer using **`watchPosition`**; the two live ones
+  (`GeolocateButton.tsx:27`, `ProximityMenu.tsx:28`) use `getCurrentPosition`. Anything
+  stubbing geolocation must cover both, which is why `MOB.731`'s stub does.
+
+**Fix**: delete the hook and its test, or revive the consumer. Do not leave it as the only
+geolocation code with tests.
+
+---
+
+## §28 · The offline message sits behind a `disabled` element's own `onClick`
+
+> ## ✅ FIXED 2026-08-24
+>
+> The control is a real `button` (not a `span`), is not `disabled`, and uses
+> `aria-disabled` plus `aria-label` when offline. Offline tap still opens
+> the popover (`MOB.911`).
+
+**Evidence: Source. Runtime-checked 2026-08-23 — `MOB.911_Offline_Geolocate` is green.**
+
+✅ **The click DOES fire**, so the message is reachable with a mouse/touch tap. The severity
+here is therefore **not** "the feature is broken" — it is the accessibility gap below, plus the
+fragility of depending on three separate implementation details to keep working.
+
+`GeolocateButton.tsx` renders `OFFLINE_FEATURE_MESSAGE` in a `Popover`, and the only thing
+that opens that popover is the button's own `onClick` (`:82-89`) — on a control that is
+simultaneously **`disabled={!online}`** and `component="span"` (`:80-95`).
+
+So the app's one user-facing offline explanation is reachable only by clicking the control it
+has just disabled. Whether that works at all is a property of three separate details:
+
+1. `component="span"` — `disabled` is functional only on **form controls**; on a `<span>` it
+   is an inert attribute and does not block event dispatch.
+2. Mantine's disabled rule for ActionIcon (`styles/ActionIcon.css:59`) sets `cursor`, `border`,
+   `color`, `background` — and **no `pointer-events: none`**.
+3. Neither `ActionIcon.mjs` nor `UnstyledButton` guards `onClick` on the disabled state.
+
+Reading those, the click should fire — **and `MOB.911` confirmed it does.** **But it is
+fragile by construction**: any one of
+those three changing — a Mantine upgrade adding `pointer-events: none`, or someone switching
+`component` to `button` — silently removes the only path to the message, with no test
+failing and nothing visibly broken.
+
+⚠️ **Independently of the click question, this is an accessibility defect.** A `<span>` with a
+`disabled` attribute is **not focusable, exposes no `aria-disabled`, and has no keyboard
+path**. Keyboard and screen-reader users cannot reach the explanation at all.
+
+**Fix**: do not gate the affordance on the disabled control. Render the `Popover`/`Tooltip` on
+a wrapping element, or keep the control enabled and show the message on activation. Add
+`aria-disabled` and a focusable host either way.
+
+---
+
+## §29 · A Mapbox failure makes Geolocate fail silently
+
+> ## ✅ FIXED 2026-08-24
+>
+> `reverseGeocode` checks `q.ok`, wraps in try/catch, and on failure still calls
+> `onResult` with coordinates plus a warning toast.
+
+**Evidence: Source.**
+
+`GeolocateButton.tsx:122-127`:
+
+```js
+async function reverseGeocode(lng, lat) {
+    const q = await fetch(`https://api.mapbox.com/.../${lng},${lat}.json?...`);
+    const results = await q.json();   // no ok-check, no try/catch
+    return results.features;
+}
+```
+
+It is awaited inside the `getCurrentPosition` **success callback** (`:27-28`), which is an
+`async` function whose promise nobody holds. So if Mapbox is down, rate-limits, returns a
+non-JSON error body, or the device is on a captive portal:
+
+- `q.json()` throws,
+- the callback's promise rejects **unhandled**,
+- **`onResult` never fires** — no coordinates, no address, no toast, no console error the user
+  would see.
+
+The user taps Geolocate and **nothing happens at all.** That is the same silent-failure shape
+as §9 (invalid form submits silently) and it is equally hard to diagnose from the outside.
+
+Note the asymmetry: the geolocation error path *is* handled (`:71-73` logs), and
+`ProximityMenu` toasts its failures (`ProximityMenu.tsx:50`). Only the geocoding hop is
+unguarded — and it is the one that depends on a third party.
+
+**Fix**: check `q.ok`, wrap in `try/catch`, and on failure still call `onResult` with the
+coordinates (which succeeded) and a null address, plus a toast. Losing the address is
+recoverable; losing the whole result silently is not.
+
+---
+
+## §30 · The offline transaction queue has no tests in either harness
+
+> ## ✅ FIXED 2026-08-24
+>
+> Jest coverage added under `client/mobile/graphql/links/__jest__/` for
+> `QueueLink`, `PersistedQueueLink`, `SerializeLink`, `ErrorLink`, and
+> serialize/network gating utils. Datadog still cannot reach the queue.
+
+**Evidence: Source — confirmed 2026-08-21.**
+
+`graphql/links/` is the offline-first mutation queue — the feature the mobile app exists to
+provide, and the one whose failure loses user work. Counted:
+
+| | |
+|---|---|
+| Jest test files in `client/mobile` | **218** |
+| source files in `graphql/links/` | 7 |
+| of those, tested | **2** — `UploadLink`, `TusUnauthorizedRetry` |
+| **`QueueLink`, `PersistedQueueLink`, `SerializeLink`, `ErrorLink`** | **0 tests** |
+| `workers/` | **0 tests** |
+
+It is not covered by the Datadog suite either, and cannot be: `graphql/index.tsx:68` reads
+`navigator.onLine`, which a dispatched `offline` event does not change — so requests still go
+out and nothing ever queues. `MOB.910` and `MOB.911` cover the offline **UI**; they must never
+be read as queue coverage, and both say so in their own descriptions.
+
+**So the highest-risk surface in the application is unprotected in both harnesses**, while a
+dead hook has six tests (§27).
+
+**Fix**: this is a **Jest** job, not a Synthetics one — the links are unit-testable in
+isolation (mock the terminating link, assert ordering, persistence across a simulated reload,
+and drain-on-reconnect). That is the cheapest large risk reduction available anywhere in this
+codebase.
+
+
+---
+
+## §31 · A deploy takes over a running session silently — and deletes the cache it was using
+
+> ## ✅ FIXED 2026-08-24
+>
+> `skipWaiting()` / `clients.claim()` stay. `mobile.ejs` listens for
+> `controllerchange` and reloads the page once (`refreshing` guard) so a
+> new worker does not keep serving the old bundle.
+
+**Evidence: Source — read 2026-08-23.**
+
+Registration (`server/src/views/mobile.ejs:22-30`) is a bare script with only a `.catch` for
+logging:
+
+```js
+navigator.serviceWorker.register('/apm-mobile-sw.js')
+    .catch(err => console.error('❌ Service Worker registration failed:', err));
+```
+
+**No `updatefound` listener. No `registration.waiting` handling. No prompt.** And `sw.js` opts
+into taking over as fast as possible:
+
+```
+workers/sw.js:34   self.skipWaiting();      // in `install`
+workers/sw.js:49   self.clients.claim();    // in `activate`
+```
+
+So when a deploy lands while someone is mid-session, the new worker installs, skips the
+waiting phase, and claims the open page — **all without the page reloading and without the
+user being told.** The tab keeps running the OLD JavaScript bundle while being served by the
+NEW worker.
+
+⚠️ **The `activate` handler then deletes the cache that page is relying on** (`:38-50`): it
+drops every `apm-mobile-*` cache whose key is not the new `CACHE_NAME`. Only the current
+version's assets are precached (`PRECACHE_ASSETS` is built from `VERSION`), so anything the
+running page lazy-loads afterwards — a route chunk it has not needed yet — is no longer in any
+cache and must come from the network under the OLD versioned filename. If the deploy does not
+keep old versioned assets served, that request fails and the user sees a broken screen or a
+chunk-load error, mid-task, with no explanation.
+
+**This is a deliberate trade-off, not obviously a defect** — `skipWaiting` is a legitimate
+choice, and how bad it gets depends on whether old build artefacts stay served, which is a
+deployment question this repo does not answer. It is logged because the *silent* part is the
+risk: there is no code path by which a user is ever told to reload, so the failure surfaces as
+"the app broke" rather than "there is an update".
+
+⚠️ It also interacts with the offline queue (§30): a worker swap mid-session while mutations
+are queued is exactly the scenario nothing tests in either harness.
+
+**Fix (pick one)**: drop `skipWaiting()` and add an `updatefound` → `waiting` → *"Reload to
+update"* prompt (the row `testing_checklist.md` T1.5 assumed already existed); **or** keep
+`skipWaiting()` and have the page listen for `controllerchange` and reload itself; **or**
+confirm the deploy keeps old versioned assets served and document that this is what makes the
+current behaviour safe.
+
+---
+
+## §32 · The work-stage **Docs** upload is gated on `asset.create`, while the **Photos** tab beside it is gated on `work.update`
+
+> ## ✅ FIXED 2026-08-24
+>
+> `AttachmentTable` now takes `canAddFiles` from the call site, the same way
+> `canAddPhotos` already works. Work-stage Docs passes `work.update`. Asset
+> FileAttachments still defaults to `asset.create`.
+
+**Severity:** low–medium (permissions correctness) · **Source-read** while writing `MOB.741` ·
+`client/mobile/components/DetailPage/Attachments.tsx:124` and
+`client/mobile/components/WorkOrders/components/WorkStageAttachments.tsx:32,135`
+
+Both halves of the same panel attach files to the **same work stage**, and they check different
+permissions on different models:
+
+```tsx
+// WorkStageAttachments — the Photos tab
+const workPerms = sessionData?.session?.me.role.permissions.work.update;
+<Attachments canAddPhotos={workPerms} … />          // ← work.update
+
+// AttachmentTable — the Docs tab, rendered for the SAME workStageId
+sessionData?.session?.me.role.permissions.asset.create &&
+    <FileButton onChange={addFiles} multiple accept="*/*"> … Add File …
+```
+
+`AttachmentTable` is shared with `FileAttachments`, where the parent really *is* an asset — so
+the `asset.create` check is presumably a leftover from that call site rather than a decision
+about work stages. Nothing scopes it per parent type.
+
+**Consequences, both directions:**
+
+- a role with `work.update` but **not** `asset.create` can add photos to a work stage but
+  cannot add a document to it — the Docs tab renders with no way to add anything
+- a role with `asset.create` but **not** `work.update` gets the opposite: no photo button, but a
+  working `Add File` that uploads to a work stage it may not be allowed to modify
+
+**Not observed at runtime** — the `Admin` fixture holds both permissions, so `MOB.741` cannot
+tell the two apart and does not try to. That test asserts the button is *present* and names the
+step so a failure reads as a permission/session problem rather than a broken locator.
+
+**Suggested fix:** pass the gate in from the call site the way `canAddPhotos` already is —
+`AttachmentTable` should not be deciding which model's permission applies to a parent it is
+handed.

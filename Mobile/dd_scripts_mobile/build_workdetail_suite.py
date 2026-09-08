@@ -31,10 +31,26 @@ login_steps = json.load(
 # ⚠️ KEEP IN SYNC WITH THE JSON — regenerating a suite whose children were wired directly
 # into its JSON silently drops them (trap 19, reverse). It has happened twice: five children
 # from MOB.986, one from MOB.995.
+#
+# 🔁 AND IT HAD HAPPENED HERE TOO — found 2026-08-23. This list held FOUR children while the
+# JSON held SIX: `MOB.356` and `MOB.911` were wired straight into the JSON on 08-21 and never
+# back-ported. A `DD_FORCE=1` regeneration would have dropped both, and the suite would have
+# gone on reporting PASS with two fewer children. Brought back in sync here, with MOB.357.
+# The warning above was already written in this file; writing it is not the same as obeying it.
 CHILDREN = ["MOB.347_Work_Asset_Status",
             "MOB.348_Work_MapLink",
             "MOB.349_Work_Record_Cycling",
-            "MOB.355_Work_Form_Render"]
+            "MOB.355_Work_Form_Render",
+            # MOB.357 sits beside MOB.355 deliberately: same screen, same Forms tab. MOB.355
+            # opens a form card and leaves the work detail; MOB.357 reads the metrics and
+            # must NOT click a card, so it runs first and asserts it stayed put.
+            "MOB.357_Work_Form_Metrics",
+            "MOB.356_Work_Charge_Form_Validity",
+            "MOB.911_Offline_Geolocate",
+            # LAST on purpose: MOB.358 stubs `fetch` and `getCurrentPosition`. Both are
+            # removed with alwaysExecute, but a leaked fetch stub is the worst thing to
+            # hand a later child, so it runs when there are none after it.
+            "MOB.358_Work_Asset_Geolocate"]
 
 write(test(
     "MOB.985_WorkDetail_Suite",

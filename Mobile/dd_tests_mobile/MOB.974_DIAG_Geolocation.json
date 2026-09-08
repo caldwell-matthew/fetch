@@ -505,7 +505,98 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "Choose \"100 miles\" \u2014 this calls locate() \u2192 getCurrentPosition",
+                "name": "H1: a Menu DROPDOWN is in the DOM at all",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.querySelectorAll('.mantine-Menu-dropdown').length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "H2: at least one .mantine-Menu-item exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.querySelectorAll('.mantine-Menu-item').length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "H3: exactly FIVE radius items are present (5/10/25/50/100 mi, or 10/25/50/100/200 km)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.filter(t => /^\\d+ (mi|km)$/.test(t)).length === 5;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "H4 \u2b50 an item's text EQUALS \"100 mi\" (or km) \u2014 so `normalize-space(.)=\"...\"` should have matched",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.includes('100 mi') || items.includes('100 km');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "H5 \u2b50 an item CONTAINS \"100 mi\" (or \"100 km\") but is NOT equal to it \u2014 hidden whitespace/extra content, so `=` fails where `contains` works",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.some(t => (t.indexOf('100 mi') >= 0 || t.indexOf('100 km') >= 0) && t !== '100 mi' && t !== '100 km');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "H6: the items are <button> elements",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const els = [...document.querySelectorAll('.mantine-Menu-item')];\nreturn els.length > 0 && els.every(e => e.tagName === 'BUTTON');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "H7 \u2b50 the dropdown is in the DOM but NOT VISIBLE \u2014 Datadog would refuse to click it, and `assertElementPresent` would still have passed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const els = [...document.querySelectorAll('.mantine-Menu-item')];\nif (!els.length) return false;\nreturn els.every(e => e.offsetParent === null || getComputedStyle(e).visibility === 'hidden');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Choose \"100 mi/km\" \u2014 attempt A, exact match (the form that missed in run 1)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -515,14 +606,38 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"100 miles\"]"
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"100 mi\" or normalize-space(.)=\"100 km\"]"
                                 }
                             ]
                         }
                     }
                 },
                 "type": "click",
-                "timeout": 30
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Choose \"100 mi/km\" \u2014 attempt B, `contains` on a <button> (the MOB.397 form)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][contains(normalize-space(.), \"100 mi\") or contains(normalize-space(.), \"100 km\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 20
             },
             {
                 "allowFailure": false,
@@ -541,10 +656,23 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "G3 \u2b50\u2b50 DECISIVE: the button now reads \"Within 100 mi\" \u2014 the app consumed the stub",
+                "name": "H8: a radius WAS chosen \u2014 the menu closed, so one of the two clicks landed (absence; its control is H3 above, which matched five with the SAME regex)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "return [...document.querySelectorAll('button')].some(b => /Within\\s+100\\s*mi/.test((b.textContent || '').trim()));"
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn items.filter(t => /^\\d+ (mi|km)$/.test(t)).length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "G3 \u2b50\u2b50 DECISIVE: the button now reads \"Within 100 mi/km\" \u2014 the app consumed the stub",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('button')].some(b => /Within\\s+100\\s*(mi|km)\\b/.test((b.textContent || '').trim()));"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -577,7 +705,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[contains(normalize-space(.), \"Within 100 mi\")]"
+                                    "value": "//button[contains(normalize-space(.), \"Within 100\")]"
                                 }
                             ]
                         }
@@ -653,10 +781,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "G6: result rows show a \"mi away\" distance (optional \u2014 depends on whether any fixture asset is near the stubbed coordinates)",
+                "name": "G6: result rows show a \"mi/km away\" distance (optional \u2014 depends on whether any fixture asset is near the stubbed coordinates)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "return /\\d+(\\.\\d+)?\\s*mi away/.test(document.body.innerText || '');"
+                    "code": "return /\\d+(\\.\\d+)?\\s*(mi|km) away/.test(document.body.innerText || '');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 15

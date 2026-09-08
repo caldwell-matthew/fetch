@@ -1,149 +1,175 @@
 {
- "test_name": "MOB.900_Online_Guard",
- "details": {
-  "name": "MOB.900_Online_Guard",
-  "type": "browser",
-  "status": "paused",
-  "message": "`MOB.900` Regression guard: the offline notice must not appear during a normal online run.\n- Asserts `OFFLINE_FEATURE_MESSAGE` (`mobile/constants.ts`) is absent on the home screen.\n- **Strengthened 2026-08-20.** It used to be a lone `assertPageLacks`, which is trap 5's\n  assertion-that-cannot-fail: it passes on a blank page, an error page, or a page that\n  never loaded. It now anchors on the welcome banner and the tiles first, and confirms\n  `navigator.onLine`, so the absence is evidence rather than a tautology.\n- NOTE: Synthetics cannot take the browser offline, so this only ever catches the\n  false-positive direction (offline UI showing while online). The other half needs Appendix C.\n- Wired into `MOB.990_Smoke` 2026-08-20 \u2014 before that it had NEVER RUN.",
-  "tags": [
-   "Mobile",
-   "env:dev",
-   "Offline",
-   "read-only"
-  ],
-  "locations": [
-   "gcp:us-west2"
-  ],
-  "config": {
-   "assertions": [],
-   "config_variables": [
-    {
-     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
-     "name": "MOBDEV",
-     "type": "global"
+    "test_name": "MOB.900_Online_Guard",
+    "details": {
+        "name": "MOB.900_Online_Guard",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.900` Regression guard: the offline notice must not appear during a normal online run.\n- Asserts `OFFLINE_FEATURE_MESSAGE` (`mobile/constants.ts`) is absent on the home screen.\n- **Strengthened 2026-08-20.** It used to be a lone `assertPageLacks`, which is trap 5's\n  assertion-that-cannot-fail: it passes on a blank page, an error page, or a page that\n  never loaded. It now anchors on the welcome banner and the tiles first, and confirms\n  `navigator.onLine`, so the absence is evidence rather than a tautology.\n- NOTE: Synthetics cannot take the browser offline, so this only ever catches the\n  false-positive direction (offline UI showing while online). The other half needs Appendix C.\n- Wired into `MOB.990_Smoke` 2026-08-20 \u2014 before that it had NEVER RUN.\n- \u2b50 **Also a CRASH GUARD.** `ErrorBoundary` (`mobile/index.tsx:27`) wraps the whole app and\n  replaces the screen with *\"Something went wrong.\"* on a render crash. When that happens every\n  later step fails on a locator that is simply **not there**, which reads as a locator bug \u2014\n  the most expensive kind of red herring. This does not test the boundary (forcing a crash\n  would poison the shared session); it makes a crash **name itself**.\n- The two absences are safe from trap 5 because the POSITIVE ANCHORS above already prove the\n  home screen rendered \u2014 an absence on a blank page would fail there first.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Offline",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to mobile home",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ MOBDEV }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the home screen render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "POSITIVE ANCHOR: the home screen actually rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Welcome,"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "POSITIVE ANCHOR: the module tiles rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "{{ MOBDEV }}",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//img[starts-with(@alt, \"icon for \")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Guard: offline message must not be shown",
+                "noScreenshot": false,
+                "params": {
+                    "value": "This feature requires an internet connection."
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The runner really is online (so the absence above means something)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return navigator.onLine === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CRASH GUARD: the ErrorBoundary has NOT tripped \u2014 no \"Something went wrong.\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Something went wrong."
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and its \"Reload page\" button is absent too (the boundary renders both)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Reload page"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            }
+        ]
     }
-   ],
-   "request": {
-    "headers": {},
-    "method": "GET",
-    "url": "{{ MOBDEV }}"
-   },
-   "variables": [
-    {
-     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
-     "name": "MOBDEV",
-     "type": "global"
-    }
-   ],
-   "set_cookie": ""
-  },
-  "options": {
-   "device_ids": [
-    "chrome.tablet"
-   ],
-   "disable_cors": false,
-   "disable_csp": false,
-   "ignore_server_certificate_error": false,
-   "min_failure_duration": 0,
-   "min_location_failed": 1,
-   "monitor_options": {},
-   "no_screenshot": false,
-   "retry": {
-    "count": 1,
-    "interval": 300.0
-   },
-   "rum_settings": {
-    "is_enabled": false
-   },
-   "tick_every": 86400
-  },
-  "steps": [
-   {
-    "allowFailure": false,
-    "alwaysExecute": false,
-    "exitIfSucceed": false,
-    "isCritical": true,
-    "name": "Navigate to mobile home",
-    "noScreenshot": false,
-    "params": {
-     "value": "{{ MOBDEV }}"
-    },
-    "type": "goToUrl"
-   },
-   {
-    "allowFailure": false,
-    "alwaysExecute": false,
-    "exitIfSucceed": false,
-    "isCritical": true,
-    "name": "Let the home screen render",
-    "noScreenshot": false,
-    "params": {
-     "value": 3
-    },
-    "type": "wait"
-   },
-   {
-    "allowFailure": false,
-    "alwaysExecute": false,
-    "exitIfSucceed": false,
-    "isCritical": true,
-    "name": "POSITIVE ANCHOR: the home screen actually rendered",
-    "noScreenshot": false,
-    "params": {
-     "value": "Welcome,"
-    },
-    "type": "assertPageContains",
-    "timeout": 60
-   },
-   {
-    "allowFailure": false,
-    "alwaysExecute": false,
-    "exitIfSucceed": false,
-    "isCritical": true,
-    "name": "POSITIVE ANCHOR: the module tiles rendered",
-    "noScreenshot": false,
-    "params": {
-     "element": {
-      "url": "{{ MOBDEV }}",
-      "userLocator": {
-       "failTestOnCannotLocate": true,
-       "values": [
-        {
-         "type": "xpath",
-         "value": "(//img[starts-with(@alt, \"icon for \")])[1]"
-        }
-       ]
-      }
-     }
-    },
-    "type": "assertElementPresent",
-    "timeout": 60
-   },
-   {
-    "allowFailure": false,
-    "alwaysExecute": false,
-    "exitIfSucceed": false,
-    "isCritical": true,
-    "name": "Guard: offline message must not be shown",
-    "noScreenshot": false,
-    "params": {
-     "value": "This feature requires an internet connection."
-    },
-    "type": "assertPageLacks"
-   },
-   {
-    "allowFailure": false,
-    "alwaysExecute": false,
-    "exitIfSucceed": false,
-    "isCritical": true,
-    "name": "The runner really is online (so the absence above means something)",
-    "noScreenshot": false,
-    "params": {
-     "code": "return navigator.onLine === true;"
-    },
-    "type": "assertFromJavascript",
-    "timeout": 30
-   }
-  ]
- }
 }

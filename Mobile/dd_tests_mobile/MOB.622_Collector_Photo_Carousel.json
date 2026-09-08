@@ -1,0 +1,853 @@
+{
+    "test_name": "MOB.622_Collector_Photo_Carousel",
+    "details": {
+        "name": "MOB.622_Collector_Photo_Carousel",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.622` **The carousel's DISPLAY surface \u2014 read at ONE photo and at TWO.**\n- \u26d4 **This retires a fixture ask rather than waiting on it.** The surface sat in \ud83d\udfe1 BLOCKED\n  behind *\"\u22652 photos on a named fixture asset\"*, which assumed photos can only arrive\n  **before page load**. `ADD_PHOTO` **appends** (`Form/utils.ts:124`), so uploading twice\n  supplies them at runtime \u2014 and it dispatches to a **local reducer**, so a test that never\n  submits writes nothing.\n- \u2b50 **The central assertion is a BICONDITIONAL across the two states.**\n  `withIndicators`/`withControls` are `{photos.length > 1}`. Asserting they *appear* would\n  pass on a carousel that always shows them, so the same two facts are read at one photo and\n  at two and **required to disagree** \u2014 the conditional pinned in both directions, one run.\n- \u2b50 Same shape again for **`aria-label=\"Close\"`**, which renders *only* in fullscreen\n  (`PhotoMenu:130`) \u2014 absent before, present inside. And the **fullscreen carousel is\n  `withIndicators` UNCONDITIONALLY** (`index.tsx:177`): two carousels, two different rules.\n- Covers what nothing had reached: `PhotoMenu` (proven to render for a **local, unsaved**\n  photo \u2014 the fact the withdrawn ask turned on), **View in Fullscreen**, the derived\n  **`Edit Tags (0)`** badge, and \u2b50 the **FULL `TagSelector`** (`Search tags...`) \u2014 a\n  different component from the `MiniTagSelector` (`Auto-apply tags?`) `MOB.620` pins.\n- \ud83d\uded1 **READ-ONLY, and the tag controls are asserted but NEVER actuated** \u2014 assigning or\n  creating a tag writes (`Tags/index.tsx:100`). The editor is dismissed with its own `Done`,\n  and the form is closed without submitting, so no asset and no attachment are created.\n- \u26a0\ufe0f **Trap 3 at its worst: four modals can be mounted at once**, three containing a\n  carousel and two containing an `aria-label=\"Close\"`. Nothing is selected by position \u2014\n  the inline carousel is scoped to `#asset-collector`, and fullscreen is identified as *the\n  modal with a carousel that does not contain the form*.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Collector",
+            "Photos",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the asset collector",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-collector"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the collector to load its lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": 15
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The collector page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the new-asset form (affixed + button)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Affix-root \")]//button"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The new-asset form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"asset-collector\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the photo picker for photo 1 (\"Add Asset Photo\")",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add Asset Photo\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker opened for photo 1",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Select Photo Source"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Reveal the hidden gallery input for photo 1 (clearing any stale tag)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "document.querySelectorAll('[data-dd-upload]')\n  .forEach(n => n.removeAttribute('data-dd-upload'));\nconst inputs = [...document.querySelectorAll('input[type=\"file\"]')];\nconst el = inputs.find(i => !i.capture);\nif (!el) return false;\nel.setAttribute('data-dd-upload', '1');\nObject.assign(el.style, {\n  display: 'block', opacity: '1', position: 'fixed',\n  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'\n});\nreturn true;\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Upload photo 1",
+                "noScreenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Screenshot 2024-12-11 at 3.23.46\u202fPM.png",
+                            "size": 25762,
+                            "bucketKey": "browser-upload-file-step/4ty-vhq-3aa/2026-08-11T01:17:31.314568_2a1bff34-f062-4bb4-a6bf-9c9c3551f896.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd-upload=\"1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"input\"][3]",
+                            "at": "",
+                            "cl": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"input\"][3]",
+                            "clt": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"image/*\" multiple=\"\" style=\"display: block; opacity: 1; position: fixed; top: 0px; left: 0px; width: 240px; height: 40px; z-index: 99999;\" data-dd-upload=\"1\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The picker closed ITSELF after photo 1 \u2014 `onDialogChange` calls `close()`",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Select Photo Source"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the reducer take photo 1",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "At ONE photo: the carousel exists",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[class*=\"mantine-Carousel\"]').length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 At ONE photo: NO indicators \u2014 `withIndicators={photos.length > 1}` is false",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[class*=\"mantine-Carousel-indicator\"]').length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 At ONE photo: NO controls \u2014 `withControls={photos.length > 1}` is false",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[class*=\"mantine-Carousel-control\"]').length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "`PhotoMenu` rendered for a LOCAL, unsaved photo (its gear is present)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[aria-label=\"Settings\"]').length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the photo picker for photo 2 (\"Add More Photos\")",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add More Photos\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker opened for photo 2",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Select Photo Source"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Reveal the hidden gallery input for photo 2 (clearing any stale tag)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "document.querySelectorAll('[data-dd-upload]')\n  .forEach(n => n.removeAttribute('data-dd-upload'));\nconst inputs = [...document.querySelectorAll('input[type=\"file\"]')];\nconst el = inputs.find(i => !i.capture);\nif (!el) return false;\nel.setAttribute('data-dd-upload', '1');\nObject.assign(el.style, {\n  display: 'block', opacity: '1', position: 'fixed',\n  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'\n});\nreturn true;\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Upload photo 2",
+                "noScreenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Screenshot 2024-12-11 at 3.23.46\u202fPM.png",
+                            "size": 25762,
+                            "bucketKey": "browser-upload-file-step/4ty-vhq-3aa/2026-08-11T01:17:31.314568_2a1bff34-f062-4bb4-a6bf-9c9c3551f896.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd-upload=\"1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"input\"][3]",
+                            "at": "",
+                            "cl": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"input\"][3]",
+                            "clt": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"image/*\" multiple=\"\" style=\"display: block; opacity: 1; position: fixed; top: 0px; left: 0px; width: 240px; height: 40px; z-index: 99999;\" data-dd-upload=\"1\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The picker closed ITSELF after photo 2 \u2014 `onDialogChange` calls `close()`",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Select Photo Source"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the reducer take photo 2",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The button still reads \"Add More Photos\" (a second photo landed)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add More Photos\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: there are now TWO slides, so the reducer APPENDED rather than replaced",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[class*=\"mantine-Carousel-slide\"]').length === 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 At TWO photos: indicators APPEAR \u2014 the `photos.length > 1` branch",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[class*=\"mantine-Carousel-indicator\"]').length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 At TWO photos: controls APPEAR \u2014 the same branch, second prop",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nreturn f.querySelectorAll('[class*=\"mantine-Carousel-control\"]').length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Every slide's tags badge reads its DERIVED zero form `Edit Tags (0)` \u2014 counted per slide, not merely present somewhere",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst slides = f.querySelectorAll('[class*=\"mantine-Carousel-slide\"]').length;\nif (slides < 1) return false;\nconst hits = (f.textContent || '').match(/Edit Tags \\(0\\)/g) || [];\nreturn hits.length === slides;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 BEFORE fullscreen: no `aria-label=\"Close\"` control exists (excluding the form's own modal X)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('[aria-label=\"Close\"]')]\n  .filter(n => !n.classList.contains('mantine-Modal-close')).length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the photo menu on the ACTIVE (last) slide",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst g = [...f.querySelectorAll('[aria-label=\"Settings\"]')];\nif (!g.length) return false;\ng[g.length - 1].click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu dropdown render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"View in Fullscreen\" is offered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "View in Fullscreen"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open fullscreen",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"View in Fullscreen\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the fullscreen modal mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The FULLSCREEN modal opened \u2014 a carousel outside the form",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const fs = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => m.querySelector('[class*=\"mantine-Carousel\"]')\n          && !m.querySelector('#asset-collector'));\nreturn !!fs;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 Fullscreen indicators are UNCONDITIONAL \u2014 a different rule from the inline carousel above",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const fs = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => m.querySelector('[class*=\"mantine-Carousel\"]')\n          && !m.querySelector('#asset-collector'));\nif (!fs) return false;\nreturn fs.querySelectorAll('[class*=\"mantine-Carousel-indicator\"]').length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 INSIDE fullscreen: the `aria-label=\"Close\"` control now EXISTS",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('[aria-label=\"Close\"]')]\n  .filter(n => !n.classList.contains('mantine-Modal-close')).length >= 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Leave fullscreen by its own Close control",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = [...document.querySelectorAll('[aria-label=\"Close\"]')]\n  .filter(n => !n.classList.contains('mantine-Modal-close'));\nif (!b.length) return false;\nb[0].click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let fullscreen close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: fullscreen is gone and the form is still open",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const fs = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => m.querySelector('[class*=\"mantine-Carousel\"]')\n          && !m.querySelector('#asset-collector'));\nreturn !fs && !!document.getElementById('asset-collector');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the tag editor from the `Edit Tags (n)` badge (matches any count \u2014 the badge is the target, not its number)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst b = [...f.querySelectorAll('*')]\n  .filter(n => n.children.length === 0\n            && /Edit Tags \\(\\d+\\)/.test(n.textContent || ''));\nif (!b.length) return false;\nb[b.length - 1].click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the tag modal mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The tag editor opened \u2014 its heading rendered once the tags query resolved",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Edit Attachment Tags"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The FULL TagSelector rendered \u2014 `Search tags...`, not `Auto-apply tags?`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search tags...\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and its `All Tags` section rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "All Tags"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the tag editor with its own `Done` button (assigning a tag would WRITE)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Done\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the tag modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The tag editor is gone",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Edit Attachment Tags"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the form with its X \u2014 DISCARDING both photos, never submitting",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Get New Asset\")]//button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-close \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the form is gone, so both photos were discarded unsent",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.getElementById('asset-collector');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

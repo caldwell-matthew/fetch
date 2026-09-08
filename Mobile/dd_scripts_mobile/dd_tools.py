@@ -28,6 +28,55 @@ GLOBALS = {
     "DATA_DOG_PASSWORD": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
 }
 
+# ------------------------------------------------------------------ distance units
+# 🛑 NEVER PIN A DISTANCE UNIT IN A LOCATOR. This block exists because three tests did.
+#
+# `ProximityMenu.tsx` renders its radius items as `${radius} ${distanceUnit}`, and BOTH halves
+# come from client/src/components/utils/distance/index.ts, which reads the BROWSER LOCALE -
+# not the org, not the app:
+#
+#     imperial (region in US / LR / MM)   distanceUnit 'mi'   radii [5, 10, 25, 50, 100]
+#     metric   (everywhere else)          distanceUnit 'km'   radii [10, 25, 50, 100, 200]
+#
+# WHAT WENT WRONG (found by the 2026-09-08 audit, not by a run): the items used to render as
+# `${miles} miles`. The 09-02 localization commit made them `25 mi`. MOB.730 / MOB.731 / MOB.974
+# all pinned the literal `N miles`, so:
+#   - MOB.731 could no longer find or click its radius, and everything after it was void;
+#   - MOB.730's positive check (`/^\d+ miles$/` matches 5) failed;
+#   - MOB.730's paired NEGATIVE check (same regex matches 0) started passing VACUOUSLY -
+#     a green step that can never fail again. `audit_assertions.py` cannot see that shape,
+#     because it reads as a positive check. Only the stale-literal scan catches it.
+#
+# So: match EITHER unit, and assert the option SET rather than a count, which additionally
+# proves the app is not rendering a mix.
+DIST_UNIT_RE = r"(mi|km)"                       # for embedding in an assertFromJavascript regex
+RADII_IMPERIAL = [5, 10, 25, 50, 100]
+RADII_METRIC = [10, 25, 50, 100, 200]
+# ⭐ 25 is the ONLY radius present in BOTH sets. Any test that must CLICK one radius has to use
+# it, or it silently becomes locale-dependent again.
+RADIUS_IN_BOTH = 25
+
+
+def radius_item_xp(radius):
+    """XPath for one Mantine Menu.Item radius option, matching either unit.
+
+    Exact-match on both candidate labels rather than `contains`, so "10 mi" cannot also match
+    "100 mi" (trap 11's shape - a substring match that looks exact).
+    """
+    return (f'//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")]'
+            f'[normalize-space(.)="{radius} mi" or normalize-space(.)="{radius} km"]')
+
+
+def radius_set_js(items_var="items"):
+    """JS asserting the rendered radius options are EXACTLY one locale's set, not a mix."""
+    imp = json.dumps([f"{r} mi" for r in RADII_IMPERIAL])
+    met = json.dumps([f"{r} km" for r in RADII_METRIC])
+    return (f"const got = {items_var}.filter(t => /^\\d+ (mi|km)$/.test(t));\n"
+            f"const IMPERIAL = {imp};\n"
+            f"const METRIC = {met};\n"
+            "const same = (a, b) => a.length === b.length && b.every(x => a.includes(x));\n"
+            "return got.length === 5 && (same(got, IMPERIAL) || same(got, METRIC));")
+
 
 def _conf():
     c = Configuration(ssl_ca_cert=certifi.where())
@@ -42,7 +91,7 @@ def gvar(*names):
     return [{"id": GLOBALS[n], "name": n, "type": "global"} for n in names]
 
 
-def step(type_, name, params, optional=False, always=False, timeout=None):
+def step(type_, name, params, optional=False, always=False, timeout=None, soft=False):
     """optional=True lets a step fail without failing the test - for branches that only
     appear under some configuration (e.g. the status-notes modal, shown only when the
     work template sets requireStatusNotes).
@@ -52,6 +101,26 @@ def step(type_, name, params, optional=False, always=False, timeout=None):
 
         optional  this step may fail        -> the TEST still passes
         always    an earlier step DID fail  -> this step runs anyway; the test still fails
+
+    ⭐ soft=True is the THIRD combination, and its absence cost a suite on 2026-09-08.
+    Datadog has two independent flags and this helper only ever exposed two of the four
+    states:
+
+        allowFailure  "carry on running after this step fails"
+        isCritical    "mark the TEST failed if this step fails"
+
+        optional=True   allowFailure=1 isCritical=0   continue, test PASSES   (vacuous risk)
+        default         allowFailure=0 isCritical=1   ABORT THE RUN, test fails
+        soft=True       allowFailure=1 isCritical=1   continue, test FAILS    <- this one
+
+    🛑 The default aborts the whole RUN, and inside a suite that means every LATER SUBTEST
+    NEVER EXECUTES. `MOB.346`'s fixture gate was critical; when the crew's role stopped being
+    `SCHEDULED` the gate failed, the run aborted, and `MOB.171` and `MOB.910` were reported
+    red without ever running. One real problem looked like three, and two of them were noise.
+
+    ➡️ Use `soft=True` for any gate on a FIXTURE PREMISE inside a shared suite: the child
+    still goes red, honestly, but it does not take its siblings down with it. Do NOT reach for
+    `optional=True` there - a test whose subject is absent must not report green.
 
     timeout=N sets Datadog's per-step `timeout` (seconds). Whether a step POLLS until that
     timeout or checks once is the open question in Appendix F item 1 - if it polls, most of
@@ -65,8 +134,8 @@ def step(type_, name, params, optional=False, always=False, timeout=None):
     write and the test could never bootstrap itself. Restore/cleanup legs in mutating tests
     are the other natural use.
     """
-    d = {"allowFailure": optional, "alwaysExecute": always, "exitIfSucceed": False,
-         "isCritical": not optional, "name": name, "noScreenshot": False,
+    d = {"allowFailure": optional or soft, "alwaysExecute": always, "exitIfSucceed": False,
+         "isCritical": soft or not optional, "name": name, "noScreenshot": False,
          "params": params, "type": type_}
     if timeout is not None:
         d["timeout"] = timeout
@@ -94,7 +163,7 @@ def localvar(name, pattern, example):
     return {"name": name, "type": "text", "pattern": pattern, "example": example}
 
 
-def jsassert(name, code, optional=False, always=False, timeout=None):
+def jsassert(name, code, optional=False, always=False, timeout=None, soft=False):
     """A `Run JavaScript` assertion step. Passes when the code returns truthy.
 
     IMPORTANT: unlike `uploadFiles`, this step type IS generatable from here - its params are
@@ -106,7 +175,95 @@ def jsassert(name, code, optional=False, always=False, timeout=None):
     JS-only property such as an input's `capture` flag.
     """
     return step("assertFromJavascript", name, {"code": code}, optional=optional,
-                always=always, timeout=timeout)
+                always=always, timeout=timeout, soft=soft)
+
+
+# ---------------------------------------------------------------------------------------------
+# UPLOADS - the one working recipe, shared.
+# ---------------------------------------------------------------------------------------------
+# ⭐ A `bucketKey` IS PORTABLE BETWEEN TESTS. MEASURED, and it reverses what dd_reference/README
+# used to claim. The old claim was that the key is namespaced to the test that authored it (the
+# path reads `browser-upload-file-step/<public_id>/<ts>.json`) and so could never be reused. That
+# was an inference from the path shape, never a measurement. `MOB.621` copied MOB.600's key into
+# a different test and ran green: **Datadog re-namespaces the key to the receiving test on push**
+# (`4ty-vhq-3aa` -> `uv3-88w-i8i`).
+#
+# That is the difference between "every upload test needs a human to author its step in the
+# Datadog UI first" and "upload coverage can be generated for any screen". It is the latter, and
+# this helper is what makes it routine.
+#
+# ⚠️ TRAP 12 STILL APPLIES TO THE ORIGINAL. No API mints a bucketKey, so the recipe cannot be
+# *created* here - only copied. `MOB.600`'s JSON is the master copy and every caller reads it at
+# build time rather than pasting it, so there is exactly one copy and a build fails loudly if it
+# ever goes missing. If MOB.600 loses it, restore from dd_reference/MOB.600_with_upload_steps.json.
+
+# The gallery/camera inputs `useFileDialog` appends to <body> are all `accept="image/*"`
+# (AddPhotoOptions.tsx:52-53). A Mantine `FileButton` renders its own hidden input with whatever
+# `accept` the call site passed. So `accept` is what tells the two apart - not position, and not
+# `capture`, which only separates the camera inputs from the gallery one.
+REVEAL_GALLERY_INPUT = (
+    "const inputs = [...document.querySelectorAll('input[type=\"file\"]')];\n"
+    "const el = inputs.find(i => !i.capture);\n")
+
+
+def reveal_file_button(scope=None):
+    """Target a Mantine `FileButton`'s hidden input - `accept="*/*"` (Attachments.tsx:125).
+
+    🛑 FAILS CLOSED WHEN THE PAGE HOLDS MORE THAN ONE. This is not defensiveness for its own
+    sake: `AttachmentTable` is rendered by BOTH `WorkStageAttachments` (a work stage) and
+    `FileAttachments` (an asset), so two `accept="*/*"` inputs can be mounted at once - and
+    `FileAttachments.addFiles` calls `uploadFile` with NO image filter. Picking the wrong one
+    would silently write a real attachment to an asset record. So an ambiguous match returns
+    false and the test goes red instead of uploading to the wrong target.
+
+    `scope` is a CSS selector for the container to search inside (trap 3 - pass one whenever
+    the screen has more than one panel mounted, which behind a modal it always does).
+    """
+    root = (f"const root = document.querySelector('{scope}');\n"
+            "if (!root) return false;\n") if scope else "const root = document;\n"
+    return (root +
+            "const hits = [...root.querySelectorAll('input[type=\"file\"][accept=\"*/*\"]')];\n"
+            "if (hits.length !== 1) return false;   // 0 = not rendered, >1 = ambiguous, see above\n"
+            "const el = hits[0];\n")
+
+
+def upload_steps(url, picker=REVEAL_GALLERY_INPUT, reveal_name=None, upload_name=None,
+                 source="MOB.600_Collector_Create_Asset.json"):
+    """[reveal, uploadFiles] - reveals a hidden file input and drops a real file on it.
+
+    `picker` is JS that must assign the target input to a local `const el`; the rest of the
+    reveal (tagging it `data-dd-upload="1"` and forcing it visible) is appended here. Datadog
+    cannot interact with a `display:none` input, and every file input in this app is hidden -
+    `useFileDialog` appends its own to <body>, and Mantine's `FileButton` hides its own - so the
+    reveal is not optional dressing, it is the step that makes the upload reachable at all.
+
+    The upload step is copied out of `source` verbatim except for `element.url` and the step
+    name, so the bucketKey, the userLocator and the multiLocator fallbacks all stay exactly as
+    the (hand-authored, unregenerable) original.
+    """
+    src = json.load(open(os.path.join(TESTS, source)))["details"]["steps"]
+    up = next((s for s in src if s["type"] == "uploadFiles"), None)
+    if not up:
+        raise SystemExit(
+            f"{source} no longer carries a uploadFiles step - there is nothing to copy, and no\n"
+            "API can mint a new bucketKey (trap 12). Restore it from\n"
+            "dd_reference/MOB.600_with_upload_steps.json before building any upload test.")
+
+    reveal = step("assertFromJavascript",
+                  reveal_name or "Reveal the hidden file input (Datadog cannot click display:none)",
+                  {"code": picker +
+                   "if (!el) return false;\n"
+                   "el.setAttribute('data-dd-upload', '1');\n"
+                   "Object.assign(el.style, {\n"
+                   "  display: 'block', opacity: '1', position: 'fixed',\n"
+                   "  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'\n"
+                   "});\n"
+                   "return true;\n"})
+
+    up = json.loads(json.dumps(up))          # never mutate the source test's step
+    up["name"] = upload_name or "Upload a file"
+    up["params"]["element"]["url"] = url
+    return [reveal, up]
 
 
 # The header back arrow (`PageTitle`, faChevronDoubleLeft). Every plausible canonical name is

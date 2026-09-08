@@ -21,6 +21,24 @@ TWO CONSUMERS, TWO DIFFERENT METHODS - a detail that would break a stub built on
   So the stub covers all three. ⚠️ `useGeolocation` is **dead in mobile** - its only consumer
   (`Map/index.tsx:61`) is commented out - so it is stubbed for completeness, not for coverage.
 
+📌 RUN 1 (2026-08-21) ANSWERED TWO OF THREE - what changed for run 2
+  PASS in 230s, but only partly useful:
+      G1 ✅ the method IS writable - `getCurrentPosition = fn` sticks. The premise holds.
+      G2 ✅ the stub survives to the next step (same page).
+      G7 ❌ it does NOT survive a navigation -> a real test must re-apply after every go().
+      S1/S2/S3b ✅ service worker readable, CONTROLLING the page, >=1 registered.
+      G3-G6 ⚫ VOID. Not negative - the `100 miles` click found no element, so `locate()` was
+             never called and every assertion after it measured a page where nothing happened.
+
+  ⚠️ Five red rows that read exactly like a finding. They were a broken step. `optional` +
+  `always` is what makes a diagnostic legible AND what lets a dead step masquerade as data:
+  check a probe's own setup steps are green before believing any hypothesis.
+
+  Run 2 does NOT swap the locator hopefully - that would be the same guess twice. The XPath
+  FORM is not even the suspect: `MOB.348` clicks a Menu.Item with the identical
+  `normalize-space(.)="..."` shape and is green. So H1-H7 READ THE DOM to name the cause, and
+  two click attempts (exact, then `contains`) run back to back so this run can still reach G3.
+
 WHY G3 IS THE DECISIVE ONE, NOT G1
   G1 only proves the assignment stuck. It does not prove the APP uses it: a component that
   captured a reference at module load, or a runner that evaluates JS in an isolated world,
@@ -50,11 +68,15 @@ diagnostic that forgets this misses every locator (trap noted under Appendix C).
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, HERE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+                      radius_item_xp)
 
 HOME = BASE + "/"
 LOOKUP_URL = BASE + "/asset-lookup"
 RADIUS_KEY = "asset_lookup_proximity_radius"
+# 100 is the widest option AND is present in both locales' sets (imperial 5/10/25/50/100,
+# metric 10/25/50/100/200), so it stays clickable either way. Units are NEVER pinned here -
+# see the distance-units block in dd_tools.py.
 RADIUS = 100  # the widest option, to give the result list its best chance of being non-empty
 
 NEAR_ME_BTN = '//button[contains(normalize-space(.), "Near Me")]'
@@ -128,19 +150,79 @@ steps = (
              {"element": xpath_el(LOOKUP_URL, f"({NEAR_ME_BTN})[1]")},
              optional=True, always=True, timeout=30),
         step("wait", "Let the menu open", {"value": 2}, always=True),
-        step("click", f'Choose "{RADIUS} miles" — this calls locate() → getCurrentPosition',
+
+        # ---- H1-H7: WHY the click missed on 2026-08-21 -------------------------------------
+        # Run 1's click on `100 miles` found no element, which voided G3-G6. The XPath FORM is
+        # not the suspect: MOB.348 clicks a Menu.Item with the identical
+        # `normalize-space(.)="..."` shape and is green. So these read the DOM instead of
+        # guessing a replacement - mutually exclusive hypotheses, the report names the answer.
+        jsassert("H1: a Menu DROPDOWN is in the DOM at all",
+                 "return document.querySelectorAll('.mantine-Menu-dropdown').length > 0;",
+                 optional=True, always=True, timeout=15),
+        jsassert("H2: at least one .mantine-Menu-item exists",
+                 "return document.querySelectorAll('.mantine-Menu-item').length > 0;",
+                 optional=True, always=True, timeout=15),
+        jsassert("H3: exactly FIVE radius items are present (5/10/25/50/100 mi, or "
+                 "10/25/50/100/200 km)",
+                 MENU_ITEMS_JS +
+                 "return items.filter(t => /^\\d+ (mi|km)$/.test(t)).length === 5;",
+                 optional=True, always=True, timeout=15),
+        jsassert(f'H4 ⭐ an item\'s text EQUALS "{RADIUS} mi" (or km) — so '
+                 f'`normalize-space(.)="..."` should have matched',
+                 MENU_ITEMS_JS + f"return items.includes('{RADIUS} mi') "
+                 f"|| items.includes('{RADIUS} km');",
+                 optional=True, always=True, timeout=15),
+        # Name spells both literals out rather than using a "mi/km" shorthand: audit_assertions
+        # matches quoted strings in the NAME against the CODE, and the shorthand appears in
+        # neither, so it reported a NAME-MISMATCH that was purely cosmetic.
+        jsassert(f'H5 ⭐ an item CONTAINS "{RADIUS} mi" (or "{RADIUS} km") but is NOT equal to '
+                 f'it — hidden whitespace/extra content, so `=` fails where `contains` works',
+                 MENU_ITEMS_JS +
+                 f"return items.some(t => (t.indexOf('{RADIUS} mi') >= 0 "
+                 f"|| t.indexOf('{RADIUS} km') >= 0) "
+                 f"&& t !== '{RADIUS} mi' && t !== '{RADIUS} km');",
+                 optional=True, always=True, timeout=15),
+        jsassert("H6: the items are <button> elements",
+                 "const els = [...document.querySelectorAll('.mantine-Menu-item')];\n"
+                 "return els.length > 0 && els.every(e => e.tagName === 'BUTTON');",
+                 optional=True, always=True, timeout=15),
+        jsassert("H7 ⭐ the dropdown is in the DOM but NOT VISIBLE — Datadog would refuse to "
+                 "click it, and `assertElementPresent` would still have passed",
+                 "const els = [...document.querySelectorAll('.mantine-Menu-item')];\n"
+                 "if (!els.length) return false;\n"
+                 "return els.every(e => e.offsetParent === null "
+                 "|| getComputedStyle(e).visibility === 'hidden');",
+                 optional=True, always=True, timeout=15),
+
+        # ---- TWO click attempts, so this run can still answer the real question -------------
+        # Whichever form resolves fires locate(); the menu then closes (closeOnItemClick), so
+        # the second attempt simply finds nothing. Both optional - neither can end the run.
+        step("click", f'Choose "{RADIUS} mi/km" — attempt A, exact match (the form that '
+             f'missed in run 1)',
+             {"element": xpath_el(LOOKUP_URL, radius_item_xp(RADIUS))},
+             optional=True, always=True, timeout=20),
+        step("click", f'Choose "{RADIUS} mi/km" — attempt B, `contains` on a <button> (the '
+             f'MOB.397 form)',
              {"element": xpath_el(
                  LOOKUP_URL,
-                 f'//*[contains(concat(" ", normalize-space(@class), " "),'
-                 f' " mantine-Menu-item ")][normalize-space(.)="{RADIUS} miles"]')},
-             optional=True, always=True, timeout=30),
+                 f'//button[contains(concat(" ", normalize-space(@class), " "),'
+                 f' " mantine-Menu-item ")][contains(normalize-space(.), "{RADIUS} mi")'
+                 f' or contains(normalize-space(.), "{RADIUS} km")]')},
+             optional=True, always=True, timeout=20),
         # locate() is async: getCurrentPosition -> setState -> refetch -> re-render.
         step("wait", "Let locate() resolve and the list refetch", {"value": 6}, always=True),
 
-        jsassert(f'G3 ⭐⭐ DECISIVE: the button now reads "Within {RADIUS} mi" — the app '
+        jsassert("H8: a radius WAS chosen — the menu closed, so one of the two clicks landed "
+                 "(absence; its control is H3 above, which matched five with the SAME regex)",
+                 MENU_ITEMS_JS +
+                 "return items.filter(t => /^\\d+ (mi|km)$/.test(t)).length === 0;",
+                 optional=True, always=True, timeout=15),
+
+        jsassert(f'G3 ⭐⭐ DECISIVE: the button now reads "Within {RADIUS} mi/km" — the app '
                  f'consumed the stub',
                  "return [...document.querySelectorAll('button')]"
-                 f".some(b => /Within\\s+{RADIUS}\\s*mi/.test((b.textContent || '').trim()));",
+                 f".some(b => /Within\\s+{RADIUS}\\s*(mi|km)\\b/"
+                 ".test((b.textContent || '').trim()));",
                  optional=True, always=True, timeout=30),
         jsassert("G3b: the \"Near Me\" label is GONE — it is a swap, not a second button",
                  "return ![...document.querySelectorAll('button')]"
@@ -151,7 +233,7 @@ steps = (
         step("click", "Re-open the menu to read its conditional items",
              {"element": xpath_el(
                  LOOKUP_URL,
-                 f'//button[contains(normalize-space(.), "Within {RADIUS} mi")]')},
+                 f'//button[contains(normalize-space(.), "Within {RADIUS}")]')},
              optional=True, always=True, timeout=30),
         step("wait", "Let the menu open", {"value": 2}, always=True),
         jsassert('G4: "Update my location" and "Clear" have APPEARED (the `!!value` branch)',
@@ -165,9 +247,10 @@ steps = (
                  f"and this probe just created it",
                  f"return String(sessionStorage.getItem('{RADIUS_KEY}') || '')"
                  f".indexOf('{RADIUS}') >= 0;", optional=True, always=True, timeout=15),
-        jsassert('G6: result rows show a "mi away" distance (optional — depends on whether '
+        jsassert('G6: result rows show a "mi/km away" distance (optional — depends on whether '
                  'any fixture asset is near the stubbed coordinates)',
-                 "return /\\d+(\\.\\d+)?\\s*mi away/.test(document.body.innerText || '');",
+                 "return /\\d+(\\.\\d+)?\\s*(mi|km) away/"
+                 ".test(document.body.innerText || '');",
                  optional=True, always=True, timeout=15),
 
         # ---- G7: does the stub survive a navigation? --------------------------------------

@@ -75,44 +75,71 @@ def lookup(field_id, label, pick):
     ]
 
 
-write(test(
-    "MOB.600_Collector_Create_Asset",
-    "`MOB.600` Collect a new asset with the minimum required fields.\n"
-    "- MUTATES AND CANNOT BE UNDONE: one permanent Asset per run. Mobile is delete-free, so\n"
-    "  these accumulate on dev and need desktop cleanup. Named\n"
-    f"  `{ASSET_NAME}` so they are easy to find.\n"
-    "- `{{ RUNID }}` is a per-run Datadog local variable, so the name is unique by\n"
-    "  construction. A fixed marker would collide on the second run if Asset.name is\n"
-    "  uniqueness-constrained, and that failure would not look like its cause.\n"
-    "- Required fields are `name` and `typeId`. If Submit appears to do nothing, suspect a\n"
-    "  required field the runtime schema adds - an invalid form is a SILENT no-op.\n"
-    "- Asserts the form closing as the durable signal; the 'Asset collected' toast is\n"
-    "  optional because it is transient.",
-    [
-        go(COLLECTOR_URL, "the asset collector"),
-        step("wait", "Wait for the collector to load its lookup cache", {"value": 15}),
-        step("assertElementPresent", "Test the collector page rendered",
-             {"element": xpath_el(COLLECTOR_URL, PAGE_TITLE)}),
-        step("click", "Open the new-asset form (affixed + button)",
-             {"element": xpath_el(COLLECTOR_URL, ADD_BTN)}),
-        step("wait", "Wait for the form to mount", {"value": 3}),
-        step("assertElementPresent", "Test the new-asset form opened",
-             {"element": xpath_el(COLLECTOR_URL, SUBMIT)}),
-        step("typeText", "Enter the asset name",
-             {"value": ASSET_NAME, "element": field("name")}),
-        step("typeText", "Enter the asset description",
-             {"value": ASSET_DESC, "element": field("desc")}),
-    ] + lookup("typeId", "asset type", ASSET_TYPE) + [
-        step("click", "Submit the new asset", {"element": xpath_el(COLLECTOR_URL, SUBMIT)}),
-        step("wait", "Wait for the collect mutation", {"value": 5}),
-        step("assertPageLacks", "Test the form closed (durable success signal)",
-             {"value": "Submit"}),
-        step("assertPageContains", "Test the 'Asset collected' toast (optional: transient)",
-             {"value": "Asset collected"}, optional=True),
-    ],
-    TAGS + ["CRUD"],
-    local_vars=[localvar("RUNID", "{{ numeric(8) }}", "12345678")],
-))
+# 🛑 HARD GUARD — this comment used to say "DO NOT RUN WITH DD_FORCE=1 once an upload step
+# exists on MOB.600", and a comment cannot stop anything. MOB.600's `uploadFiles` step and the
+# JS step that reveals the hidden file input can ONLY be authored in the Datadog UI (their
+# bucketKey lives in Datadog's storage; no API mints one — trap 12), so regenerating would
+# delete them permanently. If they are present in the JSON, refuse to touch the file.
+_mob600 = os.path.join(HERE, "MOB.600_Collector_Create_Asset.json")
+if os.path.exists(_mob600):
+    _existing = json.load(open(_mob600))["details"]["steps"]
+    if any(s["type"] == "uploadFiles" for s in _existing):
+        print("SKIP  MOB.600 — it carries an ungeneratable uploadFiles step; refusing to "
+              "overwrite. Edit the JSON directly (see dd_reference/README.md).")
+        _skip600 = True
+    else:
+        _skip600 = False
+else:
+    _skip600 = False
+
+if not _skip600:
+  write(test(
+      "MOB.600_Collector_Create_Asset",
+      "`MOB.600` Collect a new asset with the minimum required fields.\n"
+      "- MUTATES AND CANNOT BE UNDONE: one permanent Asset per run. Mobile is delete-free, so\n"
+      "  these accumulate on dev and need desktop cleanup. Named\n"
+      f"  `{ASSET_NAME}` so they are easy to find.\n"
+      "- `{{ RUNID }}` is a per-run Datadog local variable, so the name is unique by\n"
+      "  construction. A fixed marker would collide on the second run if Asset.name is\n"
+      "  uniqueness-constrained, and that failure would not look like its cause.\n"
+      "- Required fields are `name` and `typeId`. If Submit appears to do nothing, suspect a\n"
+      "  required field the runtime schema adds - an invalid form is a SILENT no-op.\n"
+      "- Asserts the form closing as the durable signal; the 'Asset collected' toast is\n"
+      "  optional because it is transient.",
+      [
+          go(COLLECTOR_URL, "the asset collector"),
+          step("wait", "Wait for the collector to load its lookup cache", {"value": 15}),
+          step("assertElementPresent", "Test the collector page rendered",
+               {"element": xpath_el(COLLECTOR_URL, PAGE_TITLE)}),
+          step("click", "Open the new-asset form (affixed + button)",
+               {"element": xpath_el(COLLECTOR_URL, ADD_BTN)}),
+          step("wait", "Wait for the form to mount", {"value": 3}),
+          step("assertElementPresent", "Test the new-asset form opened",
+               {"element": xpath_el(COLLECTOR_URL, SUBMIT)}),
+          step("typeText", "Enter the asset name",
+               {"value": ASSET_NAME, "element": field("name")}),
+          step("typeText", "Enter the asset description",
+               {"value": ASSET_DESC, "element": field("desc")}),
+      ] + lookup("typeId", "asset type", ASSET_TYPE) + [
+          step("click", "Submit the new asset", {"element": xpath_el(COLLECTOR_URL, SUBMIT)}),
+          step("wait", "Wait for the collect mutation", {"value": 5}),
+          step("assertPageLacks", "Test the form closed (durable success signal)",
+               {"value": "Submit"}),
+          # ⚠️ THESE THREE WERE MISSING FROM THIS GENERATOR AND EXISTED ONLY IN THE JSON —
+          # a DD_FORCE rebuild would have deleted MOB.600's PROOF OF CREATION and left a test
+          # that only checks a form closed, which trap 6 says proves nothing here
+          # (`createAsset` resolves optimistically). Restored from the JSON.
+          step("assertElementPresent", "Test the form closed (affixed + button is back)",
+               {"element": xpath_el(COLLECTOR_URL, '//div[contains(concat(" ", normalize-space(@class), " "), " mantine-Affix-root ")]//button')}),
+          step("wait", "Wait for the collected list to refresh", {"value": 5}),
+          step("assertPageContains", "PROOF OF CREATION: this run's asset is in the collected list",
+               {"value": 'DD SYNTHETIC MOBILE {{ RUNID }}'}),
+          step("assertPageContains", "Test the 'Asset collected' toast (optional: transient)",
+               {"value": "Asset collected"}, optional=True),
+      ],
+      TAGS + ["CRUD"],
+      local_vars=[localvar("RUNID", "{{ numeric(8) }}", "12345678")],
+  ))
 
 # ---------------------------------------------------------------- suite
 # MOB.600 carries no login steps of its own, so it can only run as a subtest. A suite (over
@@ -130,8 +157,26 @@ write(test(
     "  MOB.993, this suite cannot be left on a schedule without the asset count growing.\n"
     "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
     "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", "MOB.600_Collector_Create_Asset",
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})],
+    # ⚠️ COMPLETE, IN RUN ORDER — trap 19. MOB.610 was wired into the JSON by
+    # build_search_sweep_tests.py and was missing here; a DD_FORCE rebuild would have dropped
+    # it silently and the suite would still have reported PASS.
+    login_steps + [step("playSubTest", c,
+                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
+                   # MOB.620 runs FIRST: it asserts the `Add Asset Photo` branch, which only
+                   # holds while the form has no attachments, and it must meet a form MOB.600
+                   # has not already driven.
+                   # MOB.621 follows MOB.620: both open a FRESH new-asset form, and both
+                   # depend on `attachments.length === 0` at the start. Neither submits, so
+                   # neither disturbs MOB.600.
+                   # MOB.622 follows MOB.621 for the same reason — it too opens a fresh form
+                   # and depends on starting at zero attachments, because its whole subject is
+                   # the ONE-photo state disagreeing with the TWO-photo state. It uploads
+                   # twice and submits nothing, so it also leaves MOB.600 an untouched form.
+                   for c in ["MOB.620_Collector_Photo_Picker",
+                             "MOB.621_Collector_Photo_Add",
+                             "MOB.622_Collector_Photo_Carousel",
+                             "MOB.600_Collector_Create_Asset",
+                             "MOB.610_Collector_Search"]],
     ["Mobile", "env:dev", "Asset Collector", "suite"],
     extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
 ))

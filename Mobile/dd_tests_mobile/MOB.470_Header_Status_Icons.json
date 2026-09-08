@@ -260,6 +260,70 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "SW: navigator.serviceWorker is available",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return 'serviceWorker' in navigator;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SW: a service worker is CONTROLLING this page \u2014 not merely present",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!(navigator.serviceWorker && navigator.serviceWorker.controller);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SW: kick off getRegistrations() (async \u2014 read in the next step)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.__ddSW = 'pending';\ntry { navigator.serviceWorker.getRegistrations()\n  .then(function (r) { window.__ddSW = r.length; })\n  .catch(function () { window.__ddSW = -1; }); } catch (e) { window.__ddSW = -2; }\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let getRegistrations() settle",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SW: at least one service worker is REGISTERED (numeric, so a still-pending promise fails rather than passing)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return typeof window.__ddSW === 'number' && window.__ddSW > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "CREW SHORTCUT: the crew label is rendered",
                 "noScreenshot": false,
                 "params": {

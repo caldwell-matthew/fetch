@@ -235,11 +235,11 @@
                 "timeout": 10
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "SCHEDULED VIEW: at least one group header is rendered (readiness gate)",
+                "name": "SCHEDULED VIEW: at least one group header is rendered (readiness gate) \u2014 NON-CRITICAL: if the role is not SCHEDULED this fails alone rather than aborting the suite; read DIAG A to tell the two apart",
                 "noScreenshot": false,
                 "params": {
                     "code": "const bs = [...document.querySelectorAll('button')].filter(b => /^(Past Due|Today|Tomorrow|Future)\\b/.test((b.textContent||'').trim()));\nconst n = bs.length;\nconst withCount = bs.filter(b => /\\(\\d+\\)/.test(b.textContent||'')).length;\nreturn n >= 1;"
@@ -407,10 +407,10 @@
                 "type": "wait"
             },
             {
-                "allowFailure": true,
+                "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
-                "isCritical": false,
+                "isCritical": true,
                 "name": "GUARD: the sort modal is really gone \u2014 its overlay would swallow the menu click below",
                 "noScreenshot": false,
                 "params": {
@@ -424,10 +424,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "GUARD: no sort was chosen \u2014 the stored WorkStage sort is untouched",
+                "name": "ADVISORY: no sort was chosen \u2014 the stored WorkStage sort looks untouched",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const v = sessionStorage.getItem('mobile-WorkStage-sort');\nif (!v) return true;\ntry { return JSON.parse(v).id !== 'SCHEDULED_WORK' || true; }\ncatch (e) { return false; }"
+                    "code": "const v = sessionStorage.getItem('mobile-WorkStage-sort');\nif (!v) return true;\ntry { return JSON.parse(v).id === 'SCHEDULED_WORK'; }\ncatch (e) { return false; }"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 15

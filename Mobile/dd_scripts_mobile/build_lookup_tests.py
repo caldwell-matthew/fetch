@@ -113,9 +113,25 @@ write(test(
     # suite, diff its children against the JSON.
     login_steps + [step("playSubTest", c,
                         {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
+                   # 🔁 RE-SYNCED 2026-08-23. This list still lacked `MOB.731`, wired into the
+                   # JSON on 08-21 — the same drift the warning above describes, one release
+                   # after it was written. Full order, and the ORDER IS LOAD-BEARING:
+                   #   740/735 run BEFORE 730/731 because those two own the proximity-radius
+                   #   restore, and nothing should run between the radius being cleared and
+                   #   the end of the suite. 735 also ENDS ON /map — harmless, since every
+                   #   child here starts with its own goToUrl, but it is why it is not last.
+                   #   741 follows 740 because they share a route and a fixture (Pump 0102's
+                   #   work history): back to back, the second runs against a warm cache and a
+                   #   failure in either localises to the same screen. 741 uploads a file but
+                   #   writes NOTHING - the image is filtered client-side - so the suite stays
+                   #   read-only and schedulable.
                    for c in ["MOB.700_AssetLookup_Search",
                              "MOB.720_AssetLookup_Event_Readings",
-                             "MOB.730_AssetLookup_Proximity"]],
+                             "MOB.740_AssetLookup_Work_History",
+                             "MOB.741_Work_Attachments_Docs",
+                             "MOB.735_AssetLookup_View_In_Map",
+                             "MOB.730_AssetLookup_Proximity",
+                             "MOB.731_AssetLookup_Proximity_Radius"]],
     # NB MOB.711 (column-picker search) is deliberately NOT here - un-wired 2026-08-21.
     ["Mobile", "env:dev", "Asset Lookup", "suite", "read-only"],
     extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),

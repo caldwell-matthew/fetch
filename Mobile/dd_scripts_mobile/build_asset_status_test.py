@@ -164,7 +164,11 @@ steps = (
              {"element": xpath_el(WORK_DETAIL, OVERLAY)},
              optional=True, always=True, timeout=15),
         step("wait", "Let the modal close", {"value": 2}, always=True),
-        jsassert("The form is gone — nothing was submitted",
+        # ⚠️ PAIRED WITH A LIVENESS ANCHOR — `audit_assertions.py` (VACUOUS-ABSENCE). A bare
+        # absence is equally true on a blank page, a crashed render and a login redirect, so
+        # it cannot on its own mean "the form went". The tab strip proves the page survived.
+        jsassert("The form was DISMISSED and the page is still alive (nothing was submitted — the form was never valid)",
+                 "if (!document.querySelectorAll('[role=tab]').length) return false;\n"
                  "return !document.getElementById('asset-status-form');",
                  always=True, timeout=30),
     ]

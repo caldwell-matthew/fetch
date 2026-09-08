@@ -1,0 +1,645 @@
+{
+    "test_name": "MOB.741_Work_Attachments_Docs",
+    "details": {
+        "name": "MOB.741_Work_Attachments_Docs",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.741` **The work-stage attachment panel \u2014 and the image filter on `Add File`.**\n- `MOB.740` opens the `Attachments` tab and asserts it is *active*; **nothing had ever read\n  what is inside it**. This is T1.2, and it was filed under \ud83d\udd34 HARNESS \u2014 wrong twice over:\n  `MOB.621` proved a `bucketKey` is portable, and the branch below never reaches the server.\n- \u2b50 **A genuine upload of a real file that writes nothing.** The Docs tab's `Add File`\n  filters images out client-side (`Attachments.tsx:33-43`) and calls `onFilesAdded` only\n  when something survives (`:179`), so an image never reaches `uploadFile`. Full coverage of\n  a real branch with **zero residue** on a shared fixture.\n- \u2b50 **The assertion is built against trap 5.** \"The file did not appear\" is true of a dead\n  screen too, so it is paired with two positive controls read off the same node: the input\n  really received **exactly one** file, and that file's type really matches `/^image\\//`.\n  Swap the fixture for a PDF and the test fails loudly instead of passing for the wrong\n  reason.\n- \ud83d\uded1 **The Photos tab is asserted and NEVER uploaded to.** Its `addImages` calls\n  `uploadPhoto` **and** `copyPhotoToAsset` (`WorkStageAttachments.tsx:34-43`) \u2014 two writes\n  against a fixture other tests read. The file filter is what makes the Docs side safe and\n  it has **no counterpart** on the Photos side.\n- \u2b50 Pins the other half of `MOB.620`'s conditional: this call site passes **no**\n  `buttonText`, so it must show the component default **`Add Photo`** where the collector\n  shows its derived `Add Asset Photo`. The two Add buttons are **mutually exclusive** by\n  construction, which is what makes the tab switch checkable rather than assumed.\n- \u26a0\ufe0f **The segmented control is switched by VALUE, never by text** (`bugs_found.md` \u00a722 \u2014\n  `useMediaQuery` inside a `.map()` makes the label nondeterministic under 375px).\n- \u26a0\ufe0f The route is `MOB.740`'s, **duplicated on purpose** \u2014 `WorkLookupDetails` hardcodes its\n  four sections, so the tab is guaranteed there, and sharing the prefix would rewrite a\n  green wired test. **If the route breaks, both files change together.**",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Orders",
+            "Attachments",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Pump 0102",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Pump 0102",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter \u2014 there is no search button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESULT GUARD: a result row for Pump 0102 rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1][contains(., \"Pump 0102\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand the first result",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(@class,\"mantine-Accordion-control\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the detail panel to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Work History\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work history query resolve",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: Pump 0102 has at least one work history row",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"Description:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the first work history record (opens a modal, not a route)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "((//*[contains(@class,\"mantine-Accordion-item\")])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"Description:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let MOBILE_WORK_ORDER_DETAILS resolve and the panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 6
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The work history modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Attachments\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@role=\"tab\"][normalize-space(.)=\"Attachments\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let WorkStageAttachments mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Attachments\" is the active tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@role=\"tab\"][normalize-space(.)=\"Attachments\"][@data-active=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The panel offers EXACTLY TWO segments (Photos / Docs), read by value not label",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst vals = [...root.querySelectorAll('input[type=radio]')].map(i => i.value);\nif (vals.length) return JSON.stringify(vals) === JSON.stringify(['1','2']);\n// no radios in this Mantine build \u2014 fall back to counting the controls\nreturn root.querySelectorAll('[class*=\"SegmentedControl-control\"]').length === 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 PHOTOS tab: the add button is present and reads the COMPONENT DEFAULT \"Add Photo\" \u2014 and no \"Add File\" (asserted, never uploaded to)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst want = t.includes('Add Photo'), other = t.includes('Add File');\nreturn want && !other;\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the Docs segment by VALUE (never by text \u2014 \u00a722)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nlet el = root.querySelector('input[type=\"radio\"][value=\"2\"]');\nif (!el) {\n  // structural fallback: the options render in the order they are declared\n  const c = [...root.querySelectorAll('label, button, [class*=\"SegmentedControl-control\"]')];\n  el = c[1];\n}\nif (!el) return false;\nel.click();\nreturn true;\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Docs panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "DOCS tab: \"Add File\" is present and the carousel button is GONE \u2014 the two are mutually exclusive by construction",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst want = t.includes('Add File'), other = t.includes('Add Photo');\nreturn want && !other;\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Reveal the hidden \"Add File\" input (Mantine FileButton, accept=\"*/*\")",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const root = document.querySelector('.mantine-Modal-content');\nif (!root) return false;\nconst hits = [...root.querySelectorAll('input[type=\"file\"][accept=\"*/*\"]')];\nif (hits.length !== 1) return false;   // 0 = not rendered, >1 = ambiguous, see above\nconst el = hits[0];\nif (!el) return false;\nel.setAttribute('data-dd-upload', '1');\nObject.assign(el.style, {\n  display: 'block', opacity: '1', position: 'fixed',\n  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'\n});\nreturn true;\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 Upload an IMAGE through the FILE button \u2014 the branch that must reject it",
+                "noScreenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Screenshot 2024-12-11 at 3.23.46\u202fPM.png",
+                            "size": 25762,
+                            "bucketKey": "browser-upload-file-step/4ty-vhq-3aa/2026-08-11T01:17:31.314568_2a1bff34-f062-4bb4-a6bf-9c9c3551f896.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd-upload=\"1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"input\"][3]",
+                            "at": "",
+                            "cl": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"input\"][3]",
+                            "clt": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"image/*\" multiple=\"\" style=\"display: block; opacity: 1; position: fixed; top: 0px; left: 0px; width: 240px; height: 40px; z-index: 99999;\" data-dd-upload=\"1\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The rejection toast fired \u2014 the filter ran and counted the image",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /image file\\(s\\) were ignored/.test(document.body.textContent || '');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The image really landed on the input, really was an image, and really did NOT reach the attachment table",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[data-dd-upload=\"1\"]');\nif (!el || !el.files || el.files.length !== 1) return false;   // it arrived\nconst f = el.files[0];\nif (!/^image\\//.test(f.type)) return false;                    // it is an image\nconst m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst tbl = m.querySelector('table');\nconst shown = tbl ? (tbl.textContent || '') : '';\nreturn !shown.includes(f.name.slice(0, 20));                   // it was rejected\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and the panel is still usable \u2014 \"Add File\" is still there",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst want = t.includes('Add File'), other = t.includes('Add Photo');\nreturn want && !other;\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the modal (its CloseButton \u2014 Escape and the overlay are no-ops here)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-CloseButton-root \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: no modal is left open, and nothing was attached",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('.mantine-Modal-content');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

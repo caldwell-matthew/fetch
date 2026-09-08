@@ -1,0 +1,525 @@
+{
+    "test_name": "MOB.358_Work_Asset_Geolocate",
+    "details": {
+        "name": "MOB.358_Work_Asset_Geolocate",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.358` **`AssetGeolocate` \u2014 the asset location form behind `GeolocateButton`.**\n- Closes the half of T1.6 that `MOB.731` does not: that covers `ProximityMenu`, **this is\n  `GeolocateButton`'s form-fill.**\n- \u2b50 **One component, three entry points** \u2014 the Collector row, the map card header, and the\n  work order **Assets tab**, which is the path used here because `MOB.347` already proves\n  it.\n- \u26a0\ufe0f **`onResult` fires only AFTER a live Mapbox reverse-geocode** (`GeolocateButton.tsx:27`), so a stubbed position alone opens nothing. **`fetch` is stubbed\n  for the Mapbox geocoding URL only** (Apollo uses `fetch`; everything else passes\n  through). That removes a third-party dependency *and* makes the form's contents\n  deterministic \u2014 so the test proves the response was **mapped into the form**, not merely\n  that a form opened.\n- \u2b50 **Trap 8 as a BICONDITIONAL, asserted twice around a real toggle**: Submit's `type` is\n  `submit` **iff** some include-box is checked. `includeGis` defaults to the asset's\n  geometry, so any fixed expectation would be asking the fixture a question \u2014 the mistake\n  `MOB.357` run 1 made.\n- \u26a0\ufe0f Stubs are installed **after the last `go()`** \u2014 geolocation stubs do not survive a\n  navigation (`MOB.974` G7).\n- \ud83d\uded1 **STRICTLY READ-ONLY.** Submitting fires `UPDATE_ASSET` on the asset's real address and\n  coordinates *with an `optimisticResponse`*, so a bad run would repaint as if it worked\n  (trap 6). Nothing is submitted; the modal is escaped and both stubs removed\n  (`alwaysExecute`).\n- \ud83d\udc1e Related: `bugs_found.md` **\u00a729** \u2014 `reverseGeocode` has no `ok` check and no `catch`,\n  so a Mapbox failure means the user's tap silently does nothing.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Geolocation",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Assets\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the asset list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Assets\" is now the active tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"][@data-active=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: an asset row renders the geolocate control",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[@data-icon=\"location-crosshairs\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-location-crosshairs \")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The control is ENABLED \u2014 it gates on `online`, and we are online",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const icon = document.querySelector('[data-icon=\"location-crosshairs\"]');\nif (!icon) return false;\nconst root = icon.closest('.mantine-ActionIcon-root');\nif (!root) return false;\nreturn !root.hasAttribute('data-disabled') && navigator.onLine === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Install the geolocation + Mapbox stubs (must follow the last go() \u2014 G7)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!window.__ddOrigFetch) window.__ddOrigFetch = window.fetch;\nif (!window.__ddOrigGeo) window.__ddOrigGeo = navigator.geolocation.getCurrentPosition;\nnavigator.geolocation.getCurrentPosition = function (ok) {\n  ok({ coords: { latitude: 41.8781, longitude: -87.6298, accuracy: 5 } });\n};\n// Mapbox ONLY \u2014 Apollo uses fetch, so everything else must pass through untouched.\nwindow.fetch = function (input) {\n  var u = typeof input === 'string' ? input : ((input && input.url) || '');\n  if (u.indexOf('api.mapbox.com/geocoding') !== -1) {\n    var body = JSON.stringify({features:[{place_type:['address'],text:'Main Street',address:'1600',properties:{}},{place_type:['place'],text:'Chicago',properties:{}},{place_type:['region'],text:'Illinois',properties:{short_code:'US-IL'}},{place_type:['country'],text:'United States',properties:{short_code:'us'}},{place_type:['postcode'],text:'60601',properties:{}}]});\n    return Promise.resolve(new Response(body, { status: 200, headers: { 'Content-Type': 'application/json' } }));\n  }\n  return window.__ddOrigFetch.apply(window, arguments);\n};\nreturn typeof window.fetch === 'function';\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tap the geolocate control (click the ActionIcon ROOT \u2014 MOB.911)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-ActionIcon-root \")][.//*[@data-icon=\"location-crosshairs\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-location-crosshairs \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The modal opened \u2014 \"Updating Asset Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Updating Asset Location"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"mobile-geolocate\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026with its `Include GIS` control",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Include GIS"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and its `Include Address` control",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Include Address"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 THE STUBBED GEOCODE REACHED THE FORM \u2014 address, city and postcode",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst vals = [...f.querySelectorAll('input')].map(i => (i.value || '').trim());\nconst joined = vals.join('|');\n// address = `${streetNumber} ${street}` per AssetGeolocate defaultValues\nreturn joined.includes('1600 Main Street')\n  && joined.includes('Chicago')\n  && joined.includes('60601');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and the region/country short_codes were unwrapped (US-IL -> IL, us -> US)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst joined = [...f.querySelectorAll('input')].map(i => (i.value || '').trim()).join('|');\nreturn /(^|\\|)IL(\\||$)/.test(joined) && /(^|\\|)US(\\||$)/.test(joined);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 VALIDITY 1/2: Submit is `submit` iff some include-box is checked",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst boxes = [...f.querySelectorAll('input[type=checkbox]')];\nif (boxes.length < 2) return false;\nconst anyChecked = boxes.some(b => b.checked);\nconst btn = document.querySelector('button[form=\"mobile-geolocate\"]')\n  || [...document.querySelectorAll('button')].find(b => (b.textContent || '').trim() === 'Submit');\nif (!btn) return false;\n// SubmitButton.tsx: type={isValid ? 'submit' : 'button'}, isValid = includeGis || includeAddress\nreturn anyChecked ? btn.type === 'submit' : btn.type === 'button';\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CHECKBOX GUARD: the form has exactly two include-boxes, so [2] is unambiguous",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nreturn f.querySelectorAll('input[type=checkbox]').length === 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 TOGGLE + PROOF: flip `Include Address` (BY FIELD ID) and confirm it changed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nlet el = f.querySelector('#includeAddress, input[name=\"includeAddress\"]');\nif (!el) {\n  const boxes = [...f.querySelectorAll('input[type=checkbox]')];\n  if (boxes.length !== 2) return false;   // shape changed \u2014 refuse to guess\n  el = boxes[1];\n}\nconst before = el.checked;\nel.click();                // real click event \u2014 React's onChange fires\nreturn el.checked !== before;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: the `includeAddress` field id resolved (if this fails, the toggle above fell back to position and the id needs re-reading)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nreturn !!f.querySelector('#includeAddress, input[name=\"includeAddress\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form revalidate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 VALIDITY 2/2: the invariant still holds after a real toggle",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst boxes = [...f.querySelectorAll('input[type=checkbox]')];\nif (boxes.length < 2) return false;\nconst anyChecked = boxes.some(b => b.checked);\nconst btn = document.querySelector('button[form=\"mobile-geolocate\"]')\n  || [...document.querySelectorAll('button')].find(b => (b.textContent || '').trim() === 'Submit');\nif (!btn) return false;\n// SubmitButton.tsx: type={isValid ? 'submit' : 'button'}, isValid = includeGis || includeAddress\nreturn anyChecked ? btn.type === 'submit' : btn.type === 'button';\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape \u2014 close WITHOUT submitting",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the modal is gone and nothing was submitted",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Updating Asset Location"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: both stubs removed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (window.__ddOrigFetch) { window.fetch = window.__ddOrigFetch; delete window.__ddOrigFetch; }\nif (window.__ddOrigGeo) { navigator.geolocation.getCurrentPosition = window.__ddOrigGeo; delete window.__ddOrigGeo; }\nreturn !window.__ddOrigFetch && !window.__ddOrigGeo;\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

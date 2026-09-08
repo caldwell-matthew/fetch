@@ -577,10 +577,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The form is gone \u2014 nothing was submitted",
+                "name": "The form was DISMISSED and the page is still alive (nothing was submitted \u2014 the form was never valid)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "return !document.getElementById('asset-status-form');"
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.getElementById('asset-status-form');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

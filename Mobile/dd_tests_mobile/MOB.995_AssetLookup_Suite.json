@@ -344,6 +344,45 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "MOB.740_AssetLookup_Work_History",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "q54-g7j-83p",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.741_Work_Attachments_Docs",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "uu6-7kp-98c",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.735_AssetLookup_View_In_Map",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "xe6-ptx-6wx",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "MOB.730_AssetLookup_Proximity",
                 "noScreenshot": false,
                 "params": {
@@ -351,6 +390,19 @@
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.731_AssetLookup_Proximity_Radius",
+                "noScreenshot": false,
+                "type": "playSubTest",
+                "params": {
+                    "subtestPublicId": "26b-4ju-ebv",
+                    "playingTabId": -1
+                }
             }
         ]
     }

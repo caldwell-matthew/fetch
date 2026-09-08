@@ -1,0 +1,299 @@
+{
+    "test_name": "MOB.357_Work_Form_Metrics",
+    "details": {
+        "name": "MOB.357_Work_Form_Metrics",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.357` **`FormMetrics` \u2014 the form-completion readout on a work order.**\n- Rendered **twice**: `WorkDetails.tsx:117` (`type=\"WORK\"`, above the tabs) and\n  `Forms/index.tsx:55` (`type=\"FORMS\"`, inside every form card). Had **no checklist\n  row** until the 2026-08-23 audit.\n- **Worth testing because it is DERIVED state**, not a fetched string \u2014 it counts\n  `required` fields with a `value`, or an `attachmentId` for image fields. A payload-shape\n  change zeroes it silently; `MOB.355` proves the form *renders*, not that anything\n  counted it.\n- \u26a0\ufe0f **The two instances have different guards.** `WORK` renders **nothing** when\n  `required === 0`; `FORMS` has no such guard. So the per-card readout is asserted\n  directly, and the header one as an **exclusive-or** \u2014 well-formed, or correctly absent.\n  A half-rendered header fails.\n- \u2b50 **The cross-check has the most teeth**: the header's `Form(s): N` and the number of\n  form cards are computed independently from the same payload, so a drift between them is\n  invisible to any one-sided assertion.\n- \u26a0\ufe0f The header label is `Form:` **or** `Forms:` (`Form${n !== 1 ? 's' : ''}`) \u2014 singular\n  for one form, which is the likeliest state of this fixture. Both are matched.\n- \ud83d\uded1 **READ-ONLY.** A form card's `onClick` navigates to `/work/:id/form/:formId`, so no\n  card is ever clicked \u2014 that is `MOB.355`'s job, and it would strand the suite on the\n  form route. A closing guard asserts we are still on the work detail.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Forms",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "HEADER: the WORK-level readout is either well-formed or correctly absent",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const leaves = (root) => [...root.querySelectorAll('*')].filter(e => !e.children.length).map(e => (e.textContent || '').trim());\nconst tabs = document.querySelector('.mantine-Tabs-root');\nconst root = tabs && tabs.parentElement;\nif (!root) return false;\nlet head = [];\nfor (const el of root.children) {\n  if (el === tabs) break;\n  head = head.concat(leaves(el), el.children.length ? [] : [(el.textContent || '').trim()]);\n}\nconst m = head.map(t => t.match(/^Required Fields Completed:\\s*(\\d+)\\s+of\\s+(\\d+)$/)).find(Boolean);\nconst c = head.map(t => t.match(/^Forms?:\\s*(\\d+)$/)).find(Boolean);\nif (!m && !c) return true;            // required === 0 branch\nif (!m || !c) return false;           // half-rendered \u2014 a real defect\nreturn Number(m[1]) <= Number(m[2]);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Forms tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the forms list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: the work order has at least one form card",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "EVERY form card carries a well-formed 'X of Y' completion readout",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const leaves = (root) => [...root.querySelectorAll('*')].filter(e => !e.children.length).map(e => (e.textContent || '').trim());\nconst p = [...document.querySelectorAll('[role=tabpanel]')].find(e => !(e.getAttribute('style') || '').includes('display: none'));\nif (!p) return false;\nconst cards = [...p.querySelectorAll('.mantine-Paper-root')].filter(c => c.querySelector('.mantine-Title-root'));\nif (!cards.length) return false;\nconst re = /^Required Fields Completed:\\s*(\\d+)\\s+of\\s+(\\d+)$/;\nreturn cards.every(c => {\n  const m = leaves(c).map(t => t.match(re)).find(Boolean);\n  if (!m) return false;\n  const done = Number(m[1]), req = Number(m[2]);\n  return Number.isInteger(done) && Number.isInteger(req) && done <= req;\n});"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CROSS-CHECK: the header's form COUNT equals the number of form cards",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const leaves = (root) => [...root.querySelectorAll('*')].filter(e => !e.children.length).map(e => (e.textContent || '').trim());\nconst tabs = document.querySelector('.mantine-Tabs-root');\nconst root = tabs && tabs.parentElement;\nif (!root) return false;\nlet head = [];\nfor (const el of root.children) {\n  if (el === tabs) break;\n  head = head.concat(leaves(el), el.children.length ? [] : [(el.textContent || '').trim()]);\n}\nconst c = head.map(t => t.match(/^Forms?:\\s*(\\d+)$/)).find(Boolean);\nif (!c) return true;                  // header absent \u2014 required === 0\nconst p = [...document.querySelectorAll('[role=tabpanel]')].find(e => !(e.getAttribute('style') || '').includes('display: none'));\nif (!p) return false;\nconst cards = [...p.querySelectorAll('.mantine-Paper-root')].filter(c => c.querySelector('.mantine-Title-root'));\nreturn Number(c[1]) === cards.length;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CROSS-CHECK 2: the header appears exactly when some card declares a required field",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const leaves = (root) => [...root.querySelectorAll('*')].filter(e => !e.children.length).map(e => (e.textContent || '').trim());\nconst tabs = document.querySelector('.mantine-Tabs-root');\nconst root = tabs && tabs.parentElement;\nif (!root) return false;\nlet head = [];\nfor (const el of root.children) {\n  if (el === tabs) break;\n  head = head.concat(leaves(el), el.children.length ? [] : [(el.textContent || '').trim()]);\n}\nconst headerPresent = !!head.map(t => t.match(/^Forms?:\\s*(\\d+)$/)).find(Boolean);\nconst p = [...document.querySelectorAll('[role=tabpanel]')].find(e => !(e.getAttribute('style') || '').includes('display: none'));\nif (!p) return false;\nconst cards = [...p.querySelectorAll('.mantine-Paper-root')].filter(c => c.querySelector('.mantine-Title-root'));\nconst re = /^Required Fields Completed:\\s*(\\d+)\\s+of\\s+(\\d+)$/;\nconst anyRequired = cards.some(c => {\n  const m = leaves(c).map(t => t.match(re)).find(Boolean);\n  return !!m && Number(m[2]) > 0;\n});\nreturn headerPresent === anyRequired;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "READ-ONLY GUARD: still on the work detail, not the form route",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/work\\/[^/]+$/.test(location.pathname);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

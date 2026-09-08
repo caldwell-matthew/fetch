@@ -111,6 +111,30 @@ write(test(
             timeout=30),
         step("pressKey", "Close the menu", {"value": "Escape"}),
 
+        # ---- service worker: T1.5's "registers" row, promoted from MOB.974 -----------------
+        # Lives here rather than in a test of its own because it is the same KIND of assertion
+        # as the version string above: a property of the deployed build that a synthetic run
+        # can read but no page displays. Measured green by MOB.974_DIAG_Geolocation on
+        # 2026-08-21 (S1/S2/S3b) before being promoted - not assumed.
+        jsassert("SW: navigator.serviceWorker is available",
+                 "return 'serviceWorker' in navigator;", timeout=15),
+        jsassert("SW: a service worker is CONTROLLING this page — not merely present",
+                 "return !!(navigator.serviceWorker && navigator.serviceWorker.controller);",
+                 timeout=30),
+        # ⚠️ getRegistrations() is async and a JS assertion must return a boolean, so the
+        # promise is kicked off in one step and read in the next. Writing it as a single step
+        # would assert on a pending promise, which is truthy - a test that cannot fail.
+        jsassert("SW: kick off getRegistrations() (async — read in the next step)",
+                 "window.__ddSW = 'pending';\n"
+                 "try { navigator.serviceWorker.getRegistrations()\n"
+                 "  .then(function (r) { window.__ddSW = r.length; })\n"
+                 "  .catch(function () { window.__ddSW = -1; }); } catch (e) "
+                 "{ window.__ddSW = -2; }\nreturn true;", timeout=15),
+        step("wait", "Let getRegistrations() settle", {"value": 3}),
+        jsassert("SW: at least one service worker is REGISTERED (numeric, so a still-pending "
+                 "promise fails rather than passing)",
+                 "return typeof window.__ddSW === 'number' && window.__ddSW > 0;", timeout=15),
+
         # ---- crew shortcut: the second entry point to RoleSelection
         step("assertElementPresent", "CREW SHORTCUT: the crew label is rendered",
              {"element": xpath_el(HOME, CREW_SPAN)}, timeout=30),

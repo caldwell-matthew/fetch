@@ -31,12 +31,14 @@ WHAT IS ACTUALLY PROVEN, AND WHY THE NEGATIVE IS THE GOOD PART
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+                      radius_set_js)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 RADIUS_KEY = "asset_lookup_proximity_radius"
-# RADIUS_OPTIONS in ProximityMenu.tsx, rendered as `${miles} miles`.
-RADII = [5, 10, 25, 50, 100]
+# 🛑 The radius options are LOCALE-DERIVED - see the distance-units block in dd_tools.py.
+# This file used to hard-code `[5,10,25,50,100]` rendered as "N miles"; the 09-02 localization
+# commit made them "N mi" and broke both checks below, one loudly and one silently.
 
 NEAR_ME_BTN = '//button[contains(normalize-space(.), "Near Me")]'
 MENU_ITEMS_JS = ("const items = [...document.querySelectorAll('.mantine-Menu-item')]"
@@ -59,20 +61,42 @@ steps = [
     step("assertElementPresent", 'The "Near Me" button renders — the no-radius label',
          {"element": xpath_el(LOOKUP_URL, NEAR_ME_BTN)}, timeout=60),
 
+    # ---- SETTLE BEFORE CLICKING. Measured, not defensive padding. ------------------------
+    # 2026-09-08: this test failed at "Search radius" on a FRESH session while MOB.731 and
+    # MOB.974 opened the same menu on the same page in the same run conditions. The only
+    # difference was TIMING - both of those install a geolocation stub between the button
+    # assert and the click, which buys ~5s of settle. This test clicked straight after the
+    # assert, and the click landed while Asset Lookup was still resolving its first query, so
+    # the menu opened and was immediately discarded by the re-render.
+    # 🛑 A polling assert AFTER the click cannot fix that: the menu never reopens, so the poll
+    # just waits 30s and fails. The gate has to come BEFORE the click.
+    # ⚠️ In its suite MOB.730 runs last, after six other Asset Lookup children have warmed the
+    # page - which is exactly why this only shows up in a fresh session, and why a scratch
+    # verify is not the same as a suite pass.
+    step("assertElementPresent",
+         "SETTLE GATE: the search input is interactive — the page finished its first render",
+         {"element": xpath_el(LOOKUP_URL, '//input[@name="asset-search"]')}, timeout=60),
+    step("wait", "Let the first asset query settle before touching the menu", {"value": 4}),
+
     # ---- the menu -----------------------------------------------------------------------
     step("click", 'Open the "Near Me" menu',
          {"element": xpath_el(LOOKUP_URL, f"({NEAR_ME_BTN})[1]")}, timeout=30),
-    step("wait", "Let the menu open", {"value": 2}),
-    step("assertPageContains", 'The menu is headed "Search radius"',
-         {"value": "Search radius"}, timeout=30),
+    # Poll for the menu's own heading ELEMENT rather than `wait 2` + a page-text search:
+    # the wait is a timer and rots (trap 21), and `assertPageContains` cannot tell the
+    # dropdown apart from the same words anywhere else on the page.
+    step("assertElementPresent", 'The menu is headed "Search radius"',
+         {"element": xpath_el(
+             LOOKUP_URL,
+             '//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-label ")]'
+             '[normalize-space(.)="Search radius"]')}, timeout=30),
 
-    # FIVE POSITIVES. Asserted as a set and as a count, so an extra or missing radius fails
+    # FIVE POSITIVES. Asserted as a SET and as a count, so an extra or missing radius fails
     # rather than passing on a partial match.
-    jsassert("All five radii are offered — 5 / 10 / 25 / 50 / 100 miles, and only those",
-             MENU_ITEMS_JS +
-             "const want = " + repr([f"{m} miles" for m in RADII]).replace("'", '"') + ";\n"
-             "const got = items.filter(t => /^\\d+ miles$/.test(t));\n"
-             "return got.length === want.length && want.every(w => got.includes(w));",
+    # ⭐ Unit-agnostic, and STRONGER than the version it replaces: the set must match one
+    # locale's options EXACTLY, so a mixed render ("25 mi" beside "50 km") now fails too.
+    jsassert("All five radii are offered, and they are exactly ONE locale's set — "
+             "5/10/25/50/100 mi or 10/25/50/100/200 km, never a mix",
+             MENU_ITEMS_JS + radius_set_js(),
              timeout=30),
 
     # THE NEGATIVE, and the reason this test is worth having: both of these sit behind
@@ -88,8 +112,15 @@ steps = [
     step("pressKey", "Close the menu WITHOUT choosing a radius (a click would call "
          "getCurrentPosition — Appendix C)", {"value": "Escape"}, always=True),
     step("wait", "Let the menu close", {"value": 1}, always=True),
-    jsassert("GUARD: nothing was chosen — the menu is closed",
-             MENU_ITEMS_JS + "return items.filter(t => /^\\d+ miles$/.test(t)).length === 0;",
+    # ⚠️ THIS IS THE STEP THAT WENT VACUOUS. It is an ABSENCE, so it is only meaningful
+    # because the SAME REGEX matched five items eight steps above - that positive is its
+    # control. When the app renamed the items, both checks read the same broken regex: one
+    # failed loudly and this one started passing on every page, forever.
+    # 🛑 If you ever change the regex here, change it there too, or delete both.
+    jsassert("GUARD: nothing was chosen — the menu is closed (MEANINGFUL ONLY because the "
+             "same /^\\d+ (mi|km)$/ matched five items above — do not decouple them)",
+             MENU_ITEMS_JS +
+             "return items.filter(t => /^\\d+ (mi|km)$/.test(t)).length === 0;",
              always=True, timeout=30),
 
     # The test must not be the thing that leaves a radius behind for later subtests.
@@ -112,6 +143,13 @@ write(test(
     "  five radii being PRESENT, so it cannot pass on a menu that never opened (trap 5).\n"
     "- The button's label is state, not decoration — `Near Me` vs `Within {n} mi` — so\n"
     "  asserting it doubles as the baseline guard.\n"
+    "- 🛑 **UNIT-AGNOSTIC BY REQUIREMENT, not by taste.** The radius options are\n"
+    "  `${radius} ${distanceUnit}` and BOTH halves come from the **browser locale**\n"
+    "  (`utils/distance`): `5/10/25/50/100 mi` imperial, `10/25/50/100/200 km` metric.\n"
+    "  This test pinned `N miles` until 2026-09-08 and had been broken since the 09-02\n"
+    "  localization commit. ⚠️ **The failure was two-sided**: the positive check went red,\n"
+    "  and its paired absence check started passing **vacuously** — a green step that could\n"
+    "  never fail again. The set assertion now also rejects a MIX of units.\n"
     "- ⚠️ **Persists and auto-locates**: a stored\n"
     "  `sessionStorage['asset_lookup_proximity_radius']` makes the page request geolocation on\n"
     "  MOUNT, for every later subtest in the shared session. This test asserts the key is\n"

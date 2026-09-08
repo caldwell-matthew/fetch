@@ -1,0 +1,531 @@
+{
+    "test_name": "MOB.535_AssetVerify_Sort_Ordering",
+    "details": {
+        "name": "MOB.535_AssetVerify_Sort_Ordering",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.535` **The mobile job list really comes out in the chosen order.**\n- Closes `MOB.530`'s long-standing `[~]` \u2014 *sort ordering is not verified* \u2014 which was\n  **blocked on the FIXTURE, not on test effort**: proving an order needs \u22652 records.\n  \u2705 Unblocked 2026-08-23 when the owner confirmed the crew has multiple mobile jobs.\n- \ud83d\udd01 **Version 2. The exact-reversal invariant (`MOB.345`'s shape) does NOT survive\n  virtualisation** \u2014 version 1 failed on its first run, and its own diagnostics said why\n  in one run: ASC and DESC rendered **different row counts and different sets**, because\n  Virtuoso mounts only the visible window.\n- \u2b50 **The invariant is now MONOTONICITY of the rendered window**: `Name \u25b2` \u2192 names\n  non-decreasing, `Name \u25bc` \u2192 non-increasing. Any contiguous window of a sorted list is\n  itself sorted, so this is immune to virtualisation, to how many jobs exist, and to which\n  ones they are \u2014 and it is *stronger* than reversal, because it reads the actual sort key\n  rather than comparing two opaque orders.\n- Sorts by **`name`** because it is the only one of the three offered columns\n  (`createdAt`/`name`/`status`) that the card actually renders \u2014 monotonicity has to read\n  the key off the row.\n- \u26a0\ufe0f Comparison uses `<`/`>` on raw strings to match lodash's `compareAscending`.\n  `localeCompare` disagrees on mixed case and would look like a sort bug.\n- **Cannot go vacuous**: guards require \u22652 rendered rows **and** \u22652 distinct names \u2014\n  monotonicity is trivially true both ways for a list of identical names (trap 5).\n- \ud83d\uded1 **Self-restoring, `alwaysExecute` \u2014 and unlike `MOB.810` it really does clear\n  `mobile-MobileJob-sort`.** Wired **last** in `MOB.996` so a leaked sort cannot reach\n  `MOB.810`, which deliberately leaves one set.\n- \ud83d\uded1 **READ-ONLY**.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Verification",
+            "Sort",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the mobile job list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the page begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Mobile Jobs\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Mobile Jobs",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the lookup prefetch and batched detail downloads",
+                "noScreenshot": false,
+                "params": {
+                    "value": 25
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the job list rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the lookup prefetch finished (feeds schemaQuery)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Fetching data for lookups"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the batched job-detail downloads finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Fetching mobile job details"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: \"DATADOG MOBILE JOB\" is in this crew's list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DATADOG MOBILE JOB"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "TWO-JOB GUARD: at least TWO job rows are rendered \u2014 ordering is vacuous with one (trap 5)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const NAMES = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => /out of \\d+ Assets Verified/.test(e.textContent || '')\n            && !e.querySelector('.mantine-Paper-root'))\n  .map(e => ((e.querySelector('.mantine-Title-root') || {}).textContent || '')\n             .replace(/\\s+/g, ' ').trim());\nreturn NAMES().length >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "DISTINCTNESS GUARD: the rendered jobs do not all share one name",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const NAMES = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => /out of \\d+ Assets Verified/.test(e.textContent || '')\n            && !e.querySelector('.mantine-Paper-root'))\n  .map(e => ((e.querySelector('.mantine-Title-root') || {}).textContent || '')\n             .replace(/\\s+/g, ' ').trim());\nconst n = NAMES();\nreturn new Set(n).size >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown (for Name ascending)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: a \"Name \u25b2\" option exists",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Name\")][contains(normalize-space(.), \"\u25b2\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Name \u25b2\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Name\")][contains(normalize-space(.), \"\u25b2\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the sort apply and the list re-render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The ascending Name sort was persisted",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const raw = sessionStorage.getItem('mobile-MobileJob-sort');\nif (!raw) return false;\nconst v = JSON.parse(raw);\nreturn v.column === 'name' && String(v.label || '').includes('\u25b2');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 PROOF ASC: the rendered job names are in non-DECREASING order",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const NAMES = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => /out of \\d+ Assets Verified/.test(e.textContent || '')\n            && !e.querySelector('.mantine-Paper-root'))\n  .map(e => ((e.querySelector('.mantine-Title-root') || {}).textContent || '')\n             .replace(/\\s+/g, ' ').trim());\nconst n = NAMES();\nif (n.length < 2) return false;\n// lodash sortBy uses plain < / > on strings (code-unit order), NOT\n// localeCompare \u2014 match it, or mixed case reads as a sort bug.\nfor (let i = 1; i < n.length; i++) if (n[i - 1] > n[i]) return false;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown (for Name descending)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Sort Criteria modal opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Sort Criteria"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: a \"Name \u25bc\" option exists",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Name\")][contains(normalize-space(.), \"\u25bc\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Name \u25bc\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Name\")][contains(normalize-space(.), \"\u25bc\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the sort apply and the list re-render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The descending Name sort was persisted",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const raw = sessionStorage.getItem('mobile-MobileJob-sort');\nif (!raw) return false;\nconst v = JSON.parse(raw);\nreturn v.column === 'name' && String(v.label || '').includes('\u25bc');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 PROOF DESC: the rendered job names are in non-INCREASING order",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const NAMES = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => /out of \\d+ Assets Verified/.test(e.textContent || '')\n            && !e.querySelector('.mantine-Paper-root'))\n  .map(e => ((e.querySelector('.mantine-Title-root') || {}).textContent || '')\n             .replace(/\\s+/g, ' ').trim());\nconst n = NAMES();\nif (n.length < 2) return false;\nfor (let i = 1; i < n.length; i++) if (n[i - 1] < n[i]) return false;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "DIAG: how many rows Virtuoso has mounted (informational \u2014 always true)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const NAMES = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => /out of \\d+ Assets Verified/.test(e.textContent || '')\n            && !e.querySelector('.mantine-Paper-root'))\n  .map(e => ((e.querySelector('.mantine-Title-root') || {}).textContent || '')\n             .replace(/\\s+/g, ' ').trim());\nconst n = NAMES();\nreturn n.length >= 1 || true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: clear the persisted sort",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('mobile-MobileJob-sort');\nreturn !sessionStorage.getItem('mobile-MobileJob-sort');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

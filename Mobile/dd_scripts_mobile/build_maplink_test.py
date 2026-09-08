@@ -99,14 +99,29 @@ steps = (
                  "const t = f.innerText || '';\n"
                  "return /\\bAddress\\b/.test(t) && /\\bX\\b/.test(t) && /\\bY\\b/.test(t);",
                  timeout=30),
-        # The geolocate button lives in the Address field's labelRightSection. Actually USING
-        # it needs device geolocation (Appendix C); that it renders is still worth asserting,
-        # because it is the entry point to the only geodata capture path in this form.
-        jsassert("The geolocate control renders inside the form (using it is Appendix C)",
+        # The geolocate button lives in the Address field's labelRightSection.
+        # ⚠️ REWRITTEN 2026-08-21 — the previous version DID NOT ASSERT WHAT IT CLAIMED.
+        # It counted `button, [role=button]` at >= 2 inside the form. But GeolocateButton is
+        # an `ActionIcon component="span"`, and UnstyledButton only sets `type` when the
+        # component IS a button (`UnstyledButton.mjs:53`) - so it renders a BARE <span> with
+        # no role and no type. That count therefore never included the geolocate control at
+        # all; it passed on the form's other buttons and would have stayed green if the
+        # control vanished entirely. A green assertion that does not prove its own name is
+        # worse than no assertion, because it occupies the slot where a real one would go.
+        # Found while building MOB.911, which needed a locator that actually resolves.
+        # Now anchored on the icon itself. `faLocation` is an ALIAS for faLocationCrosshairs,
+        # so the DOM carries `location-crosshairs` (trap 14) - measured, not guessed:
+        #   node -e "console.log(require('@fortawesome/pro-regular-svg-icons/faLocation').iconName)"
+        jsassert("The geolocate control renders inside the form — anchored on the ICON, so it "
+                 "fails if the control disappears (using it is MOB.911's job)",
                  "const f = document.getElementById('locationform');\n"
                  "if (!f) return false;\n"
-                 "return f.querySelectorAll('button, [role=button]').length >= 2;",
-                 optional=True, timeout=30),
+                 "const icon = f.querySelector('[data-icon=\"location-crosshairs\"],"
+                 " .fa-location-crosshairs');\n"
+                 "if (!icon) return false;\n"
+                 "// and it must sit inside a real ActionIcon, not be a loose decorative svg\n"
+                 "return !!icon.closest('.mantine-ActionIcon-root');",
+                 timeout=30),
 
         # ---- dismiss WITHOUT submitting -------------------------------------------------
         step("click", "Dismiss via the modal's close button",
@@ -120,7 +135,11 @@ steps = (
              {"element": xpath_el(WORK_DETAIL, OVERLAY)},
              optional=True, always=True, timeout=15),
         step("wait", "Let the modal close", {"value": 2}, always=True),
-        jsassert("The location form is gone — nothing was submitted",
+        # ⚠️ PAIRED WITH A LIVENESS ANCHOR — `audit_assertions.py` (VACUOUS-ABSENCE). A bare
+        # absence is equally true on a blank page, a crashed render and a login redirect, so
+        # it cannot on its own mean "the form went". The tab strip proves the page survived.
+        jsassert("The location form was DISMISSED and the page is still alive",
+                 "if (!document.querySelectorAll('[role=tab]').length) return false;\n"
                  "return !document.getElementById('locationform');",
                  always=True, timeout=30),
     ]

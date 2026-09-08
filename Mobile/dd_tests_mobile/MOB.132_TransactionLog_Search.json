@@ -1,0 +1,328 @@
+{
+    "test_name": "MOB.132_TransactionLog_Search",
+    "details": {
+        "name": "MOB.132_TransactionLog_Search",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.132` **The Transaction Log's search box** \u2014 the last untested `SearchInput` in\nmobile.\n- `TransactionLog/index.tsx:67-73` filters client-side across **five** fields \u2014\n  `app` / `key` / `op` / `variables` / `error`. `MOB.131` proves the log lists entries;\n  nothing had touched the box.\n- \u26a0\ufe0f **It must run AFTER something has been logged.** The page reads `gql_log`, a\n  localforage store, and every Datadog run starts with a fresh profile \u2014 so the log is\n  empty unless this session already made a mutation. Wired into `MOB.993` right after\n  `MOB.131` for exactly that reason; in a read-only suite it would pass vacuously against\n  an empty table (trap 5). The `LOG GUARD` makes that failure legible as suite order\n  rather than a code defect.\n- **The proof is the matched pair** (`MOB.343`/`MOB.610`/`MOB.530` shape): a term nothing\n  can match must drive the count to **zero**, and clearing must bring the **same** count\n  back. A positive search is deliberately not attempted \u2014 the log holds whatever this\n  session wrote, so no term is knowable in advance and asserting one would be a fixture\n  test.\n- \u26a0\ufe0f Unlike the work and job lists, these rows are a **real table, not virtualised**, so\n  the DOM count IS the result-set size and can be compared directly.\n- **READ-ONLY**: the box is component state that dies with the page; nothing is written.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Transaction Log",
+            "Search",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the Transaction Log",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/transactions"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the page mount and read `gql_log`",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Transaction Log\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Transaction Log",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/transactions",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Transaction Log\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The search box renders",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/transactions",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for things\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOG GUARD: the session has logged at least one transaction to filter",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ROWS = () => document.querySelectorAll('table tbody tr').length;\nconst n = ROWS();\nif (n < 1) return false;\nsessionStorage.setItem('__dd132_rows', String(n));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/transactions",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for things\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any existing term first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type a term nothing can match",
+                "noScreenshot": false,
+                "params": {
+                    "value": "ZZZZ-NO-SUCH-TRANSACTION",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/transactions",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for things\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the filter apply",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 NEGATIVE: the filter drives the row count to ZERO",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ROWS = () => document.querySelectorAll('table tbody tr').length;\nreturn ROWS() === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search box (to clear it)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/transactions",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for things\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select all",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Delete",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Delete"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list restore",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 RESTORED: clearing the term brings the SAME row count back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ROWS = () => document.querySelectorAll('table tbody tr').length;\nconst before = Number(sessionStorage.getItem('__dd132_rows') || '0');\nif (!before) return false;\nreturn ROWS() === before;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP: remove this test's scratch key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd132_rows');\nreturn !sessionStorage.getItem('__dd132_rows');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

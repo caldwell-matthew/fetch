@@ -40,10 +40,32 @@ def suite(name, blurb, children, tags):
 write(suite(
     "MOB.990_Smoke_Suite",
     "`MOB.990` Mobile smoke: every route renders, plus the online guard. READ-ONLY.",
-    ["MOB.100_Nav_Asset_Lookup", "MOB.110_Nav_Material_Lookup", "MOB.120_Nav_Map",
-     "MOB.130_Nav_Transaction_Log", "MOB.140_Nav_Mobile_Jobs", "MOB.150_Nav_Work_Orders",
-     "MOB.160_Nav_Asset_Collector", "MOB.170_Nav_Dev_Logs", "MOB.900_Online_Guard",
-     "MOB.121_Map_Controls"],
+    # ⚠️ COMPLETE, IN RUN ORDER — trap 19. Four children (MOB.171/180/346/910) were wired
+    # into the JSON by other scripts and were missing here; a DD_FORCE rebuild would have
+    # dropped all four and the suite would still have reported PASS.
+    ["MOB.100_Nav_Asset_Lookup",
+     "MOB.110_Nav_Material_Lookup",
+     "MOB.120_Nav_Map",
+     "MOB.130_Nav_Transaction_Log",
+     "MOB.140_Nav_Mobile_Jobs",
+     "MOB.150_Nav_Work_Orders",
+     "MOB.160_Nav_Asset_Collector",
+     "MOB.170_Nav_Dev_Logs",
+     "MOB.900_Online_Guard",
+     "MOB.121_Map_Controls",
+     "MOB.180_Home_Screen",
+     # 🛑 MOB.346_Work_Scheduled_View REMOVED 2026-09-08 — it belongs here on subject, but not
+     # while its subject is unreachable. SETTLED: the crew's `mobileDownloadMode` stays
+     # `ASSIGNED` (a `SCHEDULED` role only sees stages with a scheduledevent within ±7 days —
+     # §25 rule 4 — which empties the work list every other work test depends on). So the
+     # scheduled view never renders and MOB.346 cannot pass.
+     # ⚠️ Its failure was not contained: every assertion after its fixture gate is critical, so
+     # the run ABORTED and MOB.171 + MOB.910 were reported red WITHOUT EVER EXECUTING. One real
+     # problem read as three. MOB.346 stays a standalone test (still correct for a SCHEDULED
+     # org); it just no longer decides whether its siblings get to run.
+     # ➡️ Put it back the day the role becomes SCHEDULED and its work orders are scheduled.
+     "MOB.171_DevLogs_Contents",
+     "MOB.910_Offline_UI"],
     ["Mobile", "env:dev", "E2E", "Suite", "Smoke"],
 ))
 
@@ -77,9 +99,14 @@ write(suite(
     "deliberately excluded and run standalone.",
     # COMPLETE - MOB.450/460 are appended by build_chrome_tests.py, so they must be named
     # here too or a rebuild of THIS script drops them (trap 12).
-    ["MOB.400_Menu_Open_Close", "MOB.410_Menu_Resync", "MOB.420_Menu_Transaction_Log",
-     "MOB.430_Crew_Modal_Dismiss", "MOB.450_Global_Back_Arrow",
-     "MOB.460_Global_Module_Resync"],
+    # ⚠️ COMPLETE — trap 19. MOB.470 was wired into the JSON separately.
+    ["MOB.400_Menu_Open_Close",
+     "MOB.410_Menu_Resync",
+     "MOB.420_Menu_Transaction_Log",
+     "MOB.430_Crew_Modal_Dismiss",
+     "MOB.450_Global_Back_Arrow",
+     "MOB.460_Global_Module_Resync",
+     "MOB.470_Header_Status_Icons"],
     ["Mobile", "env:dev", "E2E", "Suite", "Menu"],
 ))
 
