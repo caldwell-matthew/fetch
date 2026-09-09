@@ -92,6 +92,15 @@ XPATH_TEXT = re.compile(
     r'|contains\(\s*(?:normalize-space\(\.\)|text\(\)|\.)\s*,\s*"([^"]{3,80})"\s*\)'
     r'|starts-with\(\s*(?:normalize-space\(\.\)|text\(\)|\.)\s*,\s*"([^"]{3,80})"\s*\)'
 )
+# ATTRIBUTE predicates - added 2026-09-09 after finding they were never scanned AT ALL.
+# 286 locators in the suite use one, 37 distinct, and `@aria-label="Toggle navigation"` alone
+# appears 72 times because it sits in EVERY suite's login prefix. A rename of that one string
+# would break every suite while this script reported "OK - every asserted literal still exists".
+# These attributes are written literally in the JSX, so an exact match is the right test.
+XPATH_ATTR = re.compile(r'@(?:aria-label|placeholder|title|name)\s*=\s*"([^"]{3,80})"')
+# 🛑 `@data-icon` is deliberately NOT scanned. FontAwesome DERIVES it from the imported icon
+# (`faSortAlt` -> `sort-alt`), so the kebab string is never in source and every one would be a
+# false MISSING. That is trap 14's territory - verify those by reading the icon import.
 # Datadog templating - `{{ RUNID }}` is substituted at run time and is never in source.
 TEMPLATE = re.compile(r"\{\{[^}]*\}\}")
 WORD = re.compile(r"[A-Za-z][A-Za-z0-9']*")
@@ -269,10 +278,13 @@ def literals():
                 yield d["name"], i, s["name"], t, p["value"]
             el = p.get("element") or {}
             for v in (el.get("userLocator") or {}).get("values", []):
-                for m in XPATH_TEXT.finditer(v.get("value") or ""):
+                xp = v.get("value") or ""
+                for m in XPATH_TEXT.finditer(xp):
                     got = next((g for g in m.groups() if g), None)
                     if got:
                         yield d["name"], i, s["name"], "xpath", got
+                for m in XPATH_ATTR.finditer(xp):
+                    yield d["name"], i, s["name"], "attr", m.group(1)
             if t == "assertFromJavascript":
                 for lit in js_prose(p.get("code") or ""):
                     yield d["name"], i, s["name"], "js", lit
@@ -314,6 +326,9 @@ def self_test(src, allow):
         ("25 mi", "numeric", "and neither can it judge the LIVE one - same bucket, honestly"),
         # --- fixture data ----------------------------------------------------------------
         ("DATADOG MOBILE JOB", "allowed", "fixture data, allowlisted"),
+        # --- attribute predicates: unscanned entirely until 2026-09-09 -------------
+        ("Toggle navigation", "clean", "@aria-label in every login prefix, 72 locators"),
+        ("Toggle navigatoin", "REPORTED", "a renamed aria-label MUST be caught"),
     ]
     bad = 0
     print("SELF-TEST - matching rules vs the live corpus\n")

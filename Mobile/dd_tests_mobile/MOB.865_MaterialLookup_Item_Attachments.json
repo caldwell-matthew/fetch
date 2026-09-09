@@ -1,0 +1,597 @@
+{
+    "test_name": "MOB.865_MaterialLookup_Item_Attachments",
+    "details": {
+        "name": "MOB.865_MaterialLookup_Item_Attachments",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.865` **The storeroom item modal's `Photos` / `Docs` segments, and the row avatar image modal.**\n- READ-ONLY. Nothing is uploaded, adjusted or submitted; the modal is closed on the way out.\n- \u2b50 **The segment set is pinned by VALUE**: `Quantity Adjustment` \u00b7 `Stock Item` \u00b7 `Photos` \u00b7\n  `Docs` (`1`..`4`), switched by clicking the radio input, never by label text (\u00a722).\n- \u2b50 **Photos vs Docs is a biconditional** (`MOB.741`'s shape on a third parent type,\n  `MaterialItem`): `Add Photo` and no `Add File`, then `Add File`, no `Add Photo`, no carousel.\n  \ud83d\uded1 Neither button is clicked \u2014 `FileAttachments` has no image filter, so an upload lands.\n- Whether the fixture item has photos/documents is \ud83d\udcca reported, not asserted.\n- \u2b50 **The avatar modal is an exclusive-or**: either the row has no image button, or clicking\n  it opens the (same) modal showing `img.file-image`. The branch taken is recorded.\n- Fixture: `000-000-000 Adamantium` in `Central Storeroom`.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Material Lookup",
+            "Photos",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to material lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/material-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 6
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Material Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Material Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Material Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the storeroom dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"storeroomLocationId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for storeroom options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick Central Storeroom",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Central Storeroom\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the material list to load",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the material search",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Adamantium",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Adamantium",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search for material items by name\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search debounce",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: \"000-000-000 Adamantium\" is listed",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//tr[contains(normalize-space(.), \"000-000-000 Adamantium\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "AVATAR: click the row's image button IF it exists, and record which branch this is",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const row = [...document.querySelectorAll('tr')]\n  .find(r => (r.textContent || '').includes('000-000-000 Adamantium'));\nif (!row) return false;\nconst b = [...row.querySelectorAll('button')]\n  .find(x => /^View .+ image$/.test(x.getAttribute('aria-label') || ''));\nsessionStorage.setItem('__dd865_avatar', b ? 'button' : 'none');\nif (b) b.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the image modal open, if there was a button",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 AVATAR: EXACTLY ONE of \u2014 no image button on the row, or an open modal showing `img.file-image`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const branch = sessionStorage.getItem('__dd865_avatar');\nconst m = document.querySelector('.mantine-Modal-content');\nconst img = m ? m.querySelector('img.file-image') : null;\nconst opened = !!m && !!img;\nif (branch === 'none') return !opened;\nif (branch === 'button') return opened;\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the image modal (a no-op when it never opened)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "No modal is open before the adjust view is opened",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('.mantine-Modal-content');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the item modal for 000-000-000 Adamantium (the row's action icon)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//tr[contains(normalize-space(.), \"000-000-000 Adamantium\")]//button[.//*[@data-icon=\"arrow-up-right-from-square\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-up-right-from-square \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the item modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The modal opened on the Quantity Adjustment view",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Current Quantity"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SEGMENTS: exactly Quantity Adjustment \u00b7 Stock Item \u00b7 Photos \u00b7 Docs \u2014 values 1..4, in order",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst vals = [...root.querySelectorAll('input[type=\"radio\"]')].map(i => i.value);\nconst labels = [...root.querySelectorAll('label')].map(l => (l.textContent || '').trim());\nconst wantV = ['1', '2', '3', '4'];\nconst wantL = ['Quantity Adjustment', 'Stock Item', 'Photos', 'Docs'];\nreturn JSON.stringify(vals) === JSON.stringify(wantV)\n    && JSON.stringify(labels) === JSON.stringify(wantL);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the \"Photos\" segment by VALUE (3) \u2014 never by text (\u00a722)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"3\"]');\nif (!el) return false;\nel.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos panel mount (its attachment query fires now)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Photos\" segment is the CHECKED one",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst on = root.querySelector('input[type=\"radio\"]:checked');\nreturn !!on && on.value === '3';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 PHOTOS: `Add Photo` is offered and `Add File` is NOT",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn t.includes('Add Photo') && !t.includes('Add File');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "\ud83d\udcca REPORT: does the fixture item have photos? (a carousel is present) \u2014 informational",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nreturn !!m.querySelector('[class*=\"mantine-Carousel\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the \"Docs\" segment by VALUE (4) \u2014 never by text (\u00a722)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"4\"]');\nif (!el) return false;\nel.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Docs panel mount (its attachment query fires now)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Docs\" segment is the CHECKED one",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst on = root.querySelector('input[type=\"radio\"]:checked');\nreturn !!on && on.value === '4';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 DOCS: `Add File` is offered, `Add Photo` is NOT, and there is NO carousel \u2014 the biconditional closes",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn t.includes('Add File') && !t.includes('Add Photo') && !m.querySelector('[class*=\"mantine-Carousel\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "\ud83d\udcca REPORT: does the fixture item have documents? (a file table is present) \u2014 informational",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nreturn !!m.querySelector('table');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP: remove this test's scratch key `__dd865_avatar`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd865_avatar');\nreturn !sessionStorage.getItem('__dd865_avatar');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the item modal with its own X",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-close \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: no modal is left open for the next subtest",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('.mantine-Modal-content');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

@@ -53,6 +53,29 @@ FILTER_BTN = '//button[contains(concat(" ", normalize-space(@class), " "), " ass
 ADD_FILTER = '//button[normalize-space(.)="Add Filter"]'
 CLEAR_ALL = '//button[normalize-space(.)="Clear all"]'
 
+# The drawer is `opened={filterOpen}` and the trigger is `onClick={() => setFilterOpen(true)}`
+# (StructuredQuery/index.tsx:267,279) - idempotent, so re-clicking while it is already open
+# is harmless. That is what makes a self-healing gate safe here: on 2026-09-09 (and once on
+# 2026-08-23) the first click was swallowed and the drawer never appeared, sinking the suite.
+# "Add Filter" is unique to the drawer; the trigger reads "Filters (N)" open or closed (trap 5).
+DRAWER_OPEN_JS = """
+const up = [...document.querySelectorAll('button')]
+  .some(b => b.textContent.trim() === 'Add Filter');
+if (up) return true;
+const btn = document.querySelector('button.asset-lookup-filter-button');
+if (btn) btn.click();
+return false;
+"""
+
+
+def open_drawer(label):
+    return [
+        step("click", label, {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, timeout=30),
+        step("wait", "Wait for the drawer", {"value": 1}),
+        jsassert("Test the Filters drawer opened (re-clicks Filters if the click was swallowed)",
+                 DRAWER_OPEN_JS, timeout=30),
+    ]
+
 # THE FILTER PILL CONTAINS THE VALUE YOU FILTERED ON, so a page-text assertion cannot tell
 # "the asset is in the results" from "the asset's name is echoed in the active-filter pill".
 # ActiveFilters.tsx renders <Pill>{field.label}{operator}{value}</Pill>, so filtering for
@@ -109,18 +132,9 @@ write(test(
               "element": xpath_el(LOOKUP_URL, PAGE_TITLE)}, timeout=30),
 
         # -------- build a matching filter
-        step("click", "Open the Filters drawer",
-             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, timeout=30),
-        step("wait", "Wait for the drawer", {"value": 2}),
-        # "Add Filter" is unique to the drawer; the trigger button itself reads "Filters (N)",
-        # so asserting the word "Filters" would match the closed state too (trap 5).
-        # ⚠️ POLLING GATE, not a bare assertion. This had no timeout and leaned on the fixed
-        # `wait 2` above — trap 21's shape: a timer, not a gate. It failed once on a slow run
-        # with "No element found", a full suite lost to 2s of drawer render. 30s costs nothing
-        # when the drawer is already up.
-        step("assertElementPresent", "Test the Filters drawer opened",
-             {"element": xpath_el(LOOKUP_URL, ADD_FILTER)}, timeout=30),
-    ] + pick("fieldId", "Field", "Name") + pick("operator", "Operator", "contains") + [
+        # ⚠️ POLLING GATE that also heals. The bare assertElementPresent that was here polled
+        # for 30s and still lost a suite when the click itself was swallowed (2026-09-09).
+    ] + open_drawer("Open the Filters drawer") + pick("fieldId", "Field", "Name") + pick("operator", "Operator", "contains") + [
         step("typeText", f"Enter the value {ASSET}",
              {"value": ASSET, "element": xpath_el(LOOKUP_URL, '//*[@id="value"]')}),
         step("click", "Add the filter", {"element": xpath_el(LOOKUP_URL, ADD_FILTER)}),
@@ -137,9 +151,7 @@ write(test(
         # conditions do not combine the way an AND would. Whether that is OR semantics or
         # the second condition being dropped is UNVERIFIED - see Appendix D. Either way the
         # test must not depend on it, so each leg now runs with exactly one filter active.
-        step("click", "Reopen the Filters drawer",
-             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}),
-        step("wait", "Wait for the drawer", {"value": 2}),
+    ] + open_drawer("Reopen the Filters drawer") + [
         # "Clear all" lives INSIDE the drawer, so it only exists while the drawer is open.
         step("click", "Clear the matching filter (Clear all is inside the drawer)",
              {"element": xpath_el(LOOKUP_URL, CLEAR_ALL)}),
@@ -160,9 +172,7 @@ write(test(
              {"value": ASSET}),
 
         # -------- restore
-        step("click", "Reopen the Filters drawer to clear",
-             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}),
-        step("wait", "Wait for the drawer", {"value": 2}),
+    ] + open_drawer("Reopen the Filters drawer to clear") + [
         step("click", "Clear all filters",
              {"element": xpath_el(LOOKUP_URL, CLEAR_ALL)}),
         step("wait", "Wait for the clear", {"value": 2}),

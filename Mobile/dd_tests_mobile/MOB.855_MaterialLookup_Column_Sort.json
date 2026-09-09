@@ -1,0 +1,372 @@
+{
+    "test_name": "MOB.855_MaterialLookup_Column_Sort",
+    "details": {
+        "name": "MOB.855_MaterialLookup_Column_Sort",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.855` **Column-header sort really reorders, and the match count is real.**\n- READ-ONLY; sorting only refetches, and the default sort is put back on the way out.\n- \u2b50 **Each leg asserts the app's own chevron AND the rendered order.** The chevron says\n  what was asked for; the parsed `Qty` column being monotonic proves the server honoured it.\n  A chevron-only check would pass on a server that ignores `sortDir` (`MOB.580`'s lesson).\n- \u26a0\ufe0f **Vacuous-order guard**: both directions are true of an all-equal column, so the fixture\n  guard requires >= 2 rows and >= 2 distinct quantities in `Central Storeroom`.\n- The `Qty` column index is read from the header row, not assumed \u2014 the leading action\n  column exists only with `canAdjust`. Quantities are parsed with `formatNumber`'s\n  separators stripped.\n- \u2b50 `N matches` vs rendered rows: rows == min(matches, 500) \u2014 the storeroom has 996 items\n  and the query is capped at 500 with no paging (bugs \u00a733).\n- `Bins` is not clicked: its handler is `console.log` (dead).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Material Lookup",
+            "Sort",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to material lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/material-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 6
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Material Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Material Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Material Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the storeroom dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"storeroomLocationId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for storeroom options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick Central Storeroom",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"Central Storeroom\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the material list to load",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: >= 2 rows and >= 2 DISTINCT quantities \u2014 without that, both sort directions are vacuously true",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const table = document.querySelector('table');\nif (!table) return false;\nconst heads = [...table.querySelectorAll('thead th')].map(h => (h.textContent || '').trim());\nconst qi = heads.indexOf('Qty');\nif (qi < 0) return false;\nconst rows = [...table.querySelectorAll('tbody tr')];\nconst qty = rows.map(r => {\n  const td = r.querySelectorAll('td')[qi];\n  return td ? Number((td.textContent || '').replace(/[^0-9.\\-]/g, '')) : NaN;\n});\nif (qty.some(n => Number.isNaN(n))) return false;\nreturn rows.length >= 2 && new Set(qty).size >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 MATCH COUNT: rendered rows == min(`N matches`, 500) \u2014 the query's `limit`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const table = document.querySelector('table');\nif (!table) return false;\nconst heads = [...table.querySelectorAll('thead th')].map(h => (h.textContent || '').trim());\nconst qi = heads.indexOf('Qty');\nif (qi < 0) return false;\nconst rows = [...table.querySelectorAll('tbody tr')];\nconst qty = rows.map(r => {\n  const td = r.querySelectorAll('td')[qi];\n  return td ? Number((td.textContent || '').replace(/[^0-9.\\-]/g, '')) : NaN;\n});\nif (qty.some(n => Number.isNaN(n))) return false;\nconst m = (document.body.textContent || '').match(/(\\d[\\d,]*)\\s+matches/);\nif (!m) return false;\nconst matches = Number(m[1].replace(/,/g, ''));\nconst limit = 500;   // MOBILE_MATERIAL_ITEM_LOOKUP params.limit, no paging\nreturn rows.length === Math.min(matches, limit);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: the sort chevron sits on `Material Item`, ascending, and on no other header",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const table = document.querySelector('table');\nif (!table) return false;\nconst heads = [...table.querySelectorAll('thead th')].map(h => (h.textContent || '').trim());\nconst qi = heads.indexOf('Qty');\nif (qi < 0) return false;\nconst rows = [...table.querySelectorAll('tbody tr')];\nconst qty = rows.map(r => {\n  const td = r.querySelectorAll('td')[qi];\n  return td ? Number((td.textContent || '').replace(/[^0-9.\\-]/g, '')) : NaN;\n});\nif (qty.some(n => Number.isNaN(n))) return false;\nconst ths = [...table.querySelectorAll('thead th')];\nconst th = ths.find(h => (h.textContent || '').trim() === 'Material Item');\nif (!th) return false;\nconst mine = th.querySelector('[data-icon=\"chevron-up\"], .fa-chevron-up');\nconst others = ths.filter(h => h !== th)\n  .some(h => h.querySelector('[data-icon=\"chevron-up\"], [data-icon=\"chevron-down\"], .fa-chevron-up, .fa-chevron-down'));\nif (!mine || others) return false;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click the \"Qty\" header (first click = ASC)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//th[.//*[normalize-space(.)=\"Qty\"]]//button"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the sorted refetch land",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 ASC: the chevron is on `Qty` pointing up AND the column really is non-decreasing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const table = document.querySelector('table');\nif (!table) return false;\nconst heads = [...table.querySelectorAll('thead th')].map(h => (h.textContent || '').trim());\nconst qi = heads.indexOf('Qty');\nif (qi < 0) return false;\nconst rows = [...table.querySelectorAll('tbody tr')];\nconst qty = rows.map(r => {\n  const td = r.querySelectorAll('td')[qi];\n  return td ? Number((td.textContent || '').replace(/[^0-9.\\-]/g, '')) : NaN;\n});\nif (qty.some(n => Number.isNaN(n))) return false;\nconst ths = [...table.querySelectorAll('thead th')];\nconst th = ths.find(h => (h.textContent || '').trim() === 'Qty');\nif (!th) return false;\nconst mine = th.querySelector('[data-icon=\"chevron-up\"], .fa-chevron-up');\nconst others = ths.filter(h => h !== th)\n  .some(h => h.querySelector('[data-icon=\"chevron-up\"], [data-icon=\"chevron-down\"], .fa-chevron-up, .fa-chevron-down'));\nif (!mine || others) return false;\nreturn qty.every((v, i) => i === 0 || qty[i - 1] <= v);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click the \"Qty\" header again (same column = flip to DESC)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//th[.//*[normalize-space(.)=\"Qty\"]]//button"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the sorted refetch land",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 DESC: the chevron is on `Qty` pointing down AND the column really is non-increasing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const table = document.querySelector('table');\nif (!table) return false;\nconst heads = [...table.querySelectorAll('thead th')].map(h => (h.textContent || '').trim());\nconst qi = heads.indexOf('Qty');\nif (qi < 0) return false;\nconst rows = [...table.querySelectorAll('tbody tr')];\nconst qty = rows.map(r => {\n  const td = r.querySelectorAll('td')[qi];\n  return td ? Number((td.textContent || '').replace(/[^0-9.\\-]/g, '')) : NaN;\n});\nif (qty.some(n => Number.isNaN(n))) return false;\nconst ths = [...table.querySelectorAll('thead th')];\nconst th = ths.find(h => (h.textContent || '').trim() === 'Qty');\nif (!th) return false;\nconst mine = th.querySelector('[data-icon=\"chevron-down\"], .fa-chevron-down');\nconst others = ths.filter(h => h !== th)\n  .some(h => h.querySelector('[data-icon=\"chevron-up\"], [data-icon=\"chevron-down\"], .fa-chevron-up, .fa-chevron-down'));\nif (!mine || others) return false;\nreturn qty.every((v, i) => i === 0 || qty[i - 1] >= v);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: click \"Material Item\" to put the default sort back",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/material-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//th[.//*[normalize-space(.)=\"Material Item\"]]//button"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the refetch land",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the chevron is back on `Material Item`, ascending",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const table = document.querySelector('table');\nif (!table) return false;\nconst heads = [...table.querySelectorAll('thead th')].map(h => (h.textContent || '').trim());\nconst qi = heads.indexOf('Qty');\nif (qi < 0) return false;\nconst rows = [...table.querySelectorAll('tbody tr')];\nconst qty = rows.map(r => {\n  const td = r.querySelectorAll('td')[qi];\n  return td ? Number((td.textContent || '').replace(/[^0-9.\\-]/g, '')) : NaN;\n});\nif (qty.some(n => Number.isNaN(n))) return false;\nconst ths = [...table.querySelectorAll('thead th')];\nconst th = ths.find(h => (h.textContent || '').trim() === 'Material Item');\nif (!th) return false;\nconst mine = th.querySelector('[data-icon=\"chevron-up\"], .fa-chevron-up');\nconst others = ths.filter(h => h !== th)\n  .some(h => h.querySelector('[data-icon=\"chevron-up\"], [data-icon=\"chevron-down\"], .fa-chevron-up, .fa-chevron-down'));\nif (!mine || others) return false;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

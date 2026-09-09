@@ -136,6 +136,30 @@ if not _skip600:
                {"value": 'DD SYNTHETIC MOBILE {{ RUNID }}'}),
           step("assertPageContains", "Test the 'Asset collected' toast (optional: transient)",
                {"value": "Asset collected"}, optional=True),
+          # ⭐ SERVER PROOF — added 2026-09-09 (bugs §34). "PROOF OF CREATION" above reads a row that
+          # `prependTableResults` writes into the CLIENT cache, so it is green whether or not the
+          # server ever received the asset — and from Aug 24 to Sep 9 it did not: collecting WITH a
+          # photo sends the mutation with a `thumbnails` context that `UploadLink` hands to the
+          # native bridge, which never resolves in a browser. Asset Lookup's search is a
+          # `network-only` query, so a result row here is a server fact. Expect RED until fixed.
+          go(BASE + "/asset-lookup", "SERVER PROOF: Asset Lookup (network-only search)"),
+          step("wait", "Wait for the page to mount", {"value": 5}),
+          step("click", "Focus the search input",
+               {"element": xpath_el(BASE + "/asset-lookup", '//input[@name="asset-search"]')}, timeout=30),
+          step("pressKey", "Select any persisted query first (typeText APPENDS — trap 17)",
+               {"value": "a", "modifiers": ["Control"]}),
+          step("typeText", "Search for this run's asset by its exact name",
+               {"value": ASSET_NAME,
+                "element": xpath_el(BASE + "/asset-lookup", '//input[@name="asset-search"]')}),
+          step("pressKey", "Submit the search (Enter — there is no search button)", {"value": "Enter"}),
+          step("wait", "Wait for the search results", {"value": 5}),
+          step("assertElementPresent", "⭐ SERVER PROOF: the asset comes back from the SERVER — a "
+               "result row carries this run's name (bugs §34: the collected list's row is "
+               "client-prepended and proves nothing)",
+               {"element": xpath_el(BASE + "/asset-lookup",
+                                    '(//*[contains(concat(" ", normalize-space(@class), " "), '
+                                    f'" mantine-Accordion-item ")])[1][contains(., "{ASSET_NAME}")]')},
+               timeout=30),
       ],
       TAGS + ["CRUD"],
       local_vars=[localvar("RUNID", "{{ numeric(8) }}", "12345678")],
@@ -172,11 +196,17 @@ write(test(
                    # and depends on starting at zero attachments, because its whole subject is
                    # the ONE-photo state disagreeing with the TWO-photo state. It uploads
                    # twice and submits nothing, so it also leaves MOB.600 an untouched form.
+                   # MOB.623 runs LAST: it drives the newest `DD SYNTHETIC MOBILE` asset that
+                   # has a photo, which is the one MOB.600 just created. It rotates that photo
+                   # 4x90° (self-restoring) and leaves the row collapsed.
                    for c in ["MOB.620_Collector_Photo_Picker",
                              "MOB.621_Collector_Photo_Add",
                              "MOB.622_Collector_Photo_Carousel",
                              "MOB.600_Collector_Create_Asset",
-                             "MOB.610_Collector_Search"]],
+                             "MOB.610_Collector_Search",
+                             "MOB.623_Collector_Saved_Photo_Menu",
+                             # MOB.624 needs the photo MOB.623 just added (badge >= 1).
+                             "MOB.624_Collector_Row_Avatar_Modal"]],
     ["Mobile", "env:dev", "Asset Collector", "suite"],
     extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
 ))

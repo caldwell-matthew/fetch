@@ -13,6 +13,7 @@
 # ---- work order fixtures ------------------------------------------------------------------
 Datadog Test                    # the workflow MOB.300/122/396/397 create against
 DD SYNTHETIC MOBILE {{ RUNID }} # MOB.600's per-run asset name; RUNID is a Datadog variable
+DD SYNTHETIC MOBILE             # the same marker as a prefix - MOB.623 selects MOB.600's residue by it
 
 # ---- mobile job / asset verification fixtures ---------------------------------------------
 DATADOG MOBILE JOB              # the crew's fixture job - the FIXTURE GUARD in 12 tests

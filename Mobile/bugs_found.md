@@ -33,39 +33,48 @@ belongs here; if it is about a TEST, it belongs in `testing_checklist.md`.
 §20, §21, §23, §24, §25 and §26 by number. **§15–§17 do not exist** — they never did, and
 nothing references them; the gap is not a missing entry.
 
+🛑 **2026-09-09 audit of the status column.** Twenty rows were marked FIXED 2026-08-24. Of the
+seventeen whose fix names a source fact, **fifteen are absent from `origin/development`** — the
+delete button, the empty hook file, the misspelling, the one-way job status, the modal close
+buttons, the filter-dropping search, all still there. Those fixes are not on the branch dev
+serves; if they exist, they are on an unmerged branch. §5 (`roleId` on create) and §19 (readings
+await the server) do appear to be fixed. **Trust the served code, not this column.**
+
 | § | Finding | Evidence | Status |
 |---|---|---|---|
 | 1 | Lookup searches are case-sensitive (pattern, not one-off) | Runtime | ✅ **FIXED 2026-08-24** |
-| 2 | `CreateWorkButton` reads the session non-reactively | Source | ✅ **FIXED 2026-08-24** — `useQuery(GET_SESSIONDocument)` |
-| 3 | Crew shortcut invisible at phone width | Source | ✅ **FIXED 2026-08-24** — shown at all widths |
-| 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | ✅ **FIXED 2026-08-24** — dead component deleted |
-| 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | ✅ **FIXED 2026-08-24** |
-| 4c | Adding a form is self-degrading — succeeds only once | Runtime | ✅ **FIXED 2026-08-24** — duplicate filter kept; picker now says so |
+| 2 | `CreateWorkButton` reads the session non-reactively | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: readQuery still used in `InsertForm/index.tsx` |
+| 3 | Crew shortcut invisible at phone width | Source | ⚠️ claimed FIXED 2026-08-24 — **unverified** against `origin/development` |
+| 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `ui/DeleteButton.tsx` still exists |
+| 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `Menu.tsx` still reads `wPerms.canDelete` |
+| 4c | Adding a form is self-degrading — succeeds only once | Runtime | ⚠️ claimed FIXED 2026-08-24 — **unverified** against `origin/development` |
 | 5 | Created work orders are not crew-assigned | Runtime | ✅ **FIXED 2026-08-24** — session `useQuery` + Pending/Requested → Ready |
-| 6 | Crew and logout modals have no close control | Source | ✅ **FIXED 2026-08-24** — `withCloseButton: true` |
+| 6 | Crew and logout modals have no close control | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `TopHeader` still opens both modals with `withCloseButton: false` |
 | 7 | Several roles share the `Admin` prefix with different permissions | Operational | open — env/data, not an app-code fix |
-| 8 | `hooks/NetworkStatus.tsx` is an empty file | Source | ✅ **FIXED 2026-08-24** — empty file deleted |
-| 9 | An invalid form submits silently | Source | ✅ **FIXED 2026-08-24** — button stays `type="submit"` |
-| 10 | Mobile job status only moves forward | Runtime | ✅ **FIXED 2026-08-24** |
-| 11 | Verification toast fires before the mutation | Source | ✅ **FIXED 2026-08-24** |
-| 12 | Asset detail route implements 6 of 15 template section types | Source | ✅ **FIXED 2026-08-24** — unhandled tabs show a fallback |
-| 13 | Escape discards the whole new-asset form | Source | ✅ **FIXED 2026-08-24** — `closeOnEscape={false}` |
+| 8 | `hooks/NetworkStatus.tsx` is an empty file | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `hooks/NetworkStatus.tsx` is still an empty file |
+| 9 | An invalid form submits silently | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `SubmitButton` is still `type={isValid ? 'submit' : 'button'}` |
+| 10 | Mobile job status only moves forward | Runtime | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `VerificationCheckbox.tsx` still has no `READY` branch and never reverses `COMPLETED` |
+| 11 | Verification toast fires before the mutation | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: the toast still fires before `client.mutate` |
+| 12 | Asset detail route implements 6 of 15 template section types | Source | ⚠️ claimed FIXED 2026-08-24 — **unverified** against `origin/development` |
+| 13 | Escape discards the whole new-asset form | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: the collector modal sets `closeOnClickOutside` only |
 | 14 | Browser-originated attachments fail the whole collect | Runtime | ✅ **FIXED** — verified by test, not by report |
 | 18 | `SubmitButton` ignores the label passed as children | Source | ✅ **FIXED 2026-08-24** |
 | 19 | Event readings report success without waiting for the server | Source | ✅ **FIXED 2026-08-24** |
-| 20 | Submitting search discards active structured filters | Runtime | ✅ **FIXED 2026-08-24** — **flip `MOB.820` assertions** |
-| 21 | Permits tab renders blank with no permits | Source | ✅ **FIXED 2026-08-24** |
-| 22 | `useMediaQuery` inside a loop callback | Source | ✅ **FIXED 2026-08-24** |
-| 23 | `HomeWidgets` hardcodes counts / queries the wrong thing | Source | ✅ **FIXED 2026-08-24** — dead file deleted |
-| 24 | `Supersesed` misspelling in the status legend | Source | ✅ **FIXED 2026-08-24** — assert `Superseded` |
+| 20 | Submitting search discards active structured filters | Runtime | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: the search form still refetches with `props.query ?? []` — `MOB.820` correctly still pins the bug |
+| 21 | Permits tab renders blank with no permits | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `Permits.tsx` has no empty state |
+| 22 | `useMediaQuery` inside a loop callback | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `SegmentedControlWithIcons` still calls `useMediaQuery` inside the map |
+| 23 | `HomeWidgets` hardcodes counts / queries the wrong thing | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `routing/HomeWidgets.tsx` still exists (unimported) |
+| 24 | `Supersesed` misspelling in the status legend | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `StatusSummary` still says `Supersesed` |
 | 25 | The `Admin` crew's work list is empty on dev | Operational | 🔄 **SUPERSEDED 2026-08-20** — work orders were assigned; see the entry |
 | 26 | Asset Type edits on the AV detail "save" and revert | Runtime | ✅ **FIXED 2026-08-24** — `typeId` locked on AV detail |
-| 27 | `useGeolocation` is dead code — but carries a full Jest suite | Source | ✅ **FIXED 2026-08-24** — hook and tests deleted |
-| 28 | `GeolocateButton`'s offline message sits behind a `disabled` element's own `onClick` | Source | ✅ **FIXED 2026-08-24** — enabled control + `aria-disabled` |
+| 27 | `useGeolocation` is dead code — but carries a full Jest suite | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `hooks/useGeolocation.ts` still exists |
+| 28 | `GeolocateButton`'s offline message sits behind a `disabled` element's own `onClick` | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `GeolocateButton` has no `aria-disabled` |
 | 29 | A Mapbox failure makes Geolocate fail **silently** | Source | ✅ **FIXED 2026-08-24** |
-| 30 | The offline transaction queue has **no tests in either harness** | Source | ✅ **FIXED 2026-08-24** — Jest for Queue/Persist/Serialize/Error |
-| 31 | A deploy takes over a running session silently, and deletes the cache it was using | Source | ✅ **FIXED 2026-08-24** — `controllerchange` reloads once |
-| 32 | Work-stage Docs upload gated on `asset.create` | Source | ✅ **FIXED 2026-08-24** — gate passed in from the call site |
+| 30 | The offline transaction queue has **no tests in either harness** | Source | ⚠️ **OPEN** — this row said FIXED 2026-08-24, but `origin/development` (2026-09-09) has Jest only for `UploadLink` and `TusUnauthorizedRetry`; `QueueLink`, `PersistedQueueLink`, `SerializeLink`, `ErrorLink` are still untested |
+| 31 | A deploy takes over a running session silently, and deletes the cache it was using | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: no `controllerchange` handler anywhere in `client/mobile` |
+| 32 | Work-stage Docs upload gated on `asset.create` | Source | ❌ **NOT on `origin/development`** (checked 2026-09-09) — the FIXED 2026-08-24 claim does not match the served code: `Attachments.tsx` still gates `Add File` on `asset.create` for every parent |
+| 33 | Material Lookup renders at most 500 items under a label counting all of them | Runtime (`MOB.855` screenshot) | open — 996 items, 500 rows, no paging or hint |
+| 34 | **Collecting an asset WITH a photo from a browser never reaches the server** — the UI reports success | Runtime (desktop: last collected asset Aug 24; `MOB.600` green Sep 8–9) + Source | 🛑 **open** — `MOB.600` now carries a server-side proof and is RED until fixed |
 
 **If you fix one, mark it here rather than deleting the entry** — several are referenced from
 the checklist as the reason a test is shaped the way it is, and a deleted entry turns that
@@ -1520,3 +1529,51 @@ step so a failure reads as a permission/session problem rather than a broken loc
 **Suggested fix:** pass the gate in from the call site the way `canAddPhotos` already is —
 `AttachmentTable` should not be deciding which model's permission applies to a parent it is
 handed.
+
+## §33 · Material Lookup renders at most 500 items under a label that counts all of them
+
+**Found by** `MOB.855_MaterialLookup_Column_Sort`, 2026-09-09 (its first run's screenshot).
+
+`MaterialLookup/index.tsx` queries `MOBILE_MATERIAL_ITEM_LOOKUP` with `limit: 500` and never
+pages, then renders `${pageInfo.totalCount} matches` above the table. `Central Storeroom` holds
+996 items, so the screen shows **500 rows under "996 matches"** with nothing to indicate the
+other 496 exist. Column sorting is server-side, so sorting changes *which* 500 are shown.
+
+**Test consequence:** the match-count assertion is `rows == min(matches, 500)`, not equality.
+Raise the limit, page, or say "showing 500 of 996" — any of the three fixes the label.
+
+## §34 · Collecting an asset with a photo from a browser never reaches the server, and the UI says it did
+
+**Found** 2026-09-09. The owner confirmed on desktop that the newest `DD SYNTHETIC MOBILE` asset
+is dated **Aug 24**, while `MOB.600` passed on Sep 8 and Sep 9. The first `MOB.623` run's
+screenshot showed the same: the server-side `collectedAssets` list held nothing newer than Sep 3.
+
+**Mechanism (source).** `AssetCollector/utils/createAsset.ts` sends `MOBILE_COLLECT_ASSET` with
+`context.thumbnails` whenever photos are attached. `graphql/links/UploadLink.ts` handles that
+context by calling `callNative('UPLOAD_THUMBNAILS')` and only forwards the operation when the
+bridge answers. `ReactNativeBridge.callNative` creates a promise, registers it as pending, and
+posts the message with `window.ReactNativeWebView?.postMessage(...)` — with no shell the post is
+skipped, nothing ever resolves it, and the mutation is never sent (confirmed in source
+2026-09-09). `DetailPage/utils/uploadPhoto.ts` says so in its own comment and tus-uploads instead;
+`createAsset.ts` was never given the same branch. Meanwhile the `optimisticResponse` fills the
+cache, `prependTableResults` puts the row at the top of the list, the toast fires, and the form
+closes — every visible signal of success, with nothing on the wire.
+
+**Scope — this is NOT "browser uploads are broken".** Adding a photo to an EXISTING record works
+from a browser: `uploadPhoto.ts` tus-uploads via `context.uploads` and then sends its mutation.
+`MOB.623` measured it on 2026-09-09 (the marker asset's badge went 0 → 1 → 2 across runs, and
+`ROTATE_IMAGE` round-tripped against the server). Only the collector's **create-with-photo**
+path is stuck, because `createAsset.ts` never got that browser branch.
+
+Assets collected **without** a photo take the plain path and persist, which is why the Aug 21/24
+residue exists and carries a `0` badge: those runs predate the photo step.
+
+**Why the test missed it for two weeks.** `MOB.600`'s "PROOF OF CREATION" read the collected
+list — the row the client had just written. Trap 6, exactly. `MOB.600` now ends by searching
+Asset Lookup (a `network-only` query) for the run's exact name; that step is red until the app is
+fixed, and `MOB.994` is red with it. **Do not soften that step.**
+
+**Fix.** Give `createAsset.ts` the browser branch `uploadPhoto.ts` already has: tus-upload the
+files via `context.uploads` when `!window.ReactNativeWebView`, and reserve `thumbnails` for the
+native shell.
+

@@ -131,7 +131,12 @@ for n in (5, 10, 15, 20, 25, 30, 40):
     steps.append(jsassert(f"FIELD COUNT >= {n}",
                           f"return document.querySelectorAll('[role=option]').length >= {n};",
                           optional=True, timeout=15))
-steps.append(step("pressKey", "Close the field dropdown", {"value": "Escape"}, optional=True))
+# 🛑 NO ESCAPE HERE. Run 1 (2026-09-09) was VOID because of this line: Escape closes the
+# DRAWER, not just the dropdown — this file's own closing step relies on exactly that. So the
+# pre-loop "close" dismissed the whole drawer, and every probe below failed on
+# `//*[@id="fieldId"]` not existing. The probe still reported PASS, because those steps are
+# `optional` — a dead step masquerading as data, which is the hazard MOB.974's header names.
+# The Mantine Select closes itself when an option is chosen, so nothing needs closing.
 
 # ---- the decisive loop: index -> which value control ------------------------------------------
 for i in range(N_FIELDS):
@@ -179,7 +184,7 @@ for i in range(N_FIELDS):
                  "inp.click();\n"
                  "return document.querySelectorAll('[role=option]').length > 0;",
                  optional=True, timeout=15),
-        step("pressKey", "Close any open dropdown", {"value": "Escape"}, optional=True),
+        # (no Escape between iterations — see the note above; it would close the drawer)
     ]
 
 # ---- leave nothing behind ----------------------------------------------------------------------

@@ -352,6 +352,55 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "Let the auto-filter effect settle (it queries the asset's workflows)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Turn OFF whichever workflow filters are ON (reads the input, clicks the label)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ids = ['filterWorkflowByAsset', 'filterWorkflowByPMField'];\nlet seen = 0;\nfor (const id of ids) {\n  const el = document.getElementById(id);\n  const lab = document.querySelector('label[for=\"' + id + '\"]');\n  if (!el || !lab) continue;\n  seen += 1;\n  if (el.checked) lab.click();\n}\nreturn seen === ids.length;\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the workflow list re-query unfiltered",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Both workflow filters are now OFF",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst ids = ['filterWorkflowByAsset', 'filterWorkflowByPMField'];\nreturn ids.every(id => {\n  const el = document.getElementById(id);\n  return el && el.checked === false;\n});\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Focus the Workflow lookup",
                 "noScreenshot": false,
                 "params": {

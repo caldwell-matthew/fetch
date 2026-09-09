@@ -219,7 +219,10 @@ write(test(
 # against; it is not a detail.
 login_steps = json.load(
     open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-CHILDREN = ["MOB.550_AssetVerify_Event_Readings"]   # keep COMPLETE - trap 12
+# MOB.551 runs AFTER MOB.550: the history icon it opens renders only beside a reading type with a
+# previous entry, which MOB.550 has just written (and earlier runs left on the server).
+CHILDREN = ["MOB.550_AssetVerify_Event_Readings",
+            "MOB.551_AssetVerify_Reading_History"]   # keep COMPLETE - trap 12
 
 write(test(
     "MOB.987_EventReadings_Suite",

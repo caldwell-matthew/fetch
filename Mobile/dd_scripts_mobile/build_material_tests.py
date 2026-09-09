@@ -161,8 +161,12 @@ login_steps = json.load(
     open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 # Keep COMPLETE - a child missing from this list is silently dropped on the next DD_FORCE
 # rebuild, and the suite then passes with the test absent (trap 12).
+# MOB.855 (sort) and MOB.865 (item modal) are read-only and run AFTER the two mutating tests, so
+# a failure in either cannot abort the +1/-1 pair or the stocking leg mid-way. Both put the
+# screen back as found (default sort restored; modal closed).
 CHILDREN = ["MOB.850_MaterialLookup_Read", "MOB.860_MaterialLookup_Cycle_Count",
-            "MOB.870_MaterialLookup_Stocking"]
+            "MOB.870_MaterialLookup_Stocking", "MOB.855_MaterialLookup_Column_Sort",
+            "MOB.865_MaterialLookup_Item_Attachments"]
 
 write(test(
     "MOB.998_MaterialLookup_Suite",

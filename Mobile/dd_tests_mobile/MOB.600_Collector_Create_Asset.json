@@ -37,7 +37,7 @@
                 "url": "{{ MOBDEV }}"
             }
         },
-        "message": "`MOB.600` Collect a new asset with the minimum required fields.\n- MUTATES AND CANNOT BE UNDONE: one permanent Asset per run. Mobile is delete-free, so\n  these accumulate on dev and need desktop cleanup. Named\n  `DD SYNTHETIC MOBILE {{ RUNID }}` so they are easy to find.\n- `{{ RUNID }}` is a per-run Datadog local variable, so the name is unique by\n  construction. A fixed marker would collide on the second run if Asset.name is\n  uniqueness-constrained, and that failure would not look like its cause.\n- Required fields are `name` and `typeId`. If Submit appears to do nothing, suspect a\n  required field the runtime schema adds - an invalid form is a SILENT no-op.\n- Asserts the form closing as the durable signal; the 'Asset collected' toast is\n  optional because it is transient.",
+        "message": "`MOB.600` Collect a new asset with the minimum required fields.\n- MUTATES AND CANNOT BE UNDONE: one permanent Asset per run. Mobile is delete-free, so\n  these accumulate on dev and need desktop cleanup. Named\n  `DD SYNTHETIC MOBILE {{ RUNID }}` so they are easy to find.\n- `{{ RUNID }}` is a per-run Datadog local variable, so the name is unique by\n  construction. A fixed marker would collide on the second run if Asset.name is\n  uniqueness-constrained, and that failure would not look like its cause.\n- Required fields are `name` and `typeId`. If Submit appears to do nothing, suspect a\n  required field the runtime schema adds - an invalid form is a SILENT no-op.\n- Asserts the form closing as the durable signal; the 'Asset collected' toast is\n  optional because it is transient.\n- \u2b50 **SERVER PROOF (added 2026-09-09):** the collected list's row is prepended CLIENT-SIDE\n  (`prependTableResults`), so it proves nothing \u2014 this test was green from Aug 24 to Sep 9 while\n  the server received no asset (bugs \u00a734). The last steps search Asset Lookup, a network-only\n  query, for this run's exact name. RED until the app sends the collect mutation from a browser.",
         "options": {
             "device_ids": [
                 "chrome.tablet"
@@ -551,6 +551,141 @@
                     "value": "Asset collected"
                 },
                 "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SERVER PROOF: navigate to Asset Lookup (its search is a network-only query)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for this run's asset by its exact name",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter \u2014 there is no search button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER PROOF: the asset comes back from the SERVER \u2014 a result row carries this run's name (bugs \u00a734: the collected list's row is client-prepended and proves nothing)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")])[1][contains(., \"DD SYNTHETIC MOBILE {{ RUNID }}\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
             }
         ],
         "tags": [

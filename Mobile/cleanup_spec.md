@@ -123,6 +123,10 @@ fixtures with it and breaks ~40 tests at once.
 
 - Residue marker is **`DD SYNTHETIC MOBILE`** (prefix — `MOB.300` writes it bare, the others
   append a per-run `{{ RUNID }}`).
+- Asset **`Tank 0000`** (the AV fixture) **has workflow associations** (observed 2026-09-09; it had
+  none when `MOB.396` was written). A test that opens the create form with it as the default
+  asset gets the asset-filter toggle auto-set ON, and `Datadog Test` disappears from the list.
+  `MOB.396` reads the toggles instead of assuming them; nothing else may assume either state.
 - **`DATADOG FIXTURE`** is a *fixture* marker. **`Datadog Test`** is a *fixture workflow*.
   Three similar strings, three different meanings — this is the single most likely way to cause
   real damage.
@@ -136,3 +140,69 @@ fixtures with it and breaks ~40 tests at once.
 - **`MOB.860`'s quantity** — a `+1`/`-1` pair that already self-restores. Only `MOB.870` drifts.
 - Anything from the 11 `self-restoring` tests, or the three photo tests, which upload real files
   and write **nothing** (local reducer, never submitted).
+
+---
+
+## 7 · Per-run AV fixture reset — DESIGN (2026-09-09)
+
+*The decision the checklist's 🟡 BLOCKED row asks for. Written so the owner can say yes, no, or
+"change X" to a concrete thing.*
+
+### 7.1 · What it unlocks, and what each test would leave behind
+
+Five tests are blocked only because the fixture job `Z0EVwQcdJZhMURcBFkp0E0` cannot be put back
+from mobile. Bugs §10 is **not** fixed on `origin/development` (checked 2026-09-09): the job's
+status is recomputed on the client, one way — `READY → IN_PROGRESS → COMPLETED` — and the server's
+`updateMobileJobAsset` is a plain record update that touches nothing else.
+
+| unlocked test | what it writes | what puts it back |
+|---|---|---|
+| Verify **all** assets → job goes `COMPLETED` (T2.2) | both `MobileJobAsset.verified = true`, `MobileJob.status = COMPLETED` | `updateMobileJobAsset(id, {verified:false})` ×2 · `updateMobileJob(job, {status: IN_PROGRESS})` |
+| Verify status update on the **job list** (the badge/legend flips to Completed) | same as above — it is the list-side assertion of the same act | same reset |
+| Add a **new** asset to the job (`NewAssetForm`) | a new `Asset` + a `MobileJobAsset` link (+ an attachment if a photo is added) | `deleteMobileJobAssets([link])` · `deleteAssets([asset])` (`@auth ASSET UPDATE`) |
+| Add an **existing** asset to the job (`Pump 0102`) | a `MobileJobAsset` link only | `deleteMobileJobAssets([link])` |
+| **Add Work** from Asset Lookup / the AV detail | a work order with stages | `WorkStage.removeNode` bottom-up (§3a) — the same routine the residue cleanup needs anyway |
+
+Everything in the right-hand column is a GraphQL mutation the `Admin` role already has
+permission for (`MOBILEJOB UPDATE/DELETE`, `ASSET UPDATE`, `WORK DELETE`). Nothing needs the
+desktop UI, which is what "desktop reset" used to mean.
+
+### 7.2 · Invariants the reset must restore — and assert
+
+After a reset the fixture job must read exactly what `MOB.500`/`510`/`530`/`560` assume:
+
+- `status = IN_PROGRESS`
+- exactly **2** `MobileJobAsset` rows, `Tank 0000` and `A/C Motor 0002`, both `verified = false`
+- no other asset linked; no `DD SYNTHETIC` asset created by the job tests left behind
+
+The script ends by **querying the job back and asserting those three lines**, and exits non-zero
+otherwise. A reset that reports success without reading back is trap 6 in a different coat.
+
+### 7.3 · Where it runs — the decision
+
+| option | credits | needs | verdict |
+|---|---|---|---|
+| **A. local script** `reset_av_fixture.py` (GraphQL, dry-run by default, `--apply` to act) | **0** | the test account's email/password in `.env` (they already live in Datadog as globals) to obtain the same-origin session cookie | ⭐ **recommended** — it is also the vehicle §5 already chose for residue cleanup, so one script grows two subcommands |
+| B. Datadog **API** test | 1 per reset | nothing new | competes with the browser tests for the same credits; cannot be a child of `MOB.993`, so it is a separate manual trigger either way |
+| C. make the tests self-restore in-browser | 0 | — | **impossible** — mobile has no status control and cannot delete; that is the whole reason the row is blocked |
+
+### 7.4 · How the unlocked tests slot in
+
+- They go in **`MOB.993` as the LAST children**, after everything that assumes the fixture is
+  at rest — verifying the second asset flips the job and would break `MOB.500`/`530`/`560` if they
+  ran afterwards in the same session.
+- A run of `MOB.993` is then **run → reset**. A forgotten reset leaves the job `COMPLETED` and the
+  next `MOB.993` fails at its first fixture guard — loudly, at the first child, not silently.
+- The reset is idempotent: running it on a clean fixture changes nothing and still asserts 7.2.
+
+### 7.5 · What the owner is deciding
+
+1. **Yes to option A?** It means the test account credentials live in `.env` next to the Datadog
+   keys (already gitignored).
+2. **Accept the "run → reset" chore** for `MOB.993` — one command after each run.
+3. **Accept the residue**: "Add Work" leaves a work order per run until §3a's bottom-up delete is
+   built; the new-asset test leaves nothing once `deleteAssets` is in the script.
+
+If 1–3 are yes, the build order is: script with dry-run and the 7.2 read-back → run it once on the
+current fixture (it should change nothing) → the two verify tests → the two add-asset tests →
+Add Work last, with the work-order delete.

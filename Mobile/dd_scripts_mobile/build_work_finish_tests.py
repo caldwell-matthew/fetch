@@ -87,9 +87,12 @@ def open_work_detail():
 #   filterWorkflowByPMField  "Exclude PM Workflows"    - true from defaultValues (index.tsx:39)
 #   filterWorkflowByAsset    "Filter Workflows By Asset" - auto-set true by the useEffect at
 #                            index.tsx:51-65 WHEN the default asset actually has workflows
-# That is why MOB.300 (no defaultAsset) and MOB.396 (an asset with no workflows) both find
-# the workflow, while MOB.397's asset does have workflows and hides it. Owner-confirmed
-# 2026-08-12: turn both off and it appears.
+# That is why MOB.300 (no defaultAsset) finds the workflow while MOB.397's asset has
+# workflows and hides it. Owner-confirmed 2026-08-12: turn both off and it appears.
+# MOB.396 used to find it too because Tank 0000 had no workflows; on 2026-09-09 it did
+# (`_workflows` for the asset came back non-empty, the effect set the toggle ON, and the
+# option list read "No results found"). Fixture data on the shared dev box moves, so
+# MOB.396 no longer assumes a starting state - see unfilter_workflows_any_state.
 UNFILTER = [
     ('filterWorkflowByAsset', 'Filter Workflows By Asset'),
     ('filterWorkflowByPMField', 'Exclude PM Workflows'),
@@ -121,6 +124,37 @@ def unfilter_workflows(url):
     out.append(step("wait", "Let the workflow list re-query unfiltered", {"value": 3}))
     out.append(jsassert("Both workflow filters are now OFF", BOTH_FILTERS_OFF))
     return out
+
+
+# State-aware version. Reads each INPUT's `checked` and clicks its LABEL only when ON, so it
+# is correct whichever way the auto-set effect (InsertForm/index.tsx:51-65) went this run.
+# Not a poll: a click inside a polled body could fire again before React lands the flip and
+# toggle it straight back. So: settle -> one click pass -> settle -> prove both OFF.
+UNFILTER_ANY_STATE = """
+const ids = ['filterWorkflowByAsset', 'filterWorkflowByPMField'];
+let seen = 0;
+for (const id of ids) {
+  const el = document.getElementById(id);
+  const lab = document.querySelector('label[for="' + id + '"]');
+  if (!el || !lab) continue;
+  seen += 1;
+  if (el.checked) lab.click();
+}
+return seen === ids.length;
+"""
+
+
+def unfilter_workflows_any_state(url):
+    return [
+        # The effect queries the asset's workflows over the network and sets the toggle ON
+        # when any come back. Click before that resolves and the `.then` overrides the click.
+        step("wait", "Let the auto-filter effect settle (it queries the asset's workflows)",
+             {"value": 3}),
+        jsassert("Turn OFF whichever workflow filters are ON (reads the input, clicks the label)",
+                 UNFILTER_ANY_STATE),
+        step("wait", "Let the workflow list re-query unfiltered", {"value": 3}),
+        jsassert("Both workflow filters are now OFF", BOTH_FILTERS_OFF, timeout=30),
+    ]
 
 
 def fill_work_form(url):
@@ -168,7 +202,7 @@ write(test(
         step("wait", "Wait for the create modal", {"value": 3}),
         step("assertPageContains", "The create modal opened from the ASSET entry point",
              {"value": "Creating New Work Order"}),
-    ] + fill_work_form(JOB_DETAIL) + [
+    ] + unfilter_workflows_any_state(JOB_DETAIL) + fill_work_form(JOB_DETAIL) + [
         step("click", 'Click "Create Work Order"',
              {"element": xpath_el(JOB_DETAIL, CREATE_BTN)}),
         step("wait", "Brief wait for the toast", {"value": 2}),

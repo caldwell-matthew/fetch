@@ -1,0 +1,349 @@
+{
+    "test_name": "MOB.624_Collector_Row_Avatar_Modal",
+    "details": {
+        "name": "MOB.624_Collector_Row_Avatar_Modal",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.624` **The row avatar opens the asset's fullscreen attachments modal.**\n- READ-ONLY. Fixture is `MOB.623`'s residue (a photo on the newest `DD SYNTHETIC MOBILE`\n  asset), so this runs after it in `MOB.994`.\n- Proves the avatar's click opens the modal WITHOUT expanding the accordion\n  (`stopPropagation`), that the modal names the asset and offers `Done`, and that the\n  segmented control has exactly values `1`/`2`.\n- \u2b50 **Photos vs Docs is a biconditional**: carousel + `Add Photo` and no `Add File`, then\n  `Add File`, no `Add Photo`, no carousel. Switched by radio VALUE (\u00a722). Nothing uploaded.\n- Closed with `Done`; the row is asserted collapsed before and after.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Collector",
+            "Photos",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the asset collector",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-collector"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the collector to load its lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": 15
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The collector page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: a \"DD SYNTHETIC MOBILE\" asset is in the collected list (MOB.600 residue)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: its badge (image/video attachment count) is not 0 \u2014 MOB.623 residue",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst b = it.querySelector('.mantine-Indicator-indicator');\nreturn !!b && (b.textContent || '').trim() !== '0';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: the row is collapsed and no modal is open",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nreturn c.getAttribute('aria-expanded') === 'false' && !document.querySelector('.mantine-Modal-content');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click the row's avatar",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Indicator-root \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the fullscreen modal mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The modal opened, names the asset, and offers `Done` \u2014 and the avatar's click did NOT expand the accordion (stopPropagation)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst named = (m.textContent || '').includes('DD SYNTHETIC MOBILE');\nconst items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nconst collapsed = !!it && it.querySelector('.mantine-Accordion-control').getAttribute('aria-expanded') === 'false';\nreturn named && t.includes('Done') && collapsed;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SEGMENTS: exactly two, values 1 (Photos) and 2 (Docs)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst vals = [...root.querySelectorAll('input[type=\"radio\"]')].map(i => i.value);\nreturn JSON.stringify(vals) === JSON.stringify(['1', '2']);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the \"Photos\" segment by VALUE (1) \u2014 never by label (\u00a722)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"1\"]');\nif (!el) return false;\nel.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 PHOTOS: a carousel with a slide, `Add Photo`, and NO `Add File`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst slides = m.querySelectorAll('[class*=\"mantine-Carousel-slide\"]').length;\nreturn slides >= 1 && t.includes('Add Photo') && !t.includes('Add File');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Switch to the \"Docs\" segment by VALUE (2) \u2014 never by label (\u00a722)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"2\"]');\nif (!el) return false;\nel.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Docs panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 DOCS: `Add File`, NO `Add Photo`, and NO carousel \u2014 the biconditional closes",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn !m.querySelector('[class*=\"mantine-Carousel\"]') && t.includes('Add File') && !t.includes('Add Photo');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the modal with its own `Done`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[normalize-space(.)=\"Done\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: no modal is open and the row is still collapsed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (document.querySelector('.mantine-Modal-content')) return false;\nconst items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nreturn !!it && it.querySelector('.mantine-Accordion-control').getAttribute('aria-expanded') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

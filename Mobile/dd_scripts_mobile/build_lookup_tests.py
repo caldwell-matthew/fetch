@@ -86,7 +86,7 @@ write(test(
         step("wait", "Wait for the detail panel to mount", {"value": 3}),
         step("assertElementPresent", "Test the asset detail tab strip rendered",
              {"element": xpath_el(LOOKUP_URL, f'({FIRST_ITEM}//*[@role="tab"])[1]')}),
-        step("assertElementPresent", 'Test the "Work History" tab exists (5 tabs, not 4)',
+        step("assertElementPresent", 'Test the "Work History" tab exists (one of the six)',
              {"element": xpath_el(
                  LOOKUP_URL,
                  f'{FIRST_ITEM}//*[@role="tab"][normalize-space(.)="Work History"]')}),

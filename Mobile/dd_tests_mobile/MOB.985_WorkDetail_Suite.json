@@ -4,7 +4,7 @@
         "name": "MOB.985_WorkDetail_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.985` The work order **detail page's off-tab surfaces** \u2014 the parts of\n`WorkDetails.tsx` that are not tabs.\n- **READ-ONLY**, so it is a scheduling candidate. Say so here if that ever changes.\n- **Deliberately separate from `MOB.991`**, which is at Datadog's maximum test execution\n  time (Appendix F0) \u2014 adding one 70-step child took it from 474s to capped.\n- Children: `MOB.347` (Assets tab + status controls), `MOB.348` (MapLink + LocationForm),\n  `MOB.349` (record cycling). All read-only.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
+        "message": "`MOB.985` The work order **detail page's off-tab surfaces** \u2014 the parts of\n`WorkDetails.tsx` that are not tabs.\n- **READ-ONLY**, so it is a scheduling candidate. Say so here if that ever changes.\n- **Deliberately separate from `MOB.991`**, which is at Datadog's maximum test execution\n  time (Appendix F0) \u2014 adding one 70-step child took it from 474s to capped.\n- Children: `MOB.347` (Assets tab + status controls). `MapLink`/`LocationForm` and\n  record cycling belong here too and are still open.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -385,11 +385,24 @@
                 "isCritical": true,
                 "name": "MOB.356_Work_Charge_Form_Validity",
                 "noScreenshot": false,
-                "type": "playSubTest",
                 "params": {
                     "subtestPublicId": "76v-mdb-s8y",
                     "playingTabId": -1
-                }
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.351_Work_Charge_Estimates",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "srv-3x9-65n",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
             },
             {
                 "allowFailure": false,
@@ -398,11 +411,11 @@
                 "isCritical": true,
                 "name": "MOB.911_Offline_Geolocate",
                 "noScreenshot": false,
-                "type": "playSubTest",
                 "params": {
                     "subtestPublicId": "fz5-mq2-ufp",
                     "playingTabId": -1
-                }
+                },
+                "type": "playSubTest"
             },
             {
                 "allowFailure": false,

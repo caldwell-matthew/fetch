@@ -46,6 +46,19 @@ CHILDREN = ["MOB.347_Work_Asset_Status",
             # must NOT click a card, so it runs first and asserts it stayed put.
             "MOB.357_Work_Form_Metrics",
             "MOB.356_Work_Charge_Form_Validity",
+            # MOB.351 sits beside MOB.356: same four charge tabs, same read-only discipline.
+            # MOB.356 proves the CHARGES side's Submit is inert when invalid; MOB.351 proves
+            # the ESTIMATES side exists at all. Neither opens a form it submits, so the pair is
+            # safe here rather than in MOB.991 (which is at the runtime ceiling, Appendix F0).
+            #
+            # ⚠️ IT WAS UNWIRED FROM 2026-09-09 UNTIL IT WAS GREEN, and that is the rule, not
+            # an incident: it had first been wired in while one assertion was still RED **and
+            # critical**, which would have aborted this whole suite - the other eight children
+            # reporting red without ever executing, exactly what MOB.346 did to MOB.990 a day
+            # earlier. ⭐ WIRE A CHILD LAST, once it is green standalone (verify.py, 2 runs).
+            # An unwired test is just a test; a red critical child is a broken suite.
+            # Verified green standalone 2026-09-09 before this line was restored.
+            "MOB.351_Work_Charge_Estimates",
             "MOB.911_Offline_Geolocate",
             # LAST on purpose: MOB.358 stubs `fetch` and `getCurrentPosition`. Both are
             # removed with alwaysExecute, but a leaked fetch stub is the worst thing to
