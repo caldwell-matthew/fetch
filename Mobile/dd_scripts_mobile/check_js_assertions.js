@@ -589,15 +589,19 @@ const M624 = {
 	docs: bodyOf(MOB624, 'DOCS: `Add File`'),
 	restored: bodyOf(MOB624, 'RESTORED: no modal'),
 	badge: bodyOf(MOB624, 'badge (image/video'),
+	gone: bodyOf(MOB624, 'The modal is gone'),
+	sentinel: bodyOf(MOB624, 'SENTINEL (bugs §35)'),
+	restore: bodyOf(MOB624, 'RESTORE: collapse the row'),
 };
 function avatarPage({ modal = true, expanded = false, named = true, done = true, values = ['1', '2'],
-	addPhoto = false, addFile = false, slides = 0, badge = '1' } = {}) {
+	addPhoto = false, addFile = false, slides = 0, badge = '1', marker = true } = {}) {
 	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
 	const item = doc.createElement('div'); item.className = 'mantine-Accordion-item';
 	const control = doc.createElement('span'); control.className = 'mantine-Accordion-control';
 	control.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 	const ind = doc.createElement('div'); ind.className = 'mantine-Indicator-indicator'; ind.textContent = badge;
-	control.appendChild(ind); control.appendChild(doc.createTextNode('DD SYNTHETIC MOBILE 43398722'));
+	control.appendChild(ind);
+	control.appendChild(doc.createTextNode(marker ? 'DD SYNTHETIC MOBILE 43398722' : 'Pipe Group 0010'));
 	item.appendChild(control); doc.body.appendChild(item);
 	if (modal) {
 		const m = doc.createElement('div'); m.className = 'mantine-Modal-content';
@@ -628,6 +632,23 @@ check('cross: photos body on docs DOM', runJs(M624.photos, avatarPage({ addFile:
 check('restored - no modal, collapsed', runJs(M624.restored, avatarPage({ modal: false })), true);
 check('MUST FAIL: restored - modal still open', runJs(M624.restored, avatarPage()), false);
 check('MUST FAIL: restored - row expanded', runJs(M624.restored, avatarPage({ modal: false, expanded: true })), false);
+check('gone - no modal', runJs(M624.gone, avatarPage({ modal: false })), true);
+check('MUST FAIL: gone - modal still up', runJs(M624.gone, avatarPage()), false);
+// bugs §35 sentinel: true while the in-modal clicks still toggle the row, ERR once it is fixed.
+check('sentinel - row expanded (the §35 state)', runJs(M624.sentinel, avatarPage({ modal: false, expanded: true })), true);
+check('sentinel - row collapsed (§35 fixed)', runJs(M624.sentinel, avatarPage({ modal: false })), false);
+// The restore body has a SIDE EFFECT - it clicks the control when the row is open. Prove the
+// click really fires, not just that the body returns true.
+{
+	const w = avatarPage({ modal: false, expanded: true });
+	const c = w.document.querySelector('.mantine-Accordion-control');
+	c.addEventListener('click', () => c.setAttribute('aria-expanded', 'false'));
+	check('restore - returns true', runJs(M624.restore, w), true);
+	check('restore - the click really collapsed the row', c.getAttribute('aria-expanded'), 'false');
+	check('restore - and RESTORED now holds', runJs(M624.restored, w), true);
+}
+check('restore - no-op when already collapsed', runJs(M624.restore, avatarPage({ modal: false })), true);
+check('MUST FAIL: restore - the row is gone entirely', runJs(M624.restore, avatarPage({ modal: false, marker: false })), false);
 
 /* ===========================================================================================
  * MOB.800 - self-healing Filters drawer gate (StructuredQuery/index.tsx:267,279)
@@ -692,6 +713,371 @@ console.log('\nMOB.396_Work_Create_From_Asset - unfilter is state-aware');
 	check('MUST FAIL: one input missing (form not mounted)', runJs(M396.unfilter, insertForm({ present: ['filterWorkflowByPMField'] })), false);
 	check('MUST FAIL: OFF-check with one still ON', runJs(M396.off, insertForm({ byAsset: false })), false);
 	check('MUST FAIL: OFF-check with no form', runJs(M396.off, insertForm({ present: [] })), false);
+}
+
+/* ===========================================================================================
+ * MOB.580 - the AV asset list really comes out in the chosen order.
+ * The bench exists because version 1 of this test hardcoded "A/C Motor 0002 before Tank 0000"
+ * and the fixture was renamed to `⚡ Tank 0000`, whose leading symbol collates BEFORE `A`.
+ * The rows below use the REAL current name, so a return to a hardcoded pair fails here first.
+ * ========================================================================================= */
+const MOB580 = 'MOB.580_AssetVerify_Sort_Ordering.json';
+const M580 = {
+	asc: bodyOf(MOB580, 'PROOF (ascending)'),
+	desc: bodyOf(MOB580, 'PROOF (descending)'),
+	restored: bodyOf(MOB580, 'RESTORED: ascending'),
+	diag: bodyOf(MOB580, 'DIAG: the app stored the "Name ▲"'),
+};
+function avList(names, { underline = true, sortValue = undefined, blankRow = false } = {}) {
+	// a real URL, so jsdom gives the window a usable sessionStorage for the DIAG body
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/' });
+	const doc = dom.window.document;
+	if (blankRow) {
+		const item = doc.createElement('div'); item.className = 'mantine-Accordion-item';
+		const control = doc.createElement('span'); control.className = 'mantine-Accordion-control';
+		item.appendChild(control); doc.body.appendChild(item);       // a row with no name in it
+	}
+	for (const name of names) {
+		const item = doc.createElement('div'); item.className = 'mantine-Accordion-item';
+		const control = doc.createElement('span'); control.className = 'mantine-Accordion-control';
+		const el = doc.createElement('span');
+		if (underline) el.setAttribute('style', 'color: blue; text-decoration: underline; cursor: pointer;');
+		else el.className = 'mantine-Text-root';
+		el.textContent = name;
+		control.appendChild(el);
+		// the created-by line - a SECOND Text in the same control, which is why the name
+		// selector has to be specific rather than "the first text in the row"
+		const meta = doc.createElement('p'); meta.className = 'mantine-Text-root';
+		meta.textContent = 'Dev Eloper, Aug 6, 2026, 3:15 PM';
+		control.appendChild(meta);
+		item.appendChild(control); doc.body.appendChild(item);
+	}
+	if (sortValue !== undefined) {
+		try { dom.window.sessionStorage.setItem('mobile-Asset-sort', sortValue); } catch (e) { /* opaque origin */ }
+	}
+	return dom.window;
+}
+const TANK = '⚡ Tank 0000', MOTOR = 'A/C Motor 0002';
+console.log('\nMOB.580_AssetVerify_Sort_Ordering - order is computed, never hardcoded');
+check('ASC - the app order for the CURRENT names (Tank first, because ⚡ collates before A)',
+	runJs(M580.asc, avList([TANK, MOTOR])), true);
+check('MUST FAIL: ASC - the pre-rename arrangement, which is now unsorted',
+	runJs(M580.asc, avList([MOTOR, TANK])), false);
+check('DESC - the exact reverse', runJs(M580.desc, avList([MOTOR, TANK])), true);
+check('MUST FAIL: DESC - given the ASC order', runJs(M580.desc, avList([TANK, MOTOR])), false);
+check('ASC survives a rename: plain names sort the other way and still pass',
+	runJs(M580.asc, avList([MOTOR, 'Tank 0000'])), true);
+check('restored - same body as ASC', runJs(M580.restored, avList([TANK, MOTOR])), true);
+check('MUST FAIL: only one row rendered (trap 5)', runJs(M580.asc, avList([TANK])), false);
+check('MUST FAIL: two rows but the fixture asset is missing',
+	runJs(M580.asc, avList([TANK, 'Pipe Group 0010'])), false);
+check('the underline selector is not load-bearing alone - the class fallback reads it too',
+	runJs(M580.asc, avList([TANK, MOTOR], { underline: false })), true);
+check('MUST FAIL: a row carries no readable name at all',
+	runJs(M580.asc, avList([TANK, MOTOR], { blankRow: true })), false);
+check('diag - reads the stored SortValue id',
+	runJs(M580.diag, avList([TANK, MOTOR], { sortValue: JSON.stringify({ id: 'name_ASC', column: 'name', dir: 'ASC' }) })), true);
+check('MUST FAIL: diag - a different sort is stored',
+	runJs(M580.diag, avList([TANK, MOTOR], { sortValue: JSON.stringify({ id: 'createdAt_DESC' }) })), false);
+check('MUST FAIL: diag - nothing stored', runJs(M580.diag, avList([TANK, MOTOR])), false);
+
+/* ===========================================================================================
+ * DRIFT GUARD - every test that opens the Filters drawer must carry the SAME healed gate.
+ * `MOB.800` was repaired on 2026-09-09 and the three siblings were not, so `MOB.996` went red
+ * at `MOB.806` on the identical swallowed click one day later. The gate now lives in
+ * `dd_tools.open_filters_drawer`; this fails the moment a copy drifts back out of it.
+ * ========================================================================================= */
+console.log('\nFilters drawer - one gate, four tests');
+{
+	const owners = ['MOB.800_Search_StructuredQuery.json', 'MOB.805_Search_Filter_Edit.json',
+		'MOB.806_Search_MultiValue.json', 'MOB.820_Search_Filter_Then_Search.json'];
+	const canonical = bodyOf(owners[0], 'drawer opened (re-clicks');
+	for (const f of owners.slice(1)) {
+		check(`${f.replace('.json', '')} carries the identical gate`,
+			bodyOf(f, 'drawer opened (re-clicks') === canonical, true);
+	}
+	// and the gate itself still heals: closed drawer -> false AND the trigger gets clicked
+	const drawerPage = ({ open }) => {
+		const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+		const trigger = doc.createElement('button');
+		trigger.className = 'asset-lookup-filter-button';
+		trigger.textContent = 'Filters (0)';          // reads the same open or shut (trap 5)
+		let clicks = 0; trigger.addEventListener('click', () => clicks++);
+		doc.body.appendChild(trigger);
+		if (open) { const b = doc.createElement('button'); b.textContent = 'Add Filter'; doc.body.appendChild(b); }
+		return { win: dom.window, clicks: () => clicks };
+	};
+	const up = drawerPage({ open: true });
+	check('drawer up - true, and the trigger is NOT re-clicked', runJs(canonical, up.win), true);
+	check('drawer up - click count still 0', up.clicks(), 0);
+	const down = drawerPage({ open: false });
+	check('MUST FAIL: drawer down', runJs(canonical, down.win), false);
+	check('drawer down - the trigger was re-clicked exactly once', down.clicks(), 1);
+}
+
+/* ===========================================================================================
+ * MOB.345 - which work view is RENDERED, read from the DOM.
+ * The first fix asserted `sessionStorage['toggle_mobile_v_work'] !== 'true'` and went red on a
+ * session that was in the list view the whole time: the key defaults to `true`, and the app
+ * renders `role.mobileDownloadMode === 'SCHEDULED' && scheduledView`. Half a condition.
+ * ========================================================================================= */
+const M345 = { view: bodyOf('MOB.345_Work_Sort_Persist.json', 'VIEW: the work list is rendering') };
+function workList({ rows = 2, groups = false, flag = 'true' } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/' });
+	const doc = dom.window.document;
+	if (groups) for (const g of ['Past Due (2)', 'Today (1)', 'Future (3)']) {
+		const b = doc.createElement('button'); b.textContent = g; doc.body.appendChild(b);
+	}
+	for (let i = 0; i < rows; i++) {
+		const p = doc.createElement('div'); p.className = 'mantine-Paper-root';
+		p.textContent = `WO-${i} Description: something`; doc.body.appendChild(p);
+	}
+	try { dom.window.sessionStorage.setItem('toggle_mobile_v_work', flag); } catch (e) { /* opaque */ }
+	return dom.window;
+}
+console.log('\nMOB.345_Work_Sort_Persist - the rendered view, not the flag');
+check('list view - rows, no group headers', runJs(M345.view, workList()), true);
+check('⭐ list view still true with the flag stuck at "true" (the ASSIGNED-role state)',
+	runJs(M345.view, workList({ flag: 'true' })), true);
+check('MUST FAIL: scheduled view - group headers present',
+	runJs(M345.view, workList({ groups: true })), false);
+check('MUST FAIL: empty page - absence alone must not pass (trap 5)',
+	runJs(M345.view, workList({ rows: 0 })), false);
+check('MUST FAIL: group headers and no rows', runJs(M345.view, workList({ rows: 0, groups: true })), false);
+
+console.log('\nMOB.345 - the narrowing guard (the reversal invariant needs a whole list)');
+{
+	const narrowed = bodyOf('MOB.345_Work_Sort_Persist.json', 'NARROWED: between 2 and 15');
+	const rows = (texts) => {
+		const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+		for (const t of texts) {
+			const p = doc.createElement('div'); p.className = 'mantine-Paper-root';
+			p.textContent = `${t} Description: x`; doc.body.appendChild(p);
+		}
+		return dom.window;
+	};
+	check('4 distinct rows - narrowed', runJs(narrowed, rows(['A-1', 'A-2', 'A-3', 'A-4'])), true);
+	check('MUST FAIL: 1 row - an order over one row is vacuous (trap 5)', runJs(narrowed, rows(['A-1'])), false);
+	check('MUST FAIL: 0 rows - the term matched nothing', runJs(narrowed, rows([])), false);
+	check('MUST FAIL: 16 rows - the filter did not bite, so Virtuoso may be windowing',
+		runJs(narrowed, rows(Array.from({ length: 16 }, (_, i) => `A-${i}`))), false);
+	check('MUST FAIL: duplicate row text - the rows cannot be told apart',
+		runJs(narrowed, rows(['SAME', 'SAME', 'OTHER'])), false);
+}
+
+/* ===========================================================================================
+ * MOB.546 - the AV asset detail's Attachments tab. `InfiniteTabs` sets keepMounted={false},
+ * so exactly ONE [role=tabpanel] is mounted - the opposite of the collector's tabs, where the
+ * inactive panels linger as empty display:none shells and cost MOB.623 a run. Both facts are
+ * modelled here so the difference is pinned rather than remembered.
+ * ========================================================================================= */
+const MOB546 = 'MOB.546_AssetVerify_Asset_Attachments.json';
+const M546 = {
+	one: bodyOf(MOB546, 'The ACTIVE panel holds the attachments UI'),
+	segments: bodyOf(MOB546, 'SEGMENTS: exactly two'),
+	photos: bodyOf(MOB546, 'PHOTOS: a carousel'),
+	docs: bodyOf(MOB546, 'DOCS: a real download row'),
+	restored: bodyOf(MOB546, 'RESTORED: the "General Info" tab'),
+};
+/**
+ * The REAL Mantine shape, read from TabsPanel.mjs:24,32 - every tab keeps a
+ * <div role="tabpanel">, the inactive ones carry display:none and, under keepMounted={false},
+ * no children at all. `shells` is how many of those empties sit beside the live panel.
+ */
+function detailPage({ live = true, shells = 5, values = ['1', '2'], slides = 0, files = 0,
+	addPhoto = false, addFile = false, selectedTab = 'General Info', segmented = true,
+	linkPanel = true, extraFilled = 0 } = {}) {
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	const tab = doc.createElement('button');
+	tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', 'true');
+	tab.textContent = selectedTab;
+	if (linkPanel) tab.setAttribute('aria-controls', 'panel-live');
+	doc.body.appendChild(tab);
+	for (let i = 0; i < shells; i++) {                       // empty display:none siblings
+		const sh = doc.createElement('div');
+		sh.setAttribute('role', 'tabpanel'); sh.setAttribute('id', `panel-shell${i}`);
+		sh.style.display = 'none';
+		if (i < extraFilled) sh.textContent = 'leftover content';   // the keepMounted regression
+		doc.body.appendChild(sh);
+	}
+	if (live) {
+		const p = doc.createElement('div');
+		p.setAttribute('role', 'tabpanel'); p.setAttribute('id', 'panel-live');
+		if (segmented) p.appendChild(segmentedControl(doc, 'mantine-att', values, '1'));
+		for (let n = 0; n < slides; n++) {
+			const sl = doc.createElement('div'); sl.className = 'mantine-Carousel-slide'; p.appendChild(sl);
+		}
+		for (let n = 0; n < files; n++) {
+			const a = doc.createElement('a'); a.setAttribute('href', `/api/attachment/abc${n}`);
+			a.textContent = `doc-${n}.pdf`; p.appendChild(a);
+		}
+		const btn = (l) => { const b = doc.createElement('button'); b.textContent = l; p.appendChild(b); };
+		if (addPhoto) btn('Add Photo'); if (addFile) btn('Add File');
+		doc.body.appendChild(p);
+	}
+	return dom.window;
+}
+console.log('\nMOB.546_AssetVerify_Asset_Attachments - one mounted panel, Photos/Docs both real');
+check('the live panel among 5 empty shells', runJs(M546.one, detailPage()), true);
+check('found via display:none fallback when the tab has no aria-controls',
+	runJs(M546.one, detailPage({ linkPanel: false })), true);
+check('MUST FAIL: no live panel at all', runJs(M546.one, detailPage({ live: false })), false);
+check('MUST FAIL: a shell kept its content too (keepMounted regression)',
+	runJs(M546.one, detailPage({ extraFilled: 1 })), false);
+check('MUST FAIL: the live panel has no segmented control (wrong tab open)',
+	runJs(M546.one, detailPage({ segmented: false })), false);
+check('MUST FAIL: a single panel with no siblings - not this page',
+	runJs(M546.one, detailPage({ shells: 0 })), false);
+check('segments - 1 and 2', runJs(M546.segments, detailPage()), true);
+check('MUST FAIL: segments - a third', runJs(M546.segments, detailPage({ values: ['1', '2', '3'] })), false);
+check('photos - slide + Add Photo, no Add File',
+	runJs(M546.photos, detailPage({ slides: 3, addPhoto: true })), true);
+check('MUST FAIL: photos - Add Photo but no slide', runJs(M546.photos, detailPage({ addPhoto: true })), false);
+check('MUST FAIL: photos - Add File is showing too',
+	runJs(M546.photos, detailPage({ slides: 1, addPhoto: true, addFile: true })), false);
+check('docs - a download anchor + Add File, no carousel, no Add Photo',
+	runJs(M546.docs, detailPage({ files: 1, addFile: true })), true);
+check('MUST FAIL: docs - the panel is empty of files (an empty Docs tab must not pass, trap 5)',
+	runJs(M546.docs, detailPage({ addFile: true })), false);
+check('MUST FAIL: docs - a carousel is still up (the segment did not switch)',
+	runJs(M546.docs, detailPage({ files: 1, addFile: true, slides: 1 })), false);
+check('cross: the photos body on the docs DOM', runJs(M546.photos, detailPage({ files: 1, addFile: true })), false);
+check('restored - General Info is selected', runJs(M546.restored, detailPage()), true);
+check('MUST FAIL: restored - still on Attachments',
+	runJs(M546.restored, detailPage({ selectedTab: 'Attachments' })), false);
+
+console.log('\nMOB.345 - the reversal proof survives rows arriving mid-test');
+{
+	const proof = bodyOf('MOB.345_Work_Sort_Persist.json', 'every row rendered in BOTH orders');
+	const page = (texts, stash) => {
+		const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/' });
+		const doc = dom.window.document;
+		for (const t of texts) {
+			const p = doc.createElement('div'); p.className = 'mantine-Paper-root';
+			p.textContent = `${t} Description: x`; doc.body.appendChild(p);
+		}
+		try { dom.window.sessionStorage.setItem('__dd345_asc', JSON.stringify(stash.map(t => `${t} Description: x`))); } catch (e) { /* opaque */ }
+		return dom.window;
+	};
+	check('plain reversal', runJs(proof, page(['C', 'B', 'A'], ['A', 'B', 'C'])), true);
+	// ⭐ the 2026-09-10 case: '6' paged in between the two reads, and '1' scrolled out
+	check('⭐ a row ARRIVED and another LEFT - the common rows are still reversed',
+		runJs(proof, page(['6', 'C', 'B'], ['A', 'B', 'C'])), true);
+	check('MUST FAIL: the common rows are in the SAME order (no sort happened)',
+		runJs(proof, page(['B', 'C', '6'], ['A', 'B', 'C'])), false);
+	check('MUST FAIL: only one row in common - proves nothing, and means narrowing stopped',
+		runJs(proof, page(['C', '7', '8'], ['A', 'B', 'C'])), false);
+	check('MUST FAIL: nothing in common at all (two disjoint Virtuoso windows)',
+		runJs(proof, page(['X', 'Y', 'Z'], ['A', 'B', 'C'])), false);
+	check('MUST FAIL: no captured order to compare against',
+		runJs(proof, page(['C', 'B', 'A'], [])), false);
+}
+
+/* ===========================================================================================
+ * MOB.547 - the tag search create button. The rule became "no EXACT match" (Tags/reducer.ts:
+ * 46-57), so a PARTIAL term shows results AND the create option - the case the old rule made
+ * impossible, and the one worth pinning.
+ * ========================================================================================= */
+const MOB547 = 'MOB.547_AssetVerify_Photo_Tag_Search.json';
+const M547 = {
+	partial: bodyOf(MOB547, 'PARTIAL: "Batter"'),
+	exact: bodyOf(MOB547, 'EXACT: "  cUSTOM  "'),
+	none: bodyOf(MOB547, 'NO MATCH: no tag options'),
+	type: bodyOf(MOB547, 'Type the partial term'),
+	badge: bodyOf(MOB547, "Open the tag editor from the carousel's tag badge"),
+};
+function tagDropdown({ tags = [], create = null } = {}) {
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	const input = doc.createElement('input');
+	input.setAttribute('placeholder', 'Search tags...'); doc.body.appendChild(input);
+	for (const t of tags) {
+		const o = doc.createElement('div'); o.setAttribute('role', 'option');
+		o.textContent = t; doc.body.appendChild(o);
+	}
+	if (create !== null) {
+		const o = doc.createElement('div'); o.setAttribute('role', 'option');
+		o.textContent = `+ Create Tag '${create}'`; doc.body.appendChild(o);
+	}
+	return dom.window;
+}
+console.log('\nMOB.547_AssetVerify_Photo_Tag_Search - create is an XOR with an exact match');
+check('partial - Battery Pack listed AND create offered',
+	runJs(M547.partial, tagDropdown({ tags: ['Battery Pack'], create: 'Batter' })), true);
+check('MUST FAIL: partial - the old rule (results, so no create button)',
+	runJs(M547.partial, tagDropdown({ tags: ['Battery Pack'] })), false);
+check('MUST FAIL: partial - create offered but the match is missing',
+	runJs(M547.partial, tagDropdown({ create: 'Batter' })), false);
+check('exact - two options, none of them a create entry',
+	runJs(M547.exact, tagDropdown({ tags: ['Custom', 'Custom 4-21'] })), true);
+check('MUST FAIL: exact - a create button is still showing',
+	runJs(M547.exact, tagDropdown({ tags: ['Custom', 'Custom 4-21'], create: 'cUSTOM' })), false);
+check('MUST FAIL: exact - only the prefixed tag matched, not the exact one',
+	runJs(M547.exact, tagDropdown({ tags: ['Custom 4-21', 'Customised'] })), false);
+check('MUST FAIL: exact - one option only (the second is what makes results/create independent)',
+	runJs(M547.exact, tagDropdown({ tags: ['Custom'] })), false);
+check('no match - zero tags, create offered',
+	runJs(M547.none, tagDropdown({ create: 'ZZZZ-NO-SUCH-TAG' })), true);
+check('MUST FAIL: no match - a tag slipped through',
+	runJs(M547.none, tagDropdown({ tags: ['Battery Pack'], create: 'ZZZZ-NO-SUCH-TAG' })), false);
+check('MUST FAIL: no match - nothing offered at all (dropdown never opened)',
+	runJs(M547.none, tagDropdown({})), false);
+// The typing step must go through React's value setter, not `el.value = x`.
+{
+	const w = tagDropdown({});
+	const el = w.document.querySelector('input');
+	let events = 0; el.addEventListener('input', () => events++);
+	check('type - returns true', runJs(M547.type, w), true);
+	check('type - the input really holds the term', el.value, 'Batter');
+	check('type - an input event fired, so React sees it', events, 1);
+	check('MUST FAIL: type - no search input on the page', runJs(M547.type, tagDropdown({}).document ? new JSDOM('<body></body>').window : null), false);
+}
+// The badge opener: a NAME badge with the component's green outline must be clickable.
+{
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	const tabEl = doc.createElement('button');
+	tabEl.setAttribute('role', 'tab'); tabEl.setAttribute('aria-selected', 'true');
+	tabEl.setAttribute('aria-controls', 'p1'); doc.body.appendChild(tabEl);
+	const panel = doc.createElement('div');
+	panel.setAttribute('role', 'tabpanel'); panel.setAttribute('id', 'p1');
+	const badge = doc.createElement('span');
+	badge.className = 'mantine-Badge-root';
+	// ⚠️ the browser SERIALISES the component's `#8dc63f` as rgb() - model what Chrome
+	// actually returns from getAttribute('style'), not what the source was written as.
+	badge.setAttribute('style', 'outline: 1px solid rgb(141, 198, 63); cursor: pointer;');
+	badge.textContent = 'LENS: NAMEPLATE EXTRACTION';       // the fixture photo's real badge
+	let clicks = 0; badge.addEventListener('click', () => clicks++);
+	panel.appendChild(badge); doc.body.appendChild(panel);
+	check('badge - a NAME badge (not "Edit Tags") is found and clicked', runJs(M547.badge, dom.window), true);
+	check('badge - the click really fired', clicks, 1);
+}
+// the same badge with ONLY the serialised colour (no cursor rule) must still be found
+{
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	const tabEl = doc.createElement('button');
+	tabEl.setAttribute('role', 'tab'); tabEl.setAttribute('aria-selected', 'true');
+	tabEl.setAttribute('aria-controls', 'p1'); doc.body.appendChild(tabEl);
+	const panel = doc.createElement('div');
+	panel.setAttribute('role', 'tabpanel'); panel.setAttribute('id', 'p1');
+	const badge = doc.createElement('span');
+	badge.className = 'mantine-Badge-root';
+	badge.setAttribute('style', 'outline: 1px solid rgb(141, 198, 63);');
+	badge.textContent = 'Project';
+	let clicks = 0; badge.addEventListener('click', () => clicks++);
+	panel.appendChild(badge); doc.body.appendChild(panel);
+	check('badge - found by the serialised rgb() colour alone', runJs(M547.badge, dom.window), true);
+	check('badge - and clicked', clicks, 1);
+}
+{
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	const tabEl = doc.createElement('button');
+	tabEl.setAttribute('role', 'tab'); tabEl.setAttribute('aria-selected', 'true');
+	tabEl.setAttribute('aria-controls', 'p1'); doc.body.appendChild(tabEl);
+	const panel = doc.createElement('div');
+	panel.setAttribute('role', 'tabpanel'); panel.setAttribute('id', 'p1');
+	const other = doc.createElement('span');
+	other.className = 'mantine-Badge-root'; other.textContent = '5';   // an Indicator-style badge
+	panel.appendChild(other); doc.body.appendChild(panel);
+	check('MUST FAIL: badge - only an unrelated badge, no tag overlay', runJs(M547.badge, dom.window), false);
 }
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS');

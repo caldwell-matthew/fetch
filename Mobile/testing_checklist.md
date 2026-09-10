@@ -8,7 +8,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** — a row, one line |
 > | what a green run actually proves | `coverage.md` |
-> | how to write a test without repeating a known mistake | `test_authoring.md` (the 28 traps) |
+> | how to write a test without repeating a known mistake | `test_authoring.md` (the 30 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |
 
@@ -23,8 +23,9 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree. `origin/development` is a local ref — `git fetch origin development` first |
-| **Last synced** | `6822c05baa` (2026-09-09). Last `client/mobile` change: `15c38f7987` (2026-09-08) |
-| **Literal scan** | `check_literals` clean against this build (1159 literals, 0 missing) |
+| **Last synced** | `63b8d1b3e8` (2026-09-10) — 87 `client/mobile` files reviewed. Last `client/mobile` change: `73d000fe12` (2026-09-10) |
+| **What was in it** | Mostly an icon-weight sweep (`pro-light` → `pro-regular`, 2 lines a file) and lint-driven hook refactors (`Map/index`, `Job.tsx`, `MaterialLookup`, `NavFooter`, `DevLogs`) — **no asserted literal moved, no locator shape changed**. Three things that matter: the **service worker was rewritten** (`workers/sw.js`, new `workers/register.ts` — bugs §31, and the offline navigation fallback is new), **tag search normalisation** changed `displayCreateButton` from *no results* to *no exact match* (🟢 BUILDABLE #16), and `SortDropdown`'s options memo gained deps — which does **not** explain §36 |
+| **Literal scan** | `check_literals` clean against this build — 1264 literals, 0 missing |
 
 ```bash
 cd ~/GitHub/MentorAPM/MentorTwo && git fetch origin development
@@ -47,7 +48,7 @@ Known keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filte
 
 | | |
 |---|---|
-| Tests | **108 leaf tests · 13 suites** · 2899 steps · 97 subtest slots (+ `MOB.999_Verify_Scratch`, a harness, not coverage) |
+| Tests | **110 leaf tests · 13 suites** · 2999 steps · 99 subtest slots (+ `MOB.999_Verify_Scratch`, a harness, not coverage) |
 | Local ↔ remote | 122 local, in sync by content. The 2 remote extras are archived orphans `MOB.134` / `MOB.711` |
 | Device | `chrome.tablet` **only** — load-bearing, trap 1 |
 | Rows | 117 `[x]` · 13 `[~]` · 10 `[ ]` · 46 `[-]` — 186 rows. Counts describe *this file*, not the app |
@@ -65,7 +66,7 @@ Known keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filte
 | `MOB.990_Smoke` | 13 | read-only |
 | `MOB.991_WorkOrders` | 13 | residue · **at the runtime ceiling** (Appendix F) |
 | `MOB.992_Menu` | 7 | read-only |
-| `MOB.993_AssetVerify` | 12 | self-restoring |
+| `MOB.993_AssetVerify` | 14 | self-restoring |
 | `MOB.994_Collector` | 7 | residue (`MOB.600`, `MOB.623`) |
 | `MOB.995_AssetLookup` | 7 | read-only |
 | `MOB.996_Search` | 7 | read-only |
@@ -84,6 +85,13 @@ A suite costs `1 + children`. Proving a single test through the scratch harness 
 `verify.py <test>` until green → add to its suite, `wire_suite.py`, push again. Wiring first
 makes the suite reference a child with no `public_id`, and Datadog rejects it with a 400.
 
+🛑 **Re-running a generator that also writes a SUITE re-stamps `PENDING-WIRE-UP`, and then
+EVERY push 400s** — `Invalid steps data: … does not match '^[a-z2-9]{3}-…'`. It is not the
+suite you rebuilt that suffers; `push` is all-or-nothing per test, so the untouched suites go
+up and the stamped ones stay behind on Datadog. `verify.py` refuses to run after a failed
+push, which is how it surfaces. **Fix: `wire_suite.py`, then push.** (2026-09-10: `MOB.986`
+and `MOB.996` sat unpushable this way after their children were rebuilt.)
+
 A solo pass is strong evidence (a fresh session inherits no sort, filter or crew). The reverse
 is the risk: passing *inside* a suite because an earlier child left state behind. Run the suite
 occasionally as an integration check, not as the way to prove a test works.
@@ -96,16 +104,18 @@ area changes, not on principle.*
 | suite | status |
 |---|---|
 | `MOB.991_WorkOrders` | ✅ 13/13 · current build (`15c38f7987`) |
-| `MOB.994_Collector` | 🛑 **will be RED** — `MOB.600` now carries a server proof that fails (bugs §34). 7 children: `MOB.623` ✅ green solo 58/58; `MOB.624` ⏳ built, wired, unverified |
+| `MOB.994_Collector` | 🛑 **will be RED** — `MOB.600` now carries a server proof that fails (bugs §34). 7 children: `MOB.623` ✅ green solo 58/58; `MOB.624` ✅ green solo 23/23, wired 7th — its first run found bugs §35 (clicks inside the avatar modal toggle the row behind it); it restores the row and sentinels that state |
 | `MOB.998_MaterialLookup` | ✅ 3/3 · current build · now 5 children: `MOB.855` ✅ and `MOB.865` ✅ green solo, wired, never run inside the suite |
 | `MOB.990_Smoke` | ✅ 13/13 · current build |
 | `MOB.995_AssetLookup` | ✅ 7/7 · current build |
 | `MOB.985_WorkDetail` | ✅ 9/9 · 546s · current build |
 | `MOB.974_DIAG_Geolocation` | ✅ standalone · current build |
 | `MOB.992_Menu` | ✅ 7/7 · current build |
-| `MOB.996_Search` | ❌ red at `MOB.800` (the Filters click was swallowed; same flake as 2026-08-23). `MOB.800` rebuilt with a self-healing drawer gate — ⏳ solo verify pending. The other 6 children were skipped, so they are unproven on the current build |
-| `MOB.986_WorkOrders_Extra` | ❌ red at `MOB.396`: `Tank 0000` now has workflows on the dev box, so the app's auto-filter (`InsertForm/index.tsx:51`) hides `Datadog Test`. `MOB.396` rebuilt state-aware (reads each toggle, clicks only the ON ones) — ⏳ solo verify pending. The other 10 children were skipped |
-| `MOB.993` `MOB.989` `MOB.997` | ⏳ in flight (run sequentially; `MOB.993` self-restores the AV job) |
+| `MOB.996_Search` | ✅ 7/7 · current build. It took two runs: the healed drawer gate lived only in `MOB.800`, so `MOB.806` died on the same swallowed Filters click. The gate is now `dd_tools.open_filters_drawer` — one copy for `MOB.800`/`805`/`806`/`820`, with a bench drift-guard |
+| `MOB.986_WorkOrders_Extra` | **10/11** · red only at `MOB.345`, the last child · `MOB.396` ✅ in-suite. `MOB.345` ✅ **green solo** after three real fixes: (1) it clicked a menu item that only renders for a `SCHEDULED` role and `mobileDownloadMode` is `ASSIGNED` → `work_view_ensure` clicks it only if present; (2) the view cannot be read from `toggle_mobile_v_work`, which defaults to `true` and is half of `role === 'SCHEDULED' && flag` → it reads the rendered grouping instead; (3) the crew now has **57** work orders and the list virtualises → it narrows with a search first and proves *every row rendered in BOTH orders is exactly reversed*, which survives rows paging in mid-test. ⏳ suite re-run pending |
+| `MOB.989_FieldEdit` | ✅ 3/3 · current build |
+| `MOB.993_AssetVerify` | ✅ 12/12 · 656s · current build. Its 3-run red was the TEST, not the app (trap 29: `MOB.580` hardcoded which asset sorts first, and the fixture had been renamed `⚡ Tank 0000`). Proofs are `soft` now, so a red child no longer stops the other 11. **Now 14 children** — `MOB.546` ✅ green solo 29/29 and `MOB.547` ✅ green solo 37/37, both wired, neither yet run inside the suite |
+| `MOB.997_Session` | ✅ 2/2 · 234s · current build · never run concurrently — mutates session crew |
 | `MOB.987_EventReadings` | ❌ suite not run for ≥ 3 weeks · 2 children; `MOB.551` ✅ green solo, wired |
 | `MOB.346_Work_Scheduled_View` | 🛑 cannot pass — see 🟡 BLOCKED |
 
@@ -117,7 +127,6 @@ area changes, not on principle.*
 
 | # | item | why |
 |---|---|---|
-| **11** | **AV full-page asset detail — the `Attachments` tab** | `AssetDetails.tsx` renders `SegmentedAssetAttachments` (Photos/Docs segmented control) for an `ATTACHMENTS` section. `MOB.545`/`575`/`550` open Attributes, Failure, Condition and Readings on that page; nothing opens Attachments. ⏳ Whether the fixture job's template has that section is unverified |
 | **12** | **Map: `Switch Map` picker** | `ViewSelectButton` opens a `Select a map` modal, disabled unless the org has ≥ 2 maps — an exclusive-or over disabled/opens. Switching writes `mobile-map-id` to sessionStorage; open and dismiss only. 🛑 **Not 2D/3D or Home**: the pitch label reads the `viewport` prop while the click drives the map imperatively, so it never flips (measured — `build_map_tests.py`), and recentering has no DOM trace |
 | **4** | **A crash guard in the shared login prefix** | `MOB.900` already asserts `Something went wrong.` is absent; the `ErrorBoundary` is otherwise unexercised and when it trips later steps fail on absent locators. Copy `MOB.900`'s shape into the prefix every suite uses |
 | **1** | **`MultiValueSelector`'s `enum` + `record` branches** | `MOB.806` covers the `TagsInput` branch. `MOB.976` proved the `enum` shape is reachable (3 of the first 8 asset-lookup filter fields render a pre-loaded `MultiSelect`) but reports by index, and the field list is runtime server schema — do not target `field[4]` (trap 15). One more probe iteration reporting the selected LABEL unblocks it (`MOB.979`'s `___DUMP___` sentinel is the pattern). `record` still undistinguished |
@@ -137,13 +146,13 @@ filters nothing.
 | item | needs | kind |
 |---|---|---|
 | **`MOB.346_Work_Scheduled_View`** | **Settled: `mobileDownloadMode` stays `ASSIGNED`** so the crew keeps its work orders (a `SCHEDULED` role only sees stages with a `scheduledevent` within ±7 days — `bugs_found.md` §25 rule 4). The scheduled view, `WO_SCHEDULED_SORT` and the `ScheduleTimeline` modal are therefore unreachable. Removed from `MOB.990`; stays standalone and correct for a `SCHEDULED` org. Put it back only when the role changes **and** its work orders are scheduled | settled |
-| Verify status update (job list) | a **per-run fixture reset** — designed in `cleanup_spec.md` §7 (a local GraphQL script; five tests unlocked; three owner decisions listed there). Bugs §10 is NOT fixed on `origin/development`, so the reset is still required | decision |
+| Verify status update (job list) · verify-all → `COMPLETED` · add a NEW asset to the job · add an EXISTING asset · Add Work | ✅ **unblocked** — `dd_scripts_mobile/reset_av_fixture.py` puts the fixture back for 0 runs (`--check` / dry run / `--apply`; `cleanup_spec.md` §7). Bugs §10 is still open, which is why the reset exists. Remaining: the owner accepts the **run → reset** chore and the Add Work residue (§7.5 decisions 2–3), then the five tests get built | decision |
 | `MOB.357`'s non-zero path | a form template with a **required field**; every card reads `0 of 0` | fixture |
 | `MOB.342` exclusion leg | a second status in the crew's list. `Pending` now counts on mobile (`db98d77d63`) — read the legend before asking | fixture |
 | Session/JWT expiry | backend — HTTP GraphQL authenticates with a same-origin cookie; a client cannot expire it | backend |
 | **AT** — attachment types beyond PNG | ⏸️ deferred by the owner, do not re-raise. One hand-authored upload step per file type (trap 12 is per file) | fixture |
 | Trial-mode tile disabling | a trial org | fixture |
-| §26 characterization test | owner decision | decision |
+| Asset Type on the AV detail — characterization test | owner decision. It used to "save" and revert; it now renders as plain text, so the question is whether to pin that | decision |
 
 ### ⚪ NOT A GAP
 
@@ -151,7 +160,7 @@ filters nothing.
 issue-return / reorder (controls do not exist) · Switch-Crews close button
 (`withCloseButton: false`) · status-change form triggers (desktop → Appendix B) · the
 status-notes modal (deliberate; enabling it reworks `MOB.320`) · `typeId` on the AV detail
-(broken — §26) · adding an *existing* asset to a job (Appendix A) · logout clearing queues (the
+(no longer editable there) · adding an *existing* asset to a job (Appendix A) · logout clearing queues (the
 obvious test asserts something false) · status badge colour (`MOB.342` covers it via
 `getComputedStyle`) · Failures/Condition placeholders (`Tank 0000` has both) · form FILLING
 (`MOB.134`, archived — the render half is `MOB.355`) · real device GPS · `UploadStatusIcon`
@@ -177,7 +186,7 @@ the `navigator` instance would shadow the prototype getter for the page. If it w
 `ConnectionRequired` and the queue's `onLine` branch; if not, nothing is lost. A probe, not a
 claim.
 
-### 🔧 MAINTENANCE — eight standing checks, none costs a run
+### 🔧 MAINTENANCE — nine standing checks, none costs a run
 
 | # | check | command |
 |---|---|---|
@@ -187,22 +196,26 @@ claim.
 | 4 | every test cited exists, and every test that exists is cited | clean (`MOB.134`/`MOB.711` are cited as archived orphans on purpose) |
 | 5 | **stale-literal scan** — every asserted literal still exists in the app | `check_literals.py` · `--self-test` after any rule change. Scans page/element values, XPath text predicates, `assertFromJavascript` strings and attribute predicates (`@aria-label`/`@placeholder`/`@title`/`@name`). `@data-icon` is excluded on purpose — FontAwesome derives it (trap 14). Composed strings (`25 mi`, `100 km`) are listed, not judged: read them against `utils/distance` when the list changes. ⚠️ **Blind spot**: a paraphrase whose every word exists somewhere passes as COMPOSED — `MOB.551` shipped `Internet Connection is required for this feature.` for a constant that reads `This feature requires an internet connection.` and the scan was clean. Copy constants verbatim from `constants.ts` |
 | 6 | **rendered-string sweep** — UI text that appears in no test | JSX text children, not attributes; see 🟢 above |
-| 7 | **`assertFromJavascript` bodies, run on the bench** | `node check_js_assertions.js` — extracts the JS from the built JSON and runs it in jsdom against a DOM modelled on the component's own source. Every assertion needs a must-fail case (trap 5). Covers `MOB.351`, `MOB.623`, `MOB.865`, `MOB.855`, `MOB.551`, `MOB.624`. Blind spot: it proves the JS is right *about the structure it was told about*; re-read the component after any dependency bump (trap 25). When a library's DOM decides an assertion, read the library in `node_modules`, then run the bench — not Datadog |
-| 8 | **bugs index vs the served code** — every `FIXED` row's named source fact re-checked against `origin/development` | `git show origin/development:<file>` per row. Added after 15 of 17 checkable `FIXED 2026-08-24` rows turned out not to be on the served branch (2026-09-09). A row that says fixed and is not makes a test look wrong when the app is |
+| 7 | **`assertFromJavascript` bodies, run on the bench** | `node check_js_assertions.js` — extracts the JS from the built JSON and runs it in jsdom against a DOM modelled on the component's own source. Every assertion needs a must-fail case (trap 5). Covers `MOB.351`, `MOB.623`, `MOB.865`, `MOB.855`, `MOB.551`, `MOB.624`, `MOB.580`, plus a **drift guard** that the four Filters-drawer tests (`MOB.800`/`805`/`806`/`820`) all carry the identical healed gate — they did not, and that cost `MOB.996` a run. Blind spot: it proves the JS is right *about the structure it was told about*; re-read the component after any dependency bump (trap 25). When a library's DOM decides an assertion, read the library in `node_modules`, then run the bench — not Datadog |
+| 8 | **`bugs_found.md` vs the served code** — every open row's named source fact re-read against `origin/development` | `git show origin/development:<file>` per row; each status carries the file and line that justifies it. A row that is fixed is **deleted**, entry and index row, and whatever cited it is reworded. A row claiming a bug the app no longer has makes a test look wrong when the app is right |
+| 9 | **the AV fixture, read from the server** | `reset_av_fixture.py --check` — 0 Datadog runs, ~2s. Asserts the job is `IN_PROGRESS` with exactly two unverified links, and **prints the assets' exact stored names**. That last part is the point: the names are what drifted when `Tank 0000` became `⚡ Tank 0000` and took `MOB.993` red for three runs (trap 29). Run it before blaming a red AV test on the app |
 
-Checks 1–4 watch the tests; 5, 6 and 8 watch the app. All four of 1–4 were clean while three tests
+Checks 1–4 watch the tests; 5, 6 and 8 watch the app; 9 watches the fixture, which is neither and
+had no check at all until it cost three runs. All four of 1–4 were clean while three tests
 were broken by an app change.
 
 **Other hygiene:**
 - **Tag hygiene** — 44 of 108 leaves carry no `read-only` tag. Touch generator **and** JSON
   together or the next `DD_FORCE=1` reverts it (trap 19).
-- 🧹 **Desktop cleanup script** — in definition: `cleanup_spec.md`, one open question (4.5).
-  Nothing prunes residue today. It deletes real records on a shared box — dry-run first.
+- 🧹 **Residue cleanup script** — in definition: `cleanup_spec.md`, one open question (4.5).
+  Nothing prunes residue today. The AV **fixture reset** half is built and live
+  (`reset_av_fixture.py`, §7); the residue-pruning half is not. Both delete real records on a
+  shared box — dry run is the default and stays that way (§7.7).
 - **Delete settled diagnostics**: `MOB.974` · `MOB.975` · `MOB.977` · `MOB.979`. Keep `MOB.976`
   until it reports field labels (🟢 #1) and `MOB.978` while the work-list fixture is in flux.
-- **`audit_assertions.py` triage — 131 suspects** (0 HIGH · 15 MED · 116 LOW): 92 `NO-TIMEOUT`
-  (trap 21; fix in batches with a run between) · 13 `VACUOUS-ABSENCE` · 15 `NAME-MISMATCH` ·
-  11 `TAUTOLOGY`. It cannot see an assertion the APP turned vacuous — only check 5 catches that.
+- **`audit_assertions.py` triage — 138 suspects** (0 HIGH · 17 MED · 121 LOW): 93 `NO-TIMEOUT`
+  (trap 21; fix in batches with a run between) · 15 `VACUOUS-ABSENCE` · 15 `NAME-MISMATCH` ·
+  13 `TAUTOLOGY` · 2 `LOADBEARING-OPT`. It cannot see an assertion the APP turned vacuous — only check 5 catches that.
 - 🗑 **Delete the archived orphans on Datadog**: `MOB.134`, `MOB.711`. Confirm with the owner.
 
 # Tier 1 — Mobile-specific risks
@@ -365,7 +378,7 @@ were broken by an app change.
 - [x] Failures and Condition forms open on the full-page detail *(MOB.575)* — read-only; the mutations are `MOB.390`/`391`
 - [x] Attributes — edit *(MOB.545)* — full-page detail, `Year Of Manufacture`, self-restoring
 - [x] Event Readings — capture *(MOB.550)* · residue
-- [ ] Full-page detail `Attachments` tab (Photos/Docs segmented) — 🟢 #11
+- [x] Full-page detail `Attachments` tab (Photos/Docs segmented) *(MOB.546)* — one live panel among `display:none` shells, Photos↔Docs biconditional with both sides populated
 - [~] Attachments — **AT**
 
 ### Counts & cross-platform
@@ -384,7 +397,8 @@ were broken by an app change.
 - [x] Collector search *(MOB.610)*
 - [x] Saved-photo menu, `Rotate Image`, and the three attachment panels on a collected asset *(MOB.623)* · residue
 - [ ] Collector sort incl. `Collected By Me` — 🟢 #14
-- [x] Row avatar modal *(MOB.624)* — opens without expanding the accordion; Photos↔Docs biconditional; closed with `Done`
+- [x] Tag search: the create button is an **exclusive-or with an exact match** *(MOB.547)* — partial term ⇒ results AND create; `  cUSTOM  ` ⇒ two results and NO create (trim + lower-case); no match ⇒ create. Covers `db95798d54`
+- [x] Row avatar modal *(MOB.624)* — opens without expanding the accordion; Photos↔Docs biconditional; closed with `Done`. ⚠️ clicks *inside* the modal DO toggle the row behind it (bugs §35) — the test collapses it again and sentinels the state
 - [x] Edit asset fields *(MOB.710)* — same `AssetLookupDetails`
 - [-] `/asset-collector/:assetId` — orphan route
 - [-] Multiple attachments · HEIC · video — **AT**
@@ -403,7 +417,7 @@ were broken by an app change.
 - [x] The `Readings` tab — the sixth tab *(MOB.720)*
 - [x] `AssetReadingTimeline` popover *(MOB.551, in `MOB.987`)* — resolved state as an exclusive-or, timeline↔chart biconditional, offline message via a dispatched event
 - [-] `CopyAttributesConfirmation` — dead from mobile (`typeId` is `allowUpdate: false`)
-- [-] Editing Asset Type on the AV detail — broken, `bugs_found.md` §26
+- [-] Editing Asset Type on the AV detail — the control is gone; `typeId` renders as plain text
 
 ## T2.5 Material Lookup
 

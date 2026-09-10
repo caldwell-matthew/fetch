@@ -1,15 +1,15 @@
 {
-    "test_name": "MOB.805_Search_Filter_Edit",
+    "test_name": "MOB.546_AssetVerify_Asset_Attachments",
     "details": {
-        "name": "MOB.805_Search_Filter_Edit",
+        "name": "MOB.546_AssetVerify_Asset_Attachments",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.805` **Editing an existing `StructuredQuery` filter** \u2014 the branch `MOB.800` never\nreaches.\n- `MOB.800` builds a filter and clears it. **Nothing had ever edited one**, and edit is a\n  separate path: clicking an active pill sets `editFilterIndex`, a `useEffect` rebinds the\n  draft form, `Add Filter` becomes **`Update Filter`**, `Cancel edit` appears, and\n  submitting **replaces** `filters[i]` instead of appending.\n- **StructuredQuery builds server-side conditions**, so a defect returns *wrong data*\n  rather than a visibly broken control \u2014 the reason its second branch is worth covering.\n- \u2b50 **It asserts the form contents, not just the button text.** A label flip only proves\n  `editFilterIndex` moved; the round trip (`#value` absent after Add \u2192 `Pump 0102` after\n  clicking the pill) is what proves the draft rebound to the **right** filter.\n- \u26a0\ufe0f **Every filter renders as TWO pills** \u2014 `ActiveFilters` inside the drawer and\n  `FilterInfo` in the always-visible bar outside it, both wired to `onSelect`. A\n  page-level pill locator matches both (trap 3), so everything here is scoped to the\n  **drawer's** copy.\n- \u26a0\ufe0f **Clicks the pill's LABEL, never the pill's remove button.** `Pill withRemoveButton`\n  carries both handlers millimetres apart; hitting the wrong one deletes the filter and\n  fails a later assertion for a reason that looks nothing like the cause.\n- \ud83d\uded1 **Asserts that Cancel PRESERVES the filter** \u2014 `cancelEdit` touches only the draft, and\n  a cancel that quietly dropped the filter would otherwise read as a clean pass.\n- **READ-ONLY** against the server: filters are client-side query state, held in an\n  **in-memory** store (`utils.ts:38` \u2014 not localStorage), so a `goToUrl` clears them. The\n  test still clears its own filter with `alwaysExecute`.",
+        "message": "`MOB.546` **The `Attachments` tab on the AV full-page asset detail** \u2014 checklist \ud83d\udfe2 #11.\n- READ-ONLY. Switches segments and reads. Nothing is uploaded: an upload here would land\n  and leave residue on a shared fixture, so `Add Photo`/`Add File` are asserted present\n  and never clicked.\n- \u2b50 **Two things are new versus `MOB.624`/`MOB.865`**, which drive the same component\n  elsewhere. First, the tab shell: several `[role=tabpanel]` elements exist and exactly\n  ONE carries content \u2014 `keepMounted={false}` drops children, not the element\n  (`TabsPanel.mjs:24,32`), which is the trap that cost `MOB.623` two runs. Second, the fixture\n  asset carries **both** photos and a PDF, so `no carousel on Docs` is proved on a screen\n  where a carousel demonstrably exists on Photos.\n- Segments are switched by radio **value** (`1`/`2`), never by label \u2014 the labels are\n  rendered through `useMediaQuery` inside a loop and are nondeterministic (bugs \u00a722).\n- \ud83d\uded1 **No filename is hardcoded** (trap 29): the Docs proof counts anchors pointing at\n  `/api/attachment/<id>`, which is the row's shape, not someone's file name.\n- Ends back on the `General Info` tab with the Photos segment selected.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Search",
-            "StructuredQuery",
+            "Asset Verification",
+            "Photos",
             "read-only"
         ],
         "locations": [
@@ -64,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to asset lookup",
+                "name": "Navigate to the mobile job list",
                 "noScreenshot": false,
                 "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
                 },
                 "type": "goToUrl"
             },
@@ -76,7 +76,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the page begin loading",
+                "name": "Let the page begin rendering",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -88,19 +88,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the \"Asset Lookup\" page rendered",
+                "name": "Test the \"Mobile Jobs\" page mounted",
                 "noScreenshot": false,
                 "params": {
                     "check": "contains",
-                    "value": "Asset Lookup",
+                    "value": "Mobile Jobs",
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Mobile Jobs\")]"
                                 }
                             ]
                         }
@@ -114,34 +114,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Filters drawer",
+                "name": "Wait for the lookup prefetch and batched detail downloads",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[contains(concat(\" \", normalize-space(@class), \" \"), \" asset-lookup-filter-button \")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the drawer",
-                "noScreenshot": false,
-                "params": {
-                    "value": 1
+                    "value": 25
                 },
                 "type": "wait"
             },
@@ -150,30 +126,76 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the Filters drawer opened (re-clicks Filters if the click was swallowed)",
+                "name": "Test the job list rendered",
                 "noScreenshot": false,
                 "params": {
-                    "code": "\nconst up = [...document.querySelectorAll('button')]\n  .some(b => b.textContent.trim() === 'Add Filter');\nif (up) return true;\nconst btn = document.querySelector('button.asset-lookup-filter-button');\nif (btn) btn.click();\nreturn false;\n"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Mobile Job(s)\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "assertFromJavascript",
-                "timeout": 30
+                "type": "assertElementPresent"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Field select",
+                "name": "Test the lookup prefetch finished (feeds schemaQuery)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Fetching data for lookups"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the batched job-detail downloads finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Fetching mobile job details"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: \"DATADOG MOBILE JOB\" is in this crew's list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DATADOG MOBILE JOB"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@id=\"fieldId\"]"
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][contains(., \"DATADOG MOBILE JOB\")]"
                                 }
                             ]
                         }
@@ -187,7 +209,67 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for Field options",
+                "name": "Wait for the job detail to render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ASSET LIST GUARD: the job's asset rows have rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(@class,\"mantine-Accordion-item\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open Tank 0000's full-page detail",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//span[contains(normalize-space(.), \"Tank 0000\")])[last()]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the asset detail begin rendering",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -199,17 +281,30 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Pick Field = \"Name\"",
+                "name": "The full-page asset detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Asset Type:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Attachments\" tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attachments\")]"
                                 }
                             ]
                         }
@@ -223,115 +318,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Operator select",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"operator\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for Operator options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick Operator = \"contains\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"contains\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Enter the value Pump 0102",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Pump 0102",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"value\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Add the filter",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add Filter\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Let the filter apply",
+                "name": "Wait for the panel",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -343,34 +330,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The filter is now an ACTIVE pill",
+                "name": "\u2b50 The ACTIVE panel holds the attachments UI, and the inactive tabs are empty shells \u2014 `keepMounted={false}` drops children, not the panel element",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Drawer-content \")]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Pill-label \")][contains(., \"Pump 0102\")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "BASELINE: not editing \u2014 `Add Filter` shown, no `Update Filter`/`Cancel edit`",
-                "noScreenshot": false,
-                "params": {
-                    "code": "const t = [...document.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn t.includes('Add Filter')\n  && !t.includes('Update Filter')\n  && !t.includes('Cancel edit');"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst all = [...document.querySelectorAll('[role=\"tabpanel\"]')];\nif (all.length < 2) return false;\nconst withContent = all.filter(x => (x.textContent || '').trim().length > 0);\nif (withContent.length !== 1 || withContent[0] !== p) return false;\nreturn !!p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -380,10 +343,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "BASELINE: the draft form was reset \u2014 `#value` is absent or empty",
+                "name": "SEGMENTS: exactly two, values 1 (Photos) and 2 (Docs)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const v = document.getElementById('value');\nreturn !v || (v.value || '') === '';"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst root = p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst vals = [...root.querySelectorAll('input[type=\"radio\"]')].map(i => i.value);\nreturn JSON.stringify(vals) === JSON.stringify(['1', '2']);"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -393,23 +356,12 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click the pill's LABEL to edit it (never the remove button)",
+                "name": "Switch to the \"Photos\" segment by VALUE (1) \u2014 never by label (\u00a722)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Drawer-content \")]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Pill-label \")][contains(., \"Pump 0102\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst root = p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"1\"]');\nif (!el) return false;\nel.click();\nreturn true;"
                 },
-                "type": "click",
+                "type": "assertFromJavascript",
                 "timeout": 30
             },
             {
@@ -417,10 +369,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the draft form rebind",
+                "name": "Let the Photos panel render",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -429,10 +381,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 EDIT MODE: `Update Filter` replaced `Add Filter`, and `Cancel edit` appeared",
+                "name": "\u2b50 PHOTOS: a carousel with at least one slide, `Add Photo`, and NO `Add File`",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const t = [...document.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn t.includes('Update Filter')\n  && !t.includes('Add Filter')\n  && t.includes('Cancel edit');"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst t = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst slides = p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]').length;\nreturn slides >= 1 && t.includes('Add Photo') && !t.includes('Add File');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -442,10 +394,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 THE DRAFT REBOUND FROM THE FILTER \u2014 `#value` is now \"Pump 0102\"",
+                "name": "Switch to the \"Docs\" segment by VALUE (2) \u2014 never by label (\u00a722)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const v = document.getElementById('value');\nif (!v) return false;\nreturn (v.value || '').trim() === 'Pump 0102';"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst root = p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"2\"]');\nif (!el) return false;\nel.click();\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -455,34 +407,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Cancel edit\"",
+                "name": "Let the Docs panel render",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Cancel edit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Let the form reset",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -491,10 +419,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "BACK OUT OF EDIT MODE: `Add Filter` returned, `Cancel edit` gone",
+                "name": "\u2b50 DOCS: a real download row, `Add File`, NO `Add Photo`, NO carousel \u2014 the biconditional closes with both sides populated",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const t = [...document.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn t.includes('Add Filter')\n  && !t.includes('Update Filter')\n  && !t.includes('Cancel edit');"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst t = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst files = p.querySelectorAll('a[href^=\"/api/attachment/\"]').length;\nreturn files >= 1 && !p.querySelector('[class*=\"mantine-Carousel-slide\"]')\n  && t.includes('Add File') && !t.includes('Add Photo');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -504,41 +432,42 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\ud83d\uded1 CANCEL PRESERVED THE FILTER \u2014 the pill is still there",
+                "name": "Switch to the \"Photos\" segment by VALUE (1) \u2014 never by label (\u00a722)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Drawer-content \")]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Pill-label \")][contains(., \"Pump 0102\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst root = p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"1\"]');\nif (!el) return false;\nel.click();\nreturn true;"
                 },
-                "type": "assertElementPresent",
+                "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Restore: \"Clear all\"",
+                "name": "RESTORE: back to the \"General Info\" tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Clear all\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"General Info\")]"
                                 }
                             ]
                         }
@@ -552,49 +481,25 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the unfiltered re-query run",
-                "noScreenshot": false,
-                "params": {
-                    "value": 4
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": true,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "RESTORED: no active filter pills remain",
-                "noScreenshot": false,
-                "params": {
-                    "code": "return document.querySelectorAll('.mantine-Pill-root').length === 0;"
-                },
-                "type": "assertFromJavascript",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": true,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Close the Filters drawer",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Escape"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": true,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Let the drawer close",
+                "name": "Let the first tab render",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the \"General Info\" tab is the selected one",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const sel = document.querySelector('[role=\"tab\"][aria-selected=\"true\"]');\nreturn !!sel && (sel.textContent || '').includes('General Info');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

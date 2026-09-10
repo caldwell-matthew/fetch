@@ -138,23 +138,24 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The Filters drawer opened",
+                "name": "Wait for the drawer",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add Filter\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": 1
                 },
-                "type": "assertElementPresent",
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the Filters drawer opened (re-clicks Filters if the click was swallowed)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst up = [...document.querySelectorAll('button')]\n  .some(b => b.textContent.trim() === 'Add Filter');\nif (up) return true;\nconst btn = document.querySelector('button.asset-lookup-filter-button');\nif (btn) btn.click();\nreturn false;\n"
+                },
+                "type": "assertFromJavascript",
                 "timeout": 30
             },
             {

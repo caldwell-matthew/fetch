@@ -34,7 +34,7 @@ the size of a thing a person actually reads.
 | Fixture | Id | Used by | Must stay |
 |---|---|---|---|
 | Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.310–395 | assigned to crew `Admin`; `desc` is owned by MOB.395 and ends every run as `DATADOG FIXTURE` |
-| Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–570 | crew `Admin`, `IN_PROGRESS`, exactly **2 assets** — `Tank 0000` and `A/C Motor 0002` — neither verified |
+| Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–570 | crew `Admin`, `IN_PROGRESS`, exactly **2 assets** — currently named **`⚡ Tank 0000`** (the symbol is part of the stored name) and `A/C Motor 0002` — neither verified. `reset_av_fixture.py --check` asserts all of it for 0 runs; match these names by **containment**, never equality (trap 29) |
 | Asset | `Pump 0102` | MOB.390/391 (attached), MOB.700 (search), MOB.710 (edit) | exists, attached to the work order; `desc` is owned by MOB.710 and ends every run as `DATADOG FIXTURE` |
 | Asset type | `Actuator Tools` | MOB.600 | exists |
 | Storeroom | `Central Storeroom` | MOB.850/860 | visible to crew `Admin`, `canAdjust` on |
@@ -80,7 +80,7 @@ the fixtures with it and breaks ~40 tests at once:
 | what | created by | how to find it |
 |---|---|---|
 | **Work orders** ×4 per full pass | `MOB.300` · `MOB.122` (from the map) · `MOB.396` (from an asset) · `MOB.397` (a follow-up) | `desc` starts **`DD SYNTHETIC MOBILE`**. `MOB.300` writes it bare; the other three append a per-run `{{ RUNID }}`, so prefix-match rather than equals |
-| **Asset + its ATTACHMENT** | `MOB.600` | name **`DD SYNTHETIC MOBILE <8 digits>`**, `desc` **`Created by Datadog Synthetics - safe to delete`**, type `Actuator Tools`. ⚠️ **The attachment is new** — §14's fix means every run now leaves a photo as well as the asset. Delete both |
+| **Asset + its ATTACHMENT** | `MOB.600` | name **`DD SYNTHETIC MOBILE <8 digits>`**, `desc` **`Created by Datadog Synthetics - safe to delete`**, type `Actuator Tools`. ⚠️ **The attachment is new** — a collect from a browser no longer errors on its photo, so every run now leaves a photo as well as the asset. Delete both |
 | **Charges ×4** on the fixture work order | `MOB.350` equipment `AC Adapter` · `MOB.360` labor `Dev Eloper` · `MOB.370` material `0000-0000 Diaphragm Pump` from `Central Storeroom` · `MOB.380` other, `Other Charge Types`/`Dev Eloper` | all qty **1**, on work order `EYRpYJ9…`. Delete the CHARGE rows, not the work order |
 | **Condition record** | `MOB.390` | `Structural` / `Mounting/Support`, ratings 1·2·3, against `Pump 0102` on the fixture WO |
 | **Failure record** | `MOB.391` | `BELT (R-L1)` / `MISSED` / `TIME`, against `Pump 0102` on the fixture WO |
@@ -233,9 +233,9 @@ generators, is the source of truth for anything hand-authored (trap 12).
 
 ## Locator & assertion traps
 
-*Twenty-eight numbered traps (some with lettered siblings) — every one a way a test here has
+*Thirty numbered traps (some with lettered siblings) — every one a way a test here has
 already gone wrong. Most module notes are one-line pointers back to these. **18–27 are process
-traps rather than locator traps** (28 is a locator trap): how the tooling, the fixture, or the framing of a test
+traps rather than locator traps** (28 is a locator trap; 29 and 30 are fixture ones): how the tooling, the fixture, or the framing of a test
 misled someone — which has cost more than any single bad XPath. **25 and 26 are about this
 document lying to you**, which is a category the first twenty-four did not cover.*
 
@@ -443,6 +443,55 @@ and prove the state changed IN THE SAME STEP.** Cost two runs on `AssetGeolocate
 elsewhere.** That is `VerificationCheckbox`, a different component whose input is visible.
 **Two Mantine checkboxes in this app behave differently**; a working locator in one test says
 nothing about another component's DOM.
+
+---
+
+**29 · NEVER HARDCODE WHICH OF TWO RECORDS SORTS FIRST — COMPUTE IT WITH THE APP'S OWN
+COMPARATOR.** `MOB.580` asserted *"`A/C Motor 0002` is listed before `Tank 0000`"* for weeks. It
+went red on three runs and was written up as an app bug (*the sort pick leaves the list
+unmoved*) before the cause turned out to be a **rename**: the fixture asset is now stored as
+`⚡ Tank 0000`, and `localeCompare` collates that leading symbol **before** the letter `A`.
+
+```js
+'⚡ Tank 0000'.localeCompare('A/C Motor 0002')   // -1  → Tank really is first, ascending
+```
+
+The app had been sorting correctly the whole time, in both directions.
+
+⭐ **Two things follow, and the second is the general one:**
+- Read the ordering KEY off each row and check it against the comparator the app uses
+  (`searchSort` → `localeCompare`). ASC = the sorted order; DESC = its exact reverse. That is
+  stronger than a memorised pair *and* immune to a rename.
+- **A fixture's display name is not yours.** Anyone with the app open can change it. Use names
+  as identity anchors with `contains`, never as equality, ordering, or formatting facts.
+  `reset_av_fixture.py` hit the identical trap on its first dry run — it planned to *unlink*
+  `⚡ Tank 0000` as a stranger, and only the dry-run default kept that a printout.
+
+⚠️ **The cheap way to tell a test bug from an app bug: assert the app's OWN record of what you
+asked for.** `MOB.580`'s two `optional` DIAG steps read `sessionStorage['mobile-Asset-sort']`
+back after each pick. Both were green while every proof was red — which rules out *the click
+never landed* and leaves *the expectation is wrong*. Two steps, one run, no reading.
+
+---
+
+**30 · A FIXTURE THAT GROWS WILL EVENTUALLY BREAK EVERY WHOLE-LIST INVARIANT.** `MOB.345` proved
+sorting by capturing the ascending order and asserting descending was its exact reverse. That
+held while the crew had a handful of work orders. It has **57** (counted through the API,
+2026-09-10), every `MOB.300`/`MOB.396`/`MOB.122` run adds one **for good**, and the list
+virtualises — so ASC and DESC render two different WINDOWS and the invariant died. The same
+thing killed `MOB.535` v1 on the job list in August.
+
+⭐ **Two independent fixes, and a test on a growing list wants both:**
+- **Narrow before you measure.** `WorkOrders/index.tsx` sorts first and filters second, so a
+  search term leaves the subset in sort order while making it small enough to render whole.
+- **Assert an invariant that tolerates arrival.** Not *DESC equals reverse(ASC)* but *every row
+  present in BOTH renders comes out in the opposite relative order*. The screenshots that
+  diagnosed this showed a row (`…-6-001`) that simply finished paging in between the two
+  captures: same row COUNT, different row SET. A whole-list invariant calls that a sort bug; a
+  pairwise one calls it what it is — a row that is not evidence either way.
+
+🛑 Keep a floor: fewer than 2 rows in common must FAIL, not pass. That is both the trap-5 guard
+and the alarm that the narrowing stopped biting.
 
 `HTMLElement.click()` dispatches a real click event, so React's synthetic `onChange` fires — it
 is still driving the app, unlike writing `.checked` directly, which React ignores.

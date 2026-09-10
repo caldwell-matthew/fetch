@@ -4,7 +4,7 @@
         "name": "MOB.624_Collector_Row_Avatar_Modal",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.624` **The row avatar opens the asset's fullscreen attachments modal.**\n- READ-ONLY. Fixture is `MOB.623`'s residue (a photo on the newest `DD SYNTHETIC MOBILE`\n  asset), so this runs after it in `MOB.994`.\n- Proves the avatar's click opens the modal WITHOUT expanding the accordion\n  (`stopPropagation`), that the modal names the asset and offers `Done`, and that the\n  segmented control has exactly values `1`/`2`.\n- \u2b50 **Photos vs Docs is a biconditional**: carousel + `Add Photo` and no `Add File`, then\n  `Add File`, no `Add Photo`, no carousel. Switched by radio VALUE (\u00a722). Nothing uploaded.\n- Closed with `Done`; the row is asserted collapsed before and after.",
+        "message": "`MOB.624` **The row avatar opens the asset's fullscreen attachments modal.**\n- READ-ONLY. Fixture is `MOB.623`'s residue (a photo on the newest `DD SYNTHETIC MOBILE`\n  asset), so this runs after it in `MOB.994`.\n- Proves the avatar's click opens the modal WITHOUT expanding the accordion\n  (`stopPropagation`), that the modal names the asset and offers `Done`, and that the\n  segmented control has exactly values `1`/`2`.\n- \u2b50 **Photos vs Docs is a biconditional**: carousel + `Add Photo` and no `Add File`, then\n  `Add File`, no `Add Photo`, no carousel. Switched by radio VALUE (\u00a722). Nothing uploaded.\n- Closed with `Done`. \u26a0\ufe0f **bugs \u00a735**: every click INSIDE the modal reaches the\n  `Accordion.Control` behind it (a React portal propagates through the React TREE), so the\n  three in-modal clicks leave the row expanded. The test collapses it again and carries an\n  `optional` SENTINEL on that state \u2014 when \u00a735 is fixed the sentinel flips to ERR without\n  failing the test, and that flip is the signal to delete it.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -336,10 +336,60 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "RESTORED: no modal is open and the row is still collapsed",
+                "name": "The modal is gone",
                 "noScreenshot": false,
                 "params": {
-                    "code": "if (document.querySelector('.mantine-Modal-content')) return false;\nconst items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nreturn !!it && it.querySelector('.mantine-Accordion-control').getAttribute('aria-expanded') === 'false';"
+                    "code": "return !document.querySelector('.mantine-Modal-content');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SENTINEL (bugs \u00a735): the row is EXPANDED \u2014 clicks inside the modal toggled the accordion behind it",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const cc = i.querySelector('.mantine-Accordion-control');\n  return cc && (cc.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nif (!c) return false;\nreturn c.getAttribute('aria-expanded') === 'true';"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: collapse the row (\u00a735 left it open)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const cc = i.querySelector('.mantine-Accordion-control');\n  return cc && (cc.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nif (!c) return false;\nif (c.getAttribute('aria-expanded') === 'true') c.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the accordion collapse",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: no modal is open and the row is collapsed again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (document.querySelector('.mantine-Modal-content')) return false;\nconst items = [...document.querySelectorAll('.mantine-Accordion-item')];\nconst it = items.find(i => {\n  const cc = i.querySelector('.mantine-Accordion-control');\n  return cc && (cc.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nif (!c) return false;\nreturn c.getAttribute('aria-expanded') === 'false';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

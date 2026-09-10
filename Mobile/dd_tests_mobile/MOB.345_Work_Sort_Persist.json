@@ -205,11 +205,11 @@
                 "timeout": 60
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the menu (to switch to the List view)",
+                "isCritical": false,
+                "name": "Open the menu (to reach the List view)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -241,11 +241,11 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Toggle Work Order List View\"",
+                "isCritical": false,
+                "name": "Click \"Toggle Work Order List View\" (absent unless the crew role is SCHEDULED)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -262,14 +262,26 @@
                     }
                 },
                 "type": "click",
-                "timeout": 30
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Close the menu if the item was not there",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the list re-render in the other view",
+                "name": "Let the list re-render",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -281,10 +293,83 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "VIEW: sessionStorage['toggle_mobile_v_work'] is now 'false'",
+                "name": "VIEW: the work list is rendering the List view (no Past Due / Today / Tomorrow / Future grouping)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "return sessionStorage.getItem('toggle_mobile_v_work') === 'false';"
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Paper-root\"]')]\n  .filter(p => (p.textContent || '').includes('Description:')).length;\nif (!rows) return false;\nconst g = [...document.querySelectorAll('button')]\n  .filter(b => /^(Past Due|Today|Tomorrow|Future)\\b/.test((b.textContent || '').trim())).length;\nreturn g === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the work list search box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Narrow the list to \"permit\" \u2014 the reversal invariant needs a FULLY rendered list",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    },
+                    "value": "permit"
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the 300ms debounce fire and the list re-render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NARROWED: between 2 and 15 rows render, and each is distinct",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst o = ORDER();\nif (o.length < 2 || o.length > 15) return false;\nreturn new Set(o).size === o.length;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -673,10 +758,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF: descending is the EXACT REVERSE of ascending \u2014 the sort really reorders",
+                "name": "PROOF: every row rendered in BOTH orders comes out exactly reversed",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\n// Virtuoso virtualises: if the list ever outgrows one screen, ASC and DESC would\n// render DIFFERENT SUBSETS. Check membership first so that failure mode is\n// distinguishable from a genuine sort bug.\nif (desc.length !== asc.length) return false;\nconst sameSet = [...asc].sort().join('\\u0000') === [...desc].sort().join('\\u0000');\nif (!sameSet) return false;\n// applySortValue: ASC = sortBy(list), DESC = reverse(sortBy(list)).\nreturn desc.join('\\u0000') === [...asc].reverse().join('\\u0000');"
+                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nconst inDesc = new Set(desc), inAsc = new Set(asc);\nconst ascCommon = asc.filter(r => inDesc.has(r));\nconst descCommon = desc.filter(r => inAsc.has(r));\n// <2 rows in common proves nothing - and means the narrowing stopped working.\nif (ascCommon.length < 2) return false;\nreturn descCommon.join('\\u0000') === [...ascCommon].reverse().join('\\u0000');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -695,11 +780,71 @@
                 "timeout": 30
             },
             {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Focus the search box to clear it",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "CLEAR the search term",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    },
+                    "value": ""
+                },
+                "type": "typeText"
+            },
+            {
                 "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the menu (to switch to the Scheduled view)",
+                "name": "Let the full list come back",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Open the menu (to reach the Scheduled view)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -731,11 +876,11 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Toggle Work Order Scheduled View\"",
+                "isCritical": false,
+                "name": "Click \"Toggle Work Order Scheduled View\" (absent unless the crew role is SCHEDULED)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -752,32 +897,31 @@
                     }
                 },
                 "type": "click",
-                "timeout": 30
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Close the menu if the item was not there",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the list re-render in the other view",
+                "name": "Let the list re-render",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
                 },
                 "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": true,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "VIEW: sessionStorage['toggle_mobile_v_work'] is now 'true'",
-                "noScreenshot": false,
-                "params": {
-                    "code": "return sessionStorage.getItem('toggle_mobile_v_work') === 'true';"
-                },
-                "type": "assertFromJavascript",
-                "timeout": 30
             }
         ]
     }

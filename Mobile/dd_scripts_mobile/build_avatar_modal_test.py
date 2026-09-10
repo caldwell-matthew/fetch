@@ -20,6 +20,15 @@ THE FIXTURE IS `MOB.623`'S RESIDUE
 
 🛑 Nothing is uploaded: `FileAttachments.addFiles` has no image filter, so an upload here lands.
   `Done` is the component's own dismissal and writes nothing.
+
+⚠️ THE AVATAR STOPS PROPAGATION; THE MODAL DOES NOT - bugs §35, found by this test's first run.
+  The `<Modal>` is a React child of `AssetAvatarWithModal`, which is a child of
+  `Accordion.Control` (`AssetCollector/index.tsx:176`). Mantine portals the modal into `body`,
+  but React events propagate through the REACT tree, not the DOM tree - so every click inside
+  the modal still reaches the control's `onClick` and toggles the row behind it. This test
+  clicks three times inside the modal (two segment radios and `Done`), so the row ends EXPANDED.
+  It is restored explicitly, and an `optional` sentinel records the defect without owning the
+  verdict.
 """
 import os, sys
 
@@ -43,6 +52,16 @@ DONE = ('//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal
 MODAL_JS = ("const m = document.querySelector('.mantine-Modal-content');\n"
             "if (!m) return false;\n")
 BUTTONS = "const t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\n"
+# Binds `c` to the marker row's Accordion.Control, or returns false when the row is gone - so a
+# missing row can never read as "collapsed".
+ROW_JS = ("const items = [...document.querySelectorAll('.mantine-Accordion-item')];\n"
+          "const it = items.find(i => {\n"
+          "  const cc = i.querySelector('.mantine-Accordion-control');\n"
+          f"  return cc && (cc.textContent || '').includes('{MARKER}');\n"
+          "});\n"
+          "if (!it) return false;\n"
+          "const c = it.querySelector('.mantine-Accordion-control');\n"
+          "if (!c) return false;\n")
 CAROUSEL = "[class*=\"mantine-Carousel\"]"
 
 
@@ -122,15 +141,26 @@ steps = [
     step("click", "Close the modal with its own `Done`", {"element": xpath_el(COLLECTOR_URL, DONE)},
          always=True, timeout=30),
     step("wait", "Let the modal close", {"value": 2}, always=True),
-    jsassert("RESTORED: no modal is open and the row is still collapsed",
+    jsassert("The modal is gone", "return !document.querySelector('.mantine-Modal-content');",
+             always=True, timeout=30),
+    # SENTINEL, not a proof - optional=True, so its state never changes the verdict. It records
+    # bugs §35 (every click INSIDE the modal reaches the Accordion.Control behind it, because a
+    # React portal propagates through the React tree, not the DOM). Three clicks landed inside
+    # the modal - two segment radios and `Done` - so the row ends EXPANDED. When §35 is fixed
+    # this line flips to ERR and the test stays green; that flip is the signal to delete it.
+    jsassert("SENTINEL (bugs §35): the row is EXPANDED — clicks inside the modal toggled the "
+             "accordion behind it",
+             ROW_JS + "return c.getAttribute('aria-expanded') === 'true';",
+             optional=True, always=True),
+    jsassert("RESTORE: collapse the row (§35 left it open)",
+             ROW_JS +
+             "if (c.getAttribute('aria-expanded') === 'true') c.click();\n"
+             "return true;", always=True, timeout=30),
+    step("wait", "Let the accordion collapse", {"value": 2}, always=True),
+    jsassert("RESTORED: no modal is open and the row is collapsed again",
              "if (document.querySelector('.mantine-Modal-content')) return false;\n"
-             "const items = [...document.querySelectorAll('.mantine-Accordion-item')];\n"
-             "const it = items.find(i => {\n"
-             "  const c = i.querySelector('.mantine-Accordion-control');\n"
-             f"  return c && (c.textContent || '').includes('{MARKER}');\n"
-             "});\n"
-             "return !!it && it.querySelector('.mantine-Accordion-control')"
-             ".getAttribute('aria-expanded') === 'false';", always=True, timeout=30),
+             + ROW_JS + "return c.getAttribute('aria-expanded') === 'false';",
+             always=True, timeout=30),
 ]
 
 write(test(
@@ -143,7 +173,11 @@ write(test(
     "  segmented control has exactly values `1`/`2`.\n"
     "- ⭐ **Photos vs Docs is a biconditional**: carousel + `Add Photo` and no `Add File`, then\n"
     "  `Add File`, no `Add Photo`, no carousel. Switched by radio VALUE (§22). Nothing uploaded.\n"
-    "- Closed with `Done`; the row is asserted collapsed before and after.",
+    "- Closed with `Done`. ⚠️ **bugs §35**: every click INSIDE the modal reaches the\n"
+    "  `Accordion.Control` behind it (a React portal propagates through the React TREE), so the\n"
+    "  three in-modal clicks leave the row expanded. The test collapses it again and carries an\n"
+    "  `optional` SENTINEL on that state — when §35 is fixed the sentinel flips to ERR without\n"
+    "  failing the test, and that flip is the signal to delete it.",
     steps,
     tags=["Mobile", "env:dev", "Asset Collector", "Photos", "read-only"],
 ))

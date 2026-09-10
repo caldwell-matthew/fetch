@@ -113,7 +113,10 @@ def main():
     if "--no-run" in sys.argv:
         return 0
     print(f"\nrunning {SCRATCH} (2 billed runs)...")
-    return subprocess.run([PY, os.path.join(SCRIPTS, "dd_tools.py"), "run", SCRATCH]).returncode
+    # --no-push: this has already pushed and wired twice above; `run` would otherwise push a
+    # third time. The guard inside `run` is for callers that have NOT pushed.
+    return subprocess.run([PY, os.path.join(SCRIPTS, "dd_tools.py"), "run", SCRATCH,
+                           "--no-push"]).returncode
 
 
 if __name__ == "__main__":

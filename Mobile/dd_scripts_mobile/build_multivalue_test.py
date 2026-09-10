@@ -42,7 +42,8 @@ WHAT PROVES THE SWAP HAPPENED
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+                      open_filters_drawer)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 TAG = "Pump"
@@ -70,10 +71,9 @@ steps = [
                               '//*[@id="page-title"]//h4[contains(normalize-space(.),'
                               ' "Asset Lookup")]')}, timeout=30),
 
-    step("click", "Open the Filters drawer",
-         {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, timeout=30),
-    step("assertElementPresent", "The Filters drawer opened",
-         {"element": xpath_el(LOOKUP_URL, ADD)}, timeout=30),
+    # 🛑 was a bare click + assertElementPresent, and the swallowed first click killed
+    # `MOB.996` here on 2026-09-10 two subtests after the healed `MOB.800` sailed past it.
+    *open_filters_drawer(LOOKUP_URL),
 
     # ---- single-value baseline ----------------------------------------------------------------
     step("click", "Open the Field select",

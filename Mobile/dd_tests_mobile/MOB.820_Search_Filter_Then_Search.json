@@ -224,7 +224,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -234,7 +235,7 @@
                 "name": "Wait for the drawer",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 1
                 },
                 "type": "wait"
             },
@@ -243,23 +244,13 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the Filters drawer opened",
+                "name": "Test the Filters drawer opened (re-clicks Filters if the click was swallowed)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add Filter\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "\nconst up = [...document.querySelectorAll('button')]\n  .some(b => b.textContent.trim() === 'Add Filter');\nif (up) return true;\nconst btn = document.querySelector('button.asset-lookup-filter-button');\nif (btn) btn.click();\nreturn false;\n"
                 },
-                "type": "assertElementPresent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -599,7 +590,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

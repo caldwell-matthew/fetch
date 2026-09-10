@@ -115,16 +115,24 @@ forms, which is the failure mode `MOB.350`–`380` are structurally blind to.
 modal · `MOB.394` permits · `MOB.399` warranties · `MOB.122` **create from the map** (the last
 uncovered create entry point) · and the list group: `MOB.341` map toggle, `MOB.343` search
 actually filters, `MOB.344` row navigation, `MOB.342` the status ring and clickable legend,
-`MOB.345` sort applied + persisted + **really reorders**.
+`MOB.345` sort applied + persisted + **really reorders** — it narrows the list with a search
+first (57 work orders and growing; Virtuoso windows anything longer) and proves that every row
+rendered in BOTH directions comes out exactly reversed, so a row paging in mid-test cannot
+fail it.
 
-### `MOB.993_AssetVerify` — 12 children · self-restoring
+### `MOB.993_AssetVerify` — 14 children · self-restoring
 **Establishes: the verification workflow, including the one that puts itself back.**
 
 ⭐ `MOB.510` verifies an asset, proves it **moved tabs**, then un-verifies it — a full
 round-trip. `MOB.590` proves the same crossing from the other side. `MOB.500` job read ·
 `MOB.520` all five data tabs · `MOB.560` counts, badges and ring labels · `MOB.580` sort really
-reorders · `MOB.570` asset cycling with wrap-around · `MOB.575` the Failures/Condition forms ·
-`MOB.585` map toggle · `MOB.531` in-job asset search · plus `MOB.131`/`MOB.132`, the
+reorders — the rendered names checked against the app's own `localeCompare`, both directions · `MOB.570` asset cycling with wrap-around · `MOB.575` the Failures/Condition forms ·
+`MOB.585` map toggle · `MOB.531` in-job asset search · `MOB.547` the photo **tag search** — the create button is an
+exclusive-or with an exact match, the rule `db95798d54` changed on 2026-09-10 · `MOB.546` the **Attachments** tab on
+the full-page detail — ⭐ the one call site where the tabs `keepMounted={false}`, so exactly
+one panel is mounted (the collector's keep their inactive panels as empty shells), and the
+one where Photos **and** Docs are both populated, so *no carousel on Docs* is proved beside a
+carousel that demonstrably exists · plus `MOB.131`/`MOB.132`, the
 Transaction Log, wired here because they need a **mutation to have just happened**.
 
 🛑 **What this suite cannot do**: the job's own status. Verifying the last asset flips it to
@@ -140,8 +148,11 @@ times with the `<img src>` read back after each (self-restoring at 360°). `Set 
 `Get Description` and `Delete Photo` are asserted present, never clicked. It also asserts the
 Photos / Docs / Attributes panel **content** on this call site of `AssetLookupDetails`.
 ⚠️ Proves the rotate round trip, not the pixels — the server swallows a failed `rotate()`.
-`MOB.624` (⏳ unverified, unwired) opens the row avatar's fullscreen attachments modal on that
-photo: no accordion expansion, Photos↔Docs biconditional, `Done` closes.
+`MOB.624` (wired 7th, green solo 23/23) opens the row avatar's fullscreen attachments modal
+on that photo: the avatar's own click does **not** expand the accordion, Photos↔Docs
+biconditional, `Done` closes. Its first run found bugs §35 — every click *inside* the modal
+does reach the row behind it — so it collapses the row again and carries an `optional`
+sentinel on that state rather than going red for it.
 Green standalone (58/58); it has not run inside the suite.
 
 `MOB.620` the picker (🛑 the three capture buttons asserted, never clicked — each opens a native
@@ -173,6 +184,11 @@ only) and their **content** is asserted by `MOB.623` on the collector call site 
 `MOB.806` the **multi-value** branch · `MOB.810` sort persistence · ⭐ `MOB.820` answers a
 specific question (does submitting the search box silently discard an active filter?) ·
 `MOB.530` search/filter/sort on the job list · `MOB.535` the list really comes out in order.
+
+⚠️ **All four filter tests open the drawer through `dd_tools.open_filters_drawer`.** The first
+click on `Filters` gets swallowed often enough to have sunk this suite three times; the shared
+gate re-clicks and is the only copy (a bench drift-guard enforces that). Gate on `Add Filter`,
+never on the trigger — it reads `Filters (N)` open or shut.
 
 ⚠️ **`MOB.806` covers 1 of `MultiValueSelector`'s 3 branches.** The `enum` branch is reachable
 (`MOB.976`: 3 of the first 8 asset-lookup filter fields render a pre-loaded `MultiSelect`) but

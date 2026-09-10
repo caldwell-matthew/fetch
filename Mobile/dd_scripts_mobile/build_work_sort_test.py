@@ -54,7 +54,7 @@ import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, HERE, WORK_URL, step, xpath_el, test, write,  # noqa: E402
-                      jsassert, work_list_gate, work_view_toggle)
+                      jsassert, work_list_gate, work_view_ensure)
 
 KEY = "mobile-WorkStage-sort"
 # MEASURED, not derived (trap 15) - see the module docstring.
@@ -109,6 +109,55 @@ ROWS_JS = ("const ORDER = () => [...document.querySelectorAll('.mantine-Paper-ro
            "  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\n")
 
 
+SEARCH_BOX = '//input[@placeholder="Find Workstage(s)"]'
+NARROW = "permit"          # 4 matching work orders on dev, each with a distinct _workSequence
+
+
+def narrow_the_list():
+    """Filter the list down to a handful of rows BEFORE proving an order. Not optional.
+
+    🛑 THE REVERSAL INVARIANT DOES NOT SURVIVE VIRTUALISATION, and this list outgrew the
+    screen. The crew had 57 work orders on 2026-09-10 (counted through the API, 0 runs) and
+    `AssignedWork` renders through Virtuoso, so ASC and DESC show two different WINDOWS of the
+    list - not one order and its reverse. That is what the DIAG steps reported when `MOB.986`
+    went red here: same-count FALSE, same-set FALSE. `MOB.535` learned this on the job list in
+    August; the work list has now grown into it. The list also grows every run (`MOB.300`,
+    `MOB.396` and `MOB.122` each create one), so this only gets worse.
+
+    ⭐ Filtering fixes it at the root: `WorkOrders/index.tsx:172-187` SORTS first and FILTERS
+    second, so a filtered subset is still in sort order - but it is small enough to render
+    whole, which makes "DESC is the exact reverse of ASC" true again.
+
+    `permit` matches 4 stages, each with its own `_workSequence` (rendered by
+    `WorkListItem.tsx:56-59`), so the rows are distinguishable in the captured text. The count
+    guard fails loudly if that ever stops being true rather than silently proving nothing.
+    """
+    return [
+        step("click", "Focus the work list search box",
+             {"element": xpath_el(WORK_URL, SEARCH_BOX)}, timeout=30),
+        step("typeText", f'Narrow the list to "{NARROW}" — the reversal invariant needs a '
+                         f'FULLY rendered list',
+             {"element": xpath_el(WORK_URL, SEARCH_BOX), "value": NARROW}),
+        step("wait", "Let the 300ms debounce fire and the list re-render", {"value": 4}),
+        jsassert("NARROWED: between 2 and 15 rows render, and each is distinct",
+                 ROWS_JS +
+                 "const o = ORDER();\n"
+                 "if (o.length < 2 || o.length > 15) return false;\n"
+                 "return new Set(o).size === o.length;", timeout=30),
+    ]
+
+
+def widen_the_list():
+    """Clear the search on the way out - a suite shares one session (trap 16c)."""
+    return [
+        step("click", "Focus the search box to clear it",
+             {"element": xpath_el(WORK_URL, SEARCH_BOX)}, always=True, optional=True, timeout=30),
+        step("typeText", "CLEAR the search term", {"element": xpath_el(WORK_URL, SEARCH_BOX),
+                                                   "value": ""}, always=True, optional=True),
+        step("wait", "Let the full list come back", {"value": 4}, always=True),
+    ]
+
+
 def capture_order():
     """Stash the rendered order so the DESC step can compare against it. Datadog cannot pass
     a value between steps, so the assertion writes one as a side effect."""
@@ -157,22 +206,37 @@ def diagnose_order():
 
 
 def assert_reversed():
-    """DESC is `reverse(sortBy(...))` of ASC - so the exact reversal is the invariant."""
+    """Every row rendered in BOTH captures comes out in the opposite relative order.
+
+    ⭐ WHY NOT "DESC IS THE EXACT REVERSE OF ASC". Because the list does not hold still. The
+    2026-09-10 run captured `…-1-001, …-2-001, …-3-001` ascending and `…-6-001, …-3-001,
+    …-2-001` descending: same COUNT, different SET - a fourth matching work order finished
+    paging in between the two reads. (`WorkOrders/index.tsx` keeps fetching pages and per-stage
+    details after the first render, and every `MOB.300`/`MOB.396`/`MOB.122` run adds a row to
+    this list for good.) Demanding an identical set makes the test a race against the network.
+
+    The ordering claim survives that intact: `applySortValue` gives DESC = `reverse(sortBy())`
+    of the SAME list, so ANY two rows present in both renders must appear in opposite relative
+    order. Rows that arrived or left in between are simply not evidence either way, and are
+    excluded rather than being allowed to fail the test.
+
+    🛑 It still cannot pass vacuously: fewer than 2 rows in common and it returns false, which
+    is also the signal that `narrow_the_list` stopped biting and Virtuoso is windowing two
+    disjoint slices.
+    """
     return jsassert(
-        "PROOF: descending is the EXACT REVERSE of ascending — the sort really reorders",
+        "PROOF: every row rendered in BOTH orders comes out exactly reversed",
         ROWS_JS +
         f"const raw = sessionStorage.getItem('{STASH}');\n"
         "if (!raw) return false;\n"
         "let asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\n"
         "const desc = ORDER();\n"
-        "// Virtuoso virtualises: if the list ever outgrows one screen, ASC and DESC would\n"
-        "// render DIFFERENT SUBSETS. Check membership first so that failure mode is\n"
-        "// distinguishable from a genuine sort bug.\n"
-        "if (desc.length !== asc.length) return false;\n"
-        "const sameSet = [...asc].sort().join('\\u0000') === [...desc].sort().join('\\u0000');\n"
-        "if (!sameSet) return false;\n"
-        "// applySortValue: ASC = sortBy(list), DESC = reverse(sortBy(list)).\n"
-        "return desc.join('\\u0000') === [...asc].reverse().join('\\u0000');",
+        "const inDesc = new Set(desc), inAsc = new Set(asc);\n"
+        "const ascCommon = asc.filter(r => inDesc.has(r));\n"
+        "const descCommon = desc.filter(r => inAsc.has(r));\n"
+        "// <2 rows in common proves nothing - and means the narrowing stopped working.\n"
+        "if (ascCommon.length < 2) return false;\n"
+        "return descCommon.join('\\u0000') === [...ascCommon].reverse().join('\\u0000');",
         timeout=30)
 
 
@@ -218,14 +282,20 @@ write(test(
     "  the absence of the key — a first-ever run starts with no key at all, and this leaves\n"
     "  one set to the default. That is deliberate: it is the state every later subtest\n"
     "  expects, and it is what the component would have written itself.",
-    # SWITCH TO THE PLAIN LIST FIRST. Measured 2026-08-20: this test's reversal invariant
-    # only holds in `AssignedWork`, which renders the sorted list directly. The `Admin` role
-    # became `SCHEDULED` that day, so a fresh session lands on `ScheduledWork`, which
+    # ENSURE THE PLAIN LIST FIRST. Measured 2026-08-20: this test's reversal invariant only
+    # holds in `AssignedWork`, which renders the sorted list directly. `ScheduledWork`
     # RE-BUCKETS the sorted rows into Past Due / Today / Tomorrow / Future - order is
-    # group-major, so DESC is not the global reverse of ASC even though the sort ran.
-    # The diagnostics below proved exactly that: same row count, same row set, order DID
-    # change, and group headers present. The sort was never broken; the view was wrong.
-    work_list_gate() + work_view_toggle("List") + choose(PICK) + [
+    # group-major, so DESC is not the global reverse of ASC even though the sort ran. The
+    # diagnostics below proved exactly that: same row count, same row set, order DID change,
+    # and group headers present. The sort was never broken; the view was wrong.
+    #
+    # 🛑 Which view a fresh session lands in is the CREW ROLE's business, and it has changed
+    # twice: SCHEDULED on 2026-08-20, back to ASSIGNED since (settled - the crew keeps its
+    # work orders). Under ASSIGNED the toggle menu item does not render at all, and the old
+    # hard `work_view_toggle` took `MOB.986` red here on 2026-09-10 after its other ten
+    # children had passed. `work_view_ensure` clicks the item when it exists and asserts the
+    # REQUIREMENT - being in the list view - either way.
+    work_list_gate() + work_view_ensure("List") + narrow_the_list() + choose(PICK) + [
         stored_is(PICK, f'PROOF: the choice persisted to sessionStorage["{KEY}"]'),
         step("pressKey", "Close the sort modal", {"value": "Escape"}),
         step("wait", "Let the modal close", {"value": 2}),
@@ -241,7 +311,7 @@ write(test(
                  f"sessionStorage.removeItem('{STASH}');\n"
                  f"return sessionStorage.getItem('{STASH}') === null;",
                  always=True, timeout=30),
-    ] + work_view_toggle("Scheduled", always=True),
+    ] + widen_the_list() + work_view_ensure("Scheduled", always=True, assert_state=False),
     ["Mobile", "env:dev", "Work Order", "Search", "read-only"],
 ))
 

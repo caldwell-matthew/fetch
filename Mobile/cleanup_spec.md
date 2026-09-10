@@ -143,10 +143,11 @@ fixtures with it and breaks ~40 tests at once.
 
 ---
 
-## 7 · Per-run AV fixture reset — DESIGN (2026-09-09)
+## 7 · Per-run AV fixture reset — **BUILT**: `dd_scripts_mobile/reset_av_fixture.py`
 
-*The decision the checklist's 🟡 BLOCKED row asks for. Written so the owner can say yes, no, or
-"change X" to a concrete thing.*
+*Option A, shipped. Dry run by default, `--apply` to act, `--check` to assert only. Costs zero
+Datadog runs. Two of the three owner decisions below are still open; the script does not need
+them to run in `--check` mode, only to be adopted as a routine.*
 
 ### 7.1 · What it unlocks, and what each test would leave behind
 
@@ -182,7 +183,7 @@ otherwise. A reset that reports success without reading back is trap 6 in a diff
 
 | option | credits | needs | verdict |
 |---|---|---|---|
-| **A. local script** `reset_av_fixture.py` (GraphQL, dry-run by default, `--apply` to act) | **0** | the test account's email/password in `.env` (they already live in Datadog as globals) to obtain the same-origin session cookie | ⭐ **recommended** — it is also the vehicle §5 already chose for residue cleanup, so one script grows two subcommands |
+| **A. local script** `reset_av_fixture.py` (GraphQL, dry-run by default, `--apply` to act) | **0** | **nothing new** — `DATA_DOG_EMAIL` / `DATA_DOG_PASSWORD` are not secure globals, so the script reads them with the `DD_API`/`DD_APP` keys already in `.env` (`.env` is the fallback if either is ever marked secure) | ⭐ **BUILT** — no browser needed (§7.6), and it is the vehicle §5 already chose for residue cleanup, so one script grows two subcommands |
 | B. Datadog **API** test | 1 per reset | nothing new | competes with the browser tests for the same credits; cannot be a child of `MOB.993`, so it is a separate manual trigger either way |
 | C. make the tests self-restore in-browser | 0 | — | **impossible** — mobile has no status control and cannot delete; that is the whole reason the row is blocked |
 
@@ -195,14 +196,49 @@ otherwise. A reset that reports success without reading back is trap 6 in a diff
   next `MOB.993` fails at its first fixture guard — loudly, at the first child, not silently.
 - The reset is idempotent: running it on a clean fixture changes nothing and still asserts 7.2.
 
+### 7.6 · The session is obtainable with plain HTTP — no headless browser
+
+Checked against `origin/development` 2026-09-10, because option A's cost turns entirely on this.
+Login is an Express route with a session cookie, not an OAuth/OIDC dance, so `requests.Session()`
+is enough:
+
+| # | call | body | gives |
+|---|---|---|---|
+| 1 | `POST /login` | `{email, password}` | `{route, token}` — `token` is the coretoken JWT (`login.ts:98,190`) |
+| 2 | `POST /login/user-env` | `{coretoken: token}` | the account's environments; take the row whose `environment` is `development` (`sso/index.ts:7`) |
+| 3 | `POST /login/sso` | `{environment_id, environment_org, environment, token, mobile: 'true'}` | sets the session cookie; returns `/apm-mobile` (`sso/index.ts:111,118`) |
+| 4 | `POST /graphql` | the mutation | `credentials: 'same-origin'`, so the cookie from 3 is the whole auth story (`client/mobile/graphql/index.tsx:47`) |
+
+⚠️ Step 3 is what `MOB.000_Login`'s "Choose the development environment" click does. A script that
+skips it holds a coretoken and no session, and every mutation returns unauthenticated.
+
+⚠️ **A LOGOUT ANYWHERE KILLS AN IN-FLIGHT SUITE** (the session model note in the checklist). The
+reset script authenticates as the same test account, so it must never call logout, and it should
+not run while a suite is running.
+
 ### 7.5 · What the owner is deciding
 
-1. **Yes to option A?** It means the test account credentials live in `.env` next to the Datadog
-   keys (already gitignored).
+1. ~~Credentials in `.env`~~ — **moot.** Both globals are readable through the API, so nothing
+   new is stored anywhere. Answered by measurement, not by decision.
 2. **Accept the "run → reset" chore** for `MOB.993` — one command after each run.
 3. **Accept the residue**: "Add Work" leaves a work order per run until §3a's bottom-up delete is
    built; the new-asset test leaves nothing once `deleteAssets` is in the script.
 
-If 1–3 are yes, the build order is: script with dry-run and the 7.2 read-back → run it once on the
-current fixture (it should change nothing) → the two verify tests → the two add-asset tests →
-Add Work last, with the work-order delete.
+**Done so far:** the script, with the dry run and the §7.2 read-back, run once against the live
+fixture — it reported *nothing to do, the fixture is already at rest*, which is the correct answer
+for a job no mutating test has reached since the last `MOB.993` aborted at `MOB.580`.
+
+**Next, once 2 and 3 are answered:** the two verify tests → the two add-asset tests → Add Work
+last, with the work-order delete.
+
+### 7.7 · What the first live run taught
+
+⭐ **The fixture asset's real name is `⚡ Tank 0000`.** The lightning bolt is part of the stored
+name, not UI decoration. The first dry run therefore planned *unlink Tank 0000* — it had matched
+names by equality and concluded the fixture's own asset was a stranger. **The dry-run default is
+the only reason that was a printed plan instead of a deleted link.** The script now matches by
+containment, which is what the browser tests were already doing (`contains(., "Tank 0000")`) and
+why none of them ever saw this.
+
+➡️ Keep `--apply` opt-in permanently. A reset script's whole job is destructive, and its first
+run against real data is exactly where a wrong assumption shows up.

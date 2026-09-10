@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.580_AssetVerify_Sort_Ordering",
+    "test_name": "MOB.547_AssetVerify_Photo_Tag_Search",
     "details": {
-        "name": "MOB.580_AssetVerify_Sort_Ordering",
+        "name": "MOB.547_AssetVerify_Photo_Tag_Search",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.580` **Sorting actually reorders the list** \u2014 the SB block's last open item.\n- READ-ONLY. Changes only the sort selection.\n- **Nothing in this suite proved this before.** MOB.340/530 prove the sort modal opens;\n  MOB.810 proves a choice persists to `sessionStorage`. Neither shows the rows came out\n  in that order.\n- \u2b50 The proof reads the rendered NAMES and checks them against the app's own comparator\n  (`localeCompare`) \u2014 ASC is the sorted order, DESC is its exact reverse. It does **not**\n  hardcode which asset comes first: `\u26a1 Tank 0000` collates before `A/C Motor 0002`, and\n  the old hardcoded pair read a correct app as broken for two runs.\n- Both `A/C Motor 0002` and `Tank 0000` must be found before anything is compared, so it\n  cannot pass on an empty or half-rendered list (trap 5).\n- Leaves the Asset sort set in `sessionStorage`. Harmless: every test that clicks an\n  asset now targets it **by name**, not by position.\n- The three proofs are `soft`: a red one still fails THIS test, but it no longer aborts\n  the run \u2014 on 2026-09-09 the ascending proof took `MOB.993`'s other 7 children down with\n  it, and none of them had run.\n- Each proof is preceded by an `optional` **DIAG** reading `mobile-Asset-sort`, which\n  separates *the app never took the selection* from *the app took it and did not\n  reorder*.",
+        "message": "`MOB.547` **The tag search's create button is an exclusive-or with an exact match** \u2014\nchecklist \ud83d\udfe2 #18, covering `db95798d54` (2026-09-10).\n- READ-ONLY. It sets the search input's value and reads the dropdown. Selecting an option\n  assigns a tag and the create option posts a new one, so neither is ever clicked; it\n  leaves through `Done`.\n- \u2b50 **The rule changed from *no results* to *no EXACT match*.** A partial term now shows\n  results **and** the create button \u2014 impossible before. Three probes close it:\n  `Batter` \u2192 `Battery Pack` listed **and** create offered \u00b7 `  cUSTOM  ` \u2192\n  `Custom` matched, two options listed, create **gone** \u00b7 `ZZZZ-NO-SUCH-TAG` \u2192 no options,\n  create offered.\n- The padded, mis-cased `  cUSTOM  ` also proves the `trim().toLocaleLowerCase()`\n  normalisation, on a search that still returns results \u2014 so *results exist* and *create\n  hidden* are shown to be independent.\n- \ud83d\uded1 The tag badge is a NAME badge when the photo has 1\u20133 tags and only reads\n  `Edit Tags (n)` otherwise (`PhotoMenu.tsx:154-181`), so it is targeted by the green\n  outline the component itself sets, not by that text.\n- Runs on `MOB.546`'s route (AV asset detail \u2192 Attachments \u2192 Photos).",
         "tags": [
             "Mobile",
             "env:dev",
             "Asset Verification",
-            "read-only",
-            "SB"
+            "Photos",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -245,7 +245,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the sort dropdown",
+                "name": "Open Tank 0000's full-page detail",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -255,7 +255,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                    "value": "(//span[contains(normalize-space(.), \"Tank 0000\")])[last()]"
                                 }
                             ]
                         }
@@ -269,7 +269,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the sort modal",
+                "name": "Let the asset detail begin rendering",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -281,19 +281,20 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The Sort Criteria modal opened",
+                "name": "The full-page asset detail rendered",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Sort Criteria"
+                    "value": "Asset Type:"
                 },
-                "type": "assertPageContains"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the sort options",
+                "name": "Open the \"Attachments\" tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -303,42 +304,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick \"Name \u25b2\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25b2\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attachments\")]"
                                 }
                             ]
                         }
@@ -352,7 +318,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the list to re-order",
+                "name": "Wait for the panel",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -360,27 +326,14 @@
                 "type": "wait"
             },
             {
-                "allowFailure": true,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": false,
-                "name": "DIAG: the app stored the \"Name \u25b2\" selection (`mobile-Asset-sort` = name_ASC)",
-                "noScreenshot": false,
-                "params": {
-                    "code": "let raw = null;\ntry { raw = sessionStorage.getItem('mobile-Asset-sort'); } catch (e) { return false; }\nif (!raw) return false;\nlet v = null;\ntry { v = JSON.parse(raw); } catch (e) { return false; }\nreturn !!v && v.id === 'name_ASC';"
-                },
-                "type": "assertFromJavascript",
-                "timeout": 15
-            },
-            {
-                "allowFailure": true,
+                "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF (ascending): the rendered names ARE the sorted order",
+                "name": "Make sure the Photos segment is showing (value 1)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const nameOf = it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const el = c.querySelector('span[style*=\"underline\"]')\n    || c.querySelector('[class*=\"mantine-Highlight-root\"]')\n    || c.querySelector('[class*=\"mantine-Text-root\"]');\n  return el ? (el.textContent || '').trim() : null;\n};\nconst names = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')]\n  .map(nameOf);\nif (names.length < 2 || names.some(n => !n)) return false;\nif (!names.some(n => n.indexOf('A/C Motor 0002') !== -1)) return false;\nif (!names.some(n => n.indexOf('Tank 0000') !== -1)) return false;\nconst sorted = [...names].sort((a, b) => a.localeCompare(b));\nreturn JSON.stringify(names) === JSON.stringify(sorted);"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst root = p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"1\"]');\nif (!el) return false;\nel.click();\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -390,114 +343,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the sort dropdown",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the sort modal",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "The Sort Criteria modal opened",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Sort Criteria"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the sort options",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick \"Name \u25bc\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25bc\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the list to re-order",
+                "name": "Let the carousel render",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -505,27 +351,14 @@
                 "type": "wait"
             },
             {
-                "allowFailure": true,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": false,
-                "name": "DIAG: the app stored the \"Name \u25bc\" selection (`mobile-Asset-sort` = name_DESC)",
-                "noScreenshot": false,
-                "params": {
-                    "code": "let raw = null;\ntry { raw = sessionStorage.getItem('mobile-Asset-sort'); } catch (e) { return false; }\nif (!raw) return false;\nlet v = null;\ntry { v = JSON.parse(raw); } catch (e) { return false; }\nreturn !!v && v.id === 'name_DESC';"
-                },
-                "type": "assertFromJavascript",
-                "timeout": 15
-            },
-            {
-                "allowFailure": true,
+                "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF (descending): the rendered names are that order EXACTLY REVERSED",
+                "name": "Open the tag editor from the carousel's tag badge (a NAME badge when the photo has 1\u20133 tags, `Edit Tags (n)` otherwise)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const nameOf = it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const el = c.querySelector('span[style*=\"underline\"]')\n    || c.querySelector('[class*=\"mantine-Highlight-root\"]')\n    || c.querySelector('[class*=\"mantine-Text-root\"]');\n  return el ? (el.textContent || '').trim() : null;\n};\nconst names = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')]\n  .map(nameOf);\nif (names.length < 2 || names.some(n => !n)) return false;\nif (!names.some(n => n.indexOf('A/C Motor 0002') !== -1)) return false;\nif (!names.some(n => n.indexOf('Tank 0000') !== -1)) return false;\nconst sorted = [...names].sort((a, b) => a.localeCompare(b));\nsorted.reverse();\nreturn JSON.stringify(names) === JSON.stringify(sorted);"
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst isTagBadge = b => {\n  const st = b.getAttribute('style') || '';\n  // \ud83d\uded1 The component writes `outline: 1px solid #8dc63f`, but the browser\n  // SERIALISES hex colours as rgb() - matching '8dc63f' finds nothing in\n  // Chrome. `cursor: pointer` is the other half of the same style object and\n  // survives serialisation untouched, so it leads; the colour forms are kept\n  // as fallbacks in case the cursor rule moves.\n  if (st.indexOf('cursor: pointer') !== -1) return true;\n  if (st.indexOf('8dc63f') !== -1) return true;\n  if (st.indexOf('141, 198, 63') !== -1) return true;\n  return /Edit Tags \\(\\d+\\)/.test(b.textContent || '');\n};\nconst badges = [...p.querySelectorAll('[class*=\"mantine-Badge-root\"]')]\n  .filter(isTagBadge);\nif (!badges.length) return false;\nbadges[badges.length - 1].click();\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -535,114 +368,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the sort dropdown",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the sort modal",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "The Sort Criteria modal opened",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Sort Criteria"
-                },
-                "type": "assertPageContains"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the sort options",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the options",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Pick \"Name \u25b2\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25b2\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the list to re-order",
+                "name": "Let the tag modal mount",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -650,17 +376,251 @@
                 "type": "wait"
             },
             {
-                "allowFailure": true,
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The FULL TagSelector opened \u2014 `Search tags...`, not the mini `Auto-apply tags?`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Search tags...\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the partial term \"Batter\" into the tag search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[placeholder=\"Search tags...\"]');\nif (!el) return false;\nconst view = el.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(el, \"Batter\");\nel.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the dropdown re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 PARTIAL: \"Batter\" lists `Battery Pack` **and** offers to create it \u2014 under the old rule (results \u21d2 no create) this was impossible",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .map(o => (o.textContent || '').trim());\nconst create = opts.filter(t => t.indexOf('+ Create Tag') === 0);\nconst tags = opts.filter(t => t.indexOf('+ Create Tag') !== 0);\nconst hit = tags.some(t => t.indexOf('Battery Pack') !== -1);\nconst offer = create.some(t => t.indexOf(\"'Batter'\") !== -1);\nreturn hit && offer;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the padded, mis-cased exact term \"  cUSTOM  \" into the tag search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[placeholder=\"Search tags...\"]');\nif (!el) return false;\nconst view = el.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(el, \"  cUSTOM  \");\nel.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the dropdown re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 EXACT: \"  cUSTOM  \" still matches `Custom` (trimmed, lower-cased) and the create button is GONE \u2014 while results are still listed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .map(o => (o.textContent || '').trim());\nconst create = opts.filter(t => t.indexOf('+ Create Tag') === 0);\nconst tags = opts.filter(t => t.indexOf('+ Create Tag') !== 0);\nconst hit = tags.some(t => t.trim() === 'Custom');\nreturn hit && tags.length >= 2 && create.length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type a term that matches nothing into the tag search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[placeholder=\"Search tags...\"]');\nif (!el) return false;\nconst view = el.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(el, \"ZZZZ-NO-SUCH-TAG\");\nel.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the dropdown re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NO MATCH: no tag options, and the create button is offered",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .map(o => (o.textContent || '').trim());\nconst create = opts.filter(t => t.indexOf('+ Create Tag') === 0);\nconst tags = opts.filter(t => t.indexOf('+ Create Tag') !== 0);\nreturn tags.length === 0 && create.some(t => t.indexOf(\"'ZZZZ-NO-SUCH-TAG'\") !== -1);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type an empty term (clearing the search) into the tag search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[placeholder=\"Search tags...\"]');\nif (!el) return false;\nconst view = el.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(el, \"\");\nel.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the dropdown re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "RESTORED: ascending order again",
+                "name": "Close the tag editor with its own `Done` (selecting an option would WRITE)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const nameOf = it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const el = c.querySelector('span[style*=\"underline\"]')\n    || c.querySelector('[class*=\"mantine-Highlight-root\"]')\n    || c.querySelector('[class*=\"mantine-Text-root\"]');\n  return el ? (el.textContent || '').trim() : null;\n};\nconst names = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')]\n  .map(nameOf);\nif (names.length < 2 || names.some(n => !n)) return false;\nif (!names.some(n => n.indexOf('A/C Motor 0002') !== -1)) return false;\nif (!names.some(n => n.indexOf('Tank 0000') !== -1)) return false;\nconst sorted = [...names].sort((a, b) => a.localeCompare(b));\nreturn JSON.stringify(names) === JSON.stringify(sorted);"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[normalize-space(.)=\"Done\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "assertFromJavascript",
+                "type": "click",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the tag modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the tag editor is gone",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Search tags..."
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: back to the \"General Info\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"General Info\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the first tab render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
             }
         ]
     }

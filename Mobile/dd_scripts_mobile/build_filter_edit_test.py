@@ -51,7 +51,8 @@ READ-ONLY against the server: filters are client-side query state. `useFilterSta
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+                      open_filters_drawer)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -89,10 +90,7 @@ steps = [
                               ' "Asset Lookup")]')}, timeout=30),
 
     # ---- build one filter (MOB.800's proven sequence) ----------------------------------------
-    step("click", "Open the Filters drawer",
-         {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, timeout=30),
-    step("assertElementPresent", "The Filters drawer opened",
-         {"element": xpath_el(LOOKUP_URL, ADD)}, timeout=30),
+    *open_filters_drawer(LOOKUP_URL),
     step("click", "Open the Field select",
          {"element": xpath_el(LOOKUP_URL, '//*[@id="fieldId"]')}, timeout=30),
     step("wait", "Wait for Field options", {"value": 2}),

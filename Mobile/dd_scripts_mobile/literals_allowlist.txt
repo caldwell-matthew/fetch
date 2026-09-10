@@ -52,3 +52,28 @@ DECEMBER 2002                   # MOB.545's baseline "Year Of Manufacture"
 # MOB.358 stubs Mapbox reverse-geocoding; these are the stub's response, not app text.
 Illinois
 United States
+
+# ---- ids the app COMPOSES at runtime -------------------------------------------------------
+# `formatSortValue` builds a SortValue id as `${column.id}_${dir}` (`ui/SortDropdown.tsx:22`),
+# so the id never appears as a literal in source. MOB.580's DIAG reads it back out of
+# sessionStorage, which is the only place it exists.
+name_ASC
+name_DESC
+
+# ---- a term deliberately chosen to match NOTHING -------------------------------------------
+# `MOB.547` types this to prove the empty-results branch; `MOB.820` uses the same shape for
+# assets. It must never appear in the app - that is the whole point of it.
+ZZZZ-NO-SUCH-TAG
+'ZZZZ-NO-SUCH-TAG'
+
+# ---- tag names, which are ORG DATA the tests search for ------------------------------------
+# MOB.547 types these into the tag picker to prove the create button's exclusive-or. They are
+# rows in the `tags` table (16 of them on dev, read through the API), not app strings. If one is
+# renamed the test fails at its assertion, which is the correct place to find out.
+Battery Pack
+Custom
+Batter
+cUSTOM
+# The create option renders the term inside single quotes (`+ Create Tag 'Batter'`),
+# so the asserted string carries them and is scanned in that form.
+'Batter'

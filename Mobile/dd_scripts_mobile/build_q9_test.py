@@ -43,7 +43,8 @@ THE SHAPE OF THE PROOF
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, HERE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import (BASE, HERE, step, xpath_el, go, test, write,  # noqa: E402
+                      open_filters_drawer)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -120,11 +121,7 @@ write(test(
              {"element": xpath_el(LOOKUP_URL, result_row(ASSET))}, timeout=30),
 
         # -------- apply a filter that matches NOTHING
-        step("click", "Open the Filters drawer",
-             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}),
-        step("wait", "Wait for the drawer", {"value": 2}),
-        step("assertElementPresent", "Test the Filters drawer opened",
-             {"element": xpath_el(LOOKUP_URL, ADD_FILTER)}),
+        *open_filters_drawer(LOOKUP_URL),
     ] + pick("fieldId", "Field", "Name") + pick("operator", "Operator", "contains") + [
         step("typeText", f"Enter the non-matching value {NO_MATCH}",
              {"value": NO_MATCH, "element": xpath_el(LOOKUP_URL, '//*[@id="value"]')}),
@@ -164,7 +161,7 @@ write(test(
         # unmounted (trap 4) and the click failed too. A restore leg is only as `always` as
         # its weakest step - mark the whole sequence, not just the part that does the work.
         step("click", "Reopen the Filters drawer to clear",
-             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, always=True),
+             {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, always=True, timeout=30),
         step("wait", "Wait for the drawer", {"value": 2}, always=True),
         # "Clear all" lives INSIDE the drawer and is unmounted when it closes (trap 4).
         step("click", "Clear all filters", {"element": xpath_el(LOOKUP_URL, CLEAR_ALL)},

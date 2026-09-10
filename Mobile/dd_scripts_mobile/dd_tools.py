@@ -201,6 +201,68 @@ def jsassert(name, code, optional=False, always=False, timeout=None, soft=False)
 # (AddPhotoOptions.tsx:52-53). A Mantine `FileButton` renders its own hidden input with whatever
 # `accept` the call site passed. So `accept` is what tells the two apart - not position, and not
 # `capture`, which only separates the camera inputs from the gallery one.
+# ---------------------------------------------------------------------------------------------
+# MANTINE TABS - FINDING THE PANEL THAT IS ACTUALLY SHOWING
+# ---------------------------------------------------------------------------------------------
+# 🛑 `keepMounted={false}` DOES NOT UNMOUNT THE PANEL. Read it in the library rather than
+# inferring it - `@mantine/core/esm/components/Tabs/TabsPanel/TabsPanel.mjs:24,32`:
+#
+#     const content = ctx.keepMounted || keepMounted ? children : active ? children : null;
+#     style: [style, !active ? { display: "none" } : void 0]
+#
+# So EVERY `Tabs.Panel` renders its `<div role="tabpanel">` always; `keepMounted={false}` only
+# drops the CHILDREN, and inactive panels are `display:none` shells. Two tests have now been
+# written against a wrong guess about this: `MOB.623` (which assumed the first panel was the
+# open one - two runs) and `MOB.546` (which assumed exactly one panel exists - one run).
+#
+# ➡️ Never take `[role="tabpanel"]` positionally, and never count them to decide which is open.
+# Follow the selected tab's `aria-controls`, and fall back to "the one not display:none".
+ACTIVE_PANEL_JS = (
+    "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"],"
+    " [role=\"tab\"][data-active]');\n"
+    "const byId = tabEl && tabEl.getAttribute('aria-controls')\n"
+    "  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\n"
+    "const p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n"
+    "  .find(x => x.style.display !== 'none');\n"
+    "if (!p) return false;\n")
+
+# ---------------------------------------------------------------------------------------------
+# THE ASSET LOOKUP FILTERS DRAWER - one self-healing gate, shared by every test that opens it.
+# ---------------------------------------------------------------------------------------------
+# 🛑 THE FIRST CLICK GETS SWALLOWED. Measured three times: 2026-08-23, 2026-09-09 and again on
+# 2026-09-10, when `MOB.800` (healed) sailed through inside `MOB.996` and `MOB.806` (not healed)
+# died on the same drawer two subtests later, taking the rest of the suite with it. The trigger
+# is `onClick={() => setFilterOpen(true)}` and the drawer is `opened={filterOpen}`
+# (`StructuredQuery/index.tsx:267,279`) - **idempotent**, so re-clicking an already-open drawer
+# does nothing. That is what makes healing safe here rather than a way to hide a real failure.
+#
+# ⚠️ Gate on `Add Filter`, never on the trigger: the trigger reads `Filters (N)` whether the
+# drawer is open or shut, so asserting on it passes with the drawer closed (trap 5).
+#
+# ⭐ ONE COPY. Four tests opened this drawer with four hand-written gates and only one of them
+# had the fix - which is precisely how `MOB.996` stayed red after `MOB.800` was repaired.
+FILTER_BTN = ('//button[contains(concat(" ", normalize-space(@class), " "),'
+              ' " asset-lookup-filter-button ")]')
+DRAWER_OPEN_JS = """
+const up = [...document.querySelectorAll('button')]
+  .some(b => b.textContent.trim() === 'Add Filter');
+if (up) return true;
+const btn = document.querySelector('button.asset-lookup-filter-button');
+if (btn) btn.click();
+return false;
+"""
+
+
+def open_filters_drawer(url, label="Open the Filters drawer"):
+    """Click the Filters trigger and gate on the drawer, re-clicking if the click was lost."""
+    return [
+        step("click", label, {"element": xpath_el(url, FILTER_BTN)}, timeout=30),
+        step("wait", "Wait for the drawer", {"value": 1}),
+        jsassert("Test the Filters drawer opened (re-clicks Filters if the click was swallowed)",
+                 DRAWER_OPEN_JS, timeout=30),
+    ]
+
+
 REVEAL_GALLERY_INPUT = (
     "const inputs = [...document.querySelectorAll('input[type=\"file\"]')];\n"
     "const el = inputs.find(i => !i.capture);\n")
@@ -418,10 +480,9 @@ def work_list_gate(wait=20, require_row=True):
     ] if require_row else [])
 
 
-def work_view_toggle(to, always=False):
-    """Switch the work list between the SCHEDULED and plain LIST views, via the hamburger.
-
-    `to` is "List" or "Scheduled" - the view you want to END UP IN.
+def work_view_ensure(to, always=False, assert_state=True):
+    """Make sure the work list is in the `to` view - "List" or "Scheduled" - whichever crew
+    role is configured.
 
     WHY A SHARED HELPER. `TopHeader/index.tsx:131` renders one menu item whose label FLIPS:
     `Toggle Work Order ${scheduledView ? 'List' : 'Scheduled'} View`. So the item you click is
@@ -430,32 +491,72 @@ def work_view_toggle(to, always=False):
     paid for hand-rolled copies once - three tests each grew their own `av_job_gate` and all
     three were subtly wrong. One copy, here.
 
-    ⚠️ THE ITEM ONLY EXISTS FOR A `SCHEDULED` ROLE. It is hidden unless
-    `mobileDownloadMode === 'SCHEDULED' && permissions.work.read`. The `Admin` fixture role was
-    set to SCHEDULED on 2026-08-20; if that is ever reverted, every caller of this breaks at
-    the click, and the fix is a fixture change, not a locator change.
+    🛑 THE ITEM ONLY EXISTS FOR A `SCHEDULED` ROLE, AND THE FIXTURE ROLE IS `ASSIGNED`.
+    It renders only when `mobileDownloadMode === 'SCHEDULED' && permissions.work.read`. The
+    `Admin` role was SCHEDULED on 2026-08-20, then set back to `ASSIGNED` - the settled
+    decision, so the crew keeps its work orders (`testing_checklist.md` 🟡 BLOCKED). Measured
+    again 2026-09-10: `mobileDownloadMode` is `ASSIGNED`, so **the menu item is not on the
+    page at all.**
+
+    ⭐ THAT IS WHY THIS ENSURES RATHER THAN TOGGLES. The old version clicked the item and
+    demanded it exist; when the role went back to `ASSIGNED` it took `MOB.986` red at
+    `MOB.345` - the last of eleven children, after the other ten had passed. The clicks are
+    `optional` now and the REQUIREMENT is asserted separately: what `MOB.345` actually needs
+    is *to be in the list view*, and under `ASSIGNED` it already is. A `SCHEDULED` role still
+    gets the click, so this works either way and needs no edit when the role changes again.
 
     ⚠️ IT PERSISTS. The toggle writes `sessionStorage['toggle_mobile_v_work']`, and a Datadog
     suite shares ONE browser session - so a test that switches views MUST switch back, with
-    `always=True` on the restore leg (trap 16c). Leaving the list view on would change what
-    every later work-order subtest sees.
+    `always=True` on the restore leg (trap 16c). Pass `assert_state=False` on a restore leg:
+    under `ASSIGNED` there is nothing to switch back to, and demanding the scheduled view
+    would fail on a session that was never in it.
+
+    🛑 DO NOT ASSERT THE VIEW FROM `sessionStorage` - IT IS ONLY HALF THE CONDITION. The first
+    version of this helper did, and it went red on a session that was in the list view the
+    whole time. `WorkOrders/index.tsx:47-51` reads the key with `useSessionStorage({
+    defaultValue: true })` and then renders
+    `showScheduleWork = role.mobileDownloadMode === 'SCHEDULED' && scheduledView`. So under an
+    `ASSIGNED` role the key sits at `'true'` while the plain list is what is on screen: the
+    flag says "scheduled" and the app disagrees. The rendered view is the claim, so the
+    assertion reads the DOM - `ScheduledWork` buckets rows under `Past Due` / `Today` /
+    `Tomorrow` / `Future` headers and `AssignedWork` has none.
+
+    ⚠️ This is the exception to trap 16, not a repeal of it. Prefer the app's own storage
+    contract *when the storage IS the contract*; here it is one input to a conjunction, and
+    half a condition is not a contract.
     """
     burger = '//button[@aria-label="Toggle navigation"]'
     item = (f'//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")]'
             f'[contains(normalize-space(.), "Toggle Work Order {to} View")]')
     want = "false" if to == "List" else "true"
-    return [
-        step("click", f"Open the menu (to switch to the {to} view)",
-             {"element": xpath_el(WORK_URL, burger)}, always=always, timeout=30),
+    steps = [
+        step("click", f"Open the menu (to reach the {to} view)",
+             {"element": xpath_el(WORK_URL, burger)}, optional=True, always=always, timeout=30),
         step("wait", "Let the menu open", {"value": 1}, always=always),
-        step("click", f'Click "Toggle Work Order {to} View"',
-             {"element": xpath_el(WORK_URL, item)}, always=always, timeout=30),
-        step("wait", "Let the list re-render in the other view", {"value": 3}, always=always),
-        # The app's own contract, not the icon (trap 16).
-        jsassert(f"VIEW: sessionStorage['toggle_mobile_v_work'] is now '{want}'",
-                 "return sessionStorage.getItem('toggle_mobile_v_work') === "
-                 f"'{want}';", always=always, timeout=30),
+        step("click", f'Click "Toggle Work Order {to} View" (absent unless the crew role is '
+                      f'SCHEDULED)',
+             {"element": xpath_el(WORK_URL, item)}, optional=True, always=always, timeout=10),
+        step("pressKey", "Close the menu if the item was not there", {"value": "Escape"},
+             optional=True, always=always),
+        step("wait", "Let the list re-render", {"value": 3}, always=always),
     ]
+    if assert_state:
+        # Read the RENDERED view, not the flag (see the docstring). `ScheduledWork` groups its
+        # rows under Past Due / Today / Tomorrow / Future; `AssignedWork` renders none of them.
+        # ⚠️ "no group headers" alone is an absence check - true of a blank page too (trap 5).
+        # Pair it with a positive: work rows are Papers carrying "Description:" (WORK_ROW).
+        grouped = ("const rows = [...document.querySelectorAll('[class*=\"mantine-Paper-root\"]')]\n"
+                   "  .filter(p => (p.textContent || '').includes('Description:')).length;\n"
+                   "if (!rows) return false;\n"
+                   "const g = [...document.querySelectorAll('button')]\n"
+                   "  .filter(b => /^(Past Due|Today|Tomorrow|Future)\\b/"
+                   ".test((b.textContent || '').trim())).length;\n")
+        js = grouped + ("return g === 0;" if to == "List" else "return g > 0;")
+        steps.append(jsassert(
+            f"VIEW: the work list is rendering the {to} view "
+            f"({'no' if to == 'List' else 'the'} Past Due / Today / Tomorrow / Future grouping)",
+            js, always=always, timeout=30))
+    return steps
 
 
 def work_cache_warm(wait=30):
@@ -626,14 +727,28 @@ def _progress(elapsed, eta, waiting):
         print(f"  {bar}", flush=True)
 
 
-def run(*names, timeout=2400):
+def run(*names, timeout=2400, push_first=True):
     """Trigger tests and poll until they finish, drawing a live progress bar.
+
+    ⭐ IT PUSHES FIRST AND REFUSES TO RUN IF THE PUSH FAILED. A run measures whatever Datadog
+    currently holds, so a rejected push means the next run silently grades the OLD code and
+    reports a verdict about a version that no longer exists locally. That happened on
+    2026-09-10: a suite regenerated by its build script carried `PENDING-WIRE-UP` again, its
+    push 400'd, and eight runs went out while the caller had chained `push` and `run` with a
+    newline instead of `&&`. The fix belongs here rather than in every caller's shell.
+    (`push_first=False` for `verify.py`, which has already pushed and wired by the time it
+    calls this.)
 
     The bar is an ELAPSED/ETA estimate, not real progress. Datadog publishes a result only
     when a run finishes - there is no per-step feed to poll, confirmed by watching a run in
     flight return the previous result the whole time. So the bar answers "is this normal or
     is it stuck?", which is the actual question during a 6-minute wait.
     """
+    if push_first and push():
+        print("\n🛑 PUSH FAILED - NOT RUNNING. Datadog still holds the old version, so any\n"
+              "   result would be about code you no longer have. Fix the push first; if it is\n"
+              "   `PENDING-WIRE-UP`, run wire_suite.py and push again.")
+        return 1
     # MOB.991 is ~150 steps across 9 subtests x 2 devices, plus queueing behind other
     # triggers. 1200s reported 'timed out' on runs that later passed - which reads like a
     # failure but is only the poller giving up.
@@ -806,7 +921,8 @@ if __name__ == "__main__":
     if cmd == "push":
         sys.exit(push())
     elif cmd == "run":
-        sys.exit(run(*sys.argv[2:]))
+        args = [a for a in sys.argv[2:] if a != "--no-push"]
+        sys.exit(run(*args, push_first="--no-push" not in sys.argv[2:]))
     elif cmd == "pull":
         sys.exit(pull(*sys.argv[2:]))
     elif cmd == "report":

@@ -35,7 +35,9 @@ CHILDREN = ["MOB.500_AssetVerify_Job_Read",
             "MOB.132_TransactionLog_Search",
             "MOB.575_AssetVerify_Failure_Condition_Forms",
             "MOB.585_AssetVerify_Map_Toggle",
-            "MOB.531_AssetVerify_Asset_Search"]   # keep COMPLETE — trap 19
+            "MOB.531_AssetVerify_Asset_Search",
+            "MOB.546_AssetVerify_Asset_Attachments",
+            "MOB.547_AssetVerify_Photo_Tag_Search"]   # keep COMPLETE — trap 19
 
 write(test(
     "MOB.993_AssetVerify_Suite",

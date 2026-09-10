@@ -41,7 +41,8 @@ STRUCTURED QUERY MECHANICS (AssetLookup)
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, HERE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+                      open_filters_drawer)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -49,32 +50,14 @@ NO_MATCH = "ZZZZ-NO-SUCH-ASSET"
 TAGS = ["Mobile", "env:dev", "Search", "read-only"]
 
 PAGE_TITLE = '//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]'
-FILTER_BTN = '//button[contains(concat(" ", normalize-space(@class), " "), " asset-lookup-filter-button ")]'
 ADD_FILTER = '//button[normalize-space(.)="Add Filter"]'
 CLEAR_ALL = '//button[normalize-space(.)="Clear all"]'
 
-# The drawer is `opened={filterOpen}` and the trigger is `onClick={() => setFilterOpen(true)}`
-# (StructuredQuery/index.tsx:267,279) - idempotent, so re-clicking while it is already open
-# is harmless. That is what makes a self-healing gate safe here: on 2026-09-09 (and once on
-# 2026-08-23) the first click was swallowed and the drawer never appeared, sinking the suite.
-# "Add Filter" is unique to the drawer; the trigger reads "Filters (N)" open or closed (trap 5).
-DRAWER_OPEN_JS = """
-const up = [...document.querySelectorAll('button')]
-  .some(b => b.textContent.trim() === 'Add Filter');
-if (up) return true;
-const btn = document.querySelector('button.asset-lookup-filter-button');
-if (btn) btn.click();
-return false;
-"""
+def open_drawer(label="Open the Filters drawer"):
+    # The gate itself lives in `dd_tools.open_filters_drawer` — ONE copy, because four
+    # tests opened this drawer with four hand-written gates and only this one had the fix.
+    return open_filters_drawer(LOOKUP_URL, label)
 
-
-def open_drawer(label):
-    return [
-        step("click", label, {"element": xpath_el(LOOKUP_URL, FILTER_BTN)}, timeout=30),
-        step("wait", "Wait for the drawer", {"value": 1}),
-        jsassert("Test the Filters drawer opened (re-clicks Filters if the click was swallowed)",
-                 DRAWER_OPEN_JS, timeout=30),
-    ]
 
 # THE FILTER PILL CONTAINS THE VALUE YOU FILTERED ON, so a page-text assertion cannot tell
 # "the asset is in the results" from "the asset's name is echoed in the active-filter pill".
