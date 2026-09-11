@@ -237,6 +237,18 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Something went wrong."
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Test authenticated mobile shell rendered",
                 "noScreenshot": false,
                 "params": {
@@ -361,6 +373,19 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "7n4-nyh-qpp",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.807_Search_MultiValue_Enum_Record",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "g4q-2ed-uqh",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

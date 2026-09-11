@@ -167,6 +167,7 @@ the fixtures with it and breaks ~40 tests at once:
 | `dd_tools.py pull <name>` | fetch a test back after a Datadog-UI edit (strips step `public_id`) |
 | `dd_tools.py run <suite>` | trigger + poll, with a live progress bar (TTY) or a line/minute (logs) |
 | `dd_tools.py report <suite> [n]` | per-step results, with run age and sibling results |
+| `add_role_guard.py` · `add_crash_guard.py` | patch the **shared login prefix** into every test that logs in — idempotent, keyed on a marker. Every suite builder copies its prefix from `MOB.000_Login_(Dev).json` at build time, so a prefix change goes into `MOB.000` **and** every JSON via one of these, never into one builder. The prefix is: login → **boot crash guard** (no `Something went wrong.`, placed *before* the shell assertion so a crash names itself instead of failing on a missing locator) → shell rendered → role is exactly `Admin` |
 | `audit_assertions.py` | ⭐ **Finds assertions that PASS WITHOUT PROVING THEIR OWN NAME** — the defect class that made three green tests meaningless (`MOB.340` empty list · `MOB.348` generic count · `MOB.346` `\|\| true`). Six detectors: TAUTOLOGY · GENERIC-COUNT · NAME-MISMATCH · VACUOUS-ABSENCE · LOADBEARING-OPT · CRITICAL-DIAG. **Validated in both directions** against reconstructions of all three historical bugs plus clean controls. ⚠️ **A heuristic — every hit needs a human read**; its worth is turning "read 102 tests hoping to notice" into "read 15 flagged steps on purpose". Exit 1 on any HIGH |
 | `check_drift.py` | ⭐ **Reports where a generator and its JSON disagree, changing nothing.** Sandboxes the JSON, runs every `build_*`, diffs, restores. **Exit 1 = drift**, and it names what would be LOST. Run it before any `DD_FORCE=1` and after wiring a child into a suite — an audit found **six children** in that state at once (`MOB.990` ×4, `MOB.992`, `MOB.994`) plus `MOB.600`'s `PROOF OF CREATION`, all of which a rebuild would have deleted while the suites still reported PASS |
 | `dd_tools.upload_steps(url, picker=…)` | ⭐ **the one working upload recipe, shared.** Returns `[reveal, uploadFiles]`, reading the ungeneratable `uploadFiles` step out of `MOB.600`'s JSON at build time — so there is exactly **one** copy and a build fails loudly if the master is lost. Exists because a `bucketKey` turned out to be **portable** between tests (`MOB.621`; Datadog re-namespaces it on push), which is what made upload coverage generatable for any screen instead of hand-authored per test. ⚠️ Trap 12 still applies **per FILE**: a new file *type* needs one hand-authored step before it can be copied |
@@ -310,11 +311,13 @@ having eaten its data, not a locator fault. Known instances: `AdHocForm`'s
 `!currentForms.has(name)` (MOB.393) and `ReassignWork`'s `notInCollection: true`. With mobile
 delete-free there is no in-app cleanup, so these are **inherently one-shot**.
 
-**11 · Client-side lookup filters are case-sensitive.** Several use
-`v.name.includes(str)` with only the query lowercased, so typing an exact visible name matches
-nothing (`bugs_found.md` §1). Tests focus the field **without typing** — an empty query lists
-everything — then pick by text. Do not "improve" them by adding a search term. Server-side
-lookups (Asset Lookup's `CONTAINS`) are unaffected.
+**11 · Client-side lookup filters: lower-case both sides.** They are case-insensitive in the
+served code (the `v.name.includes(str)`-against-a-lowered-query pattern is gone as of
+`cad415620c`; `MOB.389` guards it). `MOB.360`/`390`/`391` still focus the field **without
+typing** — an empty query lists everything — which remains correct; a search term is now safe
+to add. A new lookup that
+lowers only the query reads as "that record does not exist" — check the comparison before
+blaming the fixture.
 
 **12 · Hand-authored steps cannot be regenerated — but they CAN be copied.** `uploadFiles`
 references a `bucketKey` in Datadog's storage and `SyntheticsApi` has **no** endpoint that mints
@@ -444,6 +447,16 @@ elsewhere.** That is `VerificationCheckbox`, a different component whose input i
 **Two Mantine checkboxes in this app behave differently**; a working locator in one test says
 nothing about another component's DOM.
 
+`HTMLElement.click()` dispatches a real click event, so React's synthetic `onChange` fires — it
+is still driving the app, unlike writing `.checked` directly, which React ignores.
+
+🛑 **Fold the click and its proof into ONE step.** The first fix clicked in one step and
+asserted the flip in the next; when the click silently failed, the assertion re-read an
+unchanged state and the pair proved nothing (trap 5). The step must return
+`after !== before`, so a toggle that does not happen cannot be mistaken for one that did.
+⚠️ And **do not mark such a click `optional`** — the very first version did, so the failure went
+amber, the suite went green, and a headline assertion sat inert.
+
 ---
 
 **29 · NEVER HARDCODE WHICH OF TWO RECORDS SORTS FIRST — COMPUTE IT WITH THE APP'S OWN
@@ -493,15 +506,26 @@ thing killed `MOB.535` v1 on the job list in August.
 🛑 Keep a floor: fewer than 2 rows in common must FAIL, not pass. That is both the trap-5 guard
 and the alarm that the narrowing stopped biting.
 
-`HTMLElement.click()` dispatches a real click event, so React's synthetic `onChange` fires — it
-is still driving the app, unlike writing `.checked` directly, which React ignores.
+---
 
-🛑 **Fold the click and its proof into ONE step.** The first fix clicked in one step and
-asserted the flip in the next; when the click silently failed, the assertion re-read an
-unchanged state and the pair proved nothing (trap 5). The step must return
-`after !== before`, so a toggle that does not happen cannot be mistaken for one that did.
-⚠️ And **do not mark such a click `optional`** — the very first version did, so the failure went
-amber, the suite went green, and a headline assertion sat inert.
+**31 · READ THE PROPERTY THE CODE SETS, NOT THE ATTRIBUTE YOU EXPECT TO SEE.** `MOB.750`'s
+first run went red with the app behaving perfectly — the screenshot showed the menu open exactly
+as asserted. Mantine's `useFileDialog` does `input.capture = 'environment'`: a **property**
+assignment. The recorder read `getAttribute('capture')`, which is only equal to the property if
+the browser reflects that IDL attribute, and desktop Chrome did not. The bench had modelled the
+input with `setAttribute`, so it agreed with the recorder and proved nothing (trap 25's shape:
+a model built from the expectation rather than the source).
+
+⭐ **Read what the code writes, in the form it writes it.** `el.capture`, not `el.getAttribute(
+'capture')`; the same goes for `value`, `checked`, `multiple` (trap 9 is the page-text version).
+Where a browser may or may not reflect, read the property with the attribute as a fallback — and
+make the bench model the NON-reflecting case, because that is the one that fails.
+
+➡️ **When one step checks several facts, split it and make the parts `soft`.** A single
+`&&`-chained assertion fails as *"Custom assertion returned a falsy value"* whichever conjunct
+broke. Four `soft` steps cost nothing extra and name the broken one in the same run.
+
+---
 
 **27 · RUN EVERY `Run JavaScript` ASSERTION AGAINST A DOM REPLICA BEFORE PUSHING IT.** Datadog
 reports a thrown exception, an off-by-one regex and a genuine defect **identically** — *"Custom

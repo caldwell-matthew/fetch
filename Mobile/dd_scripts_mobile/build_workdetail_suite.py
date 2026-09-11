@@ -59,6 +59,9 @@ CHILDREN = ["MOB.347_Work_Asset_Status",
             # An unwired test is just a test; a red critical child is a broken suite.
             # Verified green standalone 2026-09-09 before this line was restored.
             "MOB.351_Work_Charge_Estimates",
+            # Opens the Condition and Failure add forms, probes the asset lookup, closes both
+            # unsaved - the same read-only discipline as MOB.351/356.
+            "MOB.389_Work_Lookup_Case_Insensitive",
             "MOB.911_Offline_Geolocate",
             # LAST on purpose: MOB.358 stubs `fetch` and `getCurrentPosition`. Both are
             # removed with alwaysExecute, but a leaked fetch stub is the worst thing to

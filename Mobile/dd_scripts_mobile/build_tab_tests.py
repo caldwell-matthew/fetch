@@ -193,10 +193,9 @@ write(test(
     open_fixture() + [
         step("click", "Open the Condition tab", {"element": xpath_el(STAGE_URL, tab("Condition"))}),
         step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
-        # Do NOT type in the asset lookup: its filter is `v.name.includes(str)` with str
-        # lowercased but the name left as-is - the same case-sensitivity bug as the craft
-        # field - so "Pump 0102" would match nothing. An empty query returns every asset
-        # ATTACHED TO THIS WORK STAGE (options come from props.assets, not a global list).
+        # No search term: an empty query lists every asset ATTACHED TO THIS WORK STAGE
+        # (options come from props.assets, not a global list). Typing is safe since
+        # `cad415620c` fixed the case-sensitive filter (bugs §1) - MOB.389 guards that.
         *lookup("assetId", "asset", ASSET),
         *lookup("assetStandardDetailId", "inspection group", INSPECTION_GROUP),
         *lookup("inspectionElementId", "inspection element", INSPECTION_ELEMENT),
@@ -220,10 +219,9 @@ write(test(
     open_fixture() + [
         step("click", "Open the Failures tab", {"element": xpath_el(STAGE_URL, tab("Failure"))}),
         step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
-        # Do NOT type in the asset lookup: its filter is `v.name.includes(str)` with str
-        # lowercased but the name left as-is - the same case-sensitivity bug as the craft
-        # field - so "Pump 0102" would match nothing. An empty query returns every asset
-        # ATTACHED TO THIS WORK STAGE (options come from props.assets, not a global list).
+        # No search term: an empty query lists every asset ATTACHED TO THIS WORK STAGE
+        # (options come from props.assets, not a global list). Typing is safe since
+        # `cad415620c` fixed the case-sensitive filter (bugs §1) - MOB.389 guards that.
         *lookup("assetId", "asset", ASSET),
         *lookup("failureTypeId", "failure type", FAILURE_TYPE),
         *lookup("repairTypeId", "repair type", REPAIR_TYPE),

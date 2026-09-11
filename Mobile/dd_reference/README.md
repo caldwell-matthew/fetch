@@ -45,6 +45,10 @@ pattern to copy is in `build_photo_add_test.py`: read the reveal + `uploadFiles`
 `MOB.600`'s JSON at build time rather than pasting them, so there stays exactly one copy of the
 only working recipe and a build fails loudly if it ever goes missing.
 
-**To restore:** copy the file over `dd_tests_mobile/MOB.600_Collector_Create_Asset.json`, then
-`push`. Do not run `build_collector_tests.py` afterwards — it would overwrite the upload step
-again.
+**To restore the upload recipe:** 🛑 do NOT copy this file over the live test. It is an older,
+21-step `MOB.600`; the live one has 31 — including `PROOF OF CREATION` and the §34 **server proof**
+(`soft`) — and a whole-file copy would silently delete them. Splice instead: take this file's
+reveal step and its `uploadFiles` step, put them back into
+`dd_tests_mobile/MOB.600_Collector_Create_Asset.json` where the upload belongs (after
+`Open the photo picker`), then `push`. `build_collector_tests.py` cannot clobber the result: it
+refuses to regenerate `MOB.600` while an `uploadFiles` step is present (`SKIP  MOB.600`).

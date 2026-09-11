@@ -1,0 +1,592 @@
+{
+    "test_name": "MOB.389_Work_Lookup_Case_Insensitive",
+    "details": {
+        "name": "MOB.389_Work_Lookup_Case_Insensitive",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.389` **The Condition and Failure asset lookups match regardless of case** \u2014 the\nregression guard for bugs \u00a71, fixed in `cad415620c` with no test.\n- In each form, a matched pair in the field's own dropdown: `ZZZZ-NO-SUCH-ASSET` \u2192 `No results\n  found` (the filter filters), then `pUMP 0102` \u2192 exactly `Pump 0102` (it ignores case).\n  Before the fix the second probe was the `No results found` screen.\n- Assertions follow the Combobox's `aria-controls` from `#assetId` to its own listbox, so\n  a leftover dropdown elsewhere on the page can never answer.\n- READ-ONLY: each form is opened, probed and closed with its close button; nothing is\n  submitted.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Condition tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Condition\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the add form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form load its schema",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Condition form rendered (past `Loading form\u2026`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-condition-form\"]//*[@id=\"assetId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-condition-form\"]//*[@id=\"assetId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the dropdown open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type \"ZZZZ-NO-SUCH-ASSET\" into the asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nif (!inp) return false;\nconst view = inp.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(inp, \"ZZZZ-NO-SUCH-ASSET\");\ninp.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn inp.value === \"ZZZZ-NO-SUCH-ASSET\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CONDITION NO MATCH: the field's own dropdown lists nothing and says `No results found` \u2014 the filter really filters",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nconst host = inp && inp.closest('[aria-controls]');\nconst lb = host && document.getElementById(host.getAttribute('aria-controls') || '');\nif (!lb) return false;\nconst titles = [...lb.querySelectorAll('[role=\"option\"] .option-title')]\n  .map(t => (t.textContent || '').trim());\nreturn titles.length === 0 && (lb.textContent || '').includes('No results found');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type \"pUMP 0102\" (the fixture name, case-swapped) into the asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nif (!inp) return false;\nconst view = inp.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(inp, \"pUMP 0102\");\ninp.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn inp.value === \"pUMP 0102\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CONDITION WRONG CASE: `pUMP 0102` finds exactly `Pump 0102` \u2014 before `cad415620c` this was `No results found` (bugs \u00a71)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nconst host = inp && inp.closest('[aria-controls]');\nconst lb = host && document.getElementById(host.getAttribute('aria-controls') || '');\nif (!lb) return false;\nconst titles = [...lb.querySelectorAll('[role=\"option\"] .option-title')]\n  .map(t => (t.textContent || '').trim());\nreturn inp.value === \"pUMP 0102\" && inp.value !== \"Pump 0102\"\n  && titles.length === 1 && titles[0] === \"Pump 0102\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the add form with the modal's close button \u2014 nothing is submitted",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('work-condition-form');\nconst m = f && f.closest('[class*=\"mantine-Modal-content\"]');\nconst x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLOSED: the Condition form is unmounted",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.getElementById('work-condition-form');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Failure tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Failure\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the add form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form load its schema",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Failure form rendered (past `Loading form\u2026`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-failure-form\"]//*[@id=\"assetId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-failure-form\"]//*[@id=\"assetId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the dropdown open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type \"ZZZZ-NO-SUCH-ASSET\" into the asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nif (!inp) return false;\nconst view = inp.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(inp, \"ZZZZ-NO-SUCH-ASSET\");\ninp.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn inp.value === \"ZZZZ-NO-SUCH-ASSET\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FAILURE NO MATCH: the field's own dropdown lists nothing and says `No results found` \u2014 the filter really filters",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nconst host = inp && inp.closest('[aria-controls]');\nconst lb = host && document.getElementById(host.getAttribute('aria-controls') || '');\nif (!lb) return false;\nconst titles = [...lb.querySelectorAll('[role=\"option\"] .option-title')]\n  .map(t => (t.textContent || '').trim());\nreturn titles.length === 0 && (lb.textContent || '').includes('No results found');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type \"pUMP 0102\" (the fixture name, case-swapped) into the asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nif (!inp) return false;\nconst view = inp.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(\n  view.HTMLInputElement.prototype, 'value').set;\nsetter.call(inp, \"pUMP 0102\");\ninp.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn inp.value === \"pUMP 0102\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup re-filter",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 FAILURE WRONG CASE: `pUMP 0102` finds exactly `Pump 0102` \u2014 before `cad415620c` this was `No results found` (bugs \u00a71)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el0 = document.getElementById('assetId');\nconst inp = el0 && (el0.tagName === 'INPUT' ? el0 : el0.querySelector('input'));\nconst host = inp && inp.closest('[aria-controls]');\nconst lb = host && document.getElementById(host.getAttribute('aria-controls') || '');\nif (!lb) return false;\nconst titles = [...lb.querySelectorAll('[role=\"option\"] .option-title')]\n  .map(t => (t.textContent || '').trim());\nreturn inp.value === \"pUMP 0102\" && inp.value !== \"Pump 0102\"\n  && titles.length === 1 && titles[0] === \"Pump 0102\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the add form with the modal's close button \u2014 nothing is submitted",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('work-failure-form');\nconst m = f && f.closest('[class*=\"mantine-Modal-content\"]');\nconst x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLOSED: the Failure form is unmounted",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.getElementById('work-failure-form');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

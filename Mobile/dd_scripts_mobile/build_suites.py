@@ -53,6 +53,7 @@ write(suite(
      "MOB.170_Nav_Dev_Logs",
      "MOB.900_Online_Guard",
      "MOB.121_Map_Controls",
+     "MOB.123_Map_Switch_Map",
      "MOB.180_Home_Screen",
      # 🛑 MOB.346_Work_Scheduled_View REMOVED 2026-09-08 — it belongs here on subject, but not
      # while its subject is unreachable. SETTLED: the crew's `mobileDownloadMode` stays

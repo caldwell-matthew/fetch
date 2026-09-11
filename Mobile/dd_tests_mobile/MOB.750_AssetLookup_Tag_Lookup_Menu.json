@@ -1,0 +1,448 @@
+{
+    "test_name": "MOB.750_AssetLookup_Tag_Lookup_Menu",
+    "details": {
+        "name": "MOB.750_AssetLookup_Tag_Lookup_Menu",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.750` **Asset Lookup's `Tag Lookup` menu** \u2014 checklist \ud83d\udfe2 #16.\n- The menu offers exactly `Scan Barcode` then `Alphanumeric`.\n- \u2b50 **`Alphanumeric`'s browser branch, proved without a file chooser**: the test swaps\n  `HTMLInputElement.prototype.click` for a recorder, clicks the item for real, and requires\n  exactly one file dialog asking for the rear camera (`capture=environment`), images only,\n  one file \u2014 with the menu still open (`closeMenuOnClick={false}`). Nothing is uploaded, so\n  nothing reaches `/api/upload/ai`.\n- \ud83d\udfe1 **`Scan Barcode` has no browser branch** (bugs \u00a737): it calls `callNative`\n  unconditionally and nothing happens. An OPTIONAL sentinel records that.\n- The prototype is restored `always`, and the restore is asserted.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Lookup",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the page render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The `Tag Lookup` button renders",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Tag Lookup\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PRECONDITION: this is a browser, not the native shell \u2014 `Alphanumeric` takes its file-dialog branch",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !window.ReactNativeWebView;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "STUB: record file-input clicks instead of opening a file chooser",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const proto = window.HTMLInputElement.prototype;\nif (!proto.click.__dd) {\n  window.__ddHadOwnClick = Object.prototype.hasOwnProperty.call(proto, 'click');\n  window.__ddOrigClick = proto.click;\n  window.__ddFileClicks = [];\n  const rec = function () {\n    if (this.type === 'file') {\n      window.__ddFileClicks.push({ capture: this.capture || this.getAttribute('capture'),\n        accept: this.accept, multiple: this.multiple,\n        attached: window.document.body.contains(this) });\n      return;\n    }\n    return window.__ddOrigClick.call(this);\n  };\n  rec.__dd = true;\n  proto.click = rec;\n}\nreturn proto.click.__dd === true\n  && Array.isArray(window.__ddFileClicks) && window.__ddFileClicks.length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the `Tag Lookup` menu",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Tag Lookup\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 MENU: exactly `Scan Barcode` then `Alphanumeric`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const menu = document.querySelector('[role=\"menu\"]');\nconst items = menu ? [...menu.querySelectorAll('[role=\"menuitem\"]')]\n  .map(i => (i.textContent || '').trim()) : [];\nreturn JSON.stringify(items) === \"[\\\"Scan Barcode\\\",\\\"Alphanumeric\\\"]\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Alphanumeric`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"menuitem\"][normalize-space(.)=\"Alphanumeric\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the click handler run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 ALPHANUMERIC (browser): exactly ONE file dialog was requested",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = window.__ddFileClicks || [];\nreturn c.length === 1 && c[0].attached === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 \u2026asking for the REAR camera (`capture=environment`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = window.__ddFileClicks || [];\nreturn c.length === 1 && c[0].capture === 'environment';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026for images only, one file",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const c = window.__ddFileClicks || [];\nreturn c.length === 1 && c[0].accept === 'image/*' && c[0].multiple === false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and the menu STAYED OPEN (`closeMenuOnClick={false}`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const menu = document.querySelector('[role=\"menu\"]');\nconst items = menu ? [...menu.querySelectorAll('[role=\"menuitem\"]')]\n  .map(i => (i.textContent || '').trim()) : [];\nreturn items.includes('Alphanumeric');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The menu closed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('[role=\"menu\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Reopen the `Tag Lookup` menu",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Tag Lookup\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Click `Scan Barcode`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"menuitem\"][normalize-space(.)=\"Scan Barcode\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Give it time to show anything at all",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SENTINEL (bugs \u00a737): `Scan Barcode` in a browser does NOTHING \u2014 the menu closed, no dialog, no toast, no file dialog, still on Asset Lookup. Red here means it was fixed: rewrite this step",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const dialog = document.querySelector('[role=\"dialog\"]');\nconst toast = document.querySelector('.Toastify__toast');\nreturn !document.querySelector('[role=\"menu\"]') && !dialog && !toast\n  && window.location.pathname.endsWith('/asset-lookup')\n  && (window.__ddFileClicks || []).length === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: put `HTMLInputElement.prototype.click` back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const proto = window.HTMLInputElement.prototype;\nif (proto.click.__dd) {\n  if (window.__ddHadOwnClick) proto.click = window.__ddOrigClick;\n  else delete proto.click;\n}\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: inputs click with the ORIGINAL `click` again \u2014 no recorder left for a later child",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const proto = window.HTMLInputElement.prototype;\nconst ok = !proto.click.__dd\n  && (window.__ddOrigClick ? proto.click === window.__ddOrigClick : true);\ndelete window.__ddOrigClick; delete window.__ddFileClicks; delete window.__ddHadOwnClick;\nreturn ok;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

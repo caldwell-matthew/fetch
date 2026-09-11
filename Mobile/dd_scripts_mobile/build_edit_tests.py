@@ -11,9 +11,9 @@ THE PLAN SAID SEVEN TESTS. THERE ARE NOT SEVEN SURFACES.
     GeneralInfo (bulk form)      DetailPage/GeneralInfo -> the Work Order General Info tab
                                  (UPDATE_WORK_STAGE) and the full-page Asset Verification
                                  asset detail (UPDATE_ASSET). One component, two mutations.
-    Attributes (bulk form)       DetailPage/Attributes -> WO Attributes tab and AV asset
-                                 attributes. Not built yet: which attributes exist on the
-                                 fixtures is DB data, not source.
+    Attributes (bulk form)       DetailPage/Attributes -> WO Attributes tab (MOB.388) and AV
+                                 asset attributes (MOB.545). Which attributes exist on the
+                                 fixtures is DB data, not source - read it over the API.
 
   Photos/Docs are attachments and Work History is read-only, so they are not edit surfaces at
   all. Recorded because "5 tabs" implied five tests and would have produced four near-duplicates
@@ -433,13 +433,97 @@ write(test(
     local_vars=(RUNID,),
 ))
 
+# ---------------------------------------------------------------- WO Attributes tab
+# The SAME `Attributes` component as MOB.545 (form `mobile-attrib`, inputs keyed by the attribute
+# record's uuid, so matched by LABEL), mounted by `WorkDetails.tsx` for a template section of
+# type ATTRIBUTES with `UPDATE_WORKSTAGE_ATTRIBUTE` as its mutation - a different write path
+# from MOB.545's `UPDATE_ASSET_ATTRIBUTE`. Settled for 0 runs through the API: the fixture
+# work order's template ("Retention") has the ATTRIBUTES section, and the stage carries one
+# attribute, `Heater Hz`, a STRING holding "7". The fixture work order is ours ("USED IN
+# DATADOG DO NOT TOUCH THIS FILE"), so its real value is the baseline the restore leg writes.
+WO_ATTRIBUTE = "Heater Hz"
+WO_ATTR_BASELINE = "7"
+WO_ATTRIB_FIELD = ('//div[contains(concat(" ", normalize-space(@class), " "), " form-group ")]'
+                   f'[./label[contains(normalize-space(.), "{WO_ATTRIBUTE}")]]//input')
+
+
+def wo_attrib_value_js(op, value):
+    return ("const g = [...document.querySelectorAll('div.form-group')].find(d => {\n"
+            "  const l = d.querySelector('label');\n"
+            f"  return l && l.textContent.trim().indexOf('{WO_ATTRIBUTE}') === 0;\n"
+            "});\n"
+            "if (!g) return false;\n"
+            "const el = g.querySelector('input');\n"
+            "if (!el) return false;\n"
+            f"return el.value.trim() {op} '{value}';")
+
+
+def open_work_attributes():
+    return [
+        go(WORK_URL, "/work to warm the lookup cache"),
+        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        go(WORK_DETAIL, "the fixture work order"),
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             timeout=30),
+        step("click", "Open the Attributes tab", {"element": xpath_el(WORK_DETAIL, ATTRIB_TAB)},
+             timeout=30),
+        step("wait", "Wait for the Attributes panel", {"value": 3}),
+        step("assertElementPresent",
+             f'FIELD GUARD: the "{WO_ATTRIBUTE}" attribute input is on this work order',
+             {"element": xpath_el(WORK_DETAIL, WO_ATTRIB_FIELD)}, timeout=30),
+    ]
+
+
+write(test(
+    "MOB.388_Work_Attribute_Edit",
+    f"`MOB.388` Edit the `{WO_ATTRIBUTE}` attribute on the fixture **work order** and prove it\n"
+    "persisted — checklist 🟢 #17.\n"
+    "- **SELF-RESTORING**, MOB.545's two-leg shape: leg 1 writes `DD SYNTHETIC EDIT <runid>`,\n"
+    f"  a reload proves it is no longer `{WO_ATTR_BASELINE}`; leg 2 writes `{WO_ATTR_BASELINE}`\n"
+    "  back and a reload proves it is exact.\n"
+    "- Same `Attributes` component as `MOB.545`, different mutation\n"
+    "  (`UPDATE_WORKSTAGE_ATTRIBUTE`). The fixture template's ATTRIBUTES section and the\n"
+    f"  `{WO_ATTRIBUTE}` string attribute were confirmed through the API before building.\n"
+    "- Matched by LABEL: attribute inputs are keyed by the attribute record's uuid.",
+    open_work_attributes()
+    + set_text(WO_ATTRIB_FIELD, MARKER, WO_ATTRIBUTE, WORK_DETAIL)
+    + [
+        step("click", "Submit the attributes form",
+             {"element": xpath_el(WORK_DETAIL, ATTRIB_SUBMIT)}),
+        step("wait", "Brief wait for the toast to appear", {"value": 2}),
+        step("assertPageContains", "Attributes updated toast (optional: transient)",
+             {"value": "Attributes updated successfully!"}, optional=True),
+        step("wait", "Wait for the attribute mutation", {"value": 5}),
+    ]
+    + open_work_attributes()
+    + [
+        jsassert(f'PROOF: after a reload "{WO_ATTRIBUTE}" is no longer the baseline',
+                 wo_attrib_value_js("!==", WO_ATTR_BASELINE)),
+    ]
+    + set_text(WO_ATTRIB_FIELD, WO_ATTR_BASELINE, WO_ATTRIBUTE, WORK_DETAIL)
+    + [
+        # Not `always`: the typing above is not, and a run that dies before this leg is healed
+        # by the next one (MOB.545's self-heal argument - leg 1 always changes the value).
+        step("click", "Submit the restore", {"element": xpath_el(WORK_DETAIL, ATTRIB_SUBMIT)}),
+        step("wait", "Wait for the restore mutation", {"value": 6}),
+    ]
+    + open_work_attributes()
+    + [
+        jsassert(f'RESTORED: "{WO_ATTRIBUTE}" is exactly "{WO_ATTR_BASELINE}" again',
+                 wo_attrib_value_js("===", WO_ATTR_BASELINE)),
+    ],
+    TAGS + ["Work Orders"],
+    local_vars=(RUNID,),
+))
+
 # ---------------------------------------------------------------- suite
 login_steps = json.load(
     open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 # Keep COMPLETE - a child missing here is silently dropped on the next DD_FORCE rebuild and
 # the suite then passes with the test absent (trap 12).
 CHILDREN = ["MOB.395_Work_GenInfo_Edit", "MOB.710_AssetLookup_Field_Edit",
-            "MOB.545_AssetVerify_Attribute_Edit"]
+            "MOB.545_AssetVerify_Attribute_Edit", "MOB.388_Work_Attribute_Edit"]
 
 write(test(
     "MOB.989_FieldEdit_Suite",

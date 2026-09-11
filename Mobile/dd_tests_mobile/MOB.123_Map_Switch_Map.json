@@ -1,0 +1,643 @@
+{
+    "test_name": "MOB.123_Map_Switch_Map",
+    "details": {
+        "name": "MOB.123_Map_Switch_Map",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.123` **The map's `Switch Map` picker** \u2014 checklist \ud83d\udfe2 #12.\n- **Switches and switches back.** `onSelect` only writes `mobile-map-id` to\n  sessionStorage \u2014 no mutation \u2014 so the test proves a real switch, not just that a modal\n  opened: OPEN (holds the stored map, \u2265 2 options, one checked) \u2192 DISMISS (no write) \u2192\n  SWITCH (the picked id is stored) \u2192 READBACK (reopened, the new map is checked) \u2192\n  RESTORE (`always`).\n- **The pick closes the picker** because `<MapGl key={mapId}>` remounts the whole control\n  stack. Pinned: a picker left open on a stale map would be the regression.\n- **Premise:** the button is disabled below 2 maps. Dev has 3 (read over the API, 0 runs),\n  so this is the enabled side; the disabled side needs someone's maps deleted and is not\n  asserted.\n- \ud83d\uded1 **No map name or id is hardcoded** (trap 29): options are matched by their `value`\n  attribute against ids read from sessionStorage at run time, carried between steps on\n  `window` (the page never navigates).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Map",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the mobile map",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/map"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the map begin initialising",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Map\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Map",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Map\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Mapbox WebGL canvas rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//canvas[contains(@class,\"mapboxgl-canvas\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CAPTURE: `mobile-map-id` holds the map on screen (written on mount from the user's default map)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "let stored = null;\ntry { stored = JSON.parse(sessionStorage.getItem('mobile-map-id') || 'null'); }\ncatch (e) { return false; }\nif (typeof stored !== 'string' || !stored) return false;\nwindow.__ddMapBefore = stored;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OPEN: the `Switch Map` control is ENABLED \u2014 the org has \u2265 2 maps",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[aria-label=\"Switch Map\"]');\nreturn !!b && !b.disabled;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OPEN: click `Switch Map`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Switch Map\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the picker open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 OPEN: the `Select a map` modal holds the STORED map, by id, and names it",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nif (!m) return false;\nconst hidden = m.querySelector('input[type=\"hidden\"]');\nconst shown = m.querySelector('input:not([type=\"hidden\"])');\nreturn !!window.__ddMapBefore && !!hidden && hidden.value === window.__ddMapBefore\n  && !!shown && shown.value.trim().length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the map dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Select a map\")]]//input[not(@type=\"hidden\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the options render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 OPTIONS: at least 2 maps listed, exactly one checked, and it is the stored map \u2014 the name in the input is that option's",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nconst opts = [...document.querySelectorAll('[role=\"listbox\"] [role=\"option\"]')];\nif (!m || opts.length < 2) return false;\nconst checked = opts.filter(o => o.getAttribute('aria-selected') === 'true');\nif (checked.length !== 1) return false;\nconst shown = m.querySelector('input:not([type=\"hidden\"])');\nreturn checked[0].getAttribute('value') === window.__ddMapBefore\n  && !!shown && shown.value === (checked[0].textContent || '').trim();"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the picker with its close button",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nif (!m) return false;\nconst x = m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the picker close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "DISMISS: the picker is gone and `mobile-map-id` is UNCHANGED \u2014 closing is not a switch",
+                "noScreenshot": false,
+                "params": {
+                    "code": "let stored = null;\ntry { stored = JSON.parse(sessionStorage.getItem('mobile-map-id') || 'null'); }\ncatch (e) { return false; }\nconst m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nreturn !m && stored === window.__ddMapBefore;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SWITCH: the `Switch Map` control is ENABLED \u2014 the org has \u2265 2 maps",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[aria-label=\"Switch Map\"]');\nreturn !!b && !b.disabled;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SWITCH: click `Switch Map`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Switch Map\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the picker open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the map dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Select a map\")]]//input[not(@type=\"hidden\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the options render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CAPTURE: the first map that is NOT the current one \u2014 the option the next click will pick",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const opts = [...document.querySelectorAll('[role=\"listbox\"] [role=\"option\"]')];\nconst o = opts.find(x => x.getAttribute('aria-selected') !== 'true');\nconst v = o && o.getAttribute('value');\nif (!v || v === window.__ddMapBefore) return false;\nwindow.__ddMapPicked = v;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick that map",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"listbox\"]//*[@role=\"option\"][not(@aria-selected=\"true\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the map remount on the new map id",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SWITCHED: the Mapbox canvas rendered again",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//canvas[contains(@class,\"mapboxgl-canvas\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SWITCHED: `mobile-map-id` now holds the PICKED map, not the original \u2014 and the picker closed, because `<MapGl key={mapId}>` remounts the control stack",
+                "noScreenshot": false,
+                "params": {
+                    "code": "let stored = null;\ntry { stored = JSON.parse(sessionStorage.getItem('mobile-map-id') || 'null'); }\ncatch (e) { return false; }\nconst m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nreturn !m && !!window.__ddMapPicked && stored === window.__ddMapPicked\n  && stored !== window.__ddMapBefore;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "READBACK: the `Switch Map` control is ENABLED \u2014 the org has \u2265 2 maps",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[aria-label=\"Switch Map\"]');\nreturn !!b && !b.disabled;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "READBACK: click `Switch Map`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Switch Map\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the picker open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 READBACK: the reopened picker holds the NEW map \u2014 the component reads back the value it wrote",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nif (!m) return false;\nconst hidden = m.querySelector('input[type=\"hidden\"]');\nconst shown = m.querySelector('input:not([type=\"hidden\"])');\nreturn !!window.__ddMapPicked && !!hidden && hidden.value === window.__ddMapPicked\n  && !!shown && shown.value.trim().length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the map dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Select a map\")]]//input[not(@type=\"hidden\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the options render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "READBACK: the NEW map is the one checked option",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nconst opts = [...document.querySelectorAll('[role=\"listbox\"] [role=\"option\"]')];\nif (!m || opts.length < 2) return false;\nconst checked = opts.filter(o => o.getAttribute('aria-selected') === 'true');\nif (checked.length !== 1) return false;\nconst shown = m.querySelector('input:not([type=\"hidden\"])');\nreturn checked[0].getAttribute('value') === window.__ddMapPicked\n  && !!shown && shown.value === (checked[0].textContent || '').trim();"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: pick the original map back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const opts = [...document.querySelectorAll('[role=\"listbox\"] [role=\"option\"]')];\nconst o = opts.find(x => x.getAttribute('value') === window.__ddMapBefore);\nif (!o) return false;\no.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the map remount on the new map id",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the Mapbox canvas rendered again",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//canvas[contains(@class,\"mapboxgl-canvas\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: no picker is open and `mobile-map-id` is the ORIGINAL map again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "let stored = null;\ntry { stored = JSON.parse(sessionStorage.getItem('mobile-map-id') || 'null'); }\ncatch (e) { return false; }\nconst m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select a map'));\nreturn !m && !!window.__ddMapBefore && stored === window.__ddMapBefore;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

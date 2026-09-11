@@ -1,0 +1,1039 @@
+{
+    "test_name": "MOB.625_Collector_List_Sort",
+    "details": {
+        "name": "MOB.625_Collector_List_Sort",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.625` **The Asset Collector's sort, including `Collected By Me`** \u2014 checklist \ud83d\udfe2 #14.\n- Narrowed to this suite's own `DD SYNTHETIC MOBILE` rows (the list is virtualised, and the data\n  is ours). `Created At \u25bc` equals the server's default order and `\u25b2` its reverse, on the\n  rows common to both renders; `Name \u25b2/\u25bc` equal their own `localeCompare` order. No order\n  is hardcoded (trap 29).\n- \u2b50 **`Collected By Me` is a FILTER, not a sort** (`searchSort`): on the wide list every row\n  is left with one creator \u2014 the creator of our own rows \u2014 and creators were removed.\n- \ud83d\udfe1 **bugs \u00a738**: the collector writes its pick to `mobile-MobileJob-sort`, which the Asset\n  Verification job list reads as ITS sort. An OPTIONAL sentinel shows the job list adopting\n  `Name \u25bc`. The key is stashed first and restored `always`.\n- READ-ONLY: only a sort and a search are chosen.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Collector",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the Asset Collector",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-collector"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the collected list load",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The collected list rendered rows, each with a name and a creator line",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nreturn rows.length >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "STASH: remember `mobile-MobileJob-sort` as it was, so the restore can put it back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (sessionStorage.getItem('__dd625_prevJobSort') === null)\n  sessionStorage.setItem('__dd625_prevJobSort', JSON.stringify({ v: sessionStorage.getItem('mobile-MobileJob-sort') }));\nreturn sessionStorage.getItem('__dd625_prevJobSort') !== null;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (data): the unfiltered window shows rows by at least 2 creators \u2014 `Collected By Me` has something to remove",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nwindow.__ddCreators = [...new Set(rows.map(r => r.creator))];\nreturn window.__ddCreators.length >= 2;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search \"DD SYNTHETIC MOBILE\" \u2014 this suite's own residue",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[placeholder=\"Find Asset(s)\"]');\nif (!el) return false;\nconst view = el.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(view.HTMLInputElement.prototype, 'value').set;\nsetter.call(el, 'DD SYNTHETIC MOBILE');\nel.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn el.value === 'DD SYNTHETIC MOBILE';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the debounced search (300 ms) apply",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "NARROWED: 2 to 15 rows, every one ours, all distinct \u2014 and CAPTURE the server's default order (no sort chosen yet)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nif (rows.length < 2 || rows.length > 15) return false;\nif (!rows.every(r => r.name.includes('DD SYNTHETIC MOBILE'))) return false;\nconst keys = rows.map(r => r.key);\nif (new Set(keys).size !== keys.length) return false;\nwindow.__ddDefault = keys;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Created At \u25b2\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Created At \u25b2\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CREATED AT \u25b2: exactly the reverse of the server's createdAt-DESC order",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nconst def = window.__ddDefault || [];\nconst now = rows.map(r => r.key);\nconst inNow = new Set(now), inDef = new Set(def);\nconst d = def.filter(k => inNow.has(k)), n = now.filter(k => inDef.has(k));\nif (d.length < 2) return false;\nd.reverse();\nreturn n.join('\\u0000') === d.join('\\u0000');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Created At \u25bc\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Created At \u25bc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CREATED AT \u25bc: the server's own order again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nconst def = window.__ddDefault || [];\nconst now = rows.map(r => r.key);\nconst inNow = new Set(now), inDef = new Set(def);\nconst d = def.filter(k => inNow.has(k)), n = now.filter(k => inDef.has(k));\nif (d.length < 2) return false;\nreturn n.join('\\u0000') === d.join('\\u0000');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Name \u25b2\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25b2\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 NAME \u25b2: the rendered names are their own `localeCompare` order",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nconst names = rows.map(r => r.name);\nif (names.length < 2) return false;\nconst sorted = [...names].sort((a, b) => a.localeCompare(b));\nreturn JSON.stringify(names) === JSON.stringify(sorted);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Name \u25bc\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25bc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 NAME \u25bc: exactly that order reversed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nconst names = rows.map(r => r.name);\nif (names.length < 2) return false;\nconst sorted = [...names].sort((a, b) => a.localeCompare(b));\nsorted.reverse();\nreturn JSON.stringify(names) === JSON.stringify(sorted);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[placeholder=\"Find Asset(s)\"]');\nif (!el) return false;\nconst view = el.ownerDocument.defaultView;\nconst setter = Object.getOwnPropertyDescriptor(view.HTMLInputElement.prototype, 'value').set;\nsetter.call(el, '');\nel.dispatchEvent(new view.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the debounced search (300 ms) apply",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick \"Collected By Me\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Collected By Me\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the list re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 COLLECTED BY ME: every rendered row has ONE creator, it was among the creators before, and one of those rows is ours \u2014 so it is the test account",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nconst creators = [...new Set(rows.map(r => r.creator))];\nif (creators.length !== 1) return false;\nif (!(window.__ddCreators || []).includes(creators[0])) return false;\nreturn rows.some(r => r.name.includes('DD SYNTHETIC MOBILE'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and it REMOVED rows: fewer creators than before the filter",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')].map(it => {\n  const c = it.querySelector('[class*=\"mantine-Accordion-control\"]');\n  if (!c) return null;\n  const nm = c.querySelector('[class*=\"mantine-Highlight-root\"]');\n  const lab = c.querySelector('[class*=\"mantine-Accordion-label\"]') || c;\n  const last = lab.lastElementChild;\n  const by = last && /mantine-Text-root/.test(last.className)\n    && !last.querySelector('[class*=\"mantine-Highlight-root\"]') ? last : null;\n  const name = nm ? (nm.textContent || '').trim() : '';\n  const line = by ? (by.textContent || '').trim() : '';\n  const i = line.indexOf(', ');\n  return name && i > 0 ? { name, creator: line.slice(0, i), key: name + '\\u0001' + line } : null;\n});\nif (!rows.length || rows.some(r => !r)) return false;\nreturn (window.__ddCreators || []).length > new Set(rows.map(r => r.creator)).size;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Open the sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Open the sort options",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Sort Criteria\")]//input[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Select-input \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Wait for the options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Pick \"Name \u25bc\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][normalize-space(.)=\"Name \u25bc\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Let the list re-order",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SENTINEL (bugs \u00a738): the collector's pick was written to `mobile-MobileJob-sort` \u2014 the Asset Verification JOB LIST's key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "let v = null; try { v = JSON.parse(sessionStorage.getItem('mobile-MobileJob-sort') || 'null'); } catch (e) {}\nreturn !!v && v.id === 'name_DESC';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the Asset Verification job list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-verify"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Let the job list mount (it reads the key on mount)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Open the job list's sort dropdown",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-verify",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"sort-alt\" or @data-icon=\"arrow-down-arrow-up\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-sort-alt \") or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-arrow-down-arrow-up \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Wait for the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SENTINEL (bugs \u00a738): the JOB LIST now sorts by a Name \u25bc nobody chose on it \u2014 its default is `Created At \u25bc`. Red here means it was fixed: rewrite this step",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Sort Criteria'));\nconst inp = m && m.querySelector('input[class*=\"mantine-Select-input\"]');\nconst v = inp ? inp.value.trim() : '';\nreturn /Name/.test(v) && v.endsWith('\u25bc') && !/Created At/.test(v);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Close the sort modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: put `mobile-MobileJob-sort` back as it was before this test",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const raw = sessionStorage.getItem('__dd625_prevJobSort');\nif (raw === null) return false;\nconst prev = JSON.parse(raw).v;\nif (prev === null) sessionStorage.removeItem('mobile-MobileJob-sort');\nelse sessionStorage.setItem('mobile-MobileJob-sort', prev);\nsessionStorage.removeItem('__dd625_prevJobSort');\nwindow.__ddRestoredJobSort = prev;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: `mobile-MobileJob-sort` holds its original value and the stash is gone",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return sessionStorage.getItem('__dd625_prevJobSort') === null\n  && sessionStorage.getItem('mobile-MobileJob-sort') === (window.__ddRestoredJobSort ?? null);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

@@ -61,11 +61,14 @@ Written down because it is the difference between the first number and the third
 *Order within a suite is often load-bearing — see `testing_checklist.md`. Step counts are from
 the JSON.*
 
-### `MOB.990_Smoke` — 13 children · read-only
+### `MOB.990_Smoke` — 14 children · read-only
 **Establishes: the app boots, every route resolves, and the shell renders for an `Admin` session.**
 
 Eight route checks (`MOB.100`–`170`, 2–3 steps each) plus the substantive ones: `MOB.121` map
-controls (style toggle, layers panel, zoom — **not** 2D/3D, Home or the map picker), `MOB.180`
+controls (style toggle, layers panel, zoom — **not** 2D/3D or Home), `MOB.123` the `Switch Map`
+picker (a real switch and back: the pick writes `mobile-map-id` and closes the picker because
+`<MapGl key={mapId}>` remounts it; reopening reads the new map back; ids read at run time, no
+map name hardcoded), `MOB.180`
 Home tiles and navigation, `MOB.171` Dev Logs contents, `MOB.910` the offline UI, and `MOB.900`
 — a *regression guard* that the offline notice and the `ErrorBoundary` must **not** appear
 during a normal run.
@@ -95,25 +98,28 @@ material estimates is still unproven.
 ⚠️ **This suite is at Datadog's execution-time ceiling** (Appendix F0 — it died at 1071s once).
 New work-order coverage goes in `MOB.985`/`MOB.986` instead, which is why those exist.
 
-### `MOB.985_WorkDetail` — 9 children · read-only
+### `MOB.985_WorkDetail` — 10 children · read-only
 **Establishes: the work-order detail screen's secondary controls, and the negative cases.**
 
 `MOB.347` the Assets tab and its status controls (🛑 `Mark as …` asserted, never clicked — it
 writes instantly) · `MOB.348` the globe menu and LocationForm · `MOB.349` record cycling ·
 `MOB.355` form render · `MOB.357` `FormMetrics` · **`MOB.356` trap 8 across all four charge
 forms** — the negative case the four charge tests cannot express · `MOB.351` the `ESTIMATES`
-section on all four charge tabs · `MOB.911` the offline geolocate branch · `MOB.358` the asset
+section on all four charge tabs · `MOB.389` the Condition and Failure asset lookups ignore
+case (bugs §1's regression guard — a no-match/wrong-case pair read from each field's own
+dropdown via `aria-controls`; both forms closed unsaved) · `MOB.911` the offline geolocate branch · `MOB.358` the asset
 location form.
 
 ⭐ `MOB.356` is the strongest test here: it proves an **invalid form does not submit**, on four
 forms, which is the failure mode `MOB.350`–`380` are structurally blind to.
 
-### `MOB.986_WorkOrders_Extra` — 11 children · **leaves residue**
+### `MOB.986_WorkOrders_Extra` — 12 children · **leaves residue**
 **Establishes: the remaining work-order entry points and the work LIST's behaviour.**
 
 `MOB.396` create from a job asset · `MOB.397` assign follow-up · `MOB.398` the crew-assignment
 modal · `MOB.394` permits · `MOB.399` warranties · `MOB.122` **create from the map** (the last
-uncovered create entry point) · and the list group: `MOB.341` map toggle, `MOB.343` search
+uncovered create entry point) · `MOB.301` a photo in the create form (one slide, a local `blob:`
+image, discarded unsent) · and the list group: `MOB.341` map toggle, `MOB.343` search
 actually filters, `MOB.344` row navigation, `MOB.342` the status ring and clickable legend,
 `MOB.345` sort applied + persisted + **really reorders** — it narrows the list with a search
 first (57 work orders and growing; Virtuoso windows anything longer) and proves that every row
@@ -138,7 +144,7 @@ Transaction Log, wired here because they need a **mutation to have just happened
 🛑 **What this suite cannot do**: the job's own status. Verifying the last asset flips it to
 `COMPLETED` and **mobile can never walk that back** — the open owner decision.
 
-### `MOB.994_Collector` — 7 children · **leaves residue (`MOB.600`, `MOB.623`)**
+### `MOB.994_Collector` — 8 children · **leaves residue (`MOB.600`, `MOB.623`)**
 **Establishes: asset collection, the photo/attachment input surface, and the saved-photo menu.**
 
 ⭐ `MOB.623` adds a photo to an **existing** collected asset through the panel's `Add Photo`,
@@ -153,6 +159,11 @@ on that photo: the avatar's own click does **not** expand the accordion, Photos�
 biconditional, `Done` closes. Its first run found bugs §35 — every click *inside* the modal
 does reach the row behind it — so it collapses the row again and carries an `optional`
 sentinel on that state rather than going red for it.
+`MOB.625` (wired 8th, green solo 61/61) proves the list sort on our own `DD SYNTHETIC MOBILE`
+rows — `Created At` against the server's default order, `Name` against `localeCompare`, nothing
+hardcoded — and that `Collected By Me` is a filter to the test account's rows. Its optional
+sentinels show bugs §38: the pick is saved under the Asset Verification job list's key.
+`MOB.600`'s server proof is `soft`, so its red (§34) no longer stops the children after it.
 Green standalone (58/58); it has not run inside the suite.
 
 `MOB.620` the picker (🛑 the three capture buttons asserted, never clicked — each opens a native
@@ -161,10 +172,12 @@ unsent · `MOB.622` the carousel's display surface read at one photo **and** at 
 fullscreen and the tag editor · `MOB.600` create an asset **with a real photo attached** — 🛑 red: the server never receives
 it (bugs §34) · `MOB.610` collector search.
 
-### `MOB.995_AssetLookup` — 7 children · read-only
+### `MOB.995_AssetLookup` — 8 children · read-only
 **Establishes: asset lookup, three of its six detail tabs, and the work panel behind them.**
 
-`MOB.700` search and open · `MOB.720` the Readings tab · `MOB.740` **`WorkLookupDetails`**, the
+`MOB.700` search and open · `MOB.750` the `Tag Lookup` menu — ⭐ `Alphanumeric`'s browser
+branch proved by a prototype-`click` recorder (one file dialog, rear camera, images, one file;
+nothing uploaded) and §37's dead `Scan Barcode` sentinelled · `MOB.720` the Readings tab · `MOB.740` **`WorkLookupDetails`**, the
 four-tab work panel — ⭐ which is *also* the map's `WorkCard`, so one test covers two screens ·
 `MOB.741` the work-stage attachment panel and its image filter · `MOB.735` `View in Map`, the
 only navigation in mobile carrying **router state** rather than a URL · `MOB.730`/`MOB.731`
@@ -177,7 +190,7 @@ and `MOB.720` pins the count at 6. On **this** screen only three panels are asse
 only) and their **content** is asserted by `MOB.623` on the collector call site — the same
 `AssetLookupDetails` component, so one call site proves the panels for all eight.
 
-### `MOB.996_Search` — 7 children · read-only
+### `MOB.996_Search` — 8 children · read-only
 **Establishes: search, filtering and sorting across three screens.**
 
 `MOB.800` builds a structured filter and proves it filters · `MOB.805` the **edit** branch ·
@@ -190,18 +203,18 @@ click on `Filters` gets swallowed often enough to have sunk this suite three tim
 gate re-clicks and is the only copy (a bench drift-guard enforces that). Gate on `Add Filter`,
 never on the trigger — it reads `Filters (N)` open or shut.
 
-⚠️ **`MOB.806` covers 1 of `MultiValueSelector`'s 3 branches.** The `enum` branch is reachable
-(`MOB.976`: 3 of the first 8 asset-lookup filter fields render a pre-loaded `MultiSelect`) but
-the probe reports by index, not label, so no test targets it yet. `record` is undistinguished.
-🟢 BUILDABLE #1.
+⭐ **All three of `MultiValueSelector`'s branches are covered.** `MOB.806` drives the `TagsInput`
+(string); `MOB.807` drives `enum` (`Failure Curve` — pre-loaded options, the filter narrows the
+list) and `record` (`Asset Type` — options from the server). Its record leg's optional sentinels
+carry bugs §39: the filter is saved with no value and the server ignores it.
 
 ### The smaller suites
 
 | suite | children | establishes |
 |---|---|---|
 | `MOB.992_Menu` | 7 | hamburger menu, resync, back arrow, header status icons, crew modal dismissal |
-| `MOB.989_FieldEdit` | 3 | the **three** edit surfaces — `MOB.395` WO General Info, `MOB.710` per-field pencil (three entry points at once), `MOB.545` attributes. All prove **persistence**, all self-restore |
-| `MOB.998_MaterialLookup` | 3 | storeroom read, ⭐ `MOB.860` cycle count as a `+1`/`-1` pair that self-restores, `MOB.870` stocking (**one-way, drifts**). `MOB.865` (green solo, wired) pins the modal's four segments by value, the `Photos`↔`Docs` biconditional, and the row avatar image modal as an exclusive-or. `MOB.855` (green solo, wired) proves column-header sort really reorders and that `N matches` equals the row count. `MOB.860`'s `+1`/`-1` is self-restoring *by construction, not by assertion*: both legs prove only that the modal closed, and neither reads the quantity back |
+| `MOB.989_FieldEdit` | 4 | the **three** edit surfaces — `MOB.395` WO General Info, `MOB.710` per-field pencil (three entry points at once), `MOB.545` asset attributes and `MOB.388` work-order attributes (same component, `UPDATE_WORKSTAGE_ATTRIBUTE`). All prove **persistence**, all self-restore |
+| `MOB.998_MaterialLookup` | 5 | storeroom read, ⭐ `MOB.860` cycle count as a `+1`/`-1` pair that self-restores, `MOB.870` stocking (**one-way, drifts**). `MOB.865` (green solo, wired) pins the modal's four segments by value, the `Photos`↔`Docs` biconditional, and the row avatar image modal as an exclusive-or. `MOB.855` (green solo, wired) proves column-header sort really reorders and that `N matches` equals the row count. `MOB.860`'s `+1`/`-1` is self-restoring *by construction, not by assertion*: both legs prove only that the modal closed, and neither reads the quantity back |
 | `MOB.997_Session` | 2 | ⭐ permission gating of the menu, and crew scoping changing the visible job set. ⚠️ **Never run concurrently** — it mutates the session crew |
 | `MOB.987_EventReadings` | 2 | `MOB.550` meter readings — ⭐ the only test proving a write the app itself **fakes** (the UI hand-writes the cache; proof is the next run's cold read). `MOB.551` (⏳ unverified, unwired) opens the reading-history popover on that residue: resolved state as an exclusive-or, timeline↔chart biconditional, offline branch |
 
@@ -242,9 +255,9 @@ In order:
 
 1. **The AV job reset decision** — one owner call; unlocks five tests and breaks the fixture
    monoculture at its tightest point.
-2. **The next buildable items** (`testing_checklist.md` 🟢 #11, #9, #13, #1) — read-only, no
-   fixture, on screens tests already reach. The rendered-string sweep finds these; the attribute
-   sweep does not.
+2. **The last two buildable items** (`testing_checklist.md` 🟢 #3, #10) — both wait on an owner
+   call: #3 would leave a copied attachment on a real asset every run, and #10 needs a `Created`
+   work stage made from desktop. Everything read-only on reachable screens is built.
 3. **`audit_assertions.py` triage** — makes rows that are already `[x]` mean what they claim,
    which moves the third number in a way new tests do not.
 4. **Jest for the offline queue** — highest-risk surface, no Synthetics test will ever reach it,

@@ -62,9 +62,9 @@ def field(field_id):
 def lookup(field_id, label, pick):
     """Focus, wait, pick by text.
 
-    No search term: the collector's lookups go through `defaultFilter`, and the
-    case-sensitivity bug (bugs_found.md #1) makes typed queries unreliable across this
-    codebase. An empty query lists everything, then the option is picked by its text.
+    No search term: an empty query lists everything, then the option is picked by its text.
+    (Written when lookups were case-sensitive - bugs §1, fixed in `cad415620c`. Still the
+    simplest correct shape; a search term would now be safe.)
     """
     return [
         step("click", f"Focus the {label} lookup", {"element": field(field_id)}),
@@ -159,7 +159,10 @@ if not _skip600:
                {"element": xpath_el(BASE + "/asset-lookup",
                                     '(//*[contains(concat(" ", normalize-space(@class), " "), '
                                     f'" mantine-Accordion-item ")])[1][contains(., "{ASSET_NAME}")]')},
-               timeout=30),
+               # `soft`, NOT optional: MOB.600 stays RED while §34 is open - but a critical
+               # non-allowFailure red here ABORTS MOB.994 and its later children (MOB.610,
+               # 623, 624, 625) report red without ever running (the MOB.346 lesson).
+               timeout=30, soft=True),
       ],
       TAGS + ["CRUD"],
       local_vars=[localvar("RUNID", "{{ numeric(8) }}", "12345678")],
@@ -206,7 +209,9 @@ write(test(
                              "MOB.610_Collector_Search",
                              "MOB.623_Collector_Saved_Photo_Menu",
                              # MOB.624 needs the photo MOB.623 just added (badge >= 1).
-                             "MOB.624_Collector_Row_Avatar_Modal"]],
+                             "MOB.624_Collector_Row_Avatar_Modal",
+                             # read-only; restores the AV job-sort key it leaks (§38)
+                             "MOB.625_Collector_List_Sort"]],
     ["Mobile", "env:dev", "Asset Collector", "suite"],
     extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
 ))

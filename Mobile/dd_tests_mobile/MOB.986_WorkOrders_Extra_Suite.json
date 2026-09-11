@@ -236,6 +236,18 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Something went wrong."
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Test authenticated mobile shell rendered",
                 "noScreenshot": false,
                 "params": {
@@ -386,6 +398,19 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "4vg-eum-pwu",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.301_Work_Create_Photo",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "iji-ib7-bpj",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

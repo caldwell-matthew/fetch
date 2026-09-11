@@ -16,20 +16,19 @@ Each entry says how strongly it is evidenced, because that varies a lot:
 
 ## Index
 
-**Every status below was read against the served code — `origin/development@63b8d1b3e8`, 2026-09-10.** A status says what the code does, with the file and line that says so; a fix reported elsewhere is not a status. Re-read a row before acting on it once the sync line in `testing_checklist.md` has moved on.
+**Every status below was read against the served code — `origin/development@cad415620c`, 2026-09-10.** A status says what the code does, with the file and line that says so; a fix reported elsewhere is not a status. Re-read a row before acting on it once the sync line in `testing_checklist.md` has moved on.
 
 ⚠️ **Keep this file current as work happens, not in a catch-up pass.** §29 and §31 were both found days before they were written down, and lived only as comments inside test generators — where nobody looking for app bugs would ever find them. If a finding is about the APP, it belongs here; if it is about a TEST, it belongs in `testing_checklist.md`.
 
-✅ **A fixed finding is DELETED from this file, entry and row.** This is what is wrong with the app now, not a history of what used to be. Numbers are never reused, so gaps in the sequence are expected: §5, §14–§17, §19, §26 and §36 are gaps, not missing entries.
+✅ **A fixed finding is DELETED from this file, entry and row.** This is what is wrong with the app now, not a history of what used to be. Numbers are never reused, so gaps in the sequence are expected: §1, §5, §14–§17, §19, §26 and §36 are gaps, not missing entries.
 (§36 was withdrawn: the AV sort was correct all along — `MOB.580` had hardcoded which of
 two assets sorts first, and the fixture had been renamed `⚡ Tank 0000`, whose leading
 symbol collates before `A`. A wrong test is not an app bug.)
 
-⚠️ **Do not renumber.** `testing_checklist.md` cross-references §1, §4, §9, §10, §11, §20, §21, §23, §24 and §25 by number.
+⚠️ **Do not renumber.** `testing_checklist.md` cross-references §4, §9, §10, §11, §20, §21, §23, §24 and §25 by number.
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 1 | Lookup searches are case-sensitive (pattern, not one-off) | Runtime | ❌ open — `Conditions/Form.tsx:109` still case-sensitive (`LaborCharges` is clean) |
 | 2 | `CreateWorkButton` reads the session non-reactively | Source | ❌ open — `InsertForm/index.tsx:369` still `readQuery` in render |
 | 3 | Crew shortcut invisible at phone width | Source | ❌ open — `.mobile-crew` still `display:none` under 450px |
 | 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | ❌ open as dead code — `ui/DeleteButton.tsx` still unimported. **The rule stands: no delete steps** |
@@ -57,71 +56,15 @@ symbol collates before `A`. A wrong test is not an app bug.)
 | 31 | A deploy takes over a running session silently, and deletes the cache it was using | Source | ❌ open — no `controllerchange` handler in `client` |
 | 32 | Work-stage Docs upload gated on `asset.create` | Source | ❌ open — `Attachments.tsx:124` gates `Add File` on `asset.create` |
 | 33 | Material Lookup renders at most 500 items under a label counting all of them | Runtime (`MOB.855` screenshot) | ❌ open — 996 items, 500 rows, no paging or hint |
-| 34 | **Collecting an asset WITH a photo from a browser never reaches the server** — the UI reports success | Runtime (desktop: last collected asset Aug 24; `MOB.600` green Sep 8–9) + Source | 🛑 open — `MOB.600` carries a server-side proof and is RED until fixed |
+| 34 | **Collecting an asset WITH a photo from a browser never reaches the server** — the UI reports success | Runtime (desktop: last collected asset Aug 24; `MOB.600` green Sep 8–9) + Source | 🛑 open — `MOB.600` carries a server-side proof and is RED until fixed (`soft`, so `MOB.994`'s later children still run) |
 | 35 | Every click INSIDE the row-avatar modal toggles the accordion row behind it | Runtime (`MOB.624`) + Source | ❌ open — `MOB.624` restores the row and sentinels the state |
+| 37 | Asset Lookup's `Scan Barcode` does nothing in a browser — no native guard, unlike the collector's | Runtime (`MOB.750`) + Source | ❌ open — `TagLookup/index.tsx` calls `launchScanner()` unconditionally; `MOB.750` sentinels it |
+| 38 | The collector's sort is saved under the ASSET VERIFICATION job list's key — a pick on one screen re-sorts the other | Runtime (`MOB.625`) + Source | ❌ open — `AssetCollector/index.tsx:137` passes `model="MobileJob"`; `MOB.625` sentinels it and restores the key |
+| 39 | A record-field `includes` filter is saved with NO value — the pill shows none and the server ignores it | Runtime (`MOB.807` + API replay) + Source | ❌ open — `StructuredQuery/index.tsx:100-106` reads `.label` off an array; `MOB.807` sentinels it |
 
 **When one is fixed, delete its entry and its index row**, then fix whatever cited it — the
 checklist and `test_authoring.md` cite some of these as the reason a test is shaped the way it
 is, and those lines should state the fact directly rather than point at a number that is gone.
-
----
-
-## 1. Several lookup searches are case-sensitive (pattern, not one-off)
-
-> ## ❌ OPEN in the served code
->
-> `LaborCharges` no longer carries the pattern, but `Conditions/Form.tsx:109` still
-> filters `v.name.includes(str)` against a lower-cased query — the condition form's asset
-> lookup is still case-sensitive.
-
-**Evidence: Runtime** · `LaborCharges.tsx`, `Conditions/Form.tsx`
-
-Confirmed by a real failure: `MOB.390` searched the condition form's asset lookup for
-`Pump 0102` — the only asset attached to the fixture work order — and got
-`No element found`. The asset was there; the search filtered it out.
-
-The user lookup lowercases both sides of the comparison; the craft lookup lowercases only
-the query:
-
-```js
-// userId  — correct
-user.name.toLocaleLowerCase().includes(txt)
-
-// craftId — txt is lowercased, v.name is NOT
-v.name.includes(txt)
-```
-
-`txt` is `inputText.toLocaleLowerCase()`, so typing `Account Executive` searches for
-`account executive` against un-lowercased craft names and matches nothing. Any craft name
-containing capitals is effectively unsearchable.
-
-**Impact:** to a user, craft search looks broken — typing the exact visible name returns no
-results. Silent: no error, just an empty list.
-
-**Fix:** `v.name.toLocaleLowerCase().includes(txt)`.
-
-**This is a pattern, not a single bug.** The same shape appears in at least three places:
-
-| Lookup | File | Comparison |
-|---|---|---|
-| craftId | `LaborCharges.tsx` | `v.name.includes(txt)` |
-| assetId (condition) | `Conditions/Form.tsx` | `v.name.includes(str)` |
-| userId (labor) | `LaborCharges.tsx` | correct — lowercases both |
-| material item | `MaterialCharges.tsx` | correct — lowercases both |
-
-So it is inconsistent *within the same feature*, which is the worst case for users: some
-lookups match case-insensitively and some silently return nothing. Worth a sweep for
-`.includes(` on a name/label that has not been lowercased.
-
-**The symptom actively misleads.** An empty dropdown reads as "that record does not exist"
-rather than "your search excluded it". It cost a wrong diagnosis here — the asset was
-already attached to the work order, and the first conclusion was that fixture data was
-missing. A user hitting this would reasonably conclude the record is gone.
-
-**Test workaround:** `MOB.360` (craft) and `MOB.390`/`MOB.391` (asset) focus the field
-without typing. An empty query makes `includes("")` match everything, so the full list
-appears, and the option is then picked by text. If this bug is fixed, those tests can be
-simplified to search by name — until then, adding a search term silently breaks them.
 
 ---
 
@@ -1344,7 +1287,9 @@ residue exists and carries a `0` badge: those runs predate the photo step.
 **Why the test missed it for two weeks.** `MOB.600`'s "PROOF OF CREATION" read the collected
 list — the row the client had just written. Trap 6, exactly. `MOB.600` now ends by searching
 Asset Lookup (a `network-only` query) for the run's exact name; that step is red until the app is
-fixed, and `MOB.994` is red with it. **Do not soften that step.**
+fixed, and `MOB.994` is red with it. **Do not make that step `optional`.** It is `soft`
+(critical + `allowFailure`): `MOB.600` still fails, but the run carries on, so the children after it
+in `MOB.994` still execute instead of reporting red unrun.
 
 **Fix.** Give `createAsset.ts` the browser branch `uploadPhoto.ts` already has: tus-upload the
 files via `context.uploads` when `!window.ReactNativeWebView`, and reserve `thumbnails` for the
@@ -1385,3 +1330,120 @@ on the `Modal`'s content (or on the `Stack` inside it) — or lift the `<Modal>`
 **Test consequence.** `MOB.624` is not red for this. It collapses the row again on the way out
 and carries an `optional` SENTINEL step asserting the expanded state; when this is fixed the
 sentinel flips to ERR without failing the test, and that is the signal to delete it.
+
+
+## §37 · Asset Lookup's `Scan Barcode` does nothing in a browser — the collector hides it, Asset Lookup does not
+
+**Found by** `MOB.750_AssetLookup_Tag_Lookup_Menu`, 2026-09-10 (its optional SENTINEL, green on
+the first run that reached it).
+
+`AssetLookup/TagLookup/index.tsx` renders a `Tag Lookup` menu with two items. `Scan Barcode`'s
+handler is `launchScanner()` (`TagLookup/utils.ts`), which calls
+`callNative({ type: 'LAUNCH_CAMERA' })` with no branch for the browser. Outside the native shell
+`callNative` posts to `window.ReactNativeWebView?.postMessage` — absent, so nothing is sent — and
+returns a promise that nothing will ever settle (the §34 mechanism). The menu closes and nothing
+else happens.
+
+**Inconsistent within the same menu, and with the app.** The item beside it, `Alphanumeric`,
+checks `!!window.ReactNativeWebView` and falls back to a browser file dialog (`MOB.750` proves
+that branch). And the collector's own tag capture, `AssetCollector/Form/CaptureTagIcon.tsx:38`,
+only offers `Scan Barcode` *when* `window.ReactNativeWebView` exists. Asset Lookup is the one
+place the item is offered where it cannot work.
+
+**Runtime evidence.** `MOB.750` clicks `Scan Barcode` in the Datadog browser and, three seconds
+later, finds the menu closed, no dialog, no toast, no file dialog requested, and the page still
+on Asset Lookup.
+
+**User-visible effect.** In a browser (the app is served at `/apm-mobile` to anyone with a
+link), tapping `Scan Barcode` closes the menu and nothing happens — no error, no explanation.
+A leaked, never-settled promise and a `BARCODE_SCAN_RESULTS` listener are left behind per tap.
+
+**Fix.** Guard the item the way `CaptureTagIcon` does — render it only when
+`window.ReactNativeWebView` exists — or give it a browser branch.
+
+**Test consequence.** `MOB.750` is not red for this. Its SENTINEL step is `optional`; when this is
+fixed it flips to ERR without failing the test, and that is the signal to rewrite it (a hidden
+item means the MENU assertion must change to `Alphanumeric` alone).
+
+
+## §38 · The collector's sort is saved under the Asset Verification job list's key — a pick on one screen re-sorts the other
+
+**Found by** `MOB.625_Collector_List_Sort`, 2026-09-10 — read in the source while building it,
+then shown at runtime by its two optional SENTINEL steps (green on the first run).
+
+`SortDropDown` persists every pick to `sessionStorage['mobile-${model}-sort']`
+(`ui/SortDropdown.tsx:88`). The collector renders it with **`model="MobileJob"`**
+(`AssetCollector/index.tsx:137`) — the Asset Verification job list's model. The collector never
+reads the key back (its sort is `useState(null)`), but the job list does, on mount, as its
+initial sort (`AssetVerification/index.tsx:33-40`), and `RecordCyclingButtons` reads it to order
+job cycling.
+
+**Runtime evidence.** `MOB.625` picks `Name ▼` on the collector, then opens the job list: its
+sort picker reads `Mobile Job Name ▼` instead of its default `Created At ▼`, and the list is
+sorted that way.
+
+**User-visible effect.** Sort the collected-assets list by name, then open Asset Verification:
+the job list is sorted by name too, and says so, although nobody chose that there. Picking
+`Collected By Me` is worse: it stores `{ id: 'createdBy', column: 'createdBy' }`, which the job
+list applies as a sort on creator name (`MobileJob` has a `createdBy` record) — while its picker
+shows **nothing**, because `createdBy` is not one of its options. The list is ordered by a rule
+the screen cannot display.
+
+**Fix.** Pass the collector its own model (`model="Asset"` would collide with the AV asset list
+inside a job — `Job.tsx:223` — so a dedicated key such as a `storageKey` prop is the clean fix),
+or stop persisting a sort the collector never restores.
+
+**Test consequence.** `MOB.625` is not red for this. Both sentinels are `optional`; when this is
+fixed they flip to ERR without failing the test, and that is the signal to delete them. The test
+stashes the key before it starts and restores it `always`.
+
+
+## §39 · A record-field `includes` filter is saved with no value — the pill shows none and the server ignores it
+
+**Found by** building `MOB.807_Search_MultiValue_Enum_Record`, 2026-09-10: read in the source,
+replayed against the API for 0 runs, then shown in the UI by two optional SENTINEL steps (green on
+the first run).
+
+With operator `includes` / `does not include`, `MultiValueSelector` renders `RecordMultiSelect` for
+a `record` field, whose `onChange` hands the form an **array of option ids**. `addFilter`
+(`ui/StructuredQuery/index.tsx:100-106`) then builds the saved value as
+
+```ts
+selectedField.type === 'record'
+  ? (vals.value as listFilterOption)?.label || (vals.value as listFilterOption)?.name
+  : vals.value
+```
+
+— written for a single option object. An array has neither property, so the filter is saved with
+`value: undefined`. `renderValue` has nothing to show, and `filterToCondition` sends
+`{ column: 'typeId', operator: 'IN' }` with no value.
+
+**Measured against the API** (the query Asset Lookup sends, 303 assets):
+
+| condition | assets returned |
+|---|---|
+| none | 303 |
+| `typeId IN` with no value — what the app sends | **303** — ignored |
+| `typeId IN [<id>]` — the ids `RecordMultiSelect` holds | 0 |
+| `typeId IN ['Pump']` — names | 49 (correct) |
+| `failureCurve IN ['flat']` — the `enum` branch, for contrast | 81 (correct) |
+
+So the record branch is broken twice: the value is dropped, and even the ids it held would match
+nothing, because the server compares record NAMES.
+
+**Runtime evidence.** `MOB.807` picks the first `Asset Type` option, adds the filter, and finds the
+pill reading `Asset Type includes` with no value, and the asset list's first rows unchanged from
+the unfiltered list. The `enum` leg of the same test filters correctly.
+
+**User-visible effect.** Filter Asset Lookup by "Asset Type includes Pump": the filter is
+accepted, a pill appears, and every asset is still listed. Every `record` field in the drawer —
+Asset Type, Crew, Department, System, Operating Status and 15 more (20 on `Asset`, read over
+the API) — is affected. `equals` on the
+same fields works: that path stores the option's label.
+
+**Fix.** For `record` + a multi-value operator, map the selected ids to their option labels
+(`RecordMultiSelect` has them) and save the array of names.
+
+**Test consequence.** `MOB.807` is not red for this. Both sentinels are `optional`; when this is
+fixed they flip to ERR without failing the test, and the record leg should then assert the list
+narrowed, like the enum leg does.

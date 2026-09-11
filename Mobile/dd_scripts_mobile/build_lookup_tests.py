@@ -13,8 +13,8 @@ SEARCH IS SUBMITTED BY THE FORM, NOT A BUTTON
 FIXTURE
   `Pump 0102` - already proven to exist by the work-order tests (MOB.390/391 attach it), so
   this needs no new dev data. Searching by name is safe here: this lookup queries the server
-  with a CONTAINS condition rather than going through the client-side `defaultFilter` that
-  carries the case-sensitivity bug (bugs_found.md #1).
+  with a CONTAINS condition rather than a client-side filter. (Those were case-sensitive until
+  `cad415620c` - bugs §1, fixed; MOB.389 guards it.)
 
 TABS ARE THE SAME COMPONENT MOB.520 ALREADY COVERS
   The expanded result renders AssetLookupDetails - the same hardcoded five tabs (General
@@ -126,6 +126,8 @@ write(test(
                    #   writes NOTHING - the image is filtered client-side - so the suite stays
                    #   read-only and schedulable.
                    for c in ["MOB.700_AssetLookup_Search",
+                             # swaps a prototype method and restores it `always`, asserted
+                             "MOB.750_AssetLookup_Tag_Lookup_Menu",
                              "MOB.720_AssetLookup_Event_Readings",
                              "MOB.740_AssetLookup_Work_History",
                              "MOB.741_Work_Attachments_Docs",

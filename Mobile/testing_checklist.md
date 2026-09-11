@@ -8,7 +8,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** — a row, one line |
 > | what a green run actually proves | `coverage.md` |
-> | how to write a test without repeating a known mistake | `test_authoring.md` (the 30 traps) |
+> | how to write a test without repeating a known mistake | `test_authoring.md` (the 31 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |
 
@@ -23,8 +23,8 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree. `origin/development` is a local ref — `git fetch origin development` first |
-| **Last synced** | `63b8d1b3e8` (2026-09-10) — 87 `client/mobile` files reviewed. Last `client/mobile` change: `73d000fe12` (2026-09-10) |
-| **What was in it** | Mostly an icon-weight sweep (`pro-light` → `pro-regular`, 2 lines a file) and lint-driven hook refactors (`Map/index`, `Job.tsx`, `MaterialLookup`, `NavFooter`, `DevLogs`) — **no asserted literal moved, no locator shape changed**. Three things that matter: the **service worker was rewritten** (`workers/sw.js`, new `workers/register.ts` — bugs §31, and the offline navigation fallback is new), **tag search normalisation** changed `displayCreateButton` from *no results* to *no exact match* (🟢 BUILDABLE #16), and `SortDropdown`'s options memo gained deps — which does **not** explain §36 |
+| **Last synced** | `cad415620c` (2026-09-10) — 10 `client/mobile` + shared-component files reviewed. Last `client/mobile` change: `1f50f32eca` (2026-09-10) |
+| **What was in it** | **No asserted literal moved, no locator shape changed.** **Case-insensitive lookups** everywhere (`Conditions`/`Failures` asset lookup, `LaborCharges` craft, Transaction Log search) — bugs §1 is fixed and deleted; `MOB.132`'s no-match term is still unmatchable lower-cased. A **session re-auth modal** (`Layout/SessionReauthentication.tsx`) that cannot be dismissed — it opens 5 min before `expiresAt`, and a dev session lasts 48 h (read over the API), so no run can meet it. `Auth.tsx` no longer unmounts the app while a session refetch is in flight. `TruncatedSpoilerText`'s `Highlight` is now a `<span>` (work-list descriptions only — no test reads them by tag) |
 | **Literal scan** | `check_literals` clean against this build — 1264 literals, 0 missing |
 
 ```bash
@@ -48,7 +48,7 @@ Known keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filte
 
 | | |
 |---|---|
-| Tests | **110 leaf tests · 13 suites** · 2999 steps · 99 subtest slots (+ `MOB.999_Verify_Scratch`, a harness, not coverage) |
+| Tests | **117 leaf tests · 13 suites** · 3301 steps (leaves + suites) · 107 subtest slots (+ `MOB.999_Verify_Scratch`, a harness, not coverage) |
 | Local ↔ remote | 122 local, in sync by content. The 2 remote extras are archived orphans `MOB.134` / `MOB.711` |
 | Device | `chrome.tablet` **only** — load-bearing, trap 1 |
 | Rows | 117 `[x]` · 13 `[~]` · 10 `[ ]` · 46 `[-]` — 186 rows. Counts describe *this file*, not the app |
@@ -59,17 +59,17 @@ Known keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filte
 
 | suite | children | class |
 |---|---|---|
-| `MOB.985_WorkDetail` | 9 | read-only |
-| `MOB.986_WorkOrders_Extra` | 11 | residue (`MOB.122`/`396`/`397`) |
+| `MOB.985_WorkDetail` | 10 | read-only |
+| `MOB.986_WorkOrders_Extra` | 12 | residue (`MOB.122`/`396`/`397`) |
 | `MOB.987_EventReadings` | 2 | residue (`MOB.550`) |
-| `MOB.989_FieldEdit` | 3 | self-restoring |
-| `MOB.990_Smoke` | 13 | read-only |
+| `MOB.989_FieldEdit` | 4 | self-restoring |
+| `MOB.990_Smoke` | 14 | read-only |
 | `MOB.991_WorkOrders` | 13 | residue · **at the runtime ceiling** (Appendix F) |
 | `MOB.992_Menu` | 7 | read-only |
 | `MOB.993_AssetVerify` | 14 | self-restoring |
-| `MOB.994_Collector` | 7 | residue (`MOB.600`, `MOB.623`) |
-| `MOB.995_AssetLookup` | 7 | read-only |
-| `MOB.996_Search` | 7 | read-only |
+| `MOB.994_Collector` | 8 | residue (`MOB.600`, `MOB.623`) |
+| `MOB.995_AssetLookup` | 8 | read-only |
+| `MOB.996_Search` | 8 | read-only |
 | `MOB.997_Session` | 2 | self-restoring · **never run concurrently** — mutates session crew |
 | `MOB.998_MaterialLookup` | 5 | residue (`MOB.870` only) |
 
@@ -104,20 +104,22 @@ area changes, not on principle.*
 | suite | status |
 |---|---|
 | `MOB.991_WorkOrders` | ✅ 13/13 · current build (`15c38f7987`) |
-| `MOB.994_Collector` | 🛑 **will be RED** — `MOB.600` now carries a server proof that fails (bugs §34). 7 children: `MOB.623` ✅ green solo 58/58; `MOB.624` ✅ green solo 23/23, wired 7th — its first run found bugs §35 (clicks inside the avatar modal toggle the row behind it); it restores the row and sentinels that state |
+| `MOB.994_Collector` | 🛑 **will be RED** — `MOB.600` now carries a server proof that fails (bugs §34). That proof is `soft` (critical + `allowFailure`): `MOB.600` stays red but no longer aborts the run, so the four children after it execute — ⏳ unproven until the next suite run. 8 children: `MOB.623` ✅ green solo 58/58; `MOB.624` ✅ green solo 23/23, wired 7th — its first run found bugs §35 (clicks inside the avatar modal toggle the row behind it); it restores the row and sentinels that state; `MOB.625` ✅ green solo 61/61, wired 8th — its source read found bugs §38 (the collector's sort is saved under the AV job list's key) and two optional sentinels show it at runtime |
 | `MOB.998_MaterialLookup` | ✅ 3/3 · current build · now 5 children: `MOB.855` ✅ and `MOB.865` ✅ green solo, wired, never run inside the suite |
-| `MOB.990_Smoke` | ✅ 13/13 · current build |
-| `MOB.995_AssetLookup` | ✅ 7/7 · current build |
-| `MOB.985_WorkDetail` | ✅ 9/9 · 546s · current build |
+| `MOB.990_Smoke` | ✅ 13/13 · current build · **now 14 children**: `MOB.123` ✅ green solo 36/36, wired after `MOB.121`, not yet run inside the suite |
+| `MOB.995_AssetLookup` | ✅ 7/7 · current build · **now 8 children**: `MOB.750` ✅ green solo 25/25 (second run — the first read `capture` as an attribute, trap 31), wired after `MOB.700`, not yet run inside the suite |
+| `MOB.985_WorkDetail` | ✅ 9/9 · 546s · current build · **now 10 children**: `MOB.389` ✅ green solo 35/35, wired before `MOB.911`, not yet run inside the suite |
 | `MOB.974_DIAG_Geolocation` | ✅ standalone · current build |
 | `MOB.992_Menu` | ✅ 7/7 · current build |
-| `MOB.996_Search` | ✅ 7/7 · current build. It took two runs: the healed drawer gate lived only in `MOB.800`, so `MOB.806` died on the same swallowed Filters click. The gate is now `dd_tools.open_filters_drawer` — one copy for `MOB.800`/`805`/`806`/`820`, with a bench drift-guard |
-| `MOB.986_WorkOrders_Extra` | **10/11** · red only at `MOB.345`, the last child · `MOB.396` ✅ in-suite. `MOB.345` ✅ **green solo** after three real fixes: (1) it clicked a menu item that only renders for a `SCHEDULED` role and `mobileDownloadMode` is `ASSIGNED` → `work_view_ensure` clicks it only if present; (2) the view cannot be read from `toggle_mobile_v_work`, which defaults to `true` and is half of `role === 'SCHEDULED' && flag` → it reads the rendered grouping instead; (3) the crew now has **57** work orders and the list virtualises → it narrows with a search first and proves *every row rendered in BOTH orders is exactly reversed*, which survives rows paging in mid-test. ⏳ suite re-run pending |
-| `MOB.989_FieldEdit` | ✅ 3/3 · current build |
+| `MOB.996_Search` | ✅ 7/7 · current build · **now 8 children**: `MOB.807` ✅ green solo 72/72, wired after `MOB.806`, not yet run inside the suite. It took two runs: the healed drawer gate lived only in `MOB.800`, so `MOB.806` died on the same swallowed Filters click. The gate is now `dd_tools.open_filters_drawer` — one copy for `MOB.800`/`805`/`806`/`820`, with a bench drift-guard |
+| `MOB.986_WorkOrders_Extra` | **10/11** · red only at `MOB.345`, the last child · **now 12 children**: `MOB.301` ✅ green solo 19/19, wired after `MOB.122`, not yet run inside the suite · `MOB.396` ✅ in-suite. `MOB.345` ✅ **green solo** after three real fixes: (1) it clicked a menu item that only renders for a `SCHEDULED` role and `mobileDownloadMode` is `ASSIGNED` → `work_view_ensure` clicks it only if present; (2) the view cannot be read from `toggle_mobile_v_work`, which defaults to `true` and is half of `role === 'SCHEDULED' && flag` → it reads the rendered grouping instead; (3) the crew now has **57** work orders and the list virtualises → it narrows with a search first and proves *every row rendered in BOTH orders is exactly reversed*, which survives rows paging in mid-test. ⏳ suite re-run pending |
+| `MOB.989_FieldEdit` | ✅ 3/3 · current build · **now 4 children**: `MOB.388` ✅ green solo 38/38, wired 4th, not yet run inside the suite |
 | `MOB.993_AssetVerify` | ✅ 12/12 · 656s · current build. Its 3-run red was the TEST, not the app (trap 29: `MOB.580` hardcoded which asset sorts first, and the fixture had been renamed `⚡ Tank 0000`). Proofs are `soft` now, so a red child no longer stops the other 11. **Now 14 children** — `MOB.546` ✅ green solo 29/29 and `MOB.547` ✅ green solo 37/37, both wired, neither yet run inside the suite |
 | `MOB.997_Session` | ✅ 2/2 · 234s · current build · never run concurrently — mutates session crew |
 | `MOB.987_EventReadings` | ❌ suite not run for ≥ 3 weeks · 2 children; `MOB.551` ✅ green solo, wired |
 | `MOB.346_Work_Scheduled_View` | 🛑 cannot pass — see 🟡 BLOCKED |
+
+**The shared login prefix carries a boot crash guard** (`add_crash_guard.py`, before the shell assertion) in all 13 suites, `MOB.000`/`200`/`440`, the DIAGs and the scratch — proven live through the scratch's identical prefix; it changes no child.
 
 **Never executed meaningfully** — live, statically verified only: `MOB.358`.
 
@@ -127,15 +129,8 @@ area changes, not on principle.*
 
 | # | item | why |
 |---|---|---|
-| **12** | **Map: `Switch Map` picker** | `ViewSelectButton` opens a `Select a map` modal, disabled unless the org has ≥ 2 maps — an exclusive-or over disabled/opens. Switching writes `mobile-map-id` to sessionStorage; open and dismiss only. 🛑 **Not 2D/3D or Home**: the pitch label reads the `viewport` prop while the click drives the map imperatively, so it never flips (measured — `build_map_tests.py`), and recentering has no DOM trace |
-| **4** | **A crash guard in the shared login prefix** | `MOB.900` already asserts `Something went wrong.` is absent; the `ErrorBoundary` is otherwise unexercised and when it trips later steps fail on absent locators. Copy `MOB.900`'s shape into the prefix every suite uses |
-| **1** | **`MultiValueSelector`'s `enum` + `record` branches** | `MOB.806` covers the `TagsInput` branch. `MOB.976` proved the `enum` shape is reachable (3 of the first 8 asset-lookup filter fields render a pre-loaded `MultiSelect`) but reports by index, and the field list is runtime server schema — do not target `field[4]` (trap 15). One more probe iteration reporting the selected LABEL unblocks it (`MOB.979`'s `___DUMP___` sentinel is the pattern). `record` still undistinguished |
-| **14** | **Collector list sort, incl. `Collected By Me`** | `SortDropDown` on the collector offers createdAt / name / `Collected By Me` (`createdBy`). Only the `MOB.978` probe has touched it. Same shape as `MOB.810` |
-| **16** | **`Tag Lookup` menu renders `Scan Barcode` + `Alphanumeric`** | Cheap positive on Asset Lookup. Both actions stay 🔴 HARNESS (scanner / native dialog) |
-| **2** | **Work-order `InsertForm` photos** | `Add Work Order Photo` — the third derived `buttonText`. `addImages` writes local state, so read-only until submit |
 | **3** | **`Copy to asset`** (`WorkStageAttachments.tsx`) | Needs a work stage that already has a photo, and copying writes |
-| **17** | **Work-order `Attributes` tab** | `WorkDetails.tsx` renders `Attributes` with `UPDATE_WORKSTAGE_ATTRIBUTE` for an `ATTRIBUTES` section; only asset attributes (`MOB.545`) are tested. ⏳ Whether the fixture template has the section is unverified — `MOB.330` walks tabs by index, not name |
-| **10** | **A `Created`-status guard on the work ring** | `StatusMenuIcon` hides `Created` from the menu, but `StatusSummary`'s `statusMap` lacks it, so a `Created` stage inflates `total` and shows in no segment. Product bug; ⏳ needs a `Created` stage |
+| **10** | **A `Created`-status guard on the work ring** | `StatusMenuIcon` hides `Created` from the menu, but `StatusSummary`'s `statusMap` lacks it, so a `Created` stage inflates `total` and shows in no segment. Product bug; ⏳ needs a `Created` stage — the crew's 57 stages are all `Ready` (API, 2026-09-10), and mobile cannot set `Created` (the menu hides it), so one must be made from desktop |
 
 Find the next ones with the rendered-string sweep (🔧 MAINTENANCE check 6), not the attribute
 sweep. Exclude `__jest__` **by path** — `grep -rh` prints no filename, so `| grep -v __jest__`
@@ -190,7 +185,7 @@ claim.
 
 | # | check | command |
 |---|---|---|
-| 1 | generator vs JSON (trap 19) | `check_drift.py` — clean except the known `MOB.200` role guard (24 → 27 steps) |
+| 1 | generator vs JSON (trap 19) | `check_drift.py` — clean except the known `MOB.200` role guard (25 → 28 steps) |
 | 2 | local vs remote **by content** (step names + subtest ids, not test names) | a name-only check once reported "nothing unpushed" while `MOB.996`'s children were all `PENDING-WIRE-UP` |
 | 3 | latest result per suite, and which build it ran against | 📊 RUN STATUS |
 | 4 | every test cited exists, and every test that exists is cited | clean (`MOB.134`/`MOB.711` are cited as archived orphans on purpose) |
@@ -211,8 +206,9 @@ were broken by an app change.
   Nothing prunes residue today. The AV **fixture reset** half is built and live
   (`reset_av_fixture.py`, §7); the residue-pruning half is not. Both delete real records on a
   shared box — dry run is the default and stays that way (§7.7).
-- **Delete settled diagnostics**: `MOB.974` · `MOB.975` · `MOB.977` · `MOB.979`. Keep `MOB.976`
-  until it reports field labels (🟢 #1) and `MOB.978` while the work-list fixture is in flux.
+- **Delete settled diagnostics**: `MOB.974` · `MOB.975` · `MOB.976` · `MOB.977` · `MOB.979`
+  (`MOB.976` is settled too: #1 read the field list over the API instead). Keep `MOB.978` while
+  the work-list fixture is in flux.
 - **`audit_assertions.py` triage — 138 suspects** (0 HIGH · 17 MED · 121 LOW): 93 `NO-TIMEOUT`
   (trap 21; fix in batches with a run between) · 15 `VACUOUS-ABSENCE` · 15 `NAME-MISMATCH` ·
   13 `TAUTOLOGY` · 2 `LOADBEARING-OPT`. It cannot see an assertion the APP turned vacuous — only check 5 catches that.
@@ -290,7 +286,7 @@ were broken by an app change.
 - [x] From the Mobile Map *(MOB.122)* — geocoder popup → `Add Work`
 - [x] From a Mobile Job asset *(MOB.396)*
 - [x] Assign follow-up work *(MOB.397)*
-- [ ] Photos on the insert form — 🟢 #2
+- [x] Photos on the insert form *(MOB.301)* — one upload lands as exactly one slide in `#workorder-insert-form`, its image a `blob:` URL (held locally, nothing uploaded before submit), label fixed at `Add Work Order Photo`; closed with its X, never submitted
 
 ### Read
 
@@ -314,12 +310,13 @@ were broken by an app change.
 
 - [x] Detail tabs render and switch *(MOB.330)* — by index against `role="tab"` / `data-active`
 - [x] General Info — edit a field *(MOB.395)* · self-restoring (`DATADOG FIXTURE`)
-- [ ] Attributes tab — 🟢 #17
+- [x] Attributes tab edit *(MOB.388)* — `Heater Hz` on the fixture work order, MOB.545's two-leg shape: marker → reload → not the baseline; `7` → reload → exact (`UPDATE_WORKSTAGE_ATTRIBUTE`)
 - [x] Assets tab and its status controls *(MOB.347)* — `Mark as …` asserted, never clicked
 - [x] Attachments *(MOB.741)*
 - [ ] `Copy to asset` — 🟢 #3
 - [x] Add failure *(MOB.391)* — each lookup is fed by the previous selection
 - [x] Add condition score *(MOB.390)* — asset → inspection group → element
+- [x] Condition and Failure asset lookups ignore case *(MOB.389)* — bugs §1's regression guard: in each form's own dropdown, `ZZZZ-NO-SUCH-ASSET` → `No results found`, then `pUMP 0102` → exactly `Pump 0102`; both forms closed unsaved
 - [x] Add form *(MOB.393)* — one-shot until the fixture is cleaned from desktop (bugs §4c)
 - [x] Form render *(MOB.355)* — `/work/:id/form/:id`, desktop form branch on tablet
 - [-] Fill out an inserted form — not automatable (five attempts, five distinct causes; `MOB.134` archived)
@@ -396,7 +393,9 @@ were broken by an app change.
 - [x] Carousel display at one photo and at two; fullscreen; tag editor *(MOB.622)*
 - [x] Collector search *(MOB.610)*
 - [x] Saved-photo menu, `Rotate Image`, and the three attachment panels on a collected asset *(MOB.623)* · residue
-- [ ] Collector sort incl. `Collected By Me` — 🟢 #14
+- [x] Collector sort *(MOB.625)* — narrowed to our own `DD SYNTHETIC MOBILE` rows: `Created At ▼` = the server's default order, `▲` its reverse (rows common to both renders); `Name ▲/▼` = their own `localeCompare` order
+- [x] `Collected By Me` *(MOB.625)* — a FILTER, not a sort: one creator left (the creator of our own rows), creators removed
+- 🟡 The collector's sort pick re-sorts the Asset Verification job list — bugs §38, `MOB.625` sentinels it
 - [x] Tag search: the create button is an **exclusive-or with an exact match** *(MOB.547)* — partial term ⇒ results AND create; `  cUSTOM  ` ⇒ two results and NO create (trim + lower-case); no match ⇒ create. Covers `db95798d54`
 - [x] Row avatar modal *(MOB.624)* — opens without expanding the accordion; Photos↔Docs biconditional; closed with `Done`. ⚠️ clicks *inside* the modal DO toggle the row behind it (bugs §35) — the test collapses it again and sentinels the state
 - [x] Edit asset fields *(MOB.710)* — same `AssetLookupDetails`
@@ -408,8 +407,10 @@ were broken by an app change.
 - [x] Alphanumeric lookup *(MOB.700)* — server-side `CONTAINS`, so trap 11 does not apply
 - [x] Card caret and tab strip *(MOB.700)*
 - [~] `Get Description` (MentorLens) on the Photos tab — present in the menu set *(MOB.623)*; never clicked, it posts the image to the AI route
-- [ ] `Tag Lookup` menu renders — 🟢 #16
-- [-] Scan Barcode · Alphanumeric capture — scanner / native dialog / OpenAI
+- [x] `Tag Lookup` menu *(MOB.750)* — exactly `Scan Barcode` then `Alphanumeric`
+- [x] `Alphanumeric`'s browser branch *(MOB.750)* — a prototype-`click` recorder proves one file dialog, rear camera (`capture=environment`), images only, one file, menu kept open; nothing uploaded
+- [-] The capture itself — the upload goes to `/api/upload/ai` (an AI call per run); the native scanner and camera are 🔴 HARNESS
+- 🟡 `Scan Barcode` in a browser does nothing — bugs §37, `MOB.750` sentinels it
 - [x] `View in Map` on an expanded row *(MOB.735)* — router state, not a URL
 - [x] `Work History` tab contents — `WorkLookupDetails` *(MOB.740)*, also the map's `WorkCard`
 - [x] Work-stage attachment panel and image filter *(MOB.741)*
@@ -434,7 +435,7 @@ were broken by an app change.
 
 - [x] Map style · layers panel *(MOB.121)* — style state is `data-tooltip-content` flipping `Satellite`↔`Street`
 - [~] Zoom in/out *(MOB.121)* — Mapbox does not publish the zoom level to the DOM; proves the controls exist and the canvas survives
-- [ ] `Switch Map` picker — 🟢 #12
+- [x] `Switch Map` picker *(MOB.123)* — switches and switches back: the stored map is the checked option, dismiss writes nothing, a pick writes the new id to `mobile-map-id` and closes the picker (`<MapGl key={mapId}>` remounts it), reopening reads the new map back. Enabled side only — dev has 3 maps; the < 2 disabled side would need maps deleted
 - [-] 2D/3D toggle · Home — no DOM trace of the state change (the pitch label never flips)
 - [x] Geocoder search → suggestion → fly + popup *(MOB.122)*
 - [x] Create a work order from the map *(MOB.122)*
@@ -487,7 +488,9 @@ were broken by an app change.
 - [~] **SB** — proven on the mobile job list *(MOB.530)*; the other modules rely on that instance
 - [x] Search vs. filter interaction *(MOB.820)* — submitting the search box discards active filters (bugs §20)
 - [x] `StructuredQuery` filter builder *(MOB.800)* · edit an existing filter *(MOB.805)* · multi-value branch *(MOB.806)*
-- [ ] `enum` / `record` multi-value branches — 🟢 #1
+- [x] `enum` multi-value branch *(MOB.807)* — `Failure Curve`: options pre-loaded, `flat` picked, pill `Failure Curve includes flat`, the list re-queried
+- [x] `record` multi-value branch *(MOB.807)* — `Asset Type`: options load from the server, a pick makes the draft valid
+- 🟡 A record `includes` filter is saved with no value and ignored by the server — bugs §39, `MOB.807` sentinels it
 - [x] Offline geolocate branch *(MOB.911)*
 
 # Reusable blocks

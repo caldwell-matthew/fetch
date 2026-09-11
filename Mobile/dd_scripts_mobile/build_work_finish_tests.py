@@ -451,6 +451,8 @@ login_steps = json.load(
 CHILDREN = ["MOB.396_Work_Create_From_Asset", "MOB.394_Work_Permits",
             "MOB.397_Work_Assign_Followup", "MOB.398_Work_Assign_Stage_Modal",
             "MOB.399_Work_Warranties", "MOB.122_Map_Create_Work",
+            # read-only: a photo into the create form, discarded unsent
+            "MOB.301_Work_Create_Photo",
             # the work LIST tests, added to the JSON 2026-08-18 and back-ported here 08-20
             "MOB.341_Work_Map_Toggle", "MOB.343_Work_List_Search_Filter",
             "MOB.344_Work_List_Row_Navigate", "MOB.342_Work_Status_Ring",

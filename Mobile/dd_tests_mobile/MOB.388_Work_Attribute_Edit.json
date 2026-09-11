@@ -1,0 +1,681 @@
+{
+    "test_name": "MOB.388_Work_Attribute_Edit",
+    "details": {
+        "name": "MOB.388_Work_Attribute_Edit",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.388` Edit the `Heater Hz` attribute on the fixture **work order** and prove it\npersisted \u2014 checklist \ud83d\udfe2 #17.\n- **SELF-RESTORING**, MOB.545's two-leg shape: leg 1 writes `DD SYNTHETIC EDIT <runid>`,\n  a reload proves it is no longer `7`; leg 2 writes `7`\n  back and a reload proves it is exact.\n- Same `Attributes` component as `MOB.545`, different mutation\n  (`UPDATE_WORKSTAGE_ATTRIBUTE`). The fixture template's ATTRIBUTES section and the\n  `Heater Hz` string attribute were confirmed through the API before building.\n- Matched by LABEL: attribute inputs are keyed by the attribute record's uuid.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "CRUD",
+            "field-edit",
+            "Work Orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Attributes tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attributes\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the Attributes panel",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the \"Heater Hz\" attribute input is on this work order",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the Heater Hz field",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select the existing text (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the Heater Hz value",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC EDIT {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the attributes form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"mobile-attrib\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast to appear",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Attributes updated toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Attributes updated successfully!"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the attribute mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Attributes tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attributes\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the Attributes panel",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the \"Heater Hz\" attribute input is on this work order",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PROOF: after a reload \"Heater Hz\" is no longer the baseline",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const g = [...document.querySelectorAll('div.form-group')].find(d => {\n  const l = d.querySelector('label');\n  return l && l.textContent.trim().indexOf('Heater Hz') === 0;\n});\nif (!g) return false;\nconst el = g.querySelector('input');\nif (!el) return false;\nreturn el.value.trim() !== '7';"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the Heater Hz field",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select the existing text (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the Heater Hz value",
+                "noScreenshot": false,
+                "params": {
+                    "value": "7",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the restore",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"mobile-attrib\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the restore mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 6
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Attributes tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attributes\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the Attributes panel",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIELD GUARD: the \"Heater Hz\" attribute input is on this work order",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" form-group \")][./label[contains(normalize-space(.), \"Heater Hz\")]]//input"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: \"Heater Hz\" is exactly \"7\" again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const g = [...document.querySelectorAll('div.form-group')].find(d => {\n  const l = d.querySelector('label');\n  return l && l.textContent.trim().indexOf('Heater Hz') === 0;\n});\nif (!g) return false;\nconst el = g.querySelector('input');\nif (!el) return false;\nreturn el.value.trim() === '7';"
+                },
+                "type": "assertFromJavascript"
+            }
+        ]
+    }
+}

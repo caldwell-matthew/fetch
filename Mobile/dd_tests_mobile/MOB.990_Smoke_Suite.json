@@ -237,6 +237,18 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Something went wrong."
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Test authenticated mobile shell rendered",
                 "noScreenshot": false,
                 "params": {
@@ -439,6 +451,19 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "9nx-557-9c5",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.123_Map_Switch_Map",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "mge-ufj-sm7",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

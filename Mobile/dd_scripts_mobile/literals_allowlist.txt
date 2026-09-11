@@ -77,3 +77,11 @@ cUSTOM
 # The create option renders the term inside single quotes (`+ Create Tag 'Batter'`),
 # so the asserted string carries them and is scanned in that form.
 'Batter'
+# MOB.389's probe terms: a name no asset carries, and the fixture asset `Pump 0102`
+# case-swapped. Neither is app text - they are what the test TYPES.
+ZZZZ-NO-SUCH-ASSET
+pUMP 0102
+# MOB.625's test-owned sessionStorage stash key (like MOB.132's) - not app text.
+__dd625_prevJobSort
+# MOB.388: the fixture work order's string attribute (DB data, read over the API).
+Heater Hz

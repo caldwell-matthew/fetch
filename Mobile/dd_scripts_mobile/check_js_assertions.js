@@ -74,8 +74,10 @@ function bodyOf(testFile, nameFragment) {
 const runJs = (code, win) => {
 	let ss;
 	try { ss = win.sessionStorage; } catch (e) { ss = undefined; }   // opaque-origin windows throw
-	return new Function('document', 'sessionStorage', `return (function(){${code}})()`)(
-		win.document, ss);
+	// `window` too: MOB.123 carries ids between steps on it (MOB.470's `__ddSW` proved that
+	// survives from one Datadog step to the next while the page does not navigate).
+	return new Function('document', 'sessionStorage', 'window', `return (function(){${code}})()`)(
+		win.document, ss, win);
 };
 
 /* ===========================================================================================
@@ -1079,6 +1081,623 @@ check('MUST FAIL: no match - nothing offered at all (dropdown never opened)',
 	panel.appendChild(other); doc.body.appendChild(panel);
 	check('MUST FAIL: badge - only an unrelated badge, no tag overlay', runJs(M547.badge, dom.window), false);
 }
+
+/* ===========================================================================================
+ * MOB.123 - the map's `Switch Map` picker. Structure from ViewSelectButton.tsx (Mantine Modal >
+ * FormFieldContainer "Select a map" > SelectInput) and @mantine/core 8.3.18: Select renders a
+ * visible input plus Combobox.HiddenInput (value = the selected id); the portaled dropdown is
+ * [role=listbox] > [role=option][value=id][aria-selected] > span(label) (OptionsDropdown.mjs,
+ * withCheckIcon=false). The modal's close button carries `mantine-Modal-close`.
+ * ========================================================================================= */
+const MOB123 = 'MOB.123_Map_Switch_Map.json';
+const M123 = {
+	capture: bodyOf(MOB123, 'CAPTURE: `mobile-map-id` holds the map on screen'),
+	open: bodyOf(MOB123, 'OPEN: the `Select a map` modal holds the STORED map'),
+	options: bodyOf(MOB123, 'OPTIONS: at least 2 maps listed'),
+	close: bodyOf(MOB123, 'Close the picker with its close button'),
+	dismiss: bodyOf(MOB123, 'DISMISS: the picker is gone'),
+	pickCapture: bodyOf(MOB123, 'CAPTURE: the first map that is NOT the current one'),
+	switched: bodyOf(MOB123, 'SWITCHED: `mobile-map-id` now holds the PICKED map'),
+	readback: bodyOf(MOB123, 'READBACK: the reopened picker holds the NEW map'),
+	restore: bodyOf(MOB123, 'RESTORE: pick the original map back'),
+	restored: bodyOf(MOB123, 'RESTORED: no picker is open'),
+};
+const MAPS = [['m1', 'Map 1- N Alexander Street'], ['m2', 'Map 2- Buildings'], ['m3', 'Map 3 - Superdome']];
+function mapPage({ stored = 'm1', modal = false, selected = stored, shown = undefined,
+	dropdown = false, maps = MAPS, checked = selected, closeBtn = true, rawStored = undefined } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.example/map' });
+	const w = dom.window; const doc = w.document;
+	if (rawStored !== undefined) w.sessionStorage.setItem('mobile-map-id', rawStored);
+	else if (stored !== null) w.sessionStorage.setItem('mobile-map-id', JSON.stringify(stored));
+	const btn = doc.createElement('button');
+	btn.setAttribute('aria-label', 'Switch Map'); doc.body.appendChild(btn);
+	if (modal) {
+		const c = doc.createElement('section');
+		c.className = 'm_1b7284a3 mantine-Modal-content mantine-Paper-root';
+		if (closeBtn) {
+			const x = doc.createElement('button');
+			x.className = 'mantine-focus-auto mantine-CloseButton-root mantine-Modal-close';
+			x.addEventListener('click', () => { c.remove(); });
+			c.appendChild(x);
+		}
+		const lab = doc.createElement('label'); lab.textContent = 'Select a map'; c.appendChild(lab);
+		const input = doc.createElement('input'); input.className = 'mantine-Select-input input';
+		const hit = maps.find(([id]) => id === selected);
+		input.value = shown !== undefined ? shown : (hit ? hit[1] : '');
+		c.appendChild(input);
+		const hidden = doc.createElement('input'); hidden.type = 'hidden';
+		hidden.value = selected || ''; c.appendChild(hidden);
+		doc.body.appendChild(c);
+	}
+	if (dropdown) {
+		const lb = doc.createElement('div'); lb.setAttribute('role', 'listbox');
+		for (const [id, label] of maps) {
+			const o = doc.createElement('div'); o.setAttribute('role', 'option');
+			o.setAttribute('value', id);
+			o.setAttribute('aria-selected', String(id === checked));
+			const sp = doc.createElement('span'); sp.textContent = label; o.appendChild(sp);
+			o.addEventListener('click', () => { w.__clicked = id; });
+			lb.appendChild(o);
+		}
+		doc.body.appendChild(lb);
+	}
+	return w;
+}
+console.log('\nMOB.123_Map_Switch_Map - switch, read back, restore; nothing hardcoded');
+{
+	const w = mapPage();
+	check('capture - a stored JSON id is captured', runJs(M123.capture, w), true);
+	check('capture - onto window', w.__ddMapBefore, 'm1');
+	check('MUST FAIL: capture - nothing stored', runJs(M123.capture, mapPage({ stored: null })), false);
+	check('MUST FAIL: capture - the empty default ("" when the session had not loaded)',
+		runJs(M123.capture, mapPage({ stored: '' })), false);
+	check('MUST FAIL: capture - not JSON (a raw id written by something else)',
+		runJs(M123.capture, mapPage({ rawStored: 'm1' })), false);
+}
+const withVars = (w, vars) => Object.assign(w, vars);
+check('open - modal holds the stored map by id, and names it',
+	runJs(M123.open, withVars(mapPage({ modal: true }), { __ddMapBefore: 'm1' })), true);
+check('MUST FAIL: open - the modal holds a different map',
+	runJs(M123.open, withVars(mapPage({ modal: true, selected: 'm2' }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: open - the Select shows no name (options arrived empty)',
+	runJs(M123.open, withVars(mapPage({ modal: true, shown: '' }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: open - no modal',
+	runJs(M123.open, withVars(mapPage(), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: open - the capture never ran (window var missing)',
+	runJs(M123.open, mapPage({ modal: true, selected: '' })), false);
+check('options - 3 maps, the stored one checked and named in the input',
+	runJs(M123.options, withVars(mapPage({ modal: true, dropdown: true }), { __ddMapBefore: 'm1' })), true);
+check('MUST FAIL: options - one map only',
+	runJs(M123.options, withVars(mapPage({ modal: true, dropdown: true, maps: [MAPS[0]] }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: options - the checked option is not the stored map',
+	runJs(M123.options, withVars(mapPage({ modal: true, dropdown: true, checked: 'm2' }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: options - nothing checked',
+	runJs(M123.options, withVars(mapPage({ modal: true, dropdown: true, checked: 'none' }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: options - the input names a different map than the checked option',
+	runJs(M123.options, withVars(mapPage({ modal: true, dropdown: true, shown: 'Map 2- Buildings' }), { __ddMapBefore: 'm1' })), false);
+{
+	const w = withVars(mapPage({ modal: true, dropdown: true }), { __ddMapBefore: 'm1' });
+	check('close - the close button is found and clicked', runJs(M123.close, w), true);
+	check('dismiss - modal gone, storage unchanged', runJs(M123.dismiss, w), true);
+	check('MUST FAIL: close - no close button', runJs(M123.close, mapPage({ modal: true, closeBtn: false })), false);
+}
+check('MUST FAIL: dismiss - the modal is still open',
+	runJs(M123.dismiss, withVars(mapPage({ modal: true }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: dismiss - closing wrote a different map',
+	runJs(M123.dismiss, withVars(mapPage({ stored: 'm2' }), { __ddMapBefore: 'm1' })), false);
+{
+	const w = withVars(mapPage({ modal: true, dropdown: true }), { __ddMapBefore: 'm1' });
+	check('pick capture - the first unchecked map is captured', runJs(M123.pickCapture, w), true);
+	check('pick capture - it is m2 (the one the xpath click will hit)', w.__ddMapPicked, 'm2');
+	check('MUST FAIL: pick capture - every option is the current map',
+		runJs(M123.pickCapture, withVars(mapPage({ dropdown: true, maps: [MAPS[0]] }), { __ddMapBefore: 'm1' })), false);
+}
+check('switched - storage holds the picked map, the picker closed',
+	runJs(M123.switched, withVars(mapPage({ stored: 'm2' }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' })), true);
+check('MUST FAIL: switched - storage still holds the original',
+	runJs(M123.switched, withVars(mapPage({ stored: 'm1' }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' })), false);
+check('MUST FAIL: switched - storage holds a THIRD map (not the one picked)',
+	runJs(M123.switched, withVars(mapPage({ stored: 'm3' }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' })), false);
+check('MUST FAIL: switched - stored, but the picker stayed open (no remount)',
+	runJs(M123.switched, withVars(mapPage({ stored: 'm2', modal: true }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' })), false);
+check('MUST FAIL: switched - the pick capture never ran',
+	runJs(M123.switched, withVars(mapPage({ stored: 'm2' }), { __ddMapBefore: 'm1' })), false);
+check('readback - reopened, the picker holds the new map',
+	runJs(M123.readback, withVars(mapPage({ stored: 'm2', modal: true }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' })), true);
+check('MUST FAIL: readback - the picker reopened on the ORIGINAL map (value not read back)',
+	runJs(M123.readback, withVars(mapPage({ stored: 'm2', modal: true, selected: 'm1' }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' })), false);
+{
+	const w = withVars(mapPage({ stored: 'm2', modal: true, dropdown: true }), { __ddMapBefore: 'm1', __ddMapPicked: 'm2' });
+	check('restore - the ORIGINAL option (by id) is clicked', runJs(M123.restore, w), true);
+	check('restore - it was m1 that got the click', w.__clicked, 'm1');
+	check('MUST FAIL: restore - the original map is not in the list',
+		runJs(M123.restore, withVars(mapPage({ dropdown: true, maps: MAPS.slice(1) }), { __ddMapBefore: 'm1' })), false);
+}
+check('restored - no picker, storage is the original',
+	runJs(M123.restored, withVars(mapPage({ stored: 'm1' }), { __ddMapBefore: 'm1' })), true);
+check('MUST FAIL: restored - still on the picked map',
+	runJs(M123.restored, withVars(mapPage({ stored: 'm2' }), { __ddMapBefore: 'm1' })), false);
+check('MUST FAIL: restored - the capture never ran (undefined === undefined must not pass)',
+	runJs(M123.restored, mapPage({ stored: null })), false);
+
+/* ===========================================================================================
+ * MOB.389 - the work-order asset lookups ignore case (bugs §1's regression guard). Structure
+ * from ListFilter/index.tsx: TextInput#assetId inside a <span> that Combobox.Target clones with
+ * aria-controls=<listbox id> while open (use-combobox-target-props.mjs:71); the listbox holds
+ * [role=option] > .custom-option > .option-title, or Combobox.Empty "No results found".
+ * ========================================================================================= */
+const MOB389 = 'MOB.389_Work_Lookup_Case_Insensitive.json';
+const M389 = {
+	none: bodyOf(MOB389, 'CONDITION NO MATCH'),
+	wrong: bodyOf(MOB389, 'CONDITION WRONG CASE'),
+	noneF: bodyOf(MOB389, 'FAILURE NO MATCH'),
+	wrongF: bodyOf(MOB389, 'FAILURE WRONG CASE'),
+	type: bodyOf(MOB389, 'Type "ZZZZ-NO-SUCH-ASSET"'),
+	close: bodyOf(MOB389, "Close the add form with the modal's close button"),
+	closed: bodyOf(MOB389, 'CLOSED: the Condition form is unmounted'),
+};
+function lookupForm({ formId = 'work-condition-form', typed = '', titles = [], open = true,
+	stale = [], linked = true, modal = true } = {}) {
+	const dom = new JSDOM('<body></body>'); const w = dom.window; const doc = w.document;
+	const content = doc.createElement('section');
+	content.className = 'mantine-Modal-content mantine-Paper-root';
+	const x = doc.createElement('button'); x.className = 'mantine-CloseButton-root mantine-Modal-close';
+	x.addEventListener('click', () => content.remove());
+	if (modal) content.appendChild(x);
+	const form = doc.createElement('form'); form.id = formId;
+	const span = doc.createElement('span');
+	if (open && linked) span.setAttribute('aria-controls', 'lb-live');
+	const wrap = doc.createElement('div'); wrap.className = 'mantine-TextInput-wrapper';
+	const inp = doc.createElement('input'); inp.id = 'assetId'; inp.type = 'search'; inp.value = typed;
+	wrap.appendChild(inp); span.appendChild(wrap); form.appendChild(span); content.appendChild(form);
+	doc.body.appendChild(content);
+	const listbox = (id, ts) => {
+		const lb = doc.createElement('div'); lb.id = id; lb.setAttribute('role', 'listbox');
+		for (const t of ts) {
+			const o = doc.createElement('div'); o.setAttribute('role', 'option');
+			o.innerHTML = `<div class="custom-option"><div class="option-title">${t}</div><div class="option-description"></div></div>`;
+			lb.appendChild(o);
+		}
+		if (!ts.length) { const e = doc.createElement('div'); e.className = 'error'; e.textContent = 'No results found'; lb.appendChild(e); }
+		doc.body.appendChild(lb);
+	};
+	if (stale.length) listbox('lb-stale', stale);        // a leftover dropdown from another field
+	if (open) listbox('lb-live', titles);
+	return w;
+}
+console.log('\nMOB.389_Work_Lookup_Case_Insensitive - a matched pair in the field\'s own dropdown');
+check('no match - empty list and "No results found"',
+	runJs(M389.none, lookupForm({ typed: 'ZZZZ-NO-SUCH-ASSET' })), true);
+check('MUST FAIL: no match - the filter ignored the input and listed the asset',
+	runJs(M389.none, lookupForm({ typed: 'ZZZZ-NO-SUCH-ASSET', titles: ['Pump 0102'] })), false);
+check('MUST FAIL: no match - the dropdown is not open (no aria-controls)',
+	runJs(M389.none, lookupForm({ typed: 'ZZZZ-NO-SUCH-ASSET', open: false })), false);
+check('no match - a STALE dropdown elsewhere listing the asset cannot answer',
+	runJs(M389.none, lookupForm({ typed: 'ZZZZ-NO-SUCH-ASSET', stale: ['Pump 0102'] })), true);
+check('wrong case - "pUMP 0102" lists exactly Pump 0102',
+	runJs(M389.wrong, lookupForm({ typed: 'pUMP 0102', titles: ['Pump 0102'] })), true);
+check('MUST FAIL: wrong case - the pre-fix behaviour ("No results found")',
+	runJs(M389.wrong, lookupForm({ typed: 'pUMP 0102', titles: [] })), false);
+check('MUST FAIL: wrong case - the pre-fix list, with a STALE dropdown holding the asset',
+	runJs(M389.wrong, lookupForm({ typed: 'pUMP 0102', titles: [], stale: ['Pump 0102'] })), false);
+check('MUST FAIL: wrong case - the input holds the EXACT case (the probe degraded)',
+	runJs(M389.wrong, lookupForm({ typed: 'Pump 0102', titles: ['Pump 0102'] })), false);
+check('MUST FAIL: wrong case - two options (the filter is not filtering)',
+	runJs(M389.wrong, lookupForm({ typed: 'pUMP 0102', titles: ['Pump 0102', 'Pump 0103'] })), false);
+check('failure form - same pair, same verdicts',
+	runJs(M389.noneF, lookupForm({ formId: 'work-failure-form', typed: 'ZZZZ-NO-SUCH-ASSET' }))
+	&& runJs(M389.wrongF, lookupForm({ formId: 'work-failure-form', typed: 'pUMP 0102', titles: ['Pump 0102'] })), true);
+check('MUST FAIL: failure form - pre-fix',
+	runJs(M389.wrongF, lookupForm({ formId: 'work-failure-form', typed: 'pUMP 0102' })), false);
+{
+	const w = lookupForm({ typed: '' });
+	const inp = w.document.getElementById('assetId');
+	let events = 0; inp.addEventListener('input', () => events++);
+	check('type - returns true and the input holds the term', runJs(M389.type, w) && inp.value === 'ZZZZ-NO-SUCH-ASSET', true);
+	check('type - an input event fired, so ListFilter.onChange runs', events, 1);
+	check('MUST FAIL: type - no #assetId on the page', runJs(M389.type, new JSDOM('<body></body>').window), false);
+}
+{
+	const w = lookupForm({});
+	check('close - the modal close button is clicked', runJs(M389.close, w), true);
+	check('closed - the form is gone', runJs(M389.closed, w), true);
+	check('MUST FAIL: closed - the form is still mounted', runJs(M389.closed, lookupForm({})), false);
+	check('MUST FAIL: close - no close button', runJs(M389.close, lookupForm({ modal: false })), false);
+}
+
+/* ===========================================================================================
+ * MOB.750 - the Tag Lookup menu. Mantine Menu: [role=menu] > [role=menuitem]. `Alphanumeric`'s
+ * browser branch is `useFileDialog.open()` (@mantine/hooks use-file-dialog.mjs): remove the old
+ * input, createInput(options) (type=file, accept, multiple, capture, display:none), append to
+ * body, `.click()` it. The model below does exactly that, so the recorder meets the real path.
+ * ========================================================================================= */
+const MOB750 = 'MOB.750_AssetLookup_Tag_Lookup_Menu.json';
+const M750 = {
+	stub: bodyOf(MOB750, 'STUB: record file-input clicks'),
+	menu: bodyOf(MOB750, 'MENU: exactly `Scan Barcode` then `Alphanumeric`'),
+	one: bodyOf(MOB750, 'ALPHANUMERIC (browser): exactly ONE file dialog'),
+	rear: bodyOf(MOB750, 'asking for the REAR camera'),
+	img: bodyOf(MOB750, 'for images only, one file'),
+	open: bodyOf(MOB750, 'and the menu STAYED OPEN'),
+	sentinel: bodyOf(MOB750, 'SENTINEL (bugs §37)'),
+	restore: bodyOf(MOB750, 'RESTORE: put `HTMLInputElement.prototype.click` back'),
+	restored: bodyOf(MOB750, 'RESTORED: inputs click with the ORIGINAL'),
+};
+function tagMenuPage({ items = ['Scan Barcode', 'Alphanumeric'], menu = true, path = '/apm-mobile/asset-lookup' } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.example' + path });
+	const w = dom.window; const doc = w.document;
+	if (menu) {
+		const m = doc.createElement('div'); m.setAttribute('role', 'menu');
+		for (const t of items) {
+			const b = doc.createElement('button'); b.setAttribute('role', 'menuitem');
+			b.innerHTML = `<div>${t}</div><div></div>`; m.appendChild(b);
+		}
+		doc.body.appendChild(m);
+	}
+	w.__openDialog = (opts) => {           // useFileDialog.open()
+		const i = doc.createElement('input'); i.type = 'file';
+		if (opts.accept) i.accept = opts.accept;
+		if (opts.multiple) i.multiple = true;
+		// createInput sets `input.capture = ...` - a PROPERTY. Model a browser that does NOT
+		// reflect it to an attribute (the first live run's lesson), unless asked to.
+		if (opts.capture && opts.asAttr) i.setAttribute('capture', opts.capture);
+		else if (opts.capture) Object.defineProperty(i, 'capture', { value: opts.capture });
+		i.style.display = 'none'; doc.body.appendChild(i); i.click();
+	};
+	return w;
+}
+const ALPHA = { capture: 'environment', accept: 'image/*', multiple: false };
+console.log('\nMOB.750_AssetLookup_Tag_Lookup_Menu - the Alphanumeric browser branch, via a click recorder');
+{
+	const w = tagMenuPage();
+	const nativeClick = w.HTMLElement.prototype.click;
+	check('stub - installs, empty record', runJs(M750.stub, w), true);
+	check('stub - it SHADOWS the inherited click', Object.prototype.hasOwnProperty.call(w.HTMLInputElement.prototype, 'click'), true);
+	check('stub - idempotent (a second run does not re-wrap or reset)', (w.__ddFileClicks.push('x'), runJs(M750.stub, w)), false);
+	w.__ddFileClicks.length = 0;
+	check('menu - exactly the two items in order', runJs(M750.menu, w), true);
+	w.__openDialog(ALPHA);
+	check('alphanumeric - one dialog', runJs(M750.one, w), true);
+	check('alphanumeric - rear camera, read from the PROPERTY (not reflected to an attribute)', runJs(M750.rear, w), true);
+	check('alphanumeric - images only, one file', runJs(M750.img, w), true);
+	check('alphanumeric - the menu stayed open', runJs(M750.open, w), true);
+	check('the recorded capture has NO attribute behind it (the case that failed live)',
+		w.document.querySelector('input[type=file]').getAttribute('capture'), null);
+	const btn = w.document.createElement('input'); btn.type = 'checkbox'; w.document.body.appendChild(btn);
+	btn.click();
+	check('stub - a NON-file input still really clicks', btn.checked, true);
+	check('restore - returns true', runJs(M750.restore, w), true);
+	check('restore - the shadowing property is DELETED, not reassigned', Object.prototype.hasOwnProperty.call(w.HTMLInputElement.prototype, 'click'), false);
+	check('restored - original click is back', runJs(M750.restored, w), true);
+	check('restored - inherited from HTMLElement again', w.HTMLInputElement.prototype.click === nativeClick, true);
+	check('restored - the window vars are cleaned up', w.__ddFileClicks === undefined && w.__ddOrigClick === undefined, true);
+}
+{
+	const w = tagMenuPage(); runJs(M750.stub, w);
+	check('MUST FAIL: restored - the recorder is still installed', runJs(M750.restored, w), false);
+}
+const alphaAfter = (opts, menuOpen = true, times = 1) => {
+	const w = tagMenuPage({ menu: menuOpen }); runJs(M750.stub, w);
+	for (let k = 0; k < times; k++) w.__openDialog(opts);
+	return runJs(M750.one, w) && runJs(M750.rear, w) && runJs(M750.img, w) && runJs(M750.open, w);
+};
+check('alphanumeric - a browser that DOES reflect capture to an attribute also passes',
+	alphaAfter({ ...ALPHA, asAttr: true }), true);
+check('MUST FAIL: alphanumeric - no dialog requested (the native branch, or a dead item)', alphaAfter(ALPHA, true, 0), false);
+check('MUST FAIL: alphanumeric - two dialogs requested', alphaAfter(ALPHA, true, 2), false);
+check('MUST FAIL: alphanumeric - the FRONT camera', alphaAfter({ ...ALPHA, capture: 'user' }), false);
+check('MUST FAIL: alphanumeric - no capture (gallery picker, not the camera)', alphaAfter({ accept: 'image/*' }), false);
+check('MUST FAIL: alphanumeric - any file type', alphaAfter({ ...ALPHA, accept: '*' }), false);
+check('MUST FAIL: alphanumeric - multiple files', alphaAfter({ ...ALPHA, multiple: true }), false);
+check('MUST FAIL: alphanumeric - the menu closed on click', alphaAfter(ALPHA, false), false);
+check('MUST FAIL: menu - order swapped', runJs(M750.menu, tagMenuPage({ items: ['Alphanumeric', 'Scan Barcode'] })), false);
+check('MUST FAIL: menu - a third item', runJs(M750.menu, tagMenuPage({ items: ['Scan Barcode', 'Alphanumeric', 'NFC'] })), false);
+check('MUST FAIL: menu - not open', runJs(M750.menu, tagMenuPage({ menu: false })), false);
+{
+	const w = tagMenuPage({ menu: false }); w.__ddFileClicks = [{}];
+	check('sentinel - menu closed, nothing shown, still on lookup', runJs(M750.sentinel, w), true);
+	const t = w.document.createElement('div'); t.className = 'Toastify__toast'; w.document.body.appendChild(t);
+	check('MUST FAIL: sentinel - a toast appeared (the fix)', runJs(M750.sentinel, w), false);
+	const w2 = tagMenuPage({ menu: false, path: '/apm-mobile/scanner' }); w2.__ddFileClicks = [{}];
+	check('MUST FAIL: sentinel - it navigated somewhere', runJs(M750.sentinel, w2), false);
+}
+
+/* ===========================================================================================
+ * MOB.625 - the collector sort. Row structure from AssetCollector/index.tsx:171-205 and
+ * AccordionControl.mjs:82: Accordion-item > Accordion-control > span.Accordion-label >
+ * [Group(avatar, Stack(Group(TruncateText > Highlight(name))), desc)], [searchMatch Text],
+ * Text("creator, date"). The label's LAST child is the creator line.
+ * ========================================================================================= */
+const MOB625 = 'MOB.625_Collector_List_Sort.json';
+const M625 = {
+	rendered: bodyOf(MOB625, 'The collected list rendered rows'),
+	stash: bodyOf(MOB625, 'STASH: remember'),
+	premise: bodyOf(MOB625, 'PREMISE (data)'),
+	narrowed: bodyOf(MOB625, 'NARROWED: 2 to 15 rows'),
+	caAsc: bodyOf(MOB625, 'CREATED AT ▲'),
+	caDesc: bodyOf(MOB625, 'CREATED AT ▼'),
+	nAsc: bodyOf(MOB625, 'NAME ▲'),
+	nDesc: bodyOf(MOB625, 'NAME ▼'),
+	mine: bodyOf(MOB625, 'COLLECTED BY ME: every rendered row has ONE creator'),
+	removed: bodyOf(MOB625, 'and it REMOVED rows'),
+	leakKey: bodyOf(MOB625, "the collector's pick was written to"),
+	leakAv: bodyOf(MOB625, 'the JOB LIST now sorts by a Name'),
+	restore: bodyOf(MOB625, 'RESTORE: put `mobile-MobileJob-sort` back'),
+	restored: bodyOf(MOB625, 'RESTORED: `mobile-MobileJob-sort` holds'),
+};
+function collectorList(rows, { searchMatch = false, noCreator = false } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.example/apm-mobile/asset-collector' });
+	const w = dom.window; const doc = w.document;
+	for (const [name, creator, date] of rows) {
+		const it = doc.createElement('div'); it.className = 'mantine-Accordion-item';
+		const c = doc.createElement('span'); c.className = 'mantine-Accordion-control';
+		c.innerHTML = '<span class="mantine-Accordion-chevron"></span>'
+			+ '<span class="mantine-Accordion-label">'
+			+ '<div class="mantine-Group-root"><div class="avatar"><img></div><div class="mantine-Stack-root">'
+			+ `<div class="mantine-Group-root"><p class="mantine-Text-root"><span class="mantine-Highlight-root">${name}</span></p></div>`
+			+ '<p class="mantine-Text-root">A description, with commas, 12</p></div></div>'
+			+ (searchMatch ? '<p class="mantine-Text-root"><span>Desc: </span><span class="mantine-Highlight-root">snip</span></p>' : '')
+			+ (noCreator ? '' : `<p class="mantine-Text-root">${creator}, ${date}</p>`)
+			+ '</span>';
+		it.appendChild(c); doc.body.appendChild(it);
+	}
+	return w;
+}
+// server order: createdAt DESC
+const DD = [['DD SYNTHETIC MOBILE 43398722', 'Dev Eloper', 'Aug 24, 2026 6:35 PM'],
+	['DD SYNTHETIC MOBILE 13783628', 'Dev Eloper', 'Aug 21, 2026 8:08 PM'],
+	['DD SYNTHETIC MOBILE 45891525', 'Dev Eloper', 'Aug 11, 2026 2:00 AM'],
+	['DD SYNTHETIC MOBILE 51362663', 'Dev Eloper', 'Aug 11, 2026 12:54 AM']];
+const WIDE = [['⚡ Valve Group', 'Bruce Lee', 'Sep 3, 2026'], ['Diaphragm Pump', 'Bruce Lee', 'Sep 3, 2026'], ...DD.slice(0, 2),
+	['Pipe 0000', 'Jimmy Maño', 'Aug 18, 2026']];
+const withDefault = (rows) => { const w = collectorList(rows); runJs(M625.narrowed, (() => { const d = collectorList(DD); d.__ddDefault = undefined; return d; })()); return w; };
+console.log('\nMOB.625_Collector_List_Sort - created-at vs server order, names vs localeCompare, a filter that is not a sort');
+check('rendered - rows with names and creator lines', runJs(M625.rendered, collectorList(WIDE)), true);
+check('rendered - a search-match line does not displace the creator line', runJs(M625.rendered, collectorList(WIDE, { searchMatch: true })), true);
+check('MUST FAIL: rendered - a row without its creator line', runJs(M625.rendered, collectorList(WIDE, { noCreator: true })), false);
+check('premise - 3 creators in the window', runJs(M625.premise, collectorList(WIDE)), true);
+check('MUST FAIL: premise - every row is mine', runJs(M625.premise, collectorList(DD)), false);
+{
+	const w = collectorList(DD);
+	check('narrowed - 4 of ours, captured', runJs(M625.narrowed, w), true);
+	check('narrowed - the default order was captured', (w.__ddDefault || []).length, 4);
+	const asc = [...DD].reverse();
+	const at = (rows) => Object.assign(collectorList(rows), { __ddDefault: w.__ddDefault });
+	check('created ▲ - reverse of the server order', runJs(M625.caAsc, at(asc)), true);
+	check('MUST FAIL: created ▲ - still the server order (sort ignored)', runJs(M625.caAsc, at(DD)), false);
+	check('MUST FAIL: created ▲ - sorted by NAME instead', runJs(M625.caAsc, at([...DD].sort((a, b) => a[0].localeCompare(b[0])))), false);
+	check('created ▲ - a row that paged in between renders is not evidence (trap 30)',
+		runJs(M625.caAsc, at([...asc, ['DD SYNTHETIC MOBILE 99999999', 'Dev Eloper', 'Sep 10, 2026']])), true);
+	check('created ▼ - the server order', runJs(M625.caDesc, at(DD)), true);
+	check('MUST FAIL: created ▼ - reversed', runJs(M625.caDesc, at(asc)), false);
+	check('MUST FAIL: created ▼ - nothing in common with the default (floor)', runJs(M625.caDesc, at(WIDE.slice(0, 2))), false);
+}
+check('MUST FAIL: narrowed - a row that is not ours', runJs(M625.narrowed, collectorList([...DD, ['Pump 1234', 'Bruce Lee', 'x']])), false);
+check('MUST FAIL: narrowed - one row only', runJs(M625.narrowed, collectorList(DD.slice(0, 1))), false);
+check('MUST FAIL: narrowed - 16 rows (the narrowing stopped biting)',
+	runJs(M625.narrowed, collectorList(Array.from({ length: 16 }, (_, k) => [`DD SYNTHETIC MOBILE ${k}`, 'Dev Eloper', `d${k}`]))), false);
+const byName = [...DD].sort((a, b) => a[0].localeCompare(b[0]));
+check('name ▲ - localeCompare order', runJs(M625.nAsc, collectorList(byName)), true);
+check('MUST FAIL: name ▲ - server order', runJs(M625.nAsc, collectorList(DD)), false);
+check('name ▼ - reversed', runJs(M625.nDesc, collectorList([...byName].reverse())), true);
+check('MUST FAIL: name ▼ - ascending', runJs(M625.nDesc, collectorList(byName)), false);
+check('name ▲ - the ⚡ symbol collates the way localeCompare says, not "A first" (trap 29)',
+	runJs(M625.nAsc, collectorList([['⚡ Tank 0000', 'x', 'd'], ['A/C Motor 0002', 'x', 'd']].sort((a, b) => a[0].localeCompare(b[0])))), true);
+{
+	const before = ['Bruce Lee', 'Dev Eloper', 'Jimmy Maño'];
+	const mine = (rows) => Object.assign(collectorList(rows), { __ddCreators: before });
+	check('mine - one creator, ours, among the before-set', runJs(M625.mine, mine(DD)), true);
+	check('mine - and creators were removed', runJs(M625.removed, mine(DD)), true);
+	check('MUST FAIL: mine - the filter did nothing (still 3 creators)', runJs(M625.mine, mine(WIDE)), false);
+	check('MUST FAIL: removed - the filter did nothing', runJs(M625.removed, mine(WIDE)), false);
+	check('MUST FAIL: mine - one creator, but it is SOMEONE ELSE (no row of ours)',
+		runJs(M625.mine, mine([['Pipe 0000', 'Jimmy Maño', 'd'], ['Pump 1', 'Jimmy Maño', 'd']])), false);
+	check('MUST FAIL: mine - a creator never seen before the filter',
+		runJs(M625.mine, mine([['DD SYNTHETIC MOBILE 1', 'Somebody Else', 'd']])), false);
+}
+{
+	const w = collectorList(DD);
+	check('leak key - name_DESC in the job key', (w.sessionStorage.setItem('mobile-MobileJob-sort', JSON.stringify({ id: 'name_DESC' })), runJs(M625.leakKey, w)), true);
+	const w2 = collectorList(DD);
+	check('MUST FAIL: leak key - the collector wrote its own key (the fix)', runJs(M625.leakKey, w2), false);
+}
+const avModal = (value) => {
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	const m = doc.createElement('section'); m.className = 'mantine-Modal-content';
+	m.innerHTML = '<label>Sort Criteria</label><input class="mantine-Input-input mantine-Select-input input">';
+	m.querySelector('input').value = value; doc.body.appendChild(m); return dom.window;
+};
+check('leak AV - the job list shows Mobile Job Name ▼', runJs(M625.leakAv, avModal('Mobile Job Name ▼')), true);
+check('MUST FAIL: leak AV - its own default (Created At ▼)', runJs(M625.leakAv, avModal('Created At ▼')), false);
+check('MUST FAIL: leak AV - ascending', runJs(M625.leakAv, avModal('Mobile Job Name ▲')), false);
+{
+	for (const prev of [null, JSON.stringify({ id: 'status_ASC' })]) {
+		const w = collectorList(DD);
+		if (prev !== null) w.sessionStorage.setItem('mobile-MobileJob-sort', prev);
+		runJs(M625.stash, w);
+		w.sessionStorage.setItem('mobile-MobileJob-sort', JSON.stringify({ id: 'name_DESC' }));   // the leak
+		check(`restore (prior ${prev === null ? 'absent' : 'present'}) - returns true`, runJs(M625.restore, w), true);
+		check(`restore (prior ${prev === null ? 'absent' : 'present'}) - key back as it was`, w.sessionStorage.getItem('mobile-MobileJob-sort'), prev);
+		check(`restored (prior ${prev === null ? 'absent' : 'present'})`, runJs(M625.restored, w), true);
+	}
+	const w = collectorList(DD);
+	runJs(M625.stash, w); w.sessionStorage.setItem('mobile-MobileJob-sort', 'x');
+	check('stash - a second STASH does not overwrite the first', (runJs(M625.stash, w), JSON.parse(w.sessionStorage.getItem('__dd625_prevJobSort')).v), null);
+	check('MUST FAIL: restored - the leaked value is still there', (w.__ddRestoredJobSort = null, runJs(M625.restored, w)), false);
+	check('MUST FAIL: restore - no stash (the STASH step never ran)', runJs(M625.restore, collectorList(DD)), false);
+}
+
+/* ===========================================================================================
+ * MOB.388 - the WO Attributes tab edit. DetailPage/Attributes renders each attribute as
+ * div.form-group > label + input (inputs keyed by uuid, hence the LABEL match). The read must
+ * find the group whose label STARTS with the name, so a longer label ("Heater Hz Max") elsewhere
+ * cannot answer for it.
+ * ========================================================================================= */
+const MOB388 = 'MOB.388_Work_Attribute_Edit.json';
+const M388 = {
+	proof: bodyOf(MOB388, 'PROOF: after a reload "Heater Hz" is no longer the baseline'),
+	restored: bodyOf(MOB388, 'RESTORED: "Heater Hz" is exactly "7" again'),
+};
+function attribForm(groups) {
+	const dom = new JSDOM('<body><form id="mobile-attrib"></form></body>'); const doc = dom.window.document;
+	for (const [label, value] of groups) {
+		const g = doc.createElement('div'); g.className = 'form-group';
+		g.innerHTML = `<label>${label}</label><div><input id="u-${Math.random()}"></div>`;
+		g.querySelector('input').value = value; doc.querySelector('form').appendChild(g);
+	}
+	return dom.window;
+}
+console.log('\nMOB.388_Work_Attribute_Edit - a label-matched read of the attribute input');
+check('proof - the marker is there', runJs(M388.proof, attribForm([['Heater Hz', 'DD SYNTHETIC EDIT 48120735']])), true);
+check('MUST FAIL: proof - still the baseline (the write did nothing)', runJs(M388.proof, attribForm([['Heater Hz', '7']])), false);
+check('MUST FAIL: proof - no Heater Hz field at all', runJs(M388.proof, attribForm([['Other', 'x']])), false);
+check('restored - exactly 7', runJs(M388.restored, attribForm([['Heater Hz', '7']])), true);
+check('restored - surrounding whitespace is not a difference', runJs(M388.restored, attribForm([['Heater Hz', ' 7 ']])), true);
+check('MUST FAIL: restored - the marker is still there', runJs(M388.restored, attribForm([['Heater Hz', 'DD SYNTHETIC EDIT 1']])), false);
+check('MUST FAIL: restored - typeText APPENDED (trap 17)', runJs(M388.restored, attribForm([['Heater Hz', 'DD SYNTHETIC EDIT 17']])), false);
+check('restored - a LONGER label elsewhere does not answer for it',
+	runJs(M388.restored, attribForm([['Max Heater', '99'], ['Heater Hz', '7']])), true);
+check('MUST FAIL: restored - only a label that CONTAINS the name mid-string',
+	runJs(M388.restored, attribForm([['Max Heater Hz', '7']])), false);
+
+/* ===========================================================================================
+ * MOB.301 - a photo in the new-work-order form. PhotoCarousel (ui/PhotoCarousel/index.tsx):
+ * nothing at zero photos; otherwise Carousel-root > Carousel-slide > (Mantine Image = <img src>)
+ * with src = reportLinkPreview = URL.createObjectURL(file) for a browser file. The button is
+ * rendered only when canAddPhotos.
+ * ========================================================================================= */
+const MOB301 = 'MOB.301_Work_Create_Photo.json';
+const M301 = {
+	base: bodyOf(MOB301, 'BASELINE: no carousel yet'),
+	one: bodyOf(MOB301, 'ONE photo in the form'),
+	blob: bodyOf(MOB301, 'held LOCALLY'),
+	label: bodyOf(MOB301, 'the button still reads `Add Work Order Photo`'),
+	closed: bodyOf(MOB301, 'RESTORED: the form is unmounted'),
+};
+function woForm({ form = true, srcs = [], button = 'Add Work Order Photo' } = {}) {
+	const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
+	if (form) {
+		const f = doc.createElement('form'); f.id = 'workorder-insert-form';
+		if (srcs.length) {
+			const root = doc.createElement('div'); root.className = 'mantine-Carousel-root';
+			for (const src of srcs) {
+				const sl = doc.createElement('div'); sl.className = 'mantine-Carousel-slide';
+				sl.innerHTML = `<div><img class="mantine-Image-root" src="${src}" alt="x.png"></div>`;
+				root.appendChild(sl);
+			}
+			f.appendChild(root);
+		}
+		if (button) { const b = doc.createElement('button'); b.textContent = button; f.appendChild(b); }
+		doc.body.appendChild(f);
+	}
+	return dom.window;
+}
+const BLOB = 'blob:https://dev.mentorapm.com/7f1c-uuid';
+console.log('\nMOB.301_Work_Create_Photo - one local photo in the create form, never submitted');
+check('baseline - no carousel, button offered', runJs(M301.base, woForm()), true);
+check('MUST FAIL: baseline - no button (role lacks work.update)', runJs(M301.base, woForm({ button: null })), false);
+check('MUST FAIL: baseline - a carousel already there', runJs(M301.base, woForm({ srcs: [BLOB] })), false);
+check('one - exactly one slide', runJs(M301.one, woForm({ srcs: [BLOB] })), true);
+check('MUST FAIL: one - nothing arrived', runJs(M301.one, woForm()), false);
+check('MUST FAIL: one - two slides (the upload ran twice)', runJs(M301.one, woForm({ srcs: [BLOB, BLOB] })), false);
+check('blob - a local object URL', runJs(M301.blob, woForm({ srcs: [BLOB] })), true);
+check('MUST FAIL: blob - a SERVER link (uploaded before submit)', runJs(M301.blob, woForm({ srcs: ['/api/attachment/abc'] })), false);
+check('MUST FAIL: blob - no image in the slide', runJs(M301.blob, woForm()), false);
+check('label - unchanged', runJs(M301.label, woForm({ srcs: [BLOB] })), true);
+check('MUST FAIL: label - flipped like the collector', runJs(M301.label, woForm({ srcs: [BLOB], button: 'Add More Photos' })), false);
+check('closed - form gone', runJs(M301.closed, woForm({ form: false })), true);
+check('MUST FAIL: closed - form still mounted', runJs(M301.closed, woForm()), false);
+
+/* ===========================================================================================
+ * MOB.807 - MultiValueSelector's enum + record branches. Mantine MultiSelect: the input
+ * (Combobox.EventsTarget) carries aria-controls=<listbox id> while open; options are
+ * [role=option] in that listbox. ActiveFilter = Pill-root > [label span][operator span][value span?].
+ * ========================================================================================= */
+const MOB807 = 'MOB.807_Search_MultiValue_Enum_Record.json';
+const M807 = {
+	capture: bodyOf(MOB807, 'CAPTURE: the unfiltered list'),
+	enumBranch: bodyOf(MOB807, 'FAILURE CURVE: a MultiSelect rendered'),
+	preloaded: bodyOf(MOB807, 'ENUM: the options are PRE-LOADED'),
+	pickEnum: bodyOf(MOB807, 'Pick "flat" from the MultiSelect'),
+	valid: bodyOf(MOB807, 'VALID: with one value chosen'),
+	enumPill: bodyOf(MOB807, 'ENUM: the pill reads'),
+	requeried: bodyOf(MOB807, 'ENUM: the list RE-QUERIED'),
+	unfilteredAgain: bodyOf(MOB807, 'The list is unfiltered again'),
+	recordOpts: bodyOf(MOB807, 'RECORD: the options arrived from the SERVER'),
+	recPill: bodyOf(MOB807, 'SENTINEL (bugs §39): the pill reads'),
+	recList: bodyOf(MOB807, 'and the list did NOT narrow'),
+	restored: bodyOf(MOB807, 'RESTORED: no active filter pills remain'),
+};
+function lookupPage2({ rows = ['A', 'B', 'C', 'D'], multi = true, open = true, options = [], tags = false,
+	value = false, pills = [], addType = 'button' } = {}) {
+	const dom = new JSDOM('<body></body>'); const w = dom.window; const doc = w.document;
+	for (const r of rows) {
+		const it = doc.createElement('div'); it.className = 'mantine-Accordion-item';
+		it.innerHTML = `<button class="mantine-Accordion-control">${r} description</button>`; doc.body.appendChild(it);
+	}
+	const drawer = doc.createElement('div'); drawer.className = 'mantine-Drawer-content';
+	if (multi) {
+		const i = doc.createElement('input'); i.setAttribute('placeholder', 'Choose values...');
+		if (open) i.setAttribute('aria-controls', 'lb-ms'); drawer.appendChild(i);
+	}
+	if (tags) { const t = doc.createElement('input'); t.setAttribute('placeholder', 'Type and press Enter...'); drawer.appendChild(t); }
+	if (value) { const v = doc.createElement('input'); v.id = 'value'; drawer.appendChild(v); }
+	for (const [label, op, val] of pills) {
+		const p = doc.createElement('div'); p.className = 'mantine-Pill-root';
+		p.innerHTML = `<span class="mantine-Pill-label"><span>${label}</span> <span>${op}</span>${val ? ` <span>${val}</span>` : ''}</span><button class="mantine-Pill-remove"></button>`;
+		drawer.appendChild(p);
+	}
+	const add = doc.createElement('button'); add.textContent = 'Add Filter'; add.type = addType; drawer.appendChild(add);
+	doc.body.appendChild(drawer);
+	// the stale listbox from the Field select (trap 3), and the MultiSelect's own
+	const stale = doc.createElement('div'); stale.id = 'lb-field'; stale.setAttribute('role', 'listbox');
+	stale.innerHTML = '<div role="option">Failure Curve</div><div role="option">flat</div>'; doc.body.appendChild(stale);
+	const lb = doc.createElement('div'); lb.id = 'lb-ms'; lb.setAttribute('role', 'listbox');
+	for (const o of options) { const d = doc.createElement('div'); d.setAttribute('role', 'option'); d.textContent = o; d.addEventListener('click', () => { w.__picked = o; }); lb.appendChild(d); }
+	doc.body.appendChild(lb);
+	return w;
+}
+const CURVES = ['flat', 'linear', 's-curve logistic model', 's-curve Weibull function'];
+console.log('\nMOB.807_Search_MultiValue_Enum_Record - the two MultiSelect branches, and a record filter with no value');
+{
+	const w = lookupPage2();
+	check('capture - 4 rows captured', runJs(M807.capture, w), true);
+	check('MUST FAIL: capture - the list has not rendered', runJs(M807.capture, lookupPage2({ rows: ['A'] })), false);
+	const same = Object.assign(lookupPage2(), { __ddUnfiltered: w.__ddUnfiltered });
+	const diff = Object.assign(lookupPage2({ rows: ['C', 'X', 'Y'] }), { __ddUnfiltered: w.__ddUnfiltered });
+	check('requeried - the window changed', runJs(M807.requeried, diff), true);
+	check('MUST FAIL: requeried - the same window (filter did nothing)', runJs(M807.requeried, same), false);
+	check('unfiltered again - same window', runJs(M807.unfilteredAgain, same), true);
+	check('MUST FAIL: unfiltered again - still filtered', runJs(M807.unfilteredAgain, diff), false);
+	check('record sentinel - list did NOT narrow', runJs(M807.recList, same), true);
+	check('MUST FAIL: record sentinel - the list narrowed (the fix)', runJs(M807.recList, diff), false);
+}
+check('branch - a MultiSelect, no TagsInput, no #value', runJs(M807.enumBranch, lookupPage2()), true);
+check('MUST FAIL: branch - the TagsInput (string branch)', runJs(M807.enumBranch, lookupPage2({ multi: false, tags: true })), false);
+check('MUST FAIL: branch - both a MultiSelect and #value (an addition, not a swap)', runJs(M807.enumBranch, lookupPage2({ value: true })), false);
+check('preloaded - several options incl. flat, in its OWN listbox', runJs(M807.preloaded, lookupPage2({ options: CURVES })), true);
+check('MUST FAIL: preloaded - empty own listbox; "flat" only in a STALE one', runJs(M807.preloaded, lookupPage2({ options: [] })), false);
+check('MUST FAIL: preloaded - dropdown not open (no aria-controls)', runJs(M807.preloaded, lookupPage2({ open: false, options: CURVES })), false);
+{
+	const w = lookupPage2({ options: CURVES });
+	check('pick - flat clicked in its own listbox', runJs(M807.pickEnum, w) && w.__picked === 'flat', true);
+}
+check('valid - Add Filter is submit', runJs(M807.valid, lookupPage2({ addType: 'submit' })), true);
+check('MUST FAIL: valid - still inert', runJs(M807.valid, lookupPage2()), false);
+check('enum pill - "Failure Curve includes flat"', runJs(M807.enumPill, lookupPage2({ pills: [['Failure Curve', 'includes', 'flat']] })), true);
+check('MUST FAIL: enum pill - no value', runJs(M807.enumPill, lookupPage2({ pills: [['Failure Curve', 'includes', '']] })), false);
+check('MUST FAIL: enum pill - no pill', runJs(M807.enumPill, lookupPage2()), false);
+{
+	const w = lookupPage2({ options: ['Pump', 'Piping'] });
+	check('record opts - captured the first server option', runJs(M807.recordOpts, w) && w.__ddRecordPick === 'Pump', true);
+	check('MUST FAIL: record opts - nothing loaded', runJs(M807.recordOpts, lookupPage2({ options: [] })), false);
+	const bug = Object.assign(lookupPage2({ pills: [['Asset Type', 'includes', '']] }), { __ddRecordPick: 'Pump' });
+	check('record pill sentinel - "Asset Type includes" and nothing else', runJs(M807.recPill, bug), true);
+	const fixed = Object.assign(lookupPage2({ pills: [['Asset Type', 'includes', 'Pump']] }), { __ddRecordPick: 'Pump' });
+	check('MUST FAIL: record pill sentinel - the value shows (the fix)', runJs(M807.recPill, fixed), false);
+}
+check('restored - no pills', runJs(M807.restored, lookupPage2()), true);
+check('MUST FAIL: restored - a pill left', runJs(M807.restored, lookupPage2({ pills: [['Failure Curve', 'includes', 'flat']] })), false);
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS');
 process.exit(failures ? 1 : 0);

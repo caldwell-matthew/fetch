@@ -186,6 +186,9 @@ CHILDREN = ["MOB.530_AssetVerify_Search_Filter_Sort",
             # MOB.806 follows MOB.805: same drawer, and it never ADDS a filter, so it
             # cannot disturb the one MOB.805 builds and clears.
             "MOB.806_Search_MultiValue",
+            # MOB.807 follows MOB.806: the other two MultiValueSelector branches. It adds
+            # two filters and clears each with `always`, so it leaves the drawer as found.
+            "MOB.807_Search_MultiValue_Enum_Record",
             "MOB.810_Search_Sort_Apply",
             "MOB.820_Search_Filter_Then_Search",
             # ⚠️ MOB.535 MUST STAY LAST. It is the only child here that CLEARS
