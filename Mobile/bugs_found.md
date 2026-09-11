@@ -16,7 +16,7 @@ Each entry says how strongly it is evidenced, because that varies a lot:
 
 ## Index
 
-**Every status below was read against the served code — `origin/development@cad415620c`, 2026-09-10.** A status says what the code does, with the file and line that says so; a fix reported elsewhere is not a status. Re-read a row before acting on it once the sync line in `testing_checklist.md` has moved on.
+**Every status below was read against the served code — `origin/development@db49958d6e`, 2026-09-10.** A status says what the code does, with the file and line that says so; a fix reported elsewhere is not a status. Re-read a row before acting on it once the sync line in `testing_checklist.md` has moved on.
 
 ⚠️ **Keep this file current as work happens, not in a catch-up pass.** §29 and §31 were both found days before they were written down, and lived only as comments inside test generators — where nobody looking for app bugs would ever find them. If a finding is about the APP, it belongs here; if it is about a TEST, it belongs in `testing_checklist.md`.
 
@@ -31,9 +31,8 @@ symbol collates before `A`. A wrong test is not an app bug.)
 |---|---|---|---|
 | 2 | `CreateWorkButton` reads the session non-reactively | Source | ❌ open — `InsertForm/index.tsx:369` still `readQuery` in render |
 | 3 | Crew shortcut invisible at phone width | Source | ❌ open — `.mobile-crew` still `display:none` under 450px |
-| 4 | Mobile is delete-free; `DeleteButton` is dead code | Source | ❌ open as dead code — `ui/DeleteButton.tsx` still unimported. **The rule stands: no delete steps** |
 | 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | ❌ open — `ui/Menu.tsx:30` reads `wPerms.canDelete`; the schema field is `delete` |
-| 4c | Adding a form is self-degrading — succeeds only once | Runtime | ❌ open — `AdHocForm.tsx:118` still hides attached forms, unexplained · `MOB.393` stays one-shot |
+| 4c | Adding a form is self-degrading — succeeds only once | Runtime | ❌ open, narrowed to UX — `AdHocForm.tsx:126-128` hides attached forms by id or name; the code now states it is deliberate (the server rejects duplicates), but the picker still gives no hint · `MOB.393` is read-only, so unaffected |
 | 6 | Crew and logout modals have no close control | Source | ❌ open — `TopHeader/index.tsx:76,153,188` all `withCloseButton: false` |
 | 7 | Several roles share the `Admin` prefix with different permissions | Operational | open — env/data, not an app-code fix |
 | 8 | `hooks/NetworkStatus.tsx` is an empty file | Source | ❌ open — `hooks/NetworkStatus.tsx` is 0 bytes |
@@ -206,20 +205,28 @@ a hidden menu. The `?.` on the line above shows the author knew the value was nu
 
 ## 4c. Adding a form is self-degrading — it can only ever succeed once
 
-> ## ❌ OPEN in the served code
+> ## ❌ OPEN in the served code — narrowed to a UX gap
 >
-> `AdHocForm.tsx:118` still filters out forms already on the stage, and nothing on screen
-> says so.
+> `AdHocForm.tsx:126-128` still filters out forms already on the stage, and nothing on screen
+> says so. The product question below is now ANSWERED in the code (`:26-30`): a stage form is a
+> snapshot and the server rejects a second one matching by derived id or name, so hiding it is
+> deliberate. What remains is only that the picker gives no hint why a form is missing.
 
-**Evidence: Source** · `client/mobile/components/WorkOrders/components/Forms/AdHocForm.tsx:127`
+**Evidence: Source** · `client/mobile/components/WorkOrders/components/Forms/AdHocForm.tsx:31-36, 126-128`
 
 ```js
-const currentForms = useMemo(() => new Set(forms.map(v => v.name)), [forms]);
+const currentForms = useMemo(() => ({
+  ids: new Set(forms.map(v => v.id)),
+  names: new Set(forms.map(v => v.name)),
+}), [forms]);
 ...
-return options.filter(v => v.name.toLowerCase().includes(matchText) && !currentForms.has(v.name));
+return options.filter(v => v.name.toLowerCase().includes(matchText)
+  && !currentForms.ids.has(workStageId + v.id)
+  && !currentForms.names.has(v.name));
 ```
 
-The Ad Hoc Form dropdown **excludes any form already attached to the work stage**. Once
+The Ad Hoc Form dropdown **excludes any form already attached to the work stage** — since
+`db49958d6e` by derived id as well as by name, so a renamed workflow form is caught too. Once
 "Inspection" is added it disappears from its own picker.
 
 **Impact:** probably intended as a UX nicety (do not offer a duplicate), but combined with

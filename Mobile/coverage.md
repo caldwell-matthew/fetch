@@ -255,9 +255,9 @@ In order:
 
 1. **The AV job reset decision** — one owner call; unlocks five tests and breaks the fixture
    monoculture at its tightest point.
-2. **The last two buildable items** (`testing_checklist.md` 🟢 #3, #10) — both wait on an owner
-   call: #3 would leave a copied attachment on a real asset every run, and #10 needs a `Created`
-   work stage made from desktop. Everything read-only on reachable screens is built.
+2. **The last buildable item** (`testing_checklist.md` 🟢 #3, `Copy to asset`) waits on an owner
+   call: it writes attachments to a real asset every run. Everything read-only on reachable screens
+   is built.
 3. **`audit_assertions.py` triage** — makes rows that are already `[x]` mean what they claim,
    which moves the third number in a way new tests do not.
 4. **Jest for the offline queue** — highest-risk surface, no Synthetics test will ever reach it,

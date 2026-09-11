@@ -76,8 +76,9 @@ const runJs = (code, win) => {
 	try { ss = win.sessionStorage; } catch (e) { ss = undefined; }   // opaque-origin windows throw
 	// `window` too: MOB.123 carries ids between steps on it (MOB.470's `__ddSW` proved that
 	// survives from one Datadog step to the next while the page does not navigate).
-	return new Function('document', 'sessionStorage', 'window', `return (function(){${code}})()`)(
-		win.document, ss, win);
+	// `location` and `navigator` for MOB.980, which reads the route and `navigator.onLine`.
+	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator',
+		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator);
 };
 
 /* ===========================================================================================
@@ -1698,6 +1699,131 @@ check('MUST FAIL: enum pill - no pill', runJs(M807.enumPill, lookupPage2()), fal
 }
 check('restored - no pills', runJs(M807.restored, lookupPage2()), true);
 check('MUST FAIL: restored - a pill left', runJs(M807.restored, lookupPage2({ pills: [['Failure Curve', 'includes', 'flat']] })), false);
+
+/* ===========================================================================================
+ * MOB.302 - Copy to asset, self-cleaning. `Copy to asset` LINKS the same attachment (server
+ * `attachment/index.ts` copy = an association INSERT), so after it the asset lists the SOURCE's
+ * id. Run 1 measured that; the old model here assumed a new id and was wrong. The delete GUARD
+ * is the step that matters: it opens the gear only when the asset's one photo IS the source.
+ * Carousel slide > Mantine Image <img src="…/api/attachment/<id>?org=…" alt="<fileName>">;
+ * gear = [aria-label=Settings] inside the slide.
+ * ========================================================================================= */
+const MOB302 = 'MOB.302_Work_Photo_Copy_To_Asset.json';
+const M302 = {
+	premise: bodyOf(MOB302, 'PREMISE: Bypass Valve 0001 holds NO photos'),
+	capture: bodyOf(MOB302, "CAPTURE: the work order's ONE photo"),
+	form: bodyOf(MOB302, 'COPY FORM: names the source file'),
+	closed: bodyOf(MOB302, 'THE COPY FORM CLOSED'),
+	one: bodyOf(MOB302, 'now holds EXACTLY ONE photo'),
+	guard: bodyOf(MOB302, 'GUARD + open the gear'),
+	unlinked: bodyOf(MOB302, 'UNLINKED: Bypass Valve 0001 holds NO photos again'),
+	source: bodyOf(MOB302, 'THE SOURCE IS UNTOUCHED'),
+	file: bodyOf(MOB302, 'its FILE survived'),
+};
+const NAME = 'Screenshot 2024-12-11 at 3.23.50 PM.png';
+const img = (id, name = NAME) => `<img class="mantine-Image-root" src="https://dev.mentorapm.com/api/attachment/${id}?org=SMCT2&imagePreview=true" alt="${name}">`;
+function page302({ asset = true, photos = [], addPhoto = true, woPhotos = null, stash = {}, modal = null, loaded = true } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-lookup' });
+	const w = dom.window; const doc = w.document;
+	for (const [k, v] of Object.entries(stash)) w.sessionStorage.setItem(k, v);
+	const slides = (list) => list.map(([id, name]) => `<div class="mantine-Carousel-slide"><div>${img(id, name)}<button aria-label="Settings" class="gear"></button></div></div>`).join('');
+	if (asset) {
+		const it = doc.createElement('div'); it.className = 'mantine-Accordion-item';
+		it.innerHTML = '<span class="mantine-Accordion-control">⚡ Bypass Valve 0001</span>'
+			+ '<div role="tablist"><button role="tab" aria-selected="true" aria-controls="ap">Photos</button></div>'
+			+ `<div role="tabpanel" id="ap">${photos.length ? `<div class="mantine-Carousel-root">${slides(photos)}</div>` : ''}${addPhoto ? '<button>Add Photo</button>' : ''}</div>`;
+		doc.body.appendChild(it);
+	}
+	if (woPhotos) {
+		const d = doc.createElement('div');
+		d.innerHTML = '<div role="tablist"><button role="tab" aria-selected="true" aria-controls="wp">Attachments</button></div>'
+			+ `<div role="tabpanel" id="wp"><div class="mantine-Carousel-root">${slides(woPhotos)}</div></div>`;
+		doc.body.appendChild(d);
+	}
+	if (modal) { const m = doc.createElement('section'); m.className = 'mantine-Modal-content'; m.innerHTML = modal; doc.body.appendChild(m); }
+	// jsdom never decodes images: model load state as the browser reports it (a 404 = naturalWidth 0)
+	doc.querySelectorAll('img').forEach(i => {
+		Object.defineProperty(i, 'complete', { get: () => true });
+		Object.defineProperty(i, 'naturalWidth', { get: () => (loaded ? 1200 : 0) });
+	});
+	w.__gearClicks = 0;
+	doc.querySelectorAll('.gear').forEach(g => g.addEventListener('click', () => { w.__gearClicks++; }));
+	return w;
+}
+const ST = { __dd302_srcId: 'SRC1', __dd302_srcName: NAME };
+console.log('\nMOB.302_Work_Photo_Copy_To_Asset - 0 -> 1 (the SOURCE id, linked) -> 0, and a delete that only fires on that link');
+check('premise - no photos, Add Photo shown', runJs(M302.premise, page302()), true);
+check('MUST FAIL: premise - a leftover link', runJs(M302.premise, page302({ photos: [['SRC1', NAME]] })), false);
+check('MUST FAIL: premise - the panel never rendered (no Add Photo)', runJs(M302.premise, page302({ addPhoto: false })), false);
+{
+	const w = page302({ asset: false, woPhotos: [['SRC1', NAME]] });
+	check('capture - the WO photo id and name', runJs(M302.capture, w) && w.sessionStorage.getItem('__dd302_srcId') === 'SRC1' && w.sessionStorage.getItem('__dd302_srcName') === NAME, true);
+	check('MUST FAIL: capture - two WO photos', runJs(M302.capture, page302({ asset: false, woPhotos: [['A', NAME], ['B', 'x']] })), false);
+}
+const FORM = (name, radios) => `<p>Copy attachment ${name}</p><div><label>Select an asset</label>${radios.map(([id, label, checked]) => `<input type="radio" id="${id}" ${checked ? 'checked' : ''}><label for="${id}">${label}</label>`).join('')}</div><button>Submit</button>`;
+check('form - names the file, one radio, checked, Bypass Valve 0001', runJs(M302.form, page302({ stash: ST, modal: FORM(NAME, [['r1', 'Bypass Valve 0001', true]]) })), true);
+check('MUST FAIL: form - a second asset offered', runJs(M302.form, page302({ stash: ST, modal: FORM(NAME, [['r1', 'Bypass Valve 0001', true], ['r2', 'Pump 0102', false]]) })), false);
+check('MUST FAIL: form - a different file named', runJs(M302.form, page302({ stash: ST, modal: FORM('other.png', [['r1', 'Bypass Valve 0001', true]]) })), false);
+check('closed - no copy form', runJs(M302.closed, page302()), true);
+check('MUST FAIL: closed - the form is still open', runJs(M302.closed, page302({ modal: FORM(NAME, [['r1', 'Bypass Valve 0001', true]]) })), false);
+check('one - exactly one, the SOURCE id and name (a link)', runJs(M302.one, page302({ photos: [['SRC1', NAME]], stash: ST })), true);
+check('MUST FAIL: one - a different id (not the source)', runJs(M302.one, page302({ photos: [['OTHER', NAME]], stash: ST })), false);
+check('MUST FAIL: one - two photos', runJs(M302.one, page302({ photos: [['SRC1', NAME], ['X', NAME]], stash: ST })), false);
+check('MUST FAIL: one - a different file name', runJs(M302.one, page302({ photos: [['SRC1', 'real.jpg']], stash: ST })), false);
+check('MUST FAIL: one - nothing linked', runJs(M302.one, page302({ stash: ST })), false);
+check('MUST FAIL: one - no source captured', runJs(M302.one, page302({ photos: [['SRC1', NAME]] })), false);
+{
+	const w = page302({ photos: [['SRC1', NAME]], stash: ST });
+	check('guard - the source link: gear clicked', runJs(M302.guard, w) && w.__gearClicks === 1, true);
+}
+for (const [label, opts] of [
+	['a different id than the source', { photos: [['OTHER', NAME]], stash: ST }],
+	['a real photo (different name)', { photos: [['SRC1', 'Pump (1).jpg']], stash: ST }],
+	['two photos', { photos: [['SRC1', NAME], ['X', 'y.jpg']], stash: ST }],
+	['no source captured', { photos: [['SRC1', NAME]], stash: {} }],
+	['no source name captured', { photos: [['SRC1', NAME]], stash: { __dd302_srcId: 'SRC1' } }],
+]) {
+	const w = page302(opts);
+	check(`MUST FAIL: guard - ${label}, and the gear is NOT clicked`, runJs(M302.guard, w) === false && w.__gearClicks === 0, true);
+}
+check('unlinked - 0 photos again', runJs(M302.unlinked, page302()), true);
+check('MUST FAIL: unlinked - the link is still there', runJs(M302.unlinked, page302({ photos: [['SRC1', NAME]] })), false);
+check('source - the WO still has SRC1', runJs(M302.source, page302({ asset: false, woPhotos: [['SRC1', NAME]], stash: ST })), true);
+check('MUST FAIL: source - the WO photo is gone', runJs(M302.source, page302({ asset: false, woPhotos: [], stash: ST })), false);
+check('MUST FAIL: source - a different photo', runJs(M302.source, page302({ asset: false, woPhotos: [['NEW', NAME]], stash: ST })), false);
+check('file - the WO image loaded', runJs(M302.file, page302({ asset: false, woPhotos: [['SRC1', NAME]], stash: ST })), true);
+check('MUST FAIL: file - the image 404s (naturalWidth 0)', runJs(M302.file, page302({ asset: false, woPhotos: [['SRC1', NAME]], stash: ST, loaded: false })), false);
+check('MUST FAIL: file - a different photo loaded', runJs(M302.file, page302({ asset: false, woPhotos: [['NEW', NAME]], stash: ST })), false);
+
+/* ===========================================================================================
+ * MOB.980 - navigator.onLine override probe. The two outcome reads per route must be mutually
+ * exclusive (ConnectionRequired vs the normal page), and neither may pass off the route.
+ * ========================================================================================= */
+const MOB980 = 'MOB.980_DIAG_OnLine_Override.json';
+const M980 = {
+	reachedA: bodyOf(MOB980, 'A ⭐ REACHED ConnectionRequired'),
+	normalA: bodyOf(MOB980, 'A: the NORMAL Asset Lookup rendered'),
+	restored: bodyOf(MOB980, 'RESTORED: navigator.onLine is true'),
+};
+function page980({ path = '/apm-mobile/asset-lookup', offline = false, online = true, tile = true } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com' + path });
+	const w = dom.window; const doc = w.document;
+	doc.body.innerHTML = (offline ? '<div class="mantine-Paper-root"><p>This feature requires an internet connection.</p></div>'
+		: '<form><input name="asset-search"></form>')
+		+ (tile ? '<img alt="icon for Asset Lookup">' : '') + '<img alt="icon for Work Orders">';
+	Object.defineProperty(w.navigator, 'onLine', { configurable: true, get: () => online });
+	return w;
+}
+console.log('\nMOB.980_DIAG_OnLine_Override - outcome reads are exclusive; the restore gate can fail');
+check('reached - ConnectionRequired on /asset-lookup', runJs(M980.reachedA, page980({ offline: true })), true);
+check('MUST FAIL: reached - the normal page', runJs(M980.reachedA, page980()), false);
+check('MUST FAIL: reached - the message, but not on /asset-lookup', runJs(M980.reachedA, page980({ offline: true, path: '/apm-mobile/' })), false);
+check('normal - the search input on /asset-lookup', runJs(M980.normalA, page980()), true);
+check('MUST FAIL: normal - ConnectionRequired', runJs(M980.normalA, page980({ offline: true })), false);
+check('MUST FAIL: normal - off the route', runJs(M980.normalA, page980({ path: '/apm-mobile/' })), false);
+check('restored - online and the tile is back', runJs(M980.restored, page980({ path: '/apm-mobile/' })), true);
+check('MUST FAIL: restored - still reads offline', runJs(M980.restored, page980({ path: '/apm-mobile/', online: false })), false);
+check('MUST FAIL: restored - the tile is missing', runJs(M980.restored, page980({ path: '/apm-mobile/', tile: false })), false);
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS');
 process.exit(failures ? 1 : 0);

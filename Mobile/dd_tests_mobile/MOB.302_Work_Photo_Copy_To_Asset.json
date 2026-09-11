@@ -1,0 +1,1233 @@
+{
+    "test_name": "MOB.302_Work_Photo_Copy_To_Asset",
+    "details": {
+        "name": "MOB.302_Work_Photo_Copy_To_Asset",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.302` **`Copy to asset` on a work-order photo \u2014 proved on the server, then unlinked.**\n- \u2b50 **The one owner-sanctioned delete** (trap 2): copy the photo, prove it, remove it from\n  the ASSET. Dedicated fixtures: work order `RcdI0xcpc8NBV8VoRNNBYM` (one photo, the source)\n  and its only asset `Bypass Valve 0001` (0 attachments at rest).\n- `Copy to asset` **links the same attachment** (same id) \u2014 it does not duplicate it. The\n  asset-side delete is an unlink only while another parent still references it.\n- Proved by count on Asset Lookup (network-only): **0 \u2192 1 \u2192 0**.\n- The delete step's own guard requires the asset's one photo to be the source this run read\n  on the work order, in the same step as the gear click.\n- Ends on the work order: still one photo, same id, image loads (the file survived).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Photos",
+            "self-cleaning"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to Asset Lookup (premise)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Bypass Valve 0001",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Bypass Valve 0001",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results (network-only)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Bypass Valve 0001's row by its chevron (never the avatar \u2014 bugs \u00a735)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Bypass Valve 0001\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Photos\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Bypass Valve 0001\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE: Bypass Valve 0001 holds NO photos \u2014 the Photos panel rendered (`Add Photo`) and has no slides. A leftover copy stops the test here; it never deletes what this run did not make",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => {\n  const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Bypass Valve 0001');\n});\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn slides.length === 0 && labels.includes('Add Photo');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the copy-to-asset work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Attachments\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attachments\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos segment render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CAPTURE: the work order's ONE photo \u2014 its attachment id and file name (the SOURCE)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nif (slides.length !== 1) return false;\nconst img = slides[0].querySelector('img');\nconst id = idOf(img), name = img && img.getAttribute('alt');\nif (!id || !name) return false;\nsessionStorage.setItem('__dd302_srcId', id);\nsessionStorage.setItem('__dd302_srcName', name);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the photo's gear menu",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst s = p.querySelector('[class*=\"mantine-Carousel-slide\"]');\nconst g = s && s.querySelector('[aria-label=\"Settings\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MENU (work-order photo): offers `Copy to asset` (and the stage's own `Delete Photo`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Menu-dropdown\"] [class*=\"mantine-Menu-item\"]')]\n  .map(i => (i.textContent || '').trim());\nreturn items.includes('Copy to asset') && items.includes('Delete Photo');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Copy to asset` (NEVER `Delete Photo` here)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Copy to asset\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the copy form open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "COPY FORM: names the source file, and offers exactly one asset \u2014 Bypass Valve 0001, selected",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const srcId = sessionStorage.getItem('__dd302_srcId');\nconst srcName = sessionStorage.getItem('__dd302_srcName');\nconst m = [...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .find(x => (x.textContent || '').includes('Select an asset'));\nif (!m || !srcName) return false;\nconst radios = [...m.querySelectorAll('input[type=\"radio\"]')];\nconst lab = r => { const l = m.querySelector('label[for=\"' + r.id + '\"]'); return l ? l.textContent.trim() : ''; };\nreturn (m.textContent || '').includes('Copy attachment ' + srcName)\n  && radios.length === 1 && radios[0].checked && lab(radios[0]) === 'Bypass Valve 0001';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the copy",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Select an asset\")]]//button[normalize-space(.)=\"Submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for COPY_ATTACHMENT",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `copied to asset.` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "copied to asset."
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the server answer",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 THE COPY FORM CLOSED \u2014 it closes only in the mutation's `update()`, so the server answered",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return ![...document.querySelectorAll('[class*=\"mantine-Modal-content\"]')]\n  .some(x => (x.textContent || '').includes('Select an asset'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to Asset Lookup (proof)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Bypass Valve 0001",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Bypass Valve 0001",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results (network-only)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Bypass Valve 0001's row by its chevron (never the avatar \u2014 bugs \u00a735)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Bypass Valve 0001\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Photos\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Bypass Valve 0001\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 Bypass Valve 0001 now holds EXACTLY ONE photo \u2014 the SOURCE's attachment id and file name: `Copy to asset` LINKS the same attachment, it does not duplicate it",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => {\n  const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Bypass Valve 0001');\n});\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nconst srcId = sessionStorage.getItem('__dd302_srcId');\nconst srcName = sessionStorage.getItem('__dd302_srcName');\nif (slides.length !== 1 || !srcId || !srcName) return false;\nconst img = slides[0].querySelector('img');\nreturn idOf(img) === srcId && img.getAttribute('alt') === srcName;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + open the gear: only if the asset's one photo IS the source this run read on the work order (>= 2 references, so the delete can only unlink)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => {\n  const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Bypass Valve 0001');\n});\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nconst srcId = sessionStorage.getItem('__dd302_srcId');\nconst srcName = sessionStorage.getItem('__dd302_srcName');\nif (slides.length !== 1 || !srcId || !srcName) return false;\nconst img = slides[0].querySelector('img');\nif (idOf(img) !== srcId || img.getAttribute('alt') !== srcName) return false;\nconst g = slides[0].querySelector('[aria-label=\"Settings\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Delete Photo` \u2014 on the ASSET (unlinks its association row only)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Delete Photo\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the confirmation open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Confirm: \"Yes\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Are you sure you want to delete this image?\")]]//button[normalize-space(.)=\"Yes\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for REMOVE_ATTACHMENT",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to Asset Lookup (after the delete)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Bypass Valve 0001",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Bypass Valve 0001",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results (network-only)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Bypass Valve 0001's row by its chevron (never the avatar \u2014 bugs \u00a735)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Bypass Valve 0001\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Photos\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Bypass Valve 0001\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 UNLINKED: Bypass Valve 0001 holds NO photos again \u2014 0 \u2192 1 \u2192 0",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => {\n  const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Bypass Valve 0001');\n});\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn slides.length === 0 && labels.includes('Add Photo');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the copy-to-asset work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Attachments\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attachments\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos segment render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 THE SOURCE IS UNTOUCHED: the work order still has its one photo, same id",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nconst srcId = sessionStorage.getItem('__dd302_srcId');\nconst srcName = sessionStorage.getItem('__dd302_srcName');\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nreturn slides.length === 1 && !!srcId && idOf(slides[0].querySelector('img')) === srcId;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and its FILE survived: the image loaded (a deleted S3 object 404s to naturalWidth 0) (soft: lazy loading could leave it unloaded)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nconst srcId = sessionStorage.getItem('__dd302_srcId');\nconst srcName = sessionStorage.getItem('__dd302_srcName');\nconst img = p.querySelector('[class*=\"mantine-Carousel-slide\"] img');\nreturn !!img && idOf(img) === srcId && img.complete && img.naturalWidth > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove this test's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd302_srcId', '__dd302_srcName'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

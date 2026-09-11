@@ -1,0 +1,455 @@
+{
+    "test_name": "MOB.980_DIAG_OnLine_Override",
+    "details": {
+        "name": "MOB.980_DIAG_OnLine_Override",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.980` **DIAGNOSTIC \u2014 can a step make the APP read `navigator.onLine === false`?**\n- `MOB.910`'s `offline` event flips `useNetwork()` only; `AssetLookup` (ConnectionRequired),\n  `MaterialCharges`, `AssetGeolocate` and `graphql/index.tsx`'s RetryLink read the property.\n- Judged ONLY by the app: Asset Lookup opened from its Home tile (no reload) shows\n  ConnectionRequired or the normal page. Route A = getter from the step; route B = getter\n  from an injected `<script>` (page world). Outcomes are optional steps, so the run records\n  which happened.\n- \ud83d\uded1 **READ-ONLY**, and restores with `always` steps + a reload + a hard online gate.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Diagnostic",
+            "Offline",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the home screen",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let home render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the home screen rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Welcome,"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: navigator.onLine is true and the Asset Lookup tile is on Home",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tiles = () => [...document.querySelectorAll('img[alt^=\"icon for \"]')].map(i => i.getAttribute('alt') || '');\nreturn navigator.onLine === true && tiles().some(a => /Asset Lookup/i.test(a));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A: define an own `onLine` getter (false) on navigator, from the step's code",
+                "noScreenshot": false,
+                "params": {
+                    "code": "Object.defineProperty(navigator, 'onLine', { configurable: true, get: function () { return false; } });\nreturn navigator.onLine === false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A: ask the PAGE world what it reads (a <script> writes it to a DOM attribute)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "document.documentElement.removeAttribute('data-dd980-online');\nconst s = document.createElement('script');\ns.textContent = \"document.documentElement.setAttribute('data-dd980-online', String(navigator.onLine));\";\ndocument.head.appendChild(s);\ns.remove();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A: the PAGE world reads false \u2014 the step shares the page's world (optional)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.documentElement.getAttribute('data-dd980-online') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A: the PAGE world reads true \u2014 the step runs in an ISOLATED world (optional)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.documentElement.getAttribute('data-dd980-online') === 'true';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A: NO page-world answer \u2014 inline <script> is blocked (CSP) (optional)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.documentElement.getAttribute('data-dd980-online') === null;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "A: open Asset Lookup from its Home TILE (an in-app route change, no reload)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//img[starts-with(@alt, \"icon for \") and contains(@alt, \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Asset Lookup render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A \u2b50 REACHED ConnectionRequired \u2014 the app read `navigator.onLine === false` (optional: records the outcome)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/asset-lookup/.test(location.pathname)\n  && (document.body.textContent || '').includes('This feature requires an internet connection.')\n  && !document.querySelector('input[name=\"asset-search\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "A: the NORMAL Asset Lookup rendered \u2014 the app did NOT see the override (optional: records the outcome)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/asset-lookup/.test(location.pathname)\n  && !!document.querySelector('input[name=\"asset-search\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "A: remove the step-world getter",
+                "noScreenshot": false,
+                "params": {
+                    "code": "try { delete navigator.onLine; } catch (e) {}\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the home screen (clean reload for B)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let home render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the home screen rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Welcome,"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "B: define the `onLine` getter (false) in the PAGE world via a <script>",
+                "noScreenshot": false,
+                "params": {
+                    "code": "document.documentElement.removeAttribute('data-dd980-online');\nconst s = document.createElement('script');\ns.textContent = \"Object.defineProperty(navigator, 'onLine', { configurable: true, get: function () { return false; } }); document.documentElement.setAttribute('data-dd980-online', String(navigator.onLine));\";\ndocument.head.appendChild(s);\ns.remove();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "B: the page-world override took \u2014 the script ran and read false (optional)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return document.documentElement.getAttribute('data-dd980-online') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "B: open Asset Lookup from its Home TILE (an in-app route change, no reload)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//img[starts-with(@alt, \"icon for \") and contains(@alt, \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Asset Lookup render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "B \u2b50 REACHED ConnectionRequired \u2014 the app read `navigator.onLine === false` (optional: records the outcome)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/asset-lookup/.test(location.pathname)\n  && (document.body.textContent || '').includes('This feature requires an internet connection.')\n  && !document.querySelector('input[name=\"asset-search\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "B: the NORMAL Asset Lookup rendered \u2014 the app did NOT see the override (optional: records the outcome)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/asset-lookup/.test(location.pathname)\n  && !!document.querySelector('input[name=\"asset-search\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "RESTORE: remove the page-world getter",
+                "noScreenshot": false,
+                "params": {
+                    "code": "document.documentElement.removeAttribute('data-dd980-online');\nconst s = document.createElement('script');\ns.textContent = \"try { delete navigator.onLine; } catch (e) {} document.documentElement.setAttribute('data-dd980-online', String(navigator.onLine));\";\ndocument.head.appendChild(s);\ns.remove();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: remove the step-world getter",
+                "noScreenshot": false,
+                "params": {
+                    "code": "try { delete navigator.onLine; } catch (e) {}\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the home screen (reload discards any override)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let home render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the home screen rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Welcome,"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: navigator.onLine is true and the Asset Lookup tile is back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tiles = () => [...document.querySelectorAll('img[alt^=\"icon for \"]')].map(i => i.getAttribute('alt') || '');\ndocument.documentElement.removeAttribute('data-dd980-online');\nreturn navigator.onLine === true && tiles().some(a => /Asset Lookup/i.test(a));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

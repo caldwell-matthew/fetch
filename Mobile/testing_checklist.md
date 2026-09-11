@@ -23,8 +23,8 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree. `origin/development` is a local ref — `git fetch origin development` first |
-| **Last synced** | `cad415620c` (2026-09-10) — 10 `client/mobile` + shared-component files reviewed. Last `client/mobile` change: `1f50f32eca` (2026-09-10) |
-| **What was in it** | **No asserted literal moved, no locator shape changed.** **Case-insensitive lookups** everywhere (`Conditions`/`Failures` asset lookup, `LaborCharges` craft, Transaction Log search) — bugs §1 is fixed and deleted; `MOB.132`'s no-match term is still unmatchable lower-cased. A **session re-auth modal** (`Layout/SessionReauthentication.tsx`) that cannot be dismissed — it opens 5 min before `expiresAt`, and a dev session lasts 48 h (read over the API), so no run can meet it. `Auth.tsx` no longer unmounts the app while a session refetch is in flight. `TruncatedSpoilerText`'s `Highlight` is now a `<span>` (work-list descriptions only — no test reads them by tag) |
+| **Last synced** | `db49958d6e` (2026-09-10) — every `client/mobile` change since `63b8d1b3e8` reviewed. Last `client/mobile` change: `2e61c8f994` (2026-09-10) |
+| **What was in it** | **No asserted literal moved, no locator shape changed.** **Case-insensitive lookups** everywhere (`Conditions`/`Failures` asset lookup, `LaborCharges` craft, Transaction Log search) — bugs §1 is fixed and deleted; `MOB.132`'s no-match term is still unmatchable lower-cased. A **session re-auth modal** (`Layout/SessionReauthentication.tsx`) that cannot be dismissed — it opens 5 min before `expiresAt`, and a dev session lasts 48 h (read over the API), so no run can meet it. `Auth.tsx` no longer unmounts the app while a session refetch is in flight. `TruncatedSpoilerText`'s `Highlight` is now a `<span>` (work-list descriptions only — no test reads them by tag) · **`db49958d6e`:** `AdHocForm`'s picker now hides a workflow form already on the stage by derived id **or** name (was name only) — `MOB.393` only asserts the picker has options, which this cannot empty |
 | **Literal scan** | `check_literals` clean against this build — 1264 literals, 0 missing |
 
 ```bash
@@ -48,8 +48,8 @@ Known keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filte
 
 | | |
 |---|---|
-| Tests | **117 leaf tests · 13 suites** · 3301 steps (leaves + suites) · 107 subtest slots (+ `MOB.999_Verify_Scratch`, a harness, not coverage) |
-| Local ↔ remote | 122 local, in sync by content. The 2 remote extras are archived orphans `MOB.134` / `MOB.711` |
+| Tests | **118 leaf tests · 13 suites** · 3374 steps (leaves + suites) · 107 subtest slots (+ `MOB.999_Verify_Scratch`, a harness, not coverage) |
+| Local ↔ remote | 132 local, in sync by content. The 2 remote extras are archived orphans `MOB.134` / `MOB.711` |
 | Device | `chrome.tablet` **only** — load-bearing, trap 1 |
 | Rows | 117 `[x]` · 13 `[~]` · 10 `[ ]` · 46 `[-]` — 186 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | ~117 billed runs — a subtest bills as its own run |
@@ -74,7 +74,7 @@ Known keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filte
 | `MOB.998_MaterialLookup` | 5 | residue (`MOB.870` only) |
 
 **Standalone:** `MOB.000_Login` · `MOB.200_Crew_Switch` (mutates) · `MOB.346_Work_Scheduled_View`
-(blocked) · `MOB.440_Logout` (ends the session) · `MOB.974`–`MOB.979` diagnostics (delete each
+(blocked) · `MOB.440_Logout` (ends the session) · `MOB.974`–`MOB.980` diagnostics (delete each
 once its question is settled).
 
 ### The default loop: prove ONE test — `verify.py <test>` (2 runs)
@@ -129,11 +129,18 @@ area changes, not on principle.*
 
 | # | item | why |
 |---|---|---|
-| **3** | **`Copy to asset`** (`WorkStageAttachments.tsx`) | Needs a work stage that already has a photo, and copying writes |
-| **10** | **A `Created`-status guard on the work ring** | `StatusMenuIcon` hides `Created` from the menu, but `StatusSummary`'s `statusMap` lacks it, so a `Created` stage inflates `total` and shows in no segment. Product bug; ⏳ needs a `Created` stage — the crew's 57 stages are all `Ready` (API, 2026-09-10), and mobile cannot set `Created` (the menu hides it), so one must be made from desktop |
+| **3** | **`Copy to asset`** (`WorkStageAttachments.tsx`) → **`MOB.302` ✅ green solo 74/74 · ⏳ wire into `MOB.986` after `MOB.301`** | `Copy to asset` **links the same attachment** (same id — `attachment/index.ts` `copy` inserts an association row); the asset-side `Delete Photo` only unlinks while another parent still references it (`delete/index.ts` `getReferenceCount`). Self-cleaning, with the **owner-sanctioned delete** (trap 2's one exception, this test only): copy the stage photo to the asset, prove the link on Asset Lookup (the source's id and name), then `Delete Photo` on the asset — the guard and the gear click share one step and require the asset's one photo to be the source this run read on the work order (≥ 2 references, so it can only unlink); a mismatch fails before the menu opens. Ends proving the work order's image still loads. Dedicated owner fixtures: work order `RcdI0xcpc8NBV8VoRNNBYM` (template `copyAttachmentToAsset` off, one stage photo — the source, never touched) and its only asset `Bypass Valve 0001` (0 attachments at rest). Never `Pump 0102` |
+| **18** | **`MOB.390`/`391` read-back** — the two write tests prove only *"the form modal closed"* | Neither reads the record it just wrote. `ConditionDetails.tsx` renders the card: label = inspection element (`Mounting/Support`), pill = asset standard detail, then `Condition Found:` / `Condition Score:` / `Stress Score:` / `Stress Decision Score:` / `Notes:` (sweep: in no test). `FailureDetails.tsx`: `Failure Type` / `Root Cause` / `Repair Type` / `Discovery Code`. Every run writes identical values, so the proof is **count under `Pump 0102`'s card +1**, then the newest card carries the picked values. Strengthens two existing tests in place; no new residue |
+| **19** | **`Edit Item` pre-fills from the record** (`WorkOrders/components/ui/Menu.tsx:49-57`) | `WorkCollectionMenu` passes `defaultValues={condition}` (charges likewise). Open `Edit Item` on an existing card, assert the form holds that card's values, close unsaved — read-only. Hidden for `collection === 'assets'` (`hideEdit`) |
+| **20** | **`navigator.onLine` override — ✅ SETTLED by `MOB.980` (green 29/29): it works.** Step JS runs in the PAGE world (an injected `<script>` read the step's getter back as `false`), inline scripts are not blocked, and both routes reached `ConnectionRequired` from the Home tile without a reload | `MOB.910`'s `offline` event flips `useNetwork()` only. Four branches read the property itself: `AssetLookup/index.tsx:160` `ConnectionRequired`, `MaterialCharges.tsx:104` (the `[-]` row in ELMO), `AssetGeolocate.tsx:272` offline form (`Location details are unavailable offline.` — sweep), `graphql/index.tsx:69` RetryLink. **Now buildable, read-only:** `ConnectionRequired` on Asset Lookup, the material-charge message, the offline geolocate form — recipe: `Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false })` in a step, route in-app (a `goToUrl` reload discards it), restore with `delete navigator.onLine` + reload, all `always`. The RetryLink branch fires only on a mutation, so it waits for an owner-named flow. Delete `MOB.980` once the first real test ships |
+| **21** | Asset Lookup `Event Readings` empty state — `No readings recorded for this asset.` (`EventReadings.tsx:307`) | Read-only; needs an asset with 0 readings (pick one over the API, not `Bypass Valve 0001` — `MOB.302`'s alone) |
+| **22** | `MentorLens Tags` header in the photo tag editor (`LensTags.tsx:81`) | One assertion in `MOB.622`, which already opens the editor (`Edit Attachment Tags`) |
+| **23** | AV detail header `Tag ID:` (`AssetVerification/AssetDetails.tsx:175`) — `tagNumber ?? 'None'` | Low: a value read against the API in an existing AV detail test |
 
 Find the next ones with the rendered-string sweep (🔧 MAINTENANCE check 6), not the attribute
-sweep. Exclude `__jest__` **by path** — `grep -rh` prints no filename, so `| grep -v __jest__`
+sweep. **Last sweep: `origin/development@db49958d6e`** — 162 `.tsx` files, 206 JSX text strings,
+128 asserted somewhere; of the 78 in no test, ~20 are code the regex caught, the rest are rows
+#18–#23 above or already classified (⚪ / 🔴 / `[-]`). Exclude `__jest__` **by path** — `grep -rh` prints no filename, so `| grep -v __jest__`
 filters nothing.
 
 ### 🟡 BLOCKED — decisions and fixtures, not work
@@ -160,7 +167,10 @@ obvious test asserts something false) · status badge colour (`MOB.342` covers i
 `getComputedStyle`) · Failures/Condition placeholders (`Tank 0000` has both) · form FILLING
 (`MOB.134`, archived — the render half is `MOB.355`) · real device GPS · `UploadStatusIcon`
 (Expo only) · forcing `ErrorBoundary` to trip (poisons the shared session) ·
-`/asset-collector/:assetId` (orphan route — nothing navigates to it) · Transaction Log column
+`/asset-collector/:assetId` (orphan route — nothing navigates to it) · `MaterialLookup/SearchResults.tsx`
+(`Nothing found` — imported nowhere) · `AddAssetToWorkInsertForm` (`Add Asset to Work Order` —
+imported only by its Jest test) · `UploadLogs` (`Upload Logs`, `No uploads found.` — rendered only
+under `UploadStatusIcon`, Expo only) · Transaction Log column
 sort (`onSort` is `console.log`).
 
 ### 🔴 HARNESS — needs a different tool
@@ -304,7 +314,7 @@ were broken by an app change.
 - [x] Equipment *(MOB.350)* · labor *(MOB.360)* · material *(MOB.370, type Return so stock is not decremented)* · other *(MOB.380, `unitPrice` required at runtime — trap 8)*
 - [x] Invalid charge form does NOT submit — all four *(MOB.356)*
 - [x] The `ESTIMATES` section on all four tabs *(MOB.351)* — pins `{section === 'CHARGES' && InsertForm}` in both directions; reports whether the fixture has estimate cards (it has none) without that deciding pass/fail
-- [-] `Internet Connection is required to make a material charge` — `MaterialCharges.tsx` reads `navigator.onLine`
+- [-] `Internet Connection is required to make a material charge` — `MaterialCharges.tsx` reads `navigator.onLine` · 🟢 #20's probe may make it reachable
 
 ### Tabs & forms
 
@@ -313,7 +323,7 @@ were broken by an app change.
 - [x] Attributes tab edit *(MOB.388)* — `Heater Hz` on the fixture work order, MOB.545's two-leg shape: marker → reload → not the baseline; `7` → reload → exact (`UPDATE_WORKSTAGE_ATTRIBUTE`)
 - [x] Assets tab and its status controls *(MOB.347)* — `Mark as …` asserted, never clicked
 - [x] Attachments *(MOB.741)*
-- [ ] `Copy to asset` — 🟢 #3
+- [ ] `Copy to asset` *(MOB.302 ✅ green solo, not yet wired)* — link the stage photo to `Bypass Valve 0001`, prove it on Asset Lookup (the source's id and name), unlink it from the asset (owner-sanctioned, trap 2), prove the asset is back to 0 and the source's image still loads — 🟢 #3
 - [x] Add failure *(MOB.391)* — each lookup is fed by the previous selection
 - [x] Add condition score *(MOB.390)* — asset → inspection group → element
 - [x] Condition and Failure asset lookups ignore case *(MOB.389)* — bugs §1's regression guard: in each form's own dropdown, `ZZZZ-NO-SUCH-ASSET` → `No results found`, then `pUMP 0102` → exactly `Pump 0102`; both forms closed unsaved
@@ -337,7 +347,7 @@ were broken by an app change.
 - [x] Tapping a row opens its work order *(MOB.344)*
 - [x] Sort applies, persists, and really reverses *(MOB.345)*
 - [x] Scheduled view, `WO_SCHEDULED_SORT`, group headers *(MOB.346)* — 🛑 blocked, see 🟡
-- [ ] `Created`-status guard on the ring — 🟢 #10
+- [-] `Created` stages on the ring — unreachable: the crew query returns only `In Progress`/`On Hold`/`Ready`, plus `Complete`/`Pending` inside the retention window (server `getCrew.ts:133-152`), so the ring never receives a `Created` stage; its absence from `statusMap` is not a defect
 
 ## T2.2 Asset Verification
 

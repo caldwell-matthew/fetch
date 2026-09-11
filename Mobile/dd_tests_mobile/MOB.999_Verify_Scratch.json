@@ -4,7 +4,7 @@
         "name": "MOB.999_Verify_Scratch",
         "type": "browser",
         "status": "paused",
-        "message": "**SCRATCH \u2014 re-pointed by `verify.py`. Currently: `MOB.807_Search_MultiValue_Enum_Record`.**\n- Exists to verify ONE leaf for **2 billed runs** instead of the 6-15 its real suite\n  costs, because **a subtest is billed as its own run**.\n- \u26a0\ufe0f **A fresh session is not the same as a suite session.** In its real suite a child\n  inherits what earlier children left behind (a sort, a filter, a switched crew). A test\n  can pass here and fail there \u2014 **run the real suite once before believing it.**\n- \ud83d\uded1 Wired into nothing. Its contents are disposable and change constantly; do not cite\n  it as coverage anywhere.",
+        "message": "**SCRATCH \u2014 re-pointed by `verify.py`. Currently: `MOB.980_DIAG_OnLine_Override`.**\n- Exists to verify ONE leaf for **2 billed runs** instead of the 6-15 its real suite\n  costs, because **a subtest is billed as its own run**.\n- \u26a0\ufe0f **A fresh session is not the same as a suite session.** In its real suite a child\n  inherits what earlier children left behind (a sort, a filter, a switched crew). A test\n  can pass here and fail there \u2014 **run the real suite once before believing it.**\n- \ud83d\uded1 Wired into nothing. Its contents are disposable and change constantly; do not cite\n  it as coverage anywhere.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -328,10 +328,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.807_Search_MultiValue_Enum_Record",
+                "name": "MOB.980_DIAG_OnLine_Override",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "g4q-2ed-uqh",
+                    "subtestPublicId": "7pe-g8q-dcm",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"
