@@ -122,11 +122,12 @@ def step(type_, name, params, optional=False, always=False, timeout=None, soft=F
     still goes red, honestly, but it does not take its siblings down with it. Do NOT reach for
     `optional=True` there - a test whose subject is absent must not report green.
 
-    timeout=N sets Datadog's per-step `timeout` (seconds). Whether a step POLLS until that
-    timeout or checks once is the open question in Appendix F item 1 - if it polls, most of
-    the ~815s of blind `wait` steps in this suite can be replaced by gates that return as
-    soon as they are satisfied. The asset-list guard in `av_job_gate` is the first real use,
-    and doubles as that experiment.
+    timeout=N sets Datadog's per-step `timeout` (seconds). EVERY step polls until its timeout -
+    and an UNTIMED step polls until Datadog's 60s default (measured: MOB.390's untimed `Pick 1`
+    click failed at 58.5s, 2026-09-11; a timed gate returned at 58.2s of 60). So a positive
+    assertion needs no explicit timeout to wait for a render; set one to FAIL FASTER than 60s,
+    or to wait longer. What does NOT poll is an ABSENCE check (trap 21): `assertPageLacks` is
+    true before loading starts, so it is a timer, not a gate.
 
     Needed when a test must leave the world in a known state regardless of whether its
     assertions held - MOB.550 asserts that a PREVIOUS run's data came back from the server,
@@ -225,6 +226,55 @@ ACTIVE_PANEL_JS = (
     "const p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n"
     "  .find(x => x.style.display !== 'none');\n"
     "if (!p) return false;\n")
+
+# ---------------------------------------------------------------------------------------------
+# SERVER PROOF FOR A RECORD ADD - count your own cards, reload, require exactly +1.
+# ---------------------------------------------------------------------------------------------
+# bugs §40: an add the server REFUSES still closes its modal (`addToCollection` calls `done()` in
+# the optimistic `update()`), so "the modal closed" proves nothing about the server. MOB.390/391
+# went green for a month writing nothing. The proof that survives it: count the cards that carry
+# the test's OWN values before the add, reload the page (a reload drops optimistic state and the
+# persisted cache holds only settled results), reopen the tab and require exactly one more.
+#   needles  every string a card of this test's record must contain - the picked item name AND a
+#            line only real records render (estimates have no dated line), so neither another
+#            charge type nor an estimate can be counted.
+# Counts INNERMOST Mantine Papers in the ACTIVE tab panel, so a wrapper Paper is never counted
+# along with the cards inside it.
+def record_count_js(needles):
+    arr = "[" + ", ".join("'" + n.replace("'", "\\'") + "'" for n in needles) + "]"
+    return (ACTIVE_PANEL_JS +
+            f"const needles = {arr};\n"
+            "const has = el => { const t = (el.textContent || '').replace(/\\s+/g, ' ');\n"
+            "  return needles.every(n => t.includes(n)); };\n"
+            "const cards = [...p.querySelectorAll('[class*=\"mantine-Paper-root\"]')]\n"
+            "  .filter(c => has(c) && ![...c.querySelectorAll('[class*=\"mantine-Paper-root\"]')].some(has));\n")
+
+
+def stash_record_count(key, needles, what):
+    return jsassert(f"BEFORE: count the {what} cards already here (the server-proof baseline)",
+                    record_count_js(needles) +
+                    f"sessionStorage.setItem('{key}', String(cards.length));\nreturn true;",
+                    timeout=30)
+
+
+def prove_record_count(key, needles, what, url, tab_xpath, soft=False):
+    """Reload, reopen the tab, require exactly one more card than the baseline."""
+    return [
+        step("wait", "Let the server answer before reloading", {"value": 3}),
+        go(url, "the fixture work order (reload: the server's answer)"),
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}, timeout=30),
+        step("click", "Reopen the tab", {"element": xpath_el(url, tab_xpath)}, timeout=30),
+        step("wait", "Let the cards render", {"value": 2}),
+        jsassert(f"⭐ SERVER PROOF: after a RELOAD there is exactly ONE more {what} card than before",
+                 record_count_js(needles) +
+                 f"const before = sessionStorage.getItem('{key}');\n"
+                 "return before !== null && cards.length === Number(before) + 1;",
+                 timeout=30, soft=soft),
+        jsassert("Remove this test's sessionStorage key",
+                 f"sessionStorage.removeItem('{key}');\nreturn true;", always=True, timeout=15),
+    ]
+
 
 # ---------------------------------------------------------------------------------------------
 # THE ASSET LOOKUP FILTERS DRAWER - one self-healing gate, shared by every test that opens it.

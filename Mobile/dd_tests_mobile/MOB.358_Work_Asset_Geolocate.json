@@ -509,6 +509,120 @@
             },
             {
                 "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OFFLINE LEG: define an own `onLine` getter (false) \u2014 no `offline` event, so the control stays enabled",
+                "noScreenshot": false,
+                "params": {
+                    "code": "Object.defineProperty(navigator, 'onLine', { configurable: true, get: function () { return false; } });\nreturn navigator.onLine === false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tap the geolocate control again (property offline)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-ActionIcon-root \")][.//*[@data-icon=\"location-crosshairs\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-location-crosshairs \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The modal opened again \u2014 \"Updating Asset Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Updating Asset Location"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 OFFLINE FORM: `Location details are unavailable offline.` + `Submit to update latitude/longitude.` in `#mobile-geolocate-offline` \u2014 and the online form is NOT there",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const off = document.getElementById('mobile-geolocate-offline');\nconst t = off ? (off.textContent || '') : '';\nreturn t.includes('Location details are unavailable offline.')\n  && t.includes('Submit to update latitude/longitude.')\n  && !document.getElementById('mobile-geolocate');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape \u2014 close the offline form WITHOUT submitting",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: remove the `onLine` getter",
+                "noScreenshot": false,
+                "params": {
+                    "code": "try { delete navigator.onLine; } catch (e) {}\nreturn navigator.onLine === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the modal is gone again, nothing submitted",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Updating Asset Location"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,

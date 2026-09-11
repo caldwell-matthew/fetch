@@ -28,13 +28,14 @@ PICK BY TEXT, NEVER BY INDEX
   leftovers from a dropdown that has already closed. That failed as "Element located but
   it's invisible" in MOB.360. Every pick here is by text.
 
-MUTATES: each run adds a permanent condition / failure / note to the fixture. Mobile has
-no delete, so these accumulate and need desktop cleanup.
+MUTATES: each run adds a permanent note to the fixture (MOB.392). MOB.390/391 are
+SELF-CLEANING - see the block above them.
 """
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+                      stash_record_count, prove_record_count)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
 STAGE_URL = f"{BASE}/work/{FIXTURE_ID}"
@@ -59,12 +60,14 @@ TAGS = ["Mobile", "env:dev", "Work Order", "CRUD"]
 # Known-good dev values
 ASSET = "Pump 0102"
 INSPECTION_GROUP = "Structural"
-INSPECTION_ELEMENT = "Mounting/Support"
+INSPECTION_ELEMENT = "Pump Body"          # NOT Mounting/Support - see MOB.390's block
+ORIGINAL_ELEMENT = "Mounting/Support"     # the fixture's one condition, never touched
 CONDITION_FOUND = "1"
 CONDITION_LEFT = "2"
 STRESS_SCORE = "3"
 FAILURE_TYPE = "BELT (R-L1)"
-REPAIR_TYPE = "MISSED"   # not "INSPECT" - that value is not in this failure type's list
+REPAIR_TYPE = "ADJUST"   # NOT "MISSED" - see MOB.391's block ("INSPECT" is not in BELT's list)
+ORIGINAL_REPAIR = "MISSED"  # the fixture's one failure, never touched
 ROOT_CAUSE_TYPE = "TIME"
 NOTE_TEXT = "This is a note - DD SYNTHETIC MOBILE"
 FORM_NAME = "Inspection"
@@ -93,12 +96,19 @@ def open_fixture():
     ]
 
 
-def option_xpath(pick, exact=False):
-    """Locator for one dropdown option. See lookup() for why each form is shaped this way."""
-    if exact:
-        return (f'(//*[@role="option"][.//*[contains(@class,"option-title")]'
-                f'[normalize-space(.)="{pick}"]])[last()]')
+def option_xpath(pick):
+    """Locator for one dropdown option by its whole text. See lookup() for the exact form."""
     return f'//*[@role="option"][contains(normalize-space(.), "{pick}")]'
+
+
+def pick_visible_option_js(pick):
+    """Click the ONE VISIBLE option whose title is exactly `pick` (see lookup())."""
+    return ("const vis = [...document.querySelectorAll('[role=\"option\"]')].filter(o => {\n"
+            "  const t = o.querySelector('[class*=\"option-title\"]');\n"
+            f"  return t && (t.textContent || '').trim() === '{pick}' && o.offsetParent !== null;\n"
+            "});\n"
+            "if (vis.length !== 1) return false;\n"
+            "vis[0].click();\nreturn true;")
 
 
 def lookup(field_id, label, pick, search=None, exact=False):
@@ -118,17 +128,16 @@ def lookup(field_id, label, pick, search=None, exact=False):
     Matching option-title sidesteps both. Only needed where the visible label is a short
     numeric prefix of other labels; the text lookups are unambiguous on full option text.
 
-    ...AND THEN [last()], because option-title alone is still not unique. Mantine Combobox
-    defaults to keepMounted, so a dropdown's options stay in the DOM (portaled onto <body>)
-    after it closes. conditionFound and conditionScore are both filterScores('conditionScores')
-    - the SAME list - so once conditionFound has been opened, "2" matches its leftover option
-    as well as the live one, and Datadog errors rather than choosing. Nothing textual can
-    separate two identical lists, and the dropdown is portaled out of the field's wrapper so
-    an ancestor scope cannot reach it either.
-
-    [last()] is correct here rather than merely convenient: the leftovers appear in field
-    order, and these fields are filled in field order, so the live dropdown is always the
-    last one carrying options. Filling them out of order would break that assumption.
+    ...AND ONLY THE VISIBLE ONE, because option-title alone is still not unique: the score
+    fields share one list, and Mantine keeps dropdown options in the DOM (portaled onto
+    <body>), hidden. So the exact pick is a JS step: the options titled exactly `pick` whose
+    `offsetParent` is not null (a `display:none` dropdown has none) - exactly one, clicked.
+    ⚠️ Two XPath forms failed here, one run each. `(…)[last()]` ("the live dropdown is the last
+    one carrying options") hit a HIDDEN later field's "1" - "Element located but it's
+    invisible" - with the live dropdown open on screen. Scoping by `aria-controls` found
+    NOTHING on the served build, though the local Mantine source says the open input carries
+    it (the working tree's node_modules is not the served build's). Visibility is what the
+    screenshot shows, so the step asserts that.
     """
     steps = [step("click", f"Focus the {label} lookup",
                   {"element": xpath_el(STAGE_URL, f'//*[@id="{field_id}"]')})]
@@ -136,11 +145,13 @@ def lookup(field_id, label, pick, search=None, exact=False):
         steps.append(step("typeText", f"Search the {label} lookup",
                           {"value": search,
                            "element": xpath_el(STAGE_URL, f'//*[@id="{field_id}"]')}))
-    steps += [
-        step("wait", f"Wait for {label} options", {"value": 2}),
-        step("click", f"Pick {pick}",
-             {"element": xpath_el(STAGE_URL, option_xpath(pick, exact))}),
-    ]
+    steps.append(step("wait", f"Wait for {label} options", {"value": 2}))
+    if exact:
+        steps.append(jsassert(f"Pick {pick} — the one VISIBLE option titled exactly \"{pick}\"",
+                              pick_visible_option_js(pick), timeout=20))
+    else:
+        steps.append(step("click", f"Pick {pick}",
+                          {"element": xpath_el(STAGE_URL, option_xpath(pick))}))
     return steps
 
 
@@ -151,6 +162,12 @@ def number(field_id, label, value):
 
 def submit_and_assert(submit_xpath=None, toast="Item added"):
     """Assert the MODAL CLOSED, not the toast.
+
+    ⚠️ THE MODAL CLOSING IS NOT A SERVER ANSWER (bugs §40). `addToCollection` passes an
+    `optimisticResponse` and calls `done()` inside `update()`, which Apollo runs FIRST with the
+    optimistic result - so the modal closes before the server replies, and a refusal is rolled
+    back silently. MOB.390/391 were green for a month while every add was refused as a
+    duplicate. Only a read after a RELOAD proves a write (MOB.390/391 do that now).
 
     The toast is transient (autoClose) and races the assertion - confirmed by a run where
     the record was created but 'Item added' had already gone. Worse, a missing toast is
@@ -180,54 +197,175 @@ def submit_and_assert(submit_xpath=None, toast="Item added"):
     return steps
 
 
-# ---------------------------------------------------------------- condition
+# ---------------------------------------------------------------- condition / failure
+# MOB.390/391 ADD, PROVE AFTER A RELOAD, THEN DELETE WHAT THEY ADDED (owner-sanctioned, trap 2).
+#
+#   WHY: the server keeps ONE condition per [workStage, asset, inspection group, element] and ONE
+#   failure per [workStage, failureType, repairType, rootCauseType] (`WorkStageCondition.unique`,
+#   `WorkStageFailure.unique`). The fixture holds one of each from the first run (2026-08-10 -
+#   Mounting/Support, and BELT/MISSED/TIME). Every later run re-submitted that same key, the
+#   server refused it as "Duplicate record found", and the optimistic modal-close kept the test
+#   green (bugs §40). Trap 10 again: the test ate its own fixture on run 1.
+#
+#   SO: add a key the fixture does NOT hold (Pump Body; BELT/ADJUST/TIME), prove it after a
+#   reload, and delete it again from its own card's menu - the owner named this flow, for these
+#   two collections on the fixture work order only. The original record is proven untouched.
+#
+#   🛑 THE DELETE IS GUARDED IN THE SAME STEP AS THE GEAR CLICK: exactly one card with the run's
+#   key, and the PREMISE (0 such cards before the add) proves this run made it. `Delete Item`
+#   sends `removeFromCollection` with THAT card's record id (`defaultValues={condition}`).
+#   A leftover from a failed cleanup stops the test at the premise - it never deletes a record
+#   this run did not create. Clean it from desktop.
+K_ORIG = "__dd39x_origCount"
+NORM = "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\n"
+PAPER = '[class*="mantine-Paper-root"]'
+TXT = '[class*="mantine-Text-root"]'
+# ConditionDetails.tsx: CollapsableSection Paper > [toggle button(label = element) · Pill(group) ·
+# gear] + Collapse > List > li "Condition Found: <Pill>" … ; grouped under an asset Paper whose
+# first Text is the asset name (Conditions/index.tsx).
+COND_CARDS = (NORM +
+    "const cards = [...new Set([...document.querySelectorAll('li')]\n"
+    "  .filter(li => norm(li.textContent).indexOf('Condition Found:') === 0)\n"
+    f"  .map(li => li.closest('{PAPER}')))].filter(Boolean).map(c => {{\n"
+    f"    const grp = c.parentElement && c.parentElement.closest('{PAPER}');\n"
+    f"    const a = grp && grp.querySelector('{TXT}');\n"
+    "    const b = c.querySelector('button');\n"
+    "    return { el: c, asset: a ? norm(a.textContent) : '', label: b ? norm(b.textContent) : '',\n"
+    "             text: norm(c.textContent), lis: [...c.querySelectorAll('li')].map(li => norm(li.textContent)) };\n"
+    "  });\n"
+    f"const isKey = (c, el) => c.asset === '{ASSET}' && c.label === el && c.text.indexOf('{INSPECTION_GROUP}') !== -1;\n"
+    f"const mine = cards.filter(c => isKey(c, '{INSPECTION_ELEMENT}'));\n"
+    f"const orig = cards.filter(c => isKey(c, '{ORIGINAL_ELEMENT}'));\n")
+COND_VALUES = (f"['Condition Found: {CONDITION_FOUND}', 'Condition Score: {CONDITION_LEFT}', "
+               f"'Stress Score: {STRESS_SCORE}'].every(v => mine[0].lis.includes(v))")
+# FailureDetails.tsx: CollapsableSection Paper > Table rows [label td, value td] ; grouped (via a
+# component Box) under an asset Paper whose first Text is the asset name (Failures/index.tsx).
+FAIL_CARDS = (NORM +
+    "const cards = [...document.querySelectorAll('table')]\n"
+    "  .filter(t => /Failure Type/.test(t.textContent || ''))\n"
+    f"  .map(t => {{ const c = t.closest('{PAPER}'); if (!c) return null;\n"
+    f"    const grp = c.parentElement && c.parentElement.closest('{PAPER}');\n"
+    f"    const a = grp && grp.querySelector('{TXT}');\n"
+    "    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n"
+    "    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\n"
+    f"const isKey = (c, rep) => c.asset === '{ASSET}' && c.row['Failure Type'] === '{FAILURE_TYPE}'\n"
+    f"  && c.row['Repair Type'] === rep && c.row['Root Cause'] === '{ROOT_CAUSE_TYPE}';\n"
+    f"const mine = cards.filter(c => isKey(c, '{REPAIR_TYPE}'));\n"
+    f"const orig = cards.filter(c => isKey(c, '{ORIGINAL_REPAIR}'));\n")
+DELETE_ITEM = '(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Delete Item"])[1]'
+CONFIRM_YES = ('//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]'
+               '[.//*[contains(normalize-space(.), "Are you sure you want to delete this record?")]]'
+               '//button[normalize-space(.)="Yes"]')
+
+
+def reopen(tab_label, why):
+    """A RELOAD, then the tab: the only read that is the server's answer (bugs §40)."""
+    return [
+        go(STAGE_URL, f"the fixture work order ({why})"),
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             timeout=30),
+        step("click", f"Open the {tab_label} tab", {"element": xpath_el(STAGE_URL, tab(tab_label))},
+             timeout=30),
+        step("wait", f"Let the {tab_label} cards render", {"value": 2}),
+    ]
+
+
+def add_prove_delete(what, tab_label, cards_js, key_desc, orig_desc, values_js, add_steps):
+    return open_fixture() + [
+        step("click", f"Open the {tab_label} tab", {"element": xpath_el(STAGE_URL, tab(tab_label))}),
+        step("wait", f"Let the {tab_label} cards render", {"value": 2}),
+        jsassert(f"PREMISE: no {what} with the run's key ({key_desc}) exists — so the one found "
+                 f"after the add is THIS run's; and COUNT the original ({orig_desc})",
+                 cards_js + "if (mine.length !== 0 || !document.evaluate(\"" + ADD_BTN.replace('"', '\\"')
+                 + "\", document, null, 9, null).singleNodeValue) return false;\n"
+                 f"sessionStorage.setItem('{K_ORIG}', String(orig.length));\nreturn true;",
+                 timeout=30),
+        step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
+        *add_steps,
+    ] + submit_and_assert({"Condition": SUBMIT_CONDITION, "Failure": SUBMIT_FAILURE}[tab_label],
+                          toast=None) + [
+        step("wait", "Let the server answer before reloading", {"value": 3}),
+    ] + reopen(tab_label, "reload: the server's answer") + [
+        jsassert(f"⭐ SERVER PROOF: exactly ONE {what} with the run's key after a RELOAD, carrying "
+                 "the picked values",
+                 cards_js + f"return mine.length === 1 && {values_js};", timeout=30),
+
+        # ---- delete what this run added (owner-sanctioned) --------------------------------
+        jsassert(f"🛑 GUARD + open its gear: only if exactly one {what} has the run's key (the "
+                 "premise proved it was absent before this run's add)",
+                 cards_js + "if (mine.length !== 1) return false;\n"
+                 "const g = mine[0].el.querySelector('[aria-label=\"Menu\"]');\n"
+                 "if (!g) return false;\ng.click();\nreturn true;", timeout=30),
+        step("wait", "Let the menu open", {"value": 1}),
+        step("click", "Click `Delete Item` — on THIS card (its own record id)",
+             {"element": xpath_el(STAGE_URL, DELETE_ITEM)}, timeout=30),
+        step("wait", "Let the confirmation open", {"value": 1}),
+        step("click", 'Confirm: "Yes"', {"element": xpath_el(STAGE_URL, CONFIRM_YES)}, timeout=30),
+        step("wait", "Wait for the remove mutation", {"value": 3}),
+    ] + reopen(tab_label, "reload: after the delete") + [
+        jsassert(f"⭐ CLEANED: no {what} with the run's key, and the original ({orig_desc}) is "
+                 "untouched — same count as before",
+                 cards_js + f"const before = sessionStorage.getItem('{K_ORIG}');\n"
+                 "return mine.length === 0 && before !== null && orig.length === Number(before);",
+                 timeout=30),
+        jsassert("Remove this test's sessionStorage key",
+                 f"sessionStorage.removeItem('{K_ORIG}');\nreturn true;", always=True, timeout=15),
+    ]
+
+
 write(test(
     "MOB.390_Work_Add_Condition",
-    "`MOB.390` Add a condition score to the fixture work order.\n"
-    "- Cascading lookups: asset -> inspection group -> inspection element. Group options\n"
-    "  come from the asset's conditionAssessment, element options from the group, so the\n"
-    "  order is load-bearing.\n"
-    "- Field ids do not match their labels: \"Inspection Group\" is assetStandardDetailId\n"
-    "  and \"Condition Left\" is conditionScore.\n"
-    f"- MUTATES: adds a permanent condition to {FIXTURE_ID} on every run.",
-    open_fixture() + [
-        step("click", "Open the Condition tab", {"element": xpath_el(STAGE_URL, tab("Condition"))}),
-        step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
-        # No search term: an empty query lists every asset ATTACHED TO THIS WORK STAGE
-        # (options come from props.assets, not a global list). Typing is safe since
-        # `cad415620c` fixed the case-sensitive filter (bugs §1) - MOB.389 guards that.
-        *lookup("assetId", "asset", ASSET),
-        *lookup("assetStandardDetailId", "inspection group", INSPECTION_GROUP),
-        *lookup("inspectionElementId", "inspection element", INSPECTION_ELEMENT),
-        # conditionFound / conditionScore / stressScore are type:'record' lookups backed by
-        # filterScores(), NOT numeric inputs - typing into them does nothing. Pick the
-        # score from the dropdown by its text.
-        *lookup("conditionFound", "condition found", CONDITION_FOUND, exact=True),
-        *lookup("conditionScore", "condition left", CONDITION_LEFT, exact=True),
-        *lookup("stressScore", "stress score", STRESS_SCORE, exact=True),
-    ] + submit_and_assert(SUBMIT_CONDITION, toast=None),
-    TAGS + ["Condition"],
+    "`MOB.390` **Add a condition score — proved after a reload — then delete it again.**\n"
+    "- Cascading lookups: asset -> inspection group -> inspection element (order is load-bearing);\n"
+    "  \"Inspection Group\" is assetStandardDetailId and \"Condition Left\" is conditionScore.\n"
+    f"- Key `{ASSET} · {INSPECTION_GROUP} · {INSPECTION_ELEMENT}` — NOT the fixture's own\n"
+    f"  `{ORIGINAL_ELEMENT}` condition: the server keeps one per key and refused every repeat\n"
+    "  (bugs §40 — the modal still closed, so this test was green while adding nothing).\n"
+    "- ⭐ Proof after a RELOAD: exactly one card with the key and 1 / 2 / 3.\n"
+    "- 🛑 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n"
+    "  only — guarded in the same step as the gear click — then a reload proves it gone and the\n"
+    "  original untouched.",
+    add_prove_delete(
+        "condition", "Condition", COND_CARDS,
+        f"{ASSET} · {INSPECTION_GROUP} · {INSPECTION_ELEMENT}", ORIGINAL_ELEMENT, COND_VALUES, [
+            # No search term: an empty query lists every asset ATTACHED TO THIS WORK STAGE
+            # (options come from props.assets, not a global list). Typing is safe since
+            # `cad415620c` fixed the case-sensitive filter (bugs §1) - MOB.389 guards that.
+            *lookup("assetId", "asset", ASSET),
+            *lookup("assetStandardDetailId", "inspection group", INSPECTION_GROUP),
+            *lookup("inspectionElementId", "inspection element", INSPECTION_ELEMENT),
+            # conditionFound / conditionScore / stressScore are enum lookups with numeric
+            # options - typing into them does nothing. Pick the score by its title.
+            *lookup("conditionFound", "condition found", CONDITION_FOUND, exact=True),
+            *lookup("conditionScore", "condition left", CONDITION_LEFT, exact=True),
+            *lookup("stressScore", "stress score", STRESS_SCORE, exact=True),
+        ]),
+    TAGS + ["Condition", "self-cleaning"],
 ))
 
-# ---------------------------------------------------------------- failures
 write(test(
     "MOB.391_Work_Add_Failure",
-    "`MOB.391` Add a failure to the fixture work order.\n"
-    "- Four required lookups: asset, failure type, repair type, root cause type.\n"
-    "  componentTypeId and discoveryCodeId exist but are optional, so they are skipped.\n"
-    f"- MUTATES: adds a permanent failure to {FIXTURE_ID} on every run.",
-    open_fixture() + [
-        step("click", "Open the Failures tab", {"element": xpath_el(STAGE_URL, tab("Failure"))}),
-        step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
-        # No search term: an empty query lists every asset ATTACHED TO THIS WORK STAGE
-        # (options come from props.assets, not a global list). Typing is safe since
-        # `cad415620c` fixed the case-sensitive filter (bugs §1) - MOB.389 guards that.
-        *lookup("assetId", "asset", ASSET),
-        *lookup("failureTypeId", "failure type", FAILURE_TYPE),
-        *lookup("repairTypeId", "repair type", REPAIR_TYPE),
-        *lookup("rootCauseTypeId", "root cause type", ROOT_CAUSE_TYPE),
-    ] + submit_and_assert(SUBMIT_FAILURE, toast=None),
-    TAGS + ["Failures"],
+    "`MOB.391` **Add a failure — proved after a reload — then delete it again.**\n"
+    "- Four required lookups: asset, failure type, repair type, root cause type\n"
+    "  (componentTypeId and discoveryCodeId are optional and skipped).\n"
+    f"- Key `{FAILURE_TYPE} · {REPAIR_TYPE} · {ROOT_CAUSE_TYPE}` — NOT the fixture's own\n"
+    f"  `{ORIGINAL_REPAIR}` failure: the server keeps one per key and refused every repeat (bugs §40).\n"
+    "- ⭐ Proof after a RELOAD: exactly one card with the key.\n"
+    "- 🛑 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n"
+    "  only — guarded in the same step as the gear click — then a reload proves it gone and the\n"
+    "  original untouched.",
+    add_prove_delete(
+        "failure", "Failure", FAIL_CARDS,
+        f"{FAILURE_TYPE} · {REPAIR_TYPE} · {ROOT_CAUSE_TYPE}",
+        f"{FAILURE_TYPE} · {ORIGINAL_REPAIR} · {ROOT_CAUSE_TYPE}", "true", [
+            # No search term: an empty query lists every asset ATTACHED TO THIS WORK STAGE.
+            *lookup("assetId", "asset", ASSET),
+            *lookup("failureTypeId", "failure type", FAILURE_TYPE),
+            *lookup("repairTypeId", "repair type", REPAIR_TYPE),
+            *lookup("rootCauseTypeId", "root cause type", ROOT_CAUSE_TYPE),
+        ]),
+    TAGS + ["Failures", "self-cleaning"],
 ))
 
 # ---------------------------------------------------------------- notes
@@ -240,6 +378,9 @@ write(test(
     f"- MUTATES: adds a permanent note to {FIXTURE_ID} on every run.",
     open_fixture() + [
         step("click", "Open the Notes tab", {"element": xpath_el(STAGE_URL, tab("Notes"))}),
+        step("wait", "Let the note cards render", {"value": 2}),
+        # SERVER PROOF (bugs §40): count the notes carrying OUR text, reload after, require +1.
+        stash_record_count("__dd392_before", [NOTE_TEXT], "note"),
         step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
         # Instructions is a tiptap RICH TEXT editor (MantineRichTextEditor.Content), not a
         # plain input - there is no #desc field to type into. The editable surface is the
@@ -249,7 +390,8 @@ write(test(
         step("typeText", "Enter the note instructions",
              {"value": NOTE_TEXT,
               "element": xpath_el(STAGE_URL, '//div[@contenteditable="true"]')}),
-    ] + submit_and_assert(),
+    ] + submit_and_assert() + prove_record_count("__dd392_before", [NOTE_TEXT], "note", STAGE_URL,
+                                                 tab("Notes")),
     TAGS + ["Notes"],
 ))
 

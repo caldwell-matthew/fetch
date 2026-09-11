@@ -1,14 +1,16 @@
 {
-    "test_name": "MOB.999_Verify_Scratch",
+    "test_name": "MOB.721_AssetLookup_Readings_Empty",
     "details": {
-        "name": "MOB.999_Verify_Scratch",
+        "name": "MOB.721_AssetLookup_Readings_Empty",
         "type": "browser",
         "status": "paused",
-        "message": "**SCRATCH \u2014 re-pointed by `verify.py`. Currently: `MOB.537_AssetVerify_Header_Tag`.**\n- Exists to verify ONE leaf for **2 billed runs** instead of the 6-15 its real suite\n  costs, because **a subtest is billed as its own run**.\n- \u26a0\ufe0f **A fresh session is not the same as a suite session.** In its real suite a child\n  inherits what earlier children left behind (a sort, a filter, a switched crew). A test\n  can pass here and fail there \u2014 **run the real suite once before believing it.**\n- \ud83d\uded1 Wired into nothing. Its contents are disposable and change constantly; do not cite\n  it as coverage anywhere.",
+        "message": "`MOB.721` **The Readings tab's empty state** on an asset with no readings.\n- `EventReadings.tsx`: outside a work order the fields come only from current readings, so\n  with none the panel reads **`No readings recorded for this asset.`**. `MOB.720` covers the tab WITH readings.\n- Fixture `\u26a1 Building 0000` \u2014 0 readings, no meters, used by no other test (not an AV job asset,\n  which `MOB.550` writes readings to).\n- \ud83d\uded1 **READ-ONLY**.",
         "tags": [
             "Mobile",
             "env:dev",
-            "scratch"
+            "Asset Lookup",
+            "Readings",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -19,16 +21,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -41,16 +33,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -82,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile app",
+                "name": "Navigate to Asset Lookup",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ MOBDEV }}"
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
                 },
                 "type": "goToUrl"
             },
@@ -94,7 +76,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the SSO login form to hydrate",
+                "name": "Wait for the page to mount",
                 "noScreenshot": false,
                 "params": {
                     "value": 5
@@ -106,220 +88,63 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type email",
+                "name": "Test the \"Asset Lookup\" page rendered",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_EMAIL }}",
+                    "check": "contains",
+                    "value": "Asset Lookup",
                     "element": {
-                        "url": "https://dev.mentorapm.com/login",
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//input[@name=\"email\"]"
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "typeText"
+                "type": "assertElementContent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Next\"",
+                "name": "Focus the search input",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/login",
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
+                                    "value": "//input[@name=\"asset-search\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type password",
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_PASSWORD }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Submit\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Choose the \"development\" environment",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the app shell to mount after the env redirect",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Something went wrong."
-                },
-                "type": "assertPageLacks"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test authenticated mobile shell rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the menu to read the session role",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Guard: session role is exactly \"Admin\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "assertElementPresent"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Close the menu",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Escape"
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
                 },
                 "type": "pressKey"
             },
@@ -328,13 +153,146 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.537_AssetVerify_Header_Tag",
+                "name": "Search for Building 0000",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "by9-8vj-n26",
-                    "playingTabId": -1
+                    "value": "Building 0000",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results (network-only)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Building 0000's row by its chevron (never the avatar \u2014 bugs \u00a735)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Building 0000\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Readings\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Building 0000\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Readings\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Readings panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The ACTIVE tab of the Building 0000 row is `Readings` (the panel below is its own)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Building 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn (tabEl.textContent || '').trim() === 'Readings';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 EMPTY STATE: the panel reads `No readings recorded for this asset.` \u2014 the asset has no readings",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Building 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn t.includes('No readings recorded for this asset.');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

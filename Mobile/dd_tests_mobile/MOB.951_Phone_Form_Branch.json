@@ -1,14 +1,17 @@
 {
-    "test_name": "MOB.999_Verify_Scratch",
+    "test_name": "MOB.951_Phone_Form_Branch",
     "details": {
-        "name": "MOB.999_Verify_Scratch",
+        "name": "MOB.951_Phone_Form_Branch",
         "type": "browser",
         "status": "paused",
-        "message": "**SCRATCH \u2014 re-pointed by `verify.py`. Currently: `MOB.537_AssetVerify_Header_Tag`.**\n- Exists to verify ONE leaf for **2 billed runs** instead of the 6-15 its real suite\n  costs, because **a subtest is billed as its own run**.\n- \u26a0\ufe0f **A fresh session is not the same as a suite session.** In its real suite a child\n  inherits what earlier children left behind (a sort, a filter, a switched crew). A test\n  can pass here and fail there \u2014 **run the real suite once before believing it.**\n- \ud83d\uded1 Wired into nothing. Its contents are disposable and change constantly; do not cite\n  it as coverage anywhere.",
+        "message": "`MOB.951` **PHONE WIDTH \u2014 a work form renders its MOBILE branch.**\n- `FormDetails.tsx` picks the desktop form at `screen.availWidth >= 750` (MOB.355, on tablet)\n  and `#senor-work-form` below it \u2014 where `MobileSignatureField` lives. No tablet run can\n  reach it (trap 1).\n- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. \ud83d\uded1 READ-ONLY.",
         "tags": [
             "Mobile",
             "env:dev",
-            "scratch"
+            "Phone",
+            "Work Order",
+            "Forms",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -19,16 +22,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -42,23 +35,13 @@
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
                     "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
-                    "type": "global"
                 }
             ],
             "set_cookie": ""
         },
         "options": {
             "device_ids": [
-                "chrome.tablet"
+                "chrome.mobile_small"
             ],
             "disable_cors": false,
             "disable_csp": false,
@@ -82,10 +65,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile app",
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ MOBDEV }}"
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
                 },
                 "type": "goToUrl"
             },
@@ -94,10 +77,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the SSO login form to hydrate",
+                "name": "Let the work list begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 3
                 },
                 "type": "wait"
             },
@@ -106,127 +89,23 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type email",
+                "name": "The \"Work Orders\" page mounted",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_EMAIL }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"email\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Work Orders"
                 },
-                "type": "typeText"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Next\"",
+                "name": "Let the lookup prefetch run",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Type password",
-                "noScreenshot": false,
-                "params": {
-                    "value": "{{ DATA_DOG_PASSWORD }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Submit\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Choose the \"development\" environment",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the app shell to mount after the env redirect",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
+                    "value": 30
                 },
                 "type": "wait"
             },
@@ -235,106 +114,183 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
+                "name": "Navigate to the fixture work order",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Something went wrong."
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
                 },
-                "type": "assertPageLacks"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test authenticated mobile shell rendered",
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the detail data arrived (tab strip)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "(//*[@role=\"tab\"])[1]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "assertElementPresent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the menu to read the session role",
+                "name": "DEVICE: this session is PHONE width \u2014 `screen.availWidth` < 750 (the form's threshold)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const w = window.screen.availWidth;\nreturn w > 0 && w < 750;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Forms tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Guard: session role is exactly \"Admin\"",
+                "name": "Wait for the forms list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: the work order has at least one form card",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")]])[1]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "assertElementPresent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the menu",
+                "name": "Open the first form card",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "pressKey"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.537_AssetVerify_Header_Tag",
+                "name": "Let the form page render",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "by9-8vj-n26",
-                    "playingTabId": -1
+                    "value": 4
                 },
-                "type": "playSubTest"
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ROUTE: we are on /work/<id>/form/<id>",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/work\\/[^/]+\\/form\\/[^/]+$/.test(location.pathname);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 THE MOBILE FORM BRANCH: `#senor-work-form` rendered, and the desktop `#apm-dv-tabpanel` did NOT (`FormDetails.tsx`, `availWidth < 750`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.getElementById('senor-work-form') && !document.getElementById('apm-dv-tabpanel');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

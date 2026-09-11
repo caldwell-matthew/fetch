@@ -453,6 +453,8 @@ CHILDREN = ["MOB.396_Work_Create_From_Asset", "MOB.394_Work_Permits",
             "MOB.399_Work_Warranties", "MOB.122_Map_Create_Work",
             # read-only: a photo into the create form, discarded unsent
             "MOB.301_Work_Create_Photo",
+            # self-cleaning: links a photo to its asset, then unlinks it (owner-sanctioned, trap 2)
+            "MOB.302_Work_Photo_Copy_To_Asset",
             # the work LIST tests, added to the JSON 2026-08-18 and back-ported here 08-20
             "MOB.341_Work_Map_Toggle", "MOB.343_Work_List_Search_Filter",
             "MOB.344_Work_List_Row_Navigate", "MOB.342_Work_Status_Ring",
@@ -462,7 +464,8 @@ write(test(
     "MOB.986_WorkOrders_Extra_Suite",
     "Work Order entry points, follow-up work, crew assignment and warranties.\n"
     "- ⚠️ **LEAVES RESIDUE**: MOB.396 and MOB.397 each create a real work order per run.\n"
-    "  MOB.398 and MOB.399 are read-only.\n"
+    "  MOB.398 and MOB.399 are read-only. MOB.302 is self-cleaning: it links a work-order photo\n"
+    "  to its asset and unlinks it again (the one owner-sanctioned delete, trap 2).\n"
     "- Kept separate from `MOB.991_WorkOrders_Suite` so a slow, residue-heavy set can be run\n"
     "  on its own — and because 991 is at Datadog's execution ceiling (Appendix F0).\n"
     "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"

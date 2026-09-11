@@ -1,15 +1,16 @@
 {
-    "test_name": "MOB.994_Collector_Suite",
+    "test_name": "MOB.387_Work_Condition_Edit_Prefill",
     "details": {
-        "name": "MOB.994_Collector_Suite",
+        "name": "MOB.387_Work_Condition_Edit_Prefill",
         "type": "browser",
         "status": "paused",
-        "message": "Asset Collector.\n- Logs in once, then chains its subtests in the same browser session.\n- MUTATES dev and does NOT self-restore: every run collects a permanent asset named\n  `DD SYNTHETIC MOBILE {{ RUNID }}`. Mobile is delete-free, so cleanup is a desktop job. Unlike\n  MOB.993, this suite cannot be left on a schedule without the asset count growing.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
+        "message": "`MOB.387` **`Edit Item` opens the condition form filled from its own card.**\n- The fixture's permanent condition (`Pump 0102 \u00b7 Structural \u00b7 Mounting/Support`, 1/2/3):\n  gear \u2192 `Edit Item` \u2192 `#assetId` / `#assetStandardDetailId` / `#inspectionElementId` /\n  `#conditionFound` / `#conditionScore` / `#stressScore` hold exactly the card's values\n  (`ConditionForm`'s `defaultValues`).\n- \ud83d\uded1 **READ-ONLY**: closed with Escape, never submitted; a reload proves the card unchanged.",
         "tags": [
             "Mobile",
             "env:dev",
-            "Asset Collector",
-            "suite"
+            "Work Order",
+            "Condition",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -20,16 +21,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -42,16 +33,6 @@
                 {
                     "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
                     "name": "MOBDEV",
-                    "type": "global"
-                },
-                {
-                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
-                    "name": "DATA_DOG_EMAIL",
-                    "type": "global"
-                },
-                {
-                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
-                    "name": "DATA_DOG_PASSWORD",
                     "type": "global"
                 }
             ],
@@ -83,10 +64,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to mobile app",
+                "name": "Navigate to the fixture work order",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ MOBDEV }}"
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
                 },
                 "type": "goToUrl"
             },
@@ -95,10 +76,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the SSO login form to hydrate",
+                "name": "Let the detail view begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 5
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -107,127 +88,47 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type email",
+                "name": "Test work order detail rendered",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_EMAIL }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"email\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "value": "Status:"
                 },
-                "type": "typeText"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Click \"Next\"",
+                "name": "Open the Condition tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/login",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Condition\")]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Type password",
+                "name": "Let the condition cards render",
                 "noScreenshot": false,
                 "params": {
-                    "value": "{{ DATA_DOG_PASSWORD }}",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//input[@name=\"password\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "typeText"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Click \"Submit\"",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[@type=\"submit\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Choose the \"development\" environment",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the app shell to mount after the env redirect",
-                "noScreenshot": false,
-                "params": {
-                    "value": 10
+                    "value": 2
                 },
                 "type": "wait"
             },
@@ -236,88 +137,118 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
+                "name": "PREMISE: exactly one `Pump 0102 \u00b7 Mounting/Support` card, reading 1 / 2 / 3",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Something went wrong."
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...new Set([...document.querySelectorAll('li')]\n  .filter(li => norm(li.textContent).indexOf('Condition Found:') === 0)\n  .map(li => li.closest('[class*=\"mantine-Paper-root\"]')))].filter(Boolean);\nconst orig = cards.filter(c => {\n  const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n  const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n  const b = c.querySelector('button');\n  return a && norm(a.textContent) === 'Pump 0102' && b && norm(b.textContent) === 'Mounting/Support';\n});\nconst lis = orig.length === 1 ? [...orig[0].querySelectorAll('li')].map(li => norm(li.textContent)) : [];\nconst same = ['Condition Found: 1', 'Condition Score: 2', 'Stress Score: 3'].every(v => lis.includes(v));\nreturn orig.length === 1 && same;"
                 },
-                "type": "assertPageLacks"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test authenticated mobile shell rendered",
+                "name": "Open that card's gear",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...new Set([...document.querySelectorAll('li')]\n  .filter(li => norm(li.textContent).indexOf('Condition Found:') === 0)\n  .map(li => li.closest('[class*=\"mantine-Paper-root\"]')))].filter(Boolean);\nconst orig = cards.filter(c => {\n  const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n  const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n  const b = c.querySelector('button');\n  return a && norm(a.textContent) === 'Pump 0102' && b && norm(b.textContent) === 'Mounting/Support';\n});\nif (orig.length !== 1) return false;\nconst g = orig[0].querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Edit Item`",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Item\"])[1]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the menu to read the session role",
+                "name": "Let the edit form mount (it loads the WorkStageCondition schema)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The condition form opened",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                    "value": "//form[@id=\"work-condition-form\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "assertElementPresent",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Guard: session role is exactly \"Admin\"",
+                "name": "\u2b50 PREFILLED from the card: asset, group, element and the three scores",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const want = {\"assetId\": \"Pump 0102\", \"assetStandardDetailId\": \"Structural\", \"inspectionElementId\": \"Mounting/Support\", \"conditionFound\": \"1\", \"conditionScore\": \"2\", \"stressScore\": \"3\"};\nconst got = {};\nfor (const k of Object.keys(want)) { const el = document.getElementById(k); got[k] = el ? (el.value || '').trim() : null; }\nreturn Object.keys(want).every(k => got[k] === want[k]);"
                 },
-                "type": "assertElementPresent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the menu",
+                "name": "Close the form with Escape \u2014 NEVER submitted",
                 "noScreenshot": false,
                 "params": {
                     "value": "Escape"
@@ -326,120 +257,114 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.620_Collector_Photo_Picker",
+                "name": "Let the modal close",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "be2-bj3-xiv",
-                    "playingTabId": -1
+                    "value": 2
                 },
-                "type": "playSubTest"
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The edit form is gone",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.getElementById('work-condition-form');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.621_Collector_Photo_Add",
+                "name": "Navigate to the fixture work order (reload)",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "uv3-88w-i8i",
-                    "playingTabId": -1
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
                 },
-                "type": "playSubTest"
+                "type": "goToUrl"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.622_Collector_Photo_Carousel",
+                "name": "Let the detail view begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "ywm-t25-ppr",
-                    "playingTabId": -1
+                    "value": 2
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.626_Collector_Capture_Options",
+                "name": "Test work order detail rendered",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "vuq-d49-mpv",
-                    "playingTabId": -1
+                    "value": "Status:"
                 },
-                "type": "playSubTest"
+                "type": "assertPageContains",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.600_Collector_Create_Asset",
+                "name": "Reopen the Condition tab",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "4ty-vhq-3aa",
-                    "playingTabId": -1
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Condition\")]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "playSubTest"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.610_Collector_Search",
+                "name": "Let the condition cards render",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "nyi-ide-i5e",
-                    "playingTabId": -1
+                    "value": 2
                 },
-                "type": "playSubTest"
+                "type": "wait"
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.623_Collector_Saved_Photo_Menu",
+                "name": "UNCHANGED after a reload: the card still reads 1 / 2 / 3",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "w28-d2f-m7u",
-                    "playingTabId": -1
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...new Set([...document.querySelectorAll('li')]\n  .filter(li => norm(li.textContent).indexOf('Condition Found:') === 0)\n  .map(li => li.closest('[class*=\"mantine-Paper-root\"]')))].filter(Boolean);\nconst orig = cards.filter(c => {\n  const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n  const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n  const b = c.querySelector('button');\n  return a && norm(a.textContent) === 'Pump 0102' && b && norm(b.textContent) === 'Mounting/Support';\n});\nconst lis = orig.length === 1 ? [...orig[0].querySelectorAll('li')].map(li => norm(li.textContent)) : [];\nconst same = ['Condition Found: 1', 'Condition Score: 2', 'Stress Score: 3'].every(v => lis.includes(v));\nreturn orig.length === 1 && same;"
                 },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.624_Collector_Row_Avatar_Modal",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "m37-cg7-p7u",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "MOB.625_Collector_List_Sort",
-                "noScreenshot": false,
-                "params": {
-                    "subtestPublicId": "9iq-ds8-gyv",
-                    "playingTabId": -1
-                },
-                "type": "playSubTest"
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

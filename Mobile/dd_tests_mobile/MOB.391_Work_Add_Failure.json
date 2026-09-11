@@ -4,13 +4,14 @@
         "name": "MOB.391_Work_Add_Failure",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.391` Add a failure to the fixture work order.\n- Four required lookups: asset, failure type, repair type, root cause type.\n  componentTypeId and discoveryCodeId exist but are optional, so they are skipped.\n- MUTATES: adds a permanent failure to EYRpYJ9QYdQ1JFF10JtB0Q on every run.",
+        "message": "`MOB.391` **Add a failure \u2014 proved after a reload \u2014 then delete it again.**\n- Four required lookups: asset, failure type, repair type, root cause type\n  (componentTypeId and discoveryCodeId are optional and skipped).\n- Key `BELT (R-L1) \u00b7 ADJUST \u00b7 TIME` \u2014 NOT the fixture's own\n  `MISSED` failure: the server keeps one per key and refused every repeat (bugs \u00a740).\n- \u2b50 Proof after a RELOAD: exactly one card with the key.\n- \ud83d\uded1 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n  only \u2014 guarded in the same step as the gear click \u2014 then a reload proves it gone and the\n  original untouched.",
         "tags": [
             "Mobile",
             "env:dev",
             "Work Order",
             "CRUD",
-            "Failures"
+            "Failures",
+            "self-cleaning"
         ],
         "locations": [
             "gcp:us-west2"
@@ -125,7 +126,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Failures tab",
+                "name": "Open the Failure tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -142,6 +143,31 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Failure cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE: no failure with the run's key (BELT (R-L1) \u00b7 ADJUST \u00b7 TIME) exists \u2014 so the one found after the add is THIS run's; and COUNT the original (BELT (R-L1) \u00b7 MISSED \u00b7 TIME)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst isKey = (c, rep) => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Repair Type'] === rep && c.row['Root Cause'] === 'TIME';\nconst mine = cards.filter(c => isKey(c, 'ADJUST'));\nconst orig = cards.filter(c => isKey(c, 'MISSED'));\nif (mine.length !== 0 || !document.evaluate(\"//button[normalize-space(.)=\\\"Add\\\"]\", document, null, 9, null).singleNodeValue) return false;\nsessionStorage.setItem('__dd39x_origCount', String(orig.length));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -322,7 +348,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Pick MISSED",
+                "name": "Pick ADJUST",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -332,7 +358,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"MISSED\")]"
+                                    "value": "//*[@role=\"option\"][contains(normalize-space(.), \"ADJUST\")]"
                                 }
                             ]
                         }
@@ -444,6 +470,300 @@
                     "value": "Submit"
                 },
                 "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the server answer before reloading",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (reload: the server's answer)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Failure tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Failure\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Failure cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER PROOF: exactly ONE failure with the run's key after a RELOAD, carrying the picked values",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst isKey = (c, rep) => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Repair Type'] === rep && c.row['Root Cause'] === 'TIME';\nconst mine = cards.filter(c => isKey(c, 'ADJUST'));\nconst orig = cards.filter(c => isKey(c, 'MISSED'));\nreturn mine.length === 1 && true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + open its gear: only if exactly one failure has the run's key (the premise proved it was absent before this run's add)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst isKey = (c, rep) => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Repair Type'] === rep && c.row['Root Cause'] === 'TIME';\nconst mine = cards.filter(c => isKey(c, 'ADJUST'));\nconst orig = cards.filter(c => isKey(c, 'MISSED'));\nif (mine.length !== 1) return false;\nconst g = mine[0].el.querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Delete Item` \u2014 on THIS card (its own record id)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Delete Item\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the confirmation open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Confirm: \"Yes\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Are you sure you want to delete this record?\")]]//button[normalize-space(.)=\"Yes\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the remove mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (reload: after the delete)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Failure tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Failure\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Failure cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CLEANED: no failure with the run's key, and the original (BELT (R-L1) \u00b7 MISSED \u00b7 TIME) is untouched \u2014 same count as before",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst isKey = (c, rep) => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Repair Type'] === rep && c.row['Root Cause'] === 'TIME';\nconst mine = cards.filter(c => isKey(c, 'ADJUST'));\nconst orig = cards.filter(c => isKey(c, 'MISSED'));\nconst before = sessionStorage.getItem('__dd39x_origCount');\nreturn mine.length === 0 && before !== null && orig.length === Number(before);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove this test's sessionStorage key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd39x_origCount');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             }
         ]
     }

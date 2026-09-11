@@ -275,6 +275,36 @@ steps = work_cache_warm() + [
     step("wait", "Let the modal close", {"value": 2}, always=True),
     step("assertPageLacks", "RESTORED: the modal is gone and nothing was submitted",
          {"value": "Updating Asset Location"}, always=True, timeout=30),
+
+    # ---- OFFLINE LEG - the same modal's other branch (checklist 🟢 #20) ------------------------
+    # `AssetGeolocate.tsx:272` renders `OfflineGeolocateForm` when `!navigator.onLine` - the
+    # PROPERTY, which an `offline` event does not change. A step-defined getter reaches it (the
+    # probe that settled that: step JS runs in the page's world). No event is dispatched, so
+    # `useNetwork()` stays online and the geolocate control stays ENABLED. Both stubs are still
+    # installed, so the tap resolves to a position and the modal opens as before.
+    jsassert("OFFLINE LEG: define an own `onLine` getter (false) — no `offline` event, so the "
+             "control stays enabled",
+             "Object.defineProperty(navigator, 'onLine', "
+             "{ configurable: true, get: function () { return false; } });\n"
+             "return navigator.onLine === false;", timeout=15),
+    step("click", "Tap the geolocate control again (property offline)",
+         {"element": xpath_el(WO_URL, GEO_ROOT_IN_PANEL)}, timeout=30),
+    step("assertPageContains", 'The modal opened again — "Updating Asset Location"',
+         {"value": "Updating Asset Location"}, timeout=60),
+    jsassert("⭐ OFFLINE FORM: `Location details are unavailable offline.` + `Submit to update "
+             "latitude/longitude.` in `#mobile-geolocate-offline` — and the online form is NOT there",
+             "const off = document.getElementById('mobile-geolocate-offline');\n"
+             "const t = off ? (off.textContent || '') : '';\n"
+             "return t.includes('Location details are unavailable offline.')\n"
+             "  && t.includes('Submit to update latitude/longitude.')\n"
+             "  && !document.getElementById('mobile-geolocate');", timeout=30),
+    step("pressKey", "Escape — close the offline form WITHOUT submitting", {"value": "Escape"},
+         always=True, timeout=15),
+    step("wait", "Let the modal close", {"value": 2}, always=True),
+    jsassert("RESTORE: remove the `onLine` getter", "try { delete navigator.onLine; } catch (e) {}\n"
+             "return navigator.onLine === true;", always=True, timeout=15),
+    step("assertPageLacks", "RESTORED: the modal is gone again, nothing submitted",
+         {"value": "Updating Asset Location"}, always=True, timeout=30),
     jsassert("RESTORED: both stubs removed", REMOVE_STUBS, always=True, timeout=30),
 ]
 

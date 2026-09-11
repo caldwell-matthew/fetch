@@ -4,7 +4,7 @@
         "name": "MOB.320_Work_Status_Update",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.320` Walk the fixture work order through all six statuses, ending on Ready.\n- Sequence: Pending -> In Progress -> On Hold -> Complete -> Canceled -> Ready\n- Always ENDS ON Ready, so the fixture is left in a known state and the test is\n  repeatable. Each transition is verified against the status badge, not just the\n  toast, so a silently-failed mutation is caught.\n- Only the first leg is optional: StatusMenuIcon hides the CURRENT status, so\n  'Mark as Pending' is absent if a previous run left it there. Its assertion still\n  holds in that case.\n- MUTATES the fixture (EYRpYJ9QYdQ1JFF10JtB0Q) only - never real assigned work.\n- No status-notes steps: confirmed empirically that this fixture template does not\n  set requireStatusNotes. See the note in this build script before re-adding them.",
+        "message": "`MOB.320` Walk the fixture work order through ALL EIGHT assignable statuses, ending on Ready.\n- Sequence: Pending -> In Progress -> On Hold -> Requested -> Not Completed -> Complete -> Canceled -> Ready\n- Each transition reads the badge EXACTLY (`Complete` \u2260 `Not Completed`). The badge is\n  optimistic, so a RELOAD proves the server twice: after Not Completed, and at Ready.\n- The final -> Ready and its reload are `always`: a failure mid-walk can no longer strand\n  the fixture (it once sat Canceled and fell out of the crew's list).\n- Only the first leg is optional: StatusMenuIcon hides the CURRENT status, so\n  'Mark as Pending' is absent if a previous run left it there. Its assertion still\n  holds in that case.\n- MUTATES the fixture (EYRpYJ9QYdQ1JFF10JtB0Q) only - never real assigned work.\n- No status-notes steps: confirmed empirically that this fixture template does not\n  set requireStatusNotes. See the note in this build script before re-adding them.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -103,7 +103,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": true,
@@ -120,13 +121,14 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[starts-with(normalize-space(.), \"Mark as Pending\")]"
+                                    "value": "//button[normalize-space(.)=\"Mark as Pending\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -145,25 +147,13 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test status is now \"Pending\"",
+                "name": "Test the status badge now reads exactly \"Pending\"",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Pending",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//span[contains(normalize-space(.), \"Status:\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Pending';"
                 },
-                "type": "assertElementContent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -186,7 +176,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -203,13 +194,14 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[starts-with(normalize-space(.), \"Mark as In Progress\")]"
+                                    "value": "//button[normalize-space(.)=\"Mark as In Progress\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -228,25 +220,13 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test status is now \"In Progress\"",
+                "name": "Test the status badge now reads exactly \"In Progress\"",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "In Progress",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//span[contains(normalize-space(.), \"Status:\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'In Progress';"
                 },
-                "type": "assertElementContent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -269,7 +249,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -286,13 +267,14 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[starts-with(normalize-space(.), \"Mark as On Hold\")]"
+                                    "value": "//button[normalize-space(.)=\"Mark as On Hold\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -311,11 +293,22 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test status is now \"On Hold\"",
+                "name": "Test the status badge now reads exactly \"On Hold\"",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "On Hold",
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'On Hold';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the status menu (-> Requested)",
+                "noScreenshot": false,
+                "params": {
                     "element": {
                         "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
@@ -329,7 +322,180 @@
                         }
                     }
                 },
-                "type": "assertElementContent"
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Mark as Requested",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Mark as Requested\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the status mutation (-> Requested)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the status badge now reads exactly \"Requested\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Requested';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the status menu (-> Not Completed)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//span[contains(normalize-space(.), \"Status:\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Mark as Not Completed",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Mark as Not Completed\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the status mutation (-> Not Completed)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the status badge now reads exactly \"Not Completed\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Not Completed';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (reload: the server's status)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: after a reload the badge reads \"Not Completed\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Not Completed';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -352,7 +518,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -369,13 +536,14 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[starts-with(normalize-space(.), \"Mark as Complete\")]"
+                                    "value": "//button[normalize-space(.)=\"Mark as Complete\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -394,25 +562,13 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test status is now \"Complete\"",
+                "name": "Test the status badge now reads exactly \"Complete\"",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Complete",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//span[contains(normalize-space(.), \"Status:\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Complete';"
                 },
-                "type": "assertElementContent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -435,7 +591,8 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -452,13 +609,14 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[starts-with(normalize-space(.), \"Mark as Canceled\")]"
+                                    "value": "//button[normalize-space(.)=\"Mark as Canceled\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -477,29 +635,17 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test status is now \"Canceled\"",
+                "name": "Test the status badge now reads exactly \"Canceled\"",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Canceled",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//span[contains(normalize-space(.), \"Status:\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Canceled';"
                 },
-                "type": "assertElementContent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
                 "name": "Open the status menu (-> Ready)",
@@ -518,11 +664,12 @@
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
                 "name": "Mark as Ready",
@@ -535,17 +682,18 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[starts-with(normalize-space(.), \"Mark as Ready\")]"
+                                    "value": "//button[normalize-space(.)=\"Mark as Ready\"]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "click"
+                "type": "click",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
                 "name": "Wait for the status mutation (-> Ready)",
@@ -557,28 +705,66 @@
             },
             {
                 "allowFailure": false,
-                "alwaysExecute": false,
+                "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test status is now \"Ready\"",
+                "name": "Test the status badge now reads exactly \"Ready\"",
                 "noScreenshot": false,
                 "params": {
-                    "check": "contains",
-                    "value": "Ready",
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//span[contains(normalize-space(.), \"Status:\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Ready';"
                 },
-                "type": "assertElementContent"
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (reload: the server's status)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: after a reload the badge reads \"Ready\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Ready';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             }
         ]
     }

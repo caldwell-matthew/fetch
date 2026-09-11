@@ -1,7 +1,7 @@
 """Put the Asset Verification fixture job back the way the tests assume it — 0 Datadog runs.
 
 WHY THIS EXISTS
-  `cleanup_spec.md` §7 is the design; this is option A. Five tests are blocked only because
+  `cleanup_spec.md` §4 is the design. Five tests are blocked only because
   mobile cannot walk the fixture back: bugs §10 — `VerificationCheckbox.tsx` recomputes the
   job's status on the client and only ever moves it FORWARD (`READY → IN_PROGRESS →
   COMPLETED`). Verifying the last asset flips the job to `COMPLETED` and nothing in the mobile
@@ -12,7 +12,7 @@ WHY THIS EXISTS
   ⭐ THE POINT IS TO UNBLOCK, NOT TO TIDY. Once a run can be undone, "verify every asset and
   watch the job flip to COMPLETED" becomes testable — with the reset as the step after the run.
 
-THE SESSION IS PLAIN HTTP — NO HEADLESS BROWSER (measured 2026-09-10, `cleanup_spec.md` §7.6)
+THE SESSION IS PLAIN HTTP — NO HEADLESS BROWSER (`cleanup_spec.md` §5)
 
     POST /login            {email, password}                            -> {route, token}
     POST /login/user-env   {coretoken: token}                           -> [{environment, ...}]
@@ -32,7 +32,7 @@ SAFETY
   - **Dry run by default.** It prints the plan and changes nothing. `--apply` performs it.
   - It only ever touches ONE job id, and it refuses to act on a job whose name is not the
     fixture's.
-  - It ends by RE-READING the job and asserting §7.2's three invariants. A reset that reports
+  - It ends by RE-READING the job and asserting §4's three invariants. A reset that reports
     success without reading back is trap 6 in a different coat, and this exits non-zero if the
     read-back disagrees.
 
@@ -45,7 +45,7 @@ CREDENTIALS — NOTHING NEW TO STORE
   ⭐ `DATA_DOG_EMAIL` and `DATA_DOG_PASSWORD` are **not secure** globals (measured
   2026-09-10), so `get_global_variable` returns their values to the `DD_API`/`DD_APP` keys
   already in `.env`. This script reads them the same way the tests receive them, and no
-  credential is copied anywhere new. `cleanup_spec.md` §7.5 decision 1 is therefore moot.
+  credential is copied anywhere new.
 
   If someone later marks either global secure, the API stops returning the value; put it in
   `.env` as `DATA_DOG_EMAIL` / `DATA_DOG_PASSWORD` and this falls back to that. Either way the
@@ -65,7 +65,7 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 ORIGIN = "https://dev.mentorapm.com"
 ENVIRONMENT = "development"
 
-# The fixture, and the shape it has to be left in (cleanup_spec.md §7.2).
+# The fixture, and the shape it has to be left in (cleanup_spec.md §4).
 JOB_ID = "Z0EVwQcdJZhMURcBFkp0E0"
 JOB_NAME = "DATADOG MOBILE JOB"
 WANT_STATUS = "IN_PROGRESS"
@@ -216,7 +216,7 @@ def describe(job):
 
 
 def plan(job):
-    """What has to happen for the job to satisfy §7.2. Empty list means it already does."""
+    """What has to happen for the job to satisfy §4. Empty list means it already does."""
     steps = []
     keep, extra = [], []
     for link in job["assets"] or []:
@@ -247,7 +247,7 @@ def plan(job):
 
 
 def check(job):
-    """§7.2, asserted. Returns a list of violations."""
+    """cleanup_spec.md §4, asserted. Returns a list of violations."""
     bad = []
     if job["status"] != WANT_STATUS:
         bad.append(f"status is {job['status']}, want {WANT_STATUS}")
@@ -264,9 +264,9 @@ def check(job):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Reset the AV fixture job (cleanup_spec.md §7)")
+    ap = argparse.ArgumentParser(description="Reset the AV fixture job (cleanup_spec.md §4)")
     ap.add_argument("--apply", action="store_true", help="perform the plan (default: dry run)")
-    ap.add_argument("--check", action="store_true", help="read the job and assert §7.2 only")
+    ap.add_argument("--check", action="store_true", help="read the job and assert cleanup_spec.md §4 only")
     args = ap.parse_args()
 
     email, password = credentials()
@@ -310,7 +310,7 @@ def main():
     print("\nAFTER")
     describe(after)
     bad = check(after)
-    print("\n" + ("✅ read back clean — §7.2 holds" if not bad else "🛑 " + "\n🛑 ".join(bad)))
+    print("\n" + ("✅ read back clean — invariants hold" if not bad else "🛑 " + "\n🛑 ".join(bad)))
     return 1 if bad else 0
 
 

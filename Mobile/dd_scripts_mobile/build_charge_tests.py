@@ -25,13 +25,19 @@ SUBMIT LOCATOR
   the page. A bare Submit locator is what silently clicked the wrong control six times a
   run in MOB.320 - see the note in build_work_tests.py.
 
-MUTATES: adds a permanent child record to the fixture on every run. Mobile has no delete
-(DeleteButton is unused in client/mobile), so these accumulate and need desktop cleanup.
+SERVER PROOF (bugs §40, checklist 🟢 #25): each test counts the cards of ITS OWN item (name + the
+dated line only a real charge renders - estimates have none) before the add, reloads after it,
+and requires exactly one more. The modal closing is NOT a server answer: `addToCollection` closes
+it in the optimistic `update()`, so a refused add closes it too.
+
+MUTATES: adds a permanent child record to the fixture on every run. Charges cannot be deleted,
+only reversed, which ADDS rows (cleanup_spec.md §2) - accepted debt, 4 per run.
 """
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write,  # noqa: E402
+                      stash_record_count, prove_record_count)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
 STAGE_URL = f"{BASE}/work/{FIXTURE_ID}"
@@ -66,6 +72,25 @@ MATERIAL_ITEM = "0000-0000 Diaphragm Pump"
 #     until it starts failing. Return has no stock check and is stable across runs.
 MATERIAL_TYPE = "Return"
 OTHER_CHARGE_TYPE = "Other Charge Types"   # an OtherChargeTypes record on dev
+K_BEFORE = "__dd35x_before"
+# What a card of each test's OWN record contains: the picked item + the dated line that only a
+# real charge renders (EquipmentCharges.tsx / LaborCharges.tsx / MaterialCharges.tsx /
+# OtherCharges.tsx) - estimates have no dated line, so they are never counted.
+NEEDLES = {
+    "Equipment": [EQUIPMENT, "Charged created on"],
+    "Labor": [LABOR_CRAFT, "Charged for"],
+    "Material": [MATERIAL_ITEM, "Created on"],
+    "Other": [OTHER_CHARGE_TYPE, "Charge created on"],
+}
+
+
+def baseline(label):
+    return [step("wait", f"Let the {label} cards render", {"value": 2}),
+            stash_record_count(K_BEFORE, NEEDLES[label], f"{label.lower()} charge")]
+
+
+def proof(label):
+    return prove_record_count(K_BEFORE, NEEDLES[label], f"{label.lower()} charge", STAGE_URL, tab(label))
 
 
 def tab(label):
@@ -136,6 +161,7 @@ write(test(
     warm_cache_and_open() + [
         step("click", "Open the Equipment tab",
              {"element": xpath_el(STAGE_URL, tab("Equipment"))}),
+        *baseline("Equipment"),
         step("click", "Open the add-charge form",
              {"element": xpath_el(STAGE_URL, ADD_BTN)}),
         *lookup("equipmentId", "equipment", search=EQUIPMENT, pick=EQUIPMENT),
@@ -149,11 +175,11 @@ write(test(
         # click a silent no-op with no error at all. So "clicked, no toast" meant either
         # "worked, toast missed" or "form invalid, nothing happened". Asserting the modal
         # closed separates the two: still open => invalid form, closed => the mutation ran.
-        step("assertPageLacks", "Test the charge modal closed (durable success signal)",
+        step("assertPageLacks", "Test the charge modal closed (the form accepted the input — NOT a server answer, bugs §40)",
              {"value": "Submit"}),
         step("assertPageContains", "Test the item-added toast (optional: transient)",
              {"value": "Item added"}, optional=True),
-    ],
+    ] + proof("Equipment"),
     TAGS,
 ))
 
@@ -175,6 +201,7 @@ write(test(
     f"- MUTATES: adds a permanent labor charge to {FIXTURE_ID} on every run.",
     warm_cache_and_open() + [
         step("click", "Open the Labor tab", {"element": xpath_el(STAGE_URL, tab("Labor"))}),
+        *baseline("Labor"),
         step("click", "Open the add-charge form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
         *lookup("userId", "user", search=LABOR_USER, pick=LABOR_USER),
         # NO typing in the craft field. craftId's filter is `v.name.includes(txt)` with txt
@@ -198,11 +225,11 @@ write(test(
         # click a silent no-op with no error at all. So "clicked, no toast" meant either
         # "worked, toast missed" or "form invalid, nothing happened". Asserting the modal
         # closed separates the two: still open => invalid form, closed => the mutation ran.
-        step("assertPageLacks", "Test the charge modal closed (durable success signal)",
+        step("assertPageLacks", "Test the charge modal closed (the form accepted the input — NOT a server answer, bugs §40)",
              {"value": "Submit"}),
         step("assertPageContains", "Test the item-added toast (optional: transient)",
              {"value": "Item added"}, optional=True),
-    ],
+    ] + proof("Labor"),
     TAGS,
 ))
 
@@ -218,6 +245,7 @@ write(test(
     f"- MUTATES: adds a permanent material charge to {FIXTURE_ID} on every run.",
     warm_cache_and_open() + [
         step("click", "Open the Material tab", {"element": xpath_el(STAGE_URL, tab("Material"))}),
+        *baseline("Material"),
         step("click", "Open the add-charge form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
         *lookup("storeroomLocationId", "storeroom location",
                 search=STOREROOM_LOCATION, pick=STOREROOM_LOCATION),
@@ -237,11 +265,11 @@ write(test(
         # click a silent no-op with no error at all. So "clicked, no toast" meant either
         # "worked, toast missed" or "form invalid, nothing happened". Asserting the modal
         # closed separates the two: still open => invalid form, closed => the mutation ran.
-        step("assertPageLacks", "Test the charge modal closed (durable success signal)",
+        step("assertPageLacks", "Test the charge modal closed (the form accepted the input — NOT a server answer, bugs §40)",
              {"value": "Submit"}),
         step("assertPageContains", "Test the item-added toast (optional: transient)",
              {"value": "Item added"}, optional=True),
-    ],
+    ] + proof("Material"),
     TAGS,
 ))
 
@@ -261,6 +289,7 @@ write(test(
     f"- MUTATES: adds a permanent other charge to {FIXTURE_ID} on every run.",
     warm_cache_and_open() + [
         step("click", "Open the Other tab", {"element": xpath_el(STAGE_URL, tab("Other"))}),
+        *baseline("Other"),
         step("click", "Open the add-charge form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
         *lookup("otherChargeId", "other charge type",
                 search=OTHER_CHARGE_TYPE, pick=OTHER_CHARGE_TYPE),
@@ -287,11 +316,11 @@ write(test(
         # click a silent no-op with no error at all. So "clicked, no toast" meant either
         # "worked, toast missed" or "form invalid, nothing happened". Asserting the modal
         # closed separates the two: still open => invalid form, closed => the mutation ran.
-        step("assertPageLacks", "Test the charge modal closed (durable success signal)",
+        step("assertPageLacks", "Test the charge modal closed (the form accepted the input — NOT a server answer, bugs §40)",
              {"value": "Submit"}),
         step("assertPageContains", "Test the item-added toast (optional: transient)",
              {"value": "Item added"}, optional=True),
-    ],
+    ] + proof("Other"),
     TAGS,
 ))
 

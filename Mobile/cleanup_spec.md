@@ -1,244 +1,110 @@
-# Mobile test-residue cleanup — DEFINITION
+# Mobile test residue — cleanup and fixture reset
 
-*What the cleanup has to do, what the server will actually let it do, and what still needs an
-answer. **No code yet.** `test_authoring.md → 🧹 THE DESKTOP CLEANUP CHORE` lists the markers;
-this file is the feasibility and design pass on top of it.*
+*What the tests leave behind, what the server lets us remove, and the two local scripts that do
+it: `cleanup_residue.py` (residue) and `reset_av_fixture.py` (the AV fixture job). Both run over
+GraphQL as the test account, cost 0 Datadog runs, and are **dry run by default** (`--apply` to
+act). Keep `--apply` opt-in permanently — the first dry run of the reset planned to unlink the
+fixture's own asset (see §6).*
 
----
+## 1 · 🛑 Never touch
 
-## 1 · Why
-
-Fourteen tests are tagged `leaves-residue` and the residue is **per run, not per suite** — every
-run of `MOB.991` / `MOB.994` / `MOB.986` / `MOB.987` / `MOB.998` adds another set. Nothing prunes
-it, so dev accumulates indefinitely and two fixtures drift **one-way**.
-
----
-
-## 2 · ⭐ CAN WE ACTUALLY REMOVE IT? — verified against the GraphQL schema
-
-*The existing spec says what to remove. Nobody had checked the server exposes a way. It mostly
-does, with **two exceptions that change the design**.*
-
-| residue | mutation | verdict |
-|---|---|---|
-| Asset (`MOB.600`) | `deleteAssets(ids: [ID!]!): Int!` | ✅ ⚠️ gated `@auth(ASSET, **UPDATE**)`, not DELETE — an oddity, but it means update rights suffice |
-| Attachment (`MOB.600`) | `removeAttachment(parentId, modelType, attachmentId)` | ✅ |
-| Condition (`MOB.390`) | `deleteWorkStageConditions(ids)` | ✅ `@auth(WORK)` |
-| Failure (`MOB.391`) | `deleteWorkStageFailures(ids)` | ✅ `@auth(WORK, DELETE)` |
-| Note (`MOB.392`) | **`deleteWorkStageJobNotes(ids)`** | ✅ `@auth(WORK, DELETE)` — table confirmed by the owner (4.3) |
-| Event readings (`MOB.550`) | `deleteEvents(ids)` | ✅ `@auth(EVENT, DELETE)` |
-| Work order (`MOB.300`·`122`·`396`·`397`) | `WorkStage.removeNode(nodeId)` | ⚠️ **exists, but see 3a** |
-| **Charges** (`MOB.350`·`360`·`370`·`380`) | `reverseWorkCharge(financialTransactionId, comment)` | 🛑 **NO DELETE — see 3b** |
-| Storeroom qty (`MOB.870`) | quantity adjustment | ✅ arithmetic, the `MOB.860` pattern |
-| Mobile job status | editable `status` field on the desktop detail | ✅ |
-
----
-
-## 3 · The two findings that change the design
-
-### 3a · A work order can only be deleted as a **LEAF**
-
-Deletion is `WorkStage.removeNode(nodeId)`, and the desktop hierarchy tree offers it **only when
-the node has no children** (`buildHierarchyButtons.tsx:158-160` — *"Remove only on leaves"*) and
-the user has delete permission.
-
-**Consequences to design around:**
-- A created work order with **stages beneath it** cannot be removed in one call — children first,
-  bottom-up.
-- ⚠️ **`MOB.397` creates a FOLLOW-UP work order**, which is by definition related to the fixture.
-  Deletion order matters, and deleting the wrong node could touch the **fixture work order**
-  (`EYRpYJ9QYdQ1JFF10JtB0Q`) that ~40 tests depend on.
-- ✅ **Confirmed by the owner: they DO have stages, so deletion is bottom-up** — walk to the
-  leaves and remove upward. The follow-up case is the one to get right.
-
-### 3b · 🛑 Charges are REVERSED, never deleted — and reversal makes the table BIGGER
-
-`reverseWorkCharge` does not remove anything. It **creates a new counter-transaction** with
-negated cost and qty (`workChargeReversal.ts` — `cost * -1`, `qty * -1`, new id, new date) and
-writes a matching row into the redundant per-type table (`WorkStageLabor` / `WorkStageMaterial` /
-`WorkStageEquipment`).
-
-**So "cleaning up" the four charges each run would DOUBLE the rows rather than remove them —
-8 rows per run instead of 4.** Financial records are append-only by design; that is almost
-certainly correct product behaviour, and it means:
-
-➡️ **Charges are not cleanable, and the script will NOT touch them** (4.2 — deferred by the
-owner). ⚠️ **Record the consequence rather than forgetting it**: the fixture work order gains
-**4 charges per run, permanently.** That is accepted debt, not an oversight — and the eventual
-fix is a *test* change (make `MOB.350`–`380` assert the mutation fires without committing),
-not a script change.
-
----
-
-## 4 · Decisions — answered by the owner
-
-| # | question | answer |
-|---|---|---|
-| **4.1** | do created work orders have child stages? | ✅ **Yes. Delete BOTTOM-UP.** `removeNode` only removes leaves, so walk children first |
-| **4.2** | charges | ⏸️ **Ignored for now.** The script does **not** touch charges. ⚠️ They therefore accumulate on the fixture WO at **4/run** — a known, accepted debt, not an oversight |
-| **4.3** | which note table? | ✅ **`WorkStageJobNote`** → `deleteWorkStageJobNotes(ids)` |
-| **4.4** | which account? | ✅ **The same `Admin` account the tests use.** Its role must be exactly `Admin` (not `Admin (0000)`/`(0100)`) — the same constraint every login-bearing test asserts |
-| **4.5** | how much has accumulated? | ❓ **Still unknown** — see below |
-| **4.6** | where does it run? | ✅ **A cleanup script on Datadog.** ⚠️ See the cost note in §5 |
-
-### 4.5 is still open, and it is measurable
-
-Counting existing residue is a **read-only GraphQL query** and costs **no Synthetics credits**.
-It needs the app `Admin` login. ➡️ Either the owner reads it off the desktop UI (search assets and
-work orders for `DD SYNTHETIC MOBILE`), or the script's **dry-run mode answers it on first use** —
-which is an argument for building dry-run first and running it before anything else.
-
-## 5 · Shape
-
-1. **Runs on Datadog** (4.6), as a **Synthetics API test** — not a browser test. Every capability
-   in §2 is a GraphQL mutation, so there is nothing to click; an API test is far cheaper and far
-   less fragile than driving the desktop UI.
-   > ⚠️ **COST — decide this consciously.** *Any* Synthetics test consumes a run credit, and
-   > **credits are the current bottleneck** (nothing has run since the account ran dry). A
-   > cleanup that lives on Datadog therefore **competes with the tests it exists to support**.
-   > Scheduling is settled as off, so it would be triggered by hand either way — which is the
-   > same effort as running a local script that costs nothing. **The gain is colocation and
-   > not needing a laptop; the cost is a credit per cleanup.** Worth a second look before build.
-2. **Dry-run by default.** `--apply` to act. It deletes real records on a shared box.
-3. **Query by marker, delete by id.** Never delete by name match at the mutation.
-4. **Report a count per category.** ⭐ A category that returns **zero** usually means a test
-   stopped writing — a cheap regression signal, and the reason to report even when idle.
-5. **Work orders bottom-up** (4.1): resolve children, delete leaves, then the parent.
-6. **Charges excluded** (4.2).
-7. **Auth as the `Admin` account** (4.4) — assert the role is exactly `Admin` before deleting
-   anything, the same guard every login-bearing test carries.
-
-### 🛑 Safety rules — non-negotiable
-
-**The fixture and residue markers differ by one word.** A script matching too broadly takes the
-fixtures with it and breaks ~40 tests at once.
+**The fixture and residue markers differ by one word.** A match too broad takes the fixtures
+with it and breaks ~40 tests.
 
 | never touch | why |
 |---|---|
-| WO `EYRpYJ9QYdQ1JFF10JtB0Q` | the fixture for `MOB.310`–`395`; its `desc` ends every run as **`DATADOG FIXTURE`** |
-| Asset `Pump 0102` | fixture for `MOB.390`/`391`/`700`/`710`; `desc` also ends `DATADOG FIXTURE` |
+| WO `EYRpYJ9QYdQ1JFF10JtB0Q` and its parent work `20260805-18` | fixture for `MOB.310`–`395`. The parent work carries the residue marker (`MOB.300` created it) — excluded by id |
+| WO `RcdI0xcpc8NBV8VoRNNBYM` and its parent work `20260910-18` | `MOB.302`'s fixture; parent also carries the marker — excluded by id |
+| Asset `Pump 0102` | fixture; `desc` ends `DATADOG FIXTURE`. **Never touch its attachments** (owner) |
 | Mobile job `Z0EVwQcdJZhMURcBFkp0E0` | **reset its status, never delete it** |
-| Workflow **`Datadog Test`** | a fixture **workflow**, not residue — every created WO selects it, so its name is all over the residue. Deleting it breaks creation entirely |
-| `Actuator Tools` · `Central Storeroom` · `000-000-000 Adamantium` | fixtures |
+| Workflow **`Datadog Test`** | a fixture *workflow* — every created WO selects it, so its name is all over the residue. Deleting it breaks creation |
+| `Actuator Tools` · `Central Storeroom` · `000-000-000 Adamantium` · `Bypass Valve 0001` · `⚡ Building 0000` | fixtures |
 
-- Residue marker is **`DD SYNTHETIC MOBILE`** (prefix — `MOB.300` writes it bare, the others
-  append a per-run `{{ RUNID }}`).
-- Asset **`Tank 0000`** (the AV fixture) **has workflow associations** (observed 2026-09-09; it had
-  none when `MOB.396` was written). A test that opens the create form with it as the default
-  asset gets the asset-filter toggle auto-set ON, and `Datadog Test` disappears from the list.
-  `MOB.396` reads the toggles instead of assuming them; nothing else may assume either state.
-- **`DATADOG FIXTURE`** is a *fixture* marker. **`Datadog Test`** is a *fixture workflow*.
-  Three similar strings, three different meanings — this is the single most likely way to cause
-  real damage.
+Three similar strings, three meanings: **`DD SYNTHETIC MOBILE`** is the residue marker (prefix —
+`MOB.300` writes it bare, others append `{{ RUNID }}`); **`DATADOG FIXTURE`** is a fixture marker;
+**`Datadog Test`** is a fixture workflow. The script queries by marker, deletes by id, and
+re-checks the never-touch ids before every delete.
 
----
+## 2 · What the tests leave, and what can remove it
 
-## 6 · Explicitly out of scope
+| residue | created by | marker | removal | state |
+|---|---|---|---|---|
+| **Work orders** (~4 per full pass) | `MOB.300` · `122` · `396` · `397` | `problemDesc` starts `DD SYNTHETIC MOBILE`, created by the test account | `deleteWorkOrders` → `removeWorkById` (whole work + stages, one transaction; refuses any with charges, schedule entries, conditions or failures) | 🛑 **blocked** — every call rolls back (bugs §41). 187 accumulated (≈5/day); newest 10 to be kept for the work-list tests |
+| **Charges** ×4 on the fixture WO | `MOB.350` equipment `AC Adapter` · `360` labor `Dev Eloper` · `370` material `0000-0000 Diaphragm Pump` · `380` other | qty 1 | `reverseWorkCharge` **adds** a negated counter-transaction — reversal doubles the rows | ⏸️ **excluded** (owner). Accepted debt: +4 per run, permanent |
+| **Note** | `MOB.392` | body `This is a note - DD SYNTHETIC MOBILE` | `deleteWorkStageJobNotes(ids)` | ✅ pruned; newest 1 kept |
+| **Asset + attachment** | `MOB.600` (+ `MOB.623` adds photos) | name `DD SYNTHETIC MOBILE <8 digits>`, desc `Created by Datadog Synthetics - safe to delete` | `deleteAssets(ids)` (gated `ASSET UPDATE`) · `removeAttachment` | newest 4 kept (`MOB.623`/`625` select them by prefix) — nothing to prune today |
+| **Event readings** ×2 | `MOB.550` | values `4242`, `1337` on the job's assets — no marker | `deleteEvents(ids)` | reported, never touched — no marker to select by, and `MOB.550` reads the previous run's value as its server proof |
+| Condition / failure | `MOB.390` / `391` | `Pump Body` · `BELT·ADJUST·TIME` | deleted by the test itself (trap 2); a failed run's leftover is pruned by the script | ✅ self-cleaning; `preflight.py mob39x` checks |
+| Photo link on `Bypass Valve 0001` | `MOB.302` | — | unlinked by the test itself (trap 2) | ✅ self-cleaning; `preflight.py mob302` |
 
-- **Asset flags** on verified assets — they **self-revert** (`bugs_found.md` §10). Listed so
-  nobody adds them.
-- **`MOB.860`'s quantity** — a `+1`/`-1` pair that already self-restores. Only `MOB.870` drifts.
-- Anything from the 11 `self-restoring` tests, or the three photo tests, which upload real files
-  and write **nothing** (local reducer, never submitted).
+**State that drifts one way** (not deletions):
 
----
-
-## 7 · Per-run AV fixture reset — **BUILT**: `dd_scripts_mobile/reset_av_fixture.py`
-
-*Option A, shipped. Dry run by default, `--apply` to act, `--check` to assert only. Costs zero
-Datadog runs. Two of the three owner decisions below are still open; the script does not need
-them to run in `--check` mode, only to be adopted as a routine.*
-
-### 7.1 · What it unlocks, and what each test would leave behind
-
-Five tests are blocked only because the fixture job `Z0EVwQcdJZhMURcBFkp0E0` cannot be put back
-from mobile. Bugs §10 is **not** fixed on `origin/development` (checked 2026-09-09): the job's
-status is recomputed on the client, one way — `READY → IN_PROGRESS → COMPLETED` — and the server's
-`updateMobileJobAsset` is a plain record update that touches nothing else.
-
-| unlocked test | what it writes | what puts it back |
+| state | moved by | reset |
 |---|---|---|
-| Verify **all** assets → job goes `COMPLETED` (T2.2) | both `MobileJobAsset.verified = true`, `MobileJob.status = COMPLETED` | `updateMobileJobAsset(id, {verified:false})` ×2 · `updateMobileJob(job, {status: IN_PROGRESS})` |
-| Verify status update on the **job list** (the badge/legend flips to Completed) | same as above — it is the list-side assertion of the same act | same reset |
-| Add a **new** asset to the job (`NewAssetForm`) | a new `Asset` + a `MobileJobAsset` link (+ an attachment if a photo is added) | `deleteMobileJobAssets([link])` · `deleteAssets([asset])` (`@auth ASSET UPDATE`) |
-| Add an **existing** asset to the job (`Pump 0102`) | a `MobileJobAsset` link only | `deleteMobileJobAssets([link])` |
-| **Add Work** from Asset Lookup / the AV detail | a work order with stages | `WorkStage.removeNode` bottom-up (§3a) — the same routine the residue cleanup needs anyway |
+| Mobile job status → `COMPLETED` when its last asset is verified (bugs §10) | a verify-all test (not built) | `reset_av_fixture.py` — §4 |
+| `000-000-000 Adamantium` quantity, +1 per run | `MOB.870` | decrement by runs since last tidy. `MOB.860`'s `+1`/`-1` self-restores; do not make `MOB.870` two-way |
 
-Everything in the right-hand column is a GraphQL mutation the `Admin` role already has
-permission for (`MOBILEJOB UPDATE/DELETE`, `ASSET UPDATE`, `WORK DELETE`). Nothing needs the
-desktop UI, which is what "desktop reset" used to mean.
+**Nothing to do:** asset verified flags (they self-revert); `self-restoring` and `read-only`
+tests; the photo tests `MOB.620`/`621`/`622`/`626`/`301` (local reducer, never submitted);
+`MOB.741` (the Docs filter rejects its image client-side).
 
-### 7.2 · Invariants the reset must restore — and assert
+## 3 · `cleanup_residue.py` — built
 
-After a reset the fixture job must read exactly what `MOB.500`/`510`/`530`/`560` assume:
+- **Scope:** only Datadog's records — created by the test account AND carrying the marker.
+  Every candidate work is checked against the fixtures' parent work ids and every stage it
+  holds; the run aborts if a never-touch id is anywhere in the plan.
+- **Deletes in batches of 5, stops on the first error**, and re-plans from the server every run,
+  so it resumes cleanly once §41 is fixed.
+- **Reports a count per category** — a category that drops to zero usually means a test stopped
+  writing.
+- Auth as the `Admin` test account (role exactly `Admin`). ⚠️ Never call logout, and do not run
+  while a suite is running — a logout anywhere kills an in-flight suite.
+- **Local, not a Datadog API test**: a billed run per cleanup, triggered by hand either way.
 
-- `status = IN_PROGRESS`
-- exactly **2** `MobileJobAsset` rows, `Tank 0000` and `A/C Motor 0002`, both `verified = false`
-- no other asset linked; no `DD SYNTHETIC` asset created by the job tests left behind
+## 4 · `reset_av_fixture.py` — built
 
-The script ends by **querying the job back and asserting those three lines**, and exits non-zero
-otherwise. A reset that reports success without reading back is trap 6 in a different coat.
+`--check` asserts only · dry run plans · `--apply` acts.
 
-### 7.3 · Where it runs — the decision
+**Invariants it restores and then reads back** (exit non-zero otherwise):
+- job `status = IN_PROGRESS`
+- exactly **2** `MobileJobAsset` rows — `⚡ Tank 0000` and `A/C Motor 0002` — both
+  `verified = false`
+- no other asset linked; no `DD SYNTHETIC` asset left by a job test
 
-| option | credits | needs | verdict |
-|---|---|---|---|
-| **A. local script** `reset_av_fixture.py` (GraphQL, dry-run by default, `--apply` to act) | **0** | **nothing new** — `DATA_DOG_EMAIL` / `DATA_DOG_PASSWORD` are not secure globals, so the script reads them with the `DD_API`/`DD_APP` keys already in `.env` (`.env` is the fallback if either is ever marked secure) | ⭐ **BUILT** — no browser needed (§7.6), and it is the vehicle §5 already chose for residue cleanup, so one script grows two subcommands |
-| B. Datadog **API** test | 1 per reset | nothing new | competes with the browser tests for the same credits; cannot be a child of `MOB.993`, so it is a separate manual trigger either way |
-| C. make the tests self-restore in-browser | 0 | — | **impossible** — mobile has no status control and cannot delete; that is the whole reason the row is blocked |
+**What it unlocks** — five tests blocked because mobile cannot walk the job back (bugs §10):
 
-### 7.4 · How the unlocked tests slot in
+| test | writes | put back by |
+|---|---|---|
+| verify all → job `COMPLETED` (T2.2) | both `verified = true`, status `COMPLETED` | `updateMobileJobAsset(…, {verified:false})` ×2 · `updateMobileJob(…, {status: IN_PROGRESS})` |
+| verify status update on the job list | same act, list-side assertion | same |
+| add a NEW asset to the job | `Asset` + `MobileJobAsset` (+ attachment) | `deleteMobileJobAssets` · `deleteAssets` |
+| add an EXISTING asset (`Pump 0102`) | a `MobileJobAsset` link | `deleteMobileJobAssets` |
+| Add Work from Asset Lookup / AV detail | a work order | `deleteWorkOrders` — blocked by §41 |
 
-- They go in **`MOB.993` as the LAST children**, after everything that assumes the fixture is
-  at rest — verifying the second asset flips the job and would break `MOB.500`/`530`/`560` if they
-  ran afterwards in the same session.
-- A run of `MOB.993` is then **run → reset**. A forgotten reset leaves the job `COMPLETED` and the
-  next `MOB.993` fails at its first fixture guard — loudly, at the first child, not silently.
-- The reset is idempotent: running it on a clean fixture changes nothing and still asserts 7.2.
+They go in `MOB.993` as the **last** children (verifying the second asset flips the job), and a
+`MOB.993` run becomes **run → reset**. A forgotten reset fails the next run at its first fixture
+guard. The reset is idempotent.
 
-### 7.6 · The session is obtainable with plain HTTP — no headless browser
+**Open owner decisions:** accept the run → reset chore for `MOB.993`; accept Add Work's residue
+until §41 is fixed. Then build: the two verify tests → the two add-asset tests → Add Work.
 
-Checked against `origin/development` 2026-09-10, because option A's cost turns entirely on this.
-Login is an Express route with a session cookie, not an OAuth/OIDC dance, so `requests.Session()`
-is enough:
+## 5 · Session over plain HTTP
+
+Login is an Express route with a session cookie, so `requests.Session()` suffices:
 
 | # | call | body | gives |
 |---|---|---|---|
-| 1 | `POST /login` | `{email, password}` | `{route, token}` — `token` is the coretoken JWT (`login.ts:98,190`) |
-| 2 | `POST /login/user-env` | `{coretoken: token}` | the account's environments; take the row whose `environment` is `development` (`sso/index.ts:7`) |
-| 3 | `POST /login/sso` | `{environment_id, environment_org, environment, token, mobile: 'true'}` | sets the session cookie; returns `/apm-mobile` (`sso/index.ts:111,118`) |
-| 4 | `POST /graphql` | the mutation | `credentials: 'same-origin'`, so the cookie from 3 is the whole auth story (`client/mobile/graphql/index.tsx:47`) |
+| 1 | `POST /login` | `{email, password}` | `{route, token}` — the coretoken JWT |
+| 2 | `POST /login/user-env` | `{coretoken: token}` | environments; take `environment == 'development'` |
+| 3 | `POST /login/sso` | `{environment_id, environment_org, environment, token, mobile: 'true'}` | the session cookie |
+| 4 | `POST /graphql` | the mutation | `credentials: 'same-origin'` — the cookie is the whole auth |
 
-⚠️ Step 3 is what `MOB.000_Login`'s "Choose the development environment" click does. A script that
-skips it holds a coretoken and no session, and every mutation returns unauthenticated.
+Skipping step 3 leaves a coretoken and no session: every mutation returns unauthenticated.
+`DATA_DOG_EMAIL`/`DATA_DOG_PASSWORD` are readable Datadog globals (`.env` is the fallback).
 
-⚠️ **A LOGOUT ANYWHERE KILLS AN IN-FLIGHT SUITE** (the session model note in the checklist). The
-reset script authenticates as the same test account, so it must never call logout, and it should
-not run while a suite is running.
+## 6 · Match fixture names by containment
 
-### 7.5 · What the owner is deciding
-
-1. ~~Credentials in `.env`~~ — **moot.** Both globals are readable through the API, so nothing
-   new is stored anywhere. Answered by measurement, not by decision.
-2. **Accept the "run → reset" chore** for `MOB.993` — one command after each run.
-3. **Accept the residue**: "Add Work" leaves a work order per run until §3a's bottom-up delete is
-   built; the new-asset test leaves nothing once `deleteAssets` is in the script.
-
-**Done so far:** the script, with the dry run and the §7.2 read-back, run once against the live
-fixture — it reported *nothing to do, the fixture is already at rest*, which is the correct answer
-for a job no mutating test has reached since the last `MOB.993` aborted at `MOB.580`.
-
-**Next, once 2 and 3 are answered:** the two verify tests → the two add-asset tests → Add Work
-last, with the work-order delete.
-
-### 7.7 · What the first live run taught
-
-⭐ **The fixture asset's real name is `⚡ Tank 0000`.** The lightning bolt is part of the stored
-name, not UI decoration. The first dry run therefore planned *unlink Tank 0000* — it had matched
-names by equality and concluded the fixture's own asset was a stranger. **The dry-run default is
-the only reason that was a printed plan instead of a deleted link.** The script now matches by
-containment, which is what the browser tests were already doing (`contains(., "Tank 0000")`) and
-why none of them ever saw this.
-
-➡️ Keep `--apply` opt-in permanently. A reset script's whole job is destructive, and its first
-run against real data is exactly where a wrong assumption shows up.
+The AV asset's stored name is `⚡ Tank 0000` — the symbol is part of it. The reset's first dry run
+matched by equality and planned to unlink the fixture's own asset as a stranger; the dry-run
+default kept that a printout. Both scripts match by containment, as the browser tests do
+(trap 29).

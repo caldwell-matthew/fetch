@@ -752,6 +752,19 @@
             },
             {
                 "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and its `MentorLens Tags` section (`LensTags`) rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "MentorLens Tags"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,

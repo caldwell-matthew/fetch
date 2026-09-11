@@ -279,6 +279,10 @@ steps += [
          timeout=30),
     step("assertPageContains", "…and its `All Tags` section rendered", {"value": "All Tags"},
          timeout=30),
+    # `TagSelector` renders `LensTags` right under its heading (`Tags/index.tsx:120`), whose own
+    # header is `MentorLens Tags` (`LensTags.tsx:81`) - the sweep found it asserted nowhere.
+    step("assertPageContains", "…and its `MentorLens Tags` section (`LensTags`) rendered",
+         {"value": "MentorLens Tags"}, timeout=30),
 
     # 🛑 NOTHING IS CLICKED IN HERE. Assigning or creating a tag MUTATES (`Tags/index.tsx:100`).
     # `Done` is the component's own dismissal and writes nothing.

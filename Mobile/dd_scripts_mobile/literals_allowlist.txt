@@ -34,10 +34,6 @@ Central Storeroom               # MOB.850/860/870 storeroom, and MOB.370's locat
 000-000-000 Adamantium          # the cycle-count / stocking fixture item
 Error Correction                # MOB.860 adjustment reason
 
-# ---- not fixture data, but not app text either --------------------------------------------
-___DUMP___                      # MOB.979's own sentinel - the probe prints it, the app never
-                                # renders it. Delete this line when MOB.979 is deleted.
-
 # ---- asset-verification fixture assets ----------------------------------------------------
 Tank 0000                       # the fixture job's first asset (7 tests)
 A/C Motor 0002                  # its second - MOB.570's wrap-around and MOB.580's ordering
@@ -89,3 +85,9 @@ Heater Hz
 Bypass Valve 0001
 __dd302_srcId
 __dd302_srcName
+# MOB.390/391: their test-owned sessionStorage key (the original record count).
+__dd39x_origCount
+# MOB.392: the note body it types, counted back by its server proof (test data, not app text).
+This is a note - DD SYNTHETIC MOBILE
+# MOB.721: its zero-readings fixture asset (stored as `⚡ Building 0000`, DB data).
+Building 0000

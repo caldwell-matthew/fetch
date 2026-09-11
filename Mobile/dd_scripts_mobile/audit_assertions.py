@@ -33,8 +33,9 @@ WHAT IT LOOKS FOR
                    True on a blank page, a crashed render, and a login redirect alike.
   LOADBEARING-OPT  a step marked `optional` whose name claims GUARD / PROOF / ⭐ / CRITICAL.
                    An amber step cannot fail a run, so a regression there is invisible.
-  NO-TIMEOUT       a positive assertion with no timeout - it reads the DOM once instead of
-                   polling, so it races the render rather than waiting for it (trap 21).
+  (NO-TIMEOUT      REMOVED 2026-09-11 - its premise was false. An untimed step POLLS until
+                   Datadog's 60s default: MOB.390's untimed `Pick 1` failed at 58.5s. 95 hits,
+                   none a defect. Trap 21 is about ABSENCE checks, which VACUOUS-ABSENCE covers.)
 
 USAGE
     ./.venv/bin/python Mobile/dd_scripts_mobile/audit_assertions.py            # ranked report
@@ -195,11 +196,7 @@ def audit_step(test_name, i, s, all_code, prev_type=None):
     # straight after a CLICK or a NAVIGATION races the render, which is the trap-21 case worth
     # acting on. Without this narrowing the check reported 225 hits - too many to triage, which
     # in practice means none of them get looked at.
-    positive = typ in ("assertElementPresent", "assertElementContent", "assertPageContains")
-    if positive and not s.get("timeout") and prev_type not in ("wait", None):
-        hits.append(("LOW", "NO-TIMEOUT",
-                     f"untimed assertion straight after a `{prev_type}` — races the render "
-                     "instead of polling for it (trap 21)"))
+    # (removed: an untimed step polls to Datadog's 60s default - see the docstring)
 
     return [(sev, kind, f"{test_name} step {i} [{typ}]", name, msg) for sev, kind, msg in hits]
 

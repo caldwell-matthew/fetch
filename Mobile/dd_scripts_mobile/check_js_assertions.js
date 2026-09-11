@@ -76,9 +76,9 @@ const runJs = (code, win) => {
 	try { ss = win.sessionStorage; } catch (e) { ss = undefined; }   // opaque-origin windows throw
 	// `window` too: MOB.123 carries ids between steps on it (MOB.470's `__ddSW` proved that
 	// survives from one Datadog step to the next while the page does not navigate).
-	// `location` and `navigator` for MOB.980, which reads the route and `navigator.onLine`.
-	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator',
-		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator);
+	// `location` and `navigator` for MOB.912 (route, `navigator.onLine`); `getComputedStyle` for MOB.952.
+	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator', 'getComputedStyle',
+		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator, win.getComputedStyle.bind(win));
 };
 
 /* ===========================================================================================
@@ -1796,34 +1796,453 @@ check('MUST FAIL: file - the image 404s (naturalWidth 0)', runJs(M302.file, page
 check('MUST FAIL: file - a different photo loaded', runJs(M302.file, page302({ asset: false, woPhotos: [['NEW', NAME]], stash: ST })), false);
 
 /* ===========================================================================================
- * MOB.980 - navigator.onLine override probe. The two outcome reads per route must be mutually
- * exclusive (ConnectionRequired vs the normal page), and neither may pass off the route.
+ * MOB.390 / MOB.391 - add (a key the fixture does not hold), prove after a reload, delete THAT
+ * card. DOM modelled on ConditionDetails.tsx / FailureDetails.tsx + CollapsableSection.tsx: the
+ * card is a Paper (toggle button + rightContent + Collapse); cards sit under an asset Paper whose
+ * first Text is the asset name. Gear = ActionIcon aria-label="Menu" in the card.
  * ========================================================================================= */
-const MOB980 = 'MOB.980_DIAG_OnLine_Override.json';
-const M980 = {
-	reachedA: bodyOf(MOB980, 'A ⭐ REACHED ConnectionRequired'),
-	normalA: bodyOf(MOB980, 'A: the NORMAL Asset Lookup rendered'),
-	restored: bodyOf(MOB980, 'RESTORED: navigator.onLine is true'),
+const MOB390 = 'MOB.390_Work_Add_Condition.json';
+const MOB391 = 'MOB.391_Work_Add_Failure.json';
+const M390 = {
+	premise: bodyOf(MOB390, 'PREMISE: no condition'),
+	proof: bodyOf(MOB390, 'SERVER PROOF: exactly ONE condition'),
+	guard: bodyOf(MOB390, 'GUARD + open its gear'),
+	cleaned: bodyOf(MOB390, 'CLEANED: no condition'),
 };
-function page980({ path = '/apm-mobile/asset-lookup', offline = false, online = true, tile = true } = {}) {
-	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com' + path });
+const M391 = {
+	premise: bodyOf(MOB391, 'PREMISE: no failure'),
+	proof: bodyOf(MOB391, 'SERVER PROOF: exactly ONE failure'),
+	guard: bodyOf(MOB391, 'GUARD + open its gear'),
+	cleaned: bodyOf(MOB391, 'CLEANED: no failure'),
+};
+const condCard = ([el, group, f, sc, st]) => `<div class="mantine-Paper-root"><div class="mantine-Group-root"><button><span><p class="mantine-Text-root">${el}</p></span></button>`
+	+ `<div class="mantine-ButtonGroup-root"><div class="mantine-Pill-root"><span class="mantine-Pill-label">${group}</span></div><button aria-label="Menu" class="gear"></button></div></div>`
+	+ `<div class="mantine-Collapse-root"><ul><li><p class="mantine-Text-root">Condition Found: <span class="mantine-Pill-root">${f}</span></p></li>`
+	+ `<li><p class="mantine-Text-root">Condition Score: <span class="mantine-Pill-root">${sc}</span></p></li>`
+	+ `<li><p class="mantine-Text-root">Stress Score: <span class="mantine-Pill-root">${st}</span></p></li>`
+	+ `<li><p class="mantine-Text-root">Stress Decision Score: <span class="mantine-Pill-root"></span></p></li><li><div>Notes: <p class="mantine-Text-root"></p></div></li></ul></div></div>`;
+const failCard = ([ft, rep, root]) => `<div class="mantine-Paper-root"><div class="mantine-Group-root"><button><span><p class="mantine-Text-root">  </p></span></button><button aria-label="Menu" class="gear"></button></div>`
+	+ `<div class="mantine-Collapse-root"><table><tbody><tr><td>Failure Type</td><td> ${ft} </td></tr><tr><td>Root Cause</td><td> ${root} </td></tr>`
+	+ `<tr><td>Repair Type</td><td> ${rep} </td></tr><tr><td>Discovery Code</td><td>  </td></tr></tbody></table></div></div>`;
+function page39x({ groups = [], add = true, stash = {} } = {}, card) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q' });
 	const w = dom.window; const doc = w.document;
-	doc.body.innerHTML = (offline ? '<div class="mantine-Paper-root"><p>This feature requires an internet connection.</p></div>'
-		: '<form><input name="asset-search"></form>')
-		+ (tile ? '<img alt="icon for Asset Lookup">' : '') + '<img alt="icon for Work Orders">';
-	Object.defineProperty(w.navigator, 'onLine', { configurable: true, get: () => online });
+	for (const [k, v] of Object.entries(stash)) w.sessionStorage.setItem(k, v);
+	doc.body.innerHTML = (add ? '<button>Add</button>' : '') + groups.map(([asset, cards]) =>
+		`<div class="mantine-Paper-root"><p class="mantine-Text-root">${asset}</p><div class="mantine-Box-root">${cards.map(card).join('')}</div></div>`).join('');
+	w.__gearClicks = 0;
+	doc.querySelectorAll('.gear').forEach(g => g.addEventListener('click', () => { w.__gearClicks++; }));
 	return w;
 }
-console.log('\nMOB.980_DIAG_OnLine_Override - outcome reads are exclusive; the restore gate can fail');
-check('reached - ConnectionRequired on /asset-lookup', runJs(M980.reachedA, page980({ offline: true })), true);
-check('MUST FAIL: reached - the normal page', runJs(M980.reachedA, page980()), false);
-check('MUST FAIL: reached - the message, but not on /asset-lookup', runJs(M980.reachedA, page980({ offline: true, path: '/apm-mobile/' })), false);
-check('normal - the search input on /asset-lookup', runJs(M980.normalA, page980()), true);
-check('MUST FAIL: normal - ConnectionRequired', runJs(M980.normalA, page980({ offline: true })), false);
-check('MUST FAIL: normal - off the route', runJs(M980.normalA, page980({ path: '/apm-mobile/' })), false);
-check('restored - online and the tile is back', runJs(M980.restored, page980({ path: '/apm-mobile/' })), true);
-check('MUST FAIL: restored - still reads offline', runJs(M980.restored, page980({ path: '/apm-mobile/', online: false })), false);
-check('MUST FAIL: restored - the tile is missing', runJs(M980.restored, page980({ path: '/apm-mobile/', tile: false })), false);
+const c39 = (o) => page39x(o, condCard);
+const f39 = (o) => page39x(o, failCard);
+const ORIG_C = ['Mounting/Support', 'Structural', 1, 2, 3];
+const MINE_C = ['Pump Body', 'Structural', 1, 2, 3];
+const ORIG_F = ['BELT (R-L1)', 'MISSED', 'TIME'];
+const MINE_F = ['BELT (R-L1)', 'ADJUST', 'TIME'];
+const K = '__dd39x_origCount';
+{
+	// The exact score pick: ListFilter options (option-title + option-description), Mantine keeps
+	// closed dropdowns mounted and hidden. jsdom has no layout, so visibility is modelled on
+	// offsetParent - the property the step reads.
+	const pick1 = bodyOf(MOB390, 'Pick 1 — the one VISIBLE option');
+	const opt = (v, hid) => `<div role="option" data-v="${v}" data-hid="${hid ? 1 : 0}"><div class="custom-option"><div class="option-title">${v}</div><div class="option-description">d</div></div></div>`;
+	const page = (list) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window;
+		w.document.body.innerHTML = list.map(([v, hid]) => opt(v, hid)).join('');
+		w.__picked = [];
+		w.document.querySelectorAll('[role="option"]').forEach(o => {
+			Object.defineProperty(o, 'offsetParent', { get: () => (o.dataset.hid === '1' ? null : w.document.body) });
+			o.addEventListener('click', () => w.__picked.push(o.dataset.v + (o.dataset.hid === '1' ? ':hidden' : ':visible')));
+		});
+		return w;
+	};
+	console.log('\nMOB.390 exact score pick - the one VISIBLE option, never a hidden twin');
+	{
+		const w = page([['1', true], ['2', true], ['1', false], ['2', false], ['10', false]]);
+		check('pick - clicks the visible "1", not the hidden twin nor "10"', runJs(pick1, w) && w.__picked.join() === '1:visible', true);
+	}
+	{
+		const w = page([['1', true], ['2', true]]);
+		check('MUST FAIL: pick - no visible "1" (dropdown closed), nothing clicked', runJs(pick1, w) === false && w.__picked.length === 0, true);
+	}
+	{
+		const w = page([['1', false], ['1', false]]);
+		check('MUST FAIL: pick - two visible "1"s, nothing clicked', runJs(pick1, w) === false && w.__picked.length === 0, true);
+	}
+	{
+		const w = page([['10', false], ['11', false]]);
+		check('MUST FAIL: pick - only "10"/"11" visible, nothing clicked', runJs(pick1, w) === false && w.__picked.length === 0, true);
+	}
+}
+console.log('\nMOB.390_Work_Add_Condition - a new key, proved after reload, then only THAT card deleted');
+{
+	const w = c39({ groups: [['Pump 0102', [ORIG_C]]] });
+	check('premise - no Pump Body card, original counted', runJs(M390.premise, w) && w.sessionStorage.getItem(K) === '1', true);
+}
+check('MUST FAIL: premise - a leftover Pump Body card', runJs(M390.premise, c39({ groups: [['Pump 0102', [ORIG_C, MINE_C]]] })), false);
+check('MUST FAIL: premise - the tab never rendered (no Add button)', runJs(M390.premise, c39({ add: false, groups: [['Pump 0102', [ORIG_C]]] })), false);
+check('proof - exactly one Pump Body card with 1/2/3', runJs(M390.proof, c39({ groups: [['Pump 0102', [ORIG_C, MINE_C]]] })), true);
+check('MUST FAIL: proof - the add was refused (no card)', runJs(M390.proof, c39({ groups: [['Pump 0102', [ORIG_C]]] })), false);
+check('MUST FAIL: proof - wrong scores', runJs(M390.proof, c39({ groups: [['Pump 0102', [ORIG_C, ['Pump Body', 'Structural', 1, 2, 4]]]] })), false);
+check('MUST FAIL: proof - Pump Body under ANOTHER asset', runJs(M390.proof, c39({ groups: [['Pump 0102', [ORIG_C]], ['Tank 0000', [MINE_C]]] })), false);
+check('MUST FAIL: proof - two Pump Body cards', runJs(M390.proof, c39({ groups: [['Pump 0102', [ORIG_C, MINE_C, MINE_C]]] })), false);
+{
+	const w = c39({ groups: [['Pump 0102', [ORIG_C, MINE_C]]] });
+	check('guard - one Pump Body card: exactly one gear clicked', runJs(M390.guard, w) && w.__gearClicks === 1, true);
+}
+for (const [label, groups] of [
+	['no Pump Body card (the add failed)', [['Pump 0102', [ORIG_C]]]],
+	['two Pump Body cards', [['Pump 0102', [ORIG_C, MINE_C, MINE_C]]]],
+	['a Pump Body card under a DIFFERENT asset', [['Tank 0000', [MINE_C]]]],
+]) {
+	const w = c39({ groups });
+	check(`MUST FAIL: guard - ${label}, and NO gear is clicked`, runJs(M390.guard, w) === false && w.__gearClicks === 0, true);
+}
+{
+	// the guard must click the Pump Body card's gear, never the original's
+	const w = c39({ groups: [['Pump 0102', [ORIG_C, MINE_C]]] });
+	const gears = [...w.document.querySelectorAll('.gear')]; let hit = -1;
+	gears.forEach((g, i) => g.addEventListener('click', () => { hit = i; }));
+	runJs(M390.guard, w);
+	check('guard - the clicked gear belongs to the Pump Body card', hit === 1, true);
+}
+check('cleaned - Pump Body gone, original count unchanged', runJs(M390.cleaned, c39({ groups: [['Pump 0102', [ORIG_C]]], stash: { [K]: '1' } })), true);
+check('MUST FAIL: cleaned - Pump Body still there', runJs(M390.cleaned, c39({ groups: [['Pump 0102', [ORIG_C, MINE_C]]], stash: { [K]: '1' } })), false);
+check('MUST FAIL: cleaned - the ORIGINAL was deleted', runJs(M390.cleaned, c39({ groups: [], stash: { [K]: '1' } })), false);
+check('MUST FAIL: cleaned - no baseline captured', runJs(M390.cleaned, c39({ groups: [['Pump 0102', [ORIG_C]]] })), false);
+
+console.log('\nMOB.391_Work_Add_Failure - a new key, proved after reload, then only THAT card deleted');
+{
+	const w = f39({ groups: [['Pump 0102', [ORIG_F]]] });
+	check('premise - no ADJUST card, original counted', runJs(M391.premise, w) && w.sessionStorage.getItem(K) === '1', true);
+}
+check('MUST FAIL: premise - a leftover ADJUST card', runJs(M391.premise, f39({ groups: [['Pump 0102', [ORIG_F, MINE_F]]] })), false);
+check('proof - exactly one BELT/ADJUST/TIME card', runJs(M391.proof, f39({ groups: [['Pump 0102', [ORIG_F, MINE_F]]] })), true);
+check('MUST FAIL: proof - the add was refused', runJs(M391.proof, f39({ groups: [['Pump 0102', [ORIG_F]]] })), false);
+check('MUST FAIL: proof - a different root cause', runJs(M391.proof, f39({ groups: [['Pump 0102', [ORIG_F, ['BELT (R-L1)', 'ADJUST', 'DAMAGE']]]] })), false);
+{
+	const w = f39({ groups: [['Pump 0102', [ORIG_F, MINE_F]]] });
+	const gears = [...w.document.querySelectorAll('.gear')]; let hit = -1;
+	gears.forEach((g, i) => g.addEventListener('click', () => { hit = i; }));
+	check('guard - the ADJUST card\'s gear clicked, not the original\'s', runJs(M391.guard, w) && hit === 1, true);
+}
+for (const [label, groups] of [
+	['no ADJUST card', [['Pump 0102', [ORIG_F]]]],
+	['two ADJUST cards', [['Pump 0102', [ORIG_F, MINE_F, MINE_F]]]],
+]) {
+	const w = f39({ groups });
+	check(`MUST FAIL: guard - ${label}, and NO gear is clicked`, runJs(M391.guard, w) === false && w.__gearClicks === 0, true);
+}
+check('cleaned - ADJUST gone, original unchanged', runJs(M391.cleaned, f39({ groups: [['Pump 0102', [ORIG_F]]], stash: { [K]: '1' } })), true);
+check('MUST FAIL: cleaned - the ORIGINAL was deleted', runJs(M391.cleaned, f39({ groups: [['Pump 0102', [MINE_F]]], stash: { [K]: '1' } })), false);
+
+/* ===========================================================================================
+ * MOB.912 - screens that read navigator.onLine itself. Each leg pairs the online screen with the
+ * offline one; the halves must be mutually exclusive, and neither may pass off its route/panel.
+ * Material panel: MaterialCharges.tsx - online = SegmentedControl (labels CHARGES/ESTIMATES) +
+ * Add; offline = <Box>Internet Connection is required to make a material charge</Box>.
+ * ========================================================================================= */
+const MOB912 = 'MOB.912_Offline_Connection_Screens.json';
+const M912 = {
+	lookupOn: bodyOf(MOB912, 'ONLINE HALF: Asset Lookup renders its search'),
+	homeAgain: bodyOf(MOB912, 'Home again, still the same page session'),
+	lookupOff: bodyOf(MOB912, 'OFFLINE HALF: ConnectionRequired'),
+	matOn: bodyOf(MOB912, 'ONLINE HALF: the Material panel'),
+	matOff: bodyOf(MOB912, 'OFFLINE HALF: the panel reads'),
+};
+const MAT_ONLINE = '<div class="mantine-SegmentedControl-root"><label>CHARGES</label><label>ESTIMATES</label></div><button>Add</button>';
+const MAT_OFFLINE = '<div>Internet Connection is required to make a material charge</div>';
+function page912({ path = '/apm-mobile/asset-lookup', body = '', panel = null, tile = true } = {}) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com' + path });
+	const w = dom.window; const doc = w.document;
+	doc.body.innerHTML = body + (tile ? '<img alt="icon for Asset Lookup">' : '')
+		+ (panel === null ? '' : '<div role="tablist"><button role="tab" aria-selected="true" aria-controls="mp">Material</button><button role="tab">Notes</button></div>'
+			+ `<div role="tabpanel" id="mp">${panel}</div><div role="tabpanel" style="display:none">${MAT_ONLINE}</div>`);
+	return w;
+}
+const SEARCH_IN = '<form><input name="asset-search"></form>';
+const CR = '<div class="mantine-Paper-root"><p>This feature requires an internet connection.</p></div>';
+console.log('\nMOB.912_Offline_Connection_Screens - each screen online, then offline, same session');
+check('lookup online - search, no ConnectionRequired', runJs(M912.lookupOn, page912({ body: SEARCH_IN })), true);
+check('MUST FAIL: lookup online - ConnectionRequired showing', runJs(M912.lookupOn, page912({ body: CR })), false);
+check('MUST FAIL: lookup online - not on /asset-lookup', runJs(M912.lookupOn, page912({ path: '/apm-mobile/', body: SEARCH_IN })), false);
+check('home again - off the route, tile present', runJs(M912.homeAgain, page912({ path: '/apm-mobile/' })), true);
+check('MUST FAIL: home again - history.back() did not leave Asset Lookup', runJs(M912.homeAgain, page912({ body: SEARCH_IN })), false);
+check('lookup offline - ConnectionRequired, no search', runJs(M912.lookupOff, page912({ body: CR })), true);
+check('MUST FAIL: lookup offline - the normal page (override unseen)', runJs(M912.lookupOff, page912({ body: SEARCH_IN })), false);
+check('MUST FAIL: lookup offline - message AND search (both)', runJs(M912.lookupOff, page912({ body: CR + SEARCH_IN })), false);
+check('material online - CHARGES/ESTIMATES, no message', runJs(M912.matOn, page912({ path: '/apm-mobile/work/x', panel: MAT_ONLINE })), true);
+check('MUST FAIL: material online - the offline message', runJs(M912.matOn, page912({ path: '/apm-mobile/work/x', panel: MAT_OFFLINE })), false);
+check('material offline - the message, no CHARGES', runJs(M912.matOff, page912({ path: '/apm-mobile/work/x', panel: MAT_OFFLINE })), true);
+check('MUST FAIL: material offline - the normal panel (override unseen)', runJs(M912.matOff, page912({ path: '/apm-mobile/work/x', panel: MAT_ONLINE })), false);
+check('MUST FAIL: material offline - no tab panel at all', runJs(M912.matOff, page912({ path: '/apm-mobile/work/x' })), false);
+
+/* ===========================================================================================
+ * MOB.913 - the offline queue. Header: TransactionStatus renders NOTHING at count 0, else a
+ * Mantine Indicator (label = count) around the faUpload icon (data-icon="upload"). The list:
+ * PendingTransactionLogs - Title "Pending Transactions", each op's operationName and
+ * JSON.stringify(variables, null, 2) (so `"verified": true`, with a space).
+ * ========================================================================================= */
+const MOB913 = 'MOB.913_Offline_Transaction_Queue.json';
+const M913 = {
+	baseline: bodyOf(MOB913, 'BASELINE (leg 1): no pending-transactions indicator'),
+	queued: bodyOf(MOB913, 'QUEUED (leg 1): the pending indicator reads 1'),
+	held: bodyOf(MOB913, 'HELD (leg 1): still 1 pending'),
+	listed: bodyOf(MOB913, 'LISTED: `Pending Transactions` shows the held VERIFY_ASSET'),
+	drained: bodyOf(MOB913, 'DRAINED: the pending indicator is gone'),
+	restore: bodyOf(MOB913, 'RESTORE (leg 1): unverify the first asset'),
+};
+function page913({ count = 0, wifi = 'wifi', modal = null, checked = false } = {}) {
+	const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0' }).window;
+	const doc = w.document;
+	const status = count ? `<div class="mantine-Indicator-root"><div class="mantine-Indicator-indicator">${count}</div><svg data-icon="upload"></svg></div>` : '';
+	// another Indicator on the page (JobStatusIcon's dot) must not be read as the pending count
+	doc.body.innerHTML = `<header><svg data-icon="${wifi}"></svg>${status}</header>`
+		+ '<div class="mantine-Indicator-root"><div class="mantine-Indicator-indicator">7</div><span>job status</span></div>'
+		+ (modal ? `<section class="mantine-Modal-content">${modal}</section>` : '')
+		+ `<input type="checkbox" ${checked ? 'checked' : ''}><input type="checkbox">`;
+	w.__clicks = 0;
+	doc.querySelector('input[type="checkbox"]').addEventListener('click', () => { w.__clicks++; });
+	return w;
+}
+const LIST = (op, vars) => `<h3>Pending Transactions</h3><div class="mantine-Paper-root"><p>abc123</p><p>${op}</p><p>${JSON.stringify(vars, null, 2)}</p></div>`;
+console.log('\nMOB.913_Offline_Transaction_Queue - held, counted, listed, drained; restore unverifies only when checked');
+check('baseline - nothing pending, wifi icon', runJs(M913.baseline, page913()), true);
+check('MUST FAIL: baseline - 1 pending already', runJs(M913.baseline, page913({ count: 1 })), false);
+check('MUST FAIL: baseline - the header never rendered (no wifi icon)', runJs(M913.baseline, page913({ wifi: 'none' })), false);
+check('queued - the upload indicator reads 1', runJs(M913.queued, page913({ count: 1, wifi: 'wifi-slash' })), true);
+check('MUST FAIL: queued - nothing pending (the mutation went straight out)', runJs(M913.queued, page913({ wifi: 'wifi-slash' })), false);
+check('MUST FAIL: queued - 2 pending', runJs(M913.queued, page913({ count: 2 })), false);
+check('held - still 1', runJs(M913.held, page913({ count: 1 })), true);
+check('listed - VERIFY_ASSET with "verified": true (pretty-printed)', runJs(M913.listed, page913({ count: 1, modal: LIST('VERIFY_ASSET', { id: 'x', verified: true }) })), true);
+check('MUST FAIL: listed - an unverify (verified: false)', runJs(M913.listed, page913({ count: 1, modal: LIST('VERIFY_ASSET', { id: 'x', verified: false }) })), false);
+check('MUST FAIL: listed - a different operation', runJs(M913.listed, page913({ count: 1, modal: LIST('UPDATE_ASSET', { verified: true }) })), false);
+check('MUST FAIL: listed - the list never opened', runJs(M913.listed, page913({ count: 1 })), false);
+check('drained - nothing pending (the job-status Indicator is not mistaken for it)', runJs(M913.drained, page913()), true);
+check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ count: 1 })), false);
+{
+	const w = page913({ checked: true });
+	check('restore - the first box is checked: clicked once', runJs(M913.restore, w) && w.__clicks === 1, true);
+}
+{
+	const w = page913({ checked: false });
+	check('restore - not checked: NOT clicked (never verifies by accident)', runJs(M913.restore, w) && w.__clicks === 0, true);
+}
+
+/* ===========================================================================================
+ * Record-add SERVER PROOF (dd_tools.record_count_js) - MOB.350/360/370/380/392. Counts INNERMOST
+ * Papers in the ACTIVE panel carrying every needle. DOM from EquipmentCharges.tsx (a Paper per
+ * charge: name, qty, "Charged created on <date>"; estimates: name + qty, no dated line).
+ * ========================================================================================= */
+{
+	const M350 = {
+		stash: bodyOf('MOB.350_Work_Add_Equipment_Charge.json', 'BEFORE: count the equipment charge cards'),
+		proof: bodyOf('MOB.350_Work_Add_Equipment_Charge.json', 'SERVER PROOF: after a RELOAD there is exactly ONE more equipment'),
+	};
+	const M392proof = bodyOf('MOB.392_Work_Add_Note.json', 'SERVER PROOF: after a RELOAD there is exactly ONE more note');
+	const charge = (name) => `<div class="mantine-Paper-root"><div><p class="mantine-Text-root">${name}</p><p class="mantine-Text-root">1 Each</p></div><div><p class="mantine-Text-root">Charged created on 09/11/2026</p></div></div>`;
+	const estimate = (name) => `<div class="mantine-Paper-root"><div><p class="mantine-Text-root">${name}</p><p class="mantine-Text-root">2 Each</p></div></div>`;
+	const panelPage = (cards, stash) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q' }).window;
+		for (const [k, v] of Object.entries(stash || {})) w.sessionStorage.setItem(k, v);
+		w.document.body.innerHTML = '<div role="tablist"><button role="tab" aria-selected="true" aria-controls="eq">Equipment</button><button role="tab" aria-controls="lab">Labor</button></div>'
+			+ `<div role="tabpanel" id="eq"><div class="mantine-Paper-root wrapper">${cards.join('')}</div></div>`
+			+ `<div role="tabpanel" id="lab" style="display:none">${charge('AC Adapter')}${charge('AC Adapter')}</div>`;
+		return w;
+	};
+	console.log('\nRecord-add SERVER PROOF - count own cards (innermost, active panel), reload, exactly +1');
+	{
+		const w = panelPage([charge('AC Adapter'), charge('AC Adapter'), estimate('AC Adapter'), charge('Backhoe')]);
+		check('stash - counts 2 own charges: not the estimate, not Backhoe, not the wrapper, not the hidden tab',
+			runJs(M350.stash, w) && w.sessionStorage.getItem('__dd35x_before') === '2', true);
+	}
+	const K = { __dd35x_before: '2' };
+	check('proof - 3 after reload (2 + 1)', runJs(M350.proof, panelPage([charge('AC Adapter'), charge('AC Adapter'), charge('AC Adapter'), estimate('AC Adapter')], K)), true);
+	check('MUST FAIL: proof - still 2 (the add was refused)', runJs(M350.proof, panelPage([charge('AC Adapter'), charge('AC Adapter')], K)), false);
+	check('MUST FAIL: proof - 4 (two added, or a double submit)', runJs(M350.proof, panelPage([charge('AC Adapter'), charge('AC Adapter'), charge('AC Adapter'), charge('AC Adapter')], K)), false);
+	check('MUST FAIL: proof - an ESTIMATE appeared, not a charge', runJs(M350.proof, panelPage([charge('AC Adapter'), charge('AC Adapter'), estimate('AC Adapter')], K)), false);
+	check('MUST FAIL: proof - no baseline stashed', runJs(M350.proof, panelPage([charge('AC Adapter'), charge('AC Adapter'), charge('AC Adapter')], {})), false);
+	const note = (txt) => `<div class="mantine-Paper-root"><p class="mantine-Text-root">New Note 2026-09-11 17:00</p><div class="mantine-Spoiler-root"><p>${txt}</p></div></div>`;
+	const NT = 'This is a note - DD SYNTHETIC MOBILE';
+	check('note proof - 1 -> 2', runJs(M392proof, panelPage([note(NT), note(NT), note('someone else')], { __dd392_before: '1' })), true);
+	check('MUST FAIL: note proof - still 1', runJs(M392proof, panelPage([note(NT), note('someone else')], { __dd392_before: '1' })), false);
+}
+
+/* ===========================================================================================
+ * MOB.721 - Readings empty state, scoped to the target row's ACTIVE panel.
+ * ========================================================================================= */
+{
+	const tabOk = bodyOf('MOB.721_AssetLookup_Readings_Empty.json', 'The ACTIVE tab of the Building 0000 row is `Readings`');
+	const empty = bodyOf('MOB.721_AssetLookup_Readings_Empty.json', 'EMPTY STATE: the panel reads');
+	const row = (name, tab, body) => `<div class="mantine-Accordion-item"><button class="mantine-Accordion-control">${name}</button>`
+		+ `<div role="tablist"><button role="tab" ${tab === 'Readings' ? 'aria-selected="true"' : ''} aria-controls="${name.length}r">Readings</button>`
+		+ `<button role="tab" ${tab === 'General' ? 'aria-selected="true"' : ''} aria-controls="${name.length}g">General Info</button></div>`
+		+ `<div role="tabpanel" id="${name.length}r">${tab === 'Readings' ? body : ''}</div><div role="tabpanel" id="${name.length}g">${tab === 'General' ? '<p>desc</p>' : ''}</div></div>`;
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-lookup' }).window; w.document.body.innerHTML = html; return w; };
+	const E = '<p class="mantine-Text-root">No readings recorded for this asset.</p>';
+	console.log('\nMOB.721_AssetLookup_Readings_Empty - the empty state, in the target row only');
+	check('tab - Building row, Readings active', runJs(tabOk, pg(row('⚡ Building 0000', 'Readings', E))), true);
+	check('MUST FAIL: tab - General Info active', runJs(tabOk, pg(row('⚡ Building 0000', 'General', E))), false);
+	check('empty - the message in the Building row', runJs(empty, pg(row('⚡ Building 0000', 'Readings', E))), true);
+	check('MUST FAIL: empty - the row has readings', runJs(empty, pg(row('⚡ Building 0000', 'Readings', '<form><input name="reading"></form>'))), false);
+	check('MUST FAIL: empty - the message is in ANOTHER row', runJs(empty, pg(row('Pump 0102', 'Readings', E) + row('⚡ Building 0000', 'Readings', '<form></form>'))), false);
+}
+
+/* ===========================================================================================
+ * MOB.626 - capture menus (CaptureImageOptions.tsx): Menu.Label + items; browser branch.
+ * ========================================================================================= */
+{
+	const F = 'MOB.626_Collector_Capture_Options.json';
+	const tagOne = bodyOf(F, 'TAG menu, browser branch');
+	const withPhoto = bodyOf(F, 'DESCRIPTION menu with a photo');
+	const closed = bodyOf(F, 'The capture menu is closed');
+	const open = bodyOf(F, 'Open the tag capture menu');
+	// Mantine 8 MenuItem.mjs: the item holds an itemSection (icon) and an itemLabel - a loose
+	// `[class*="mantine-Menu-item"]` matches all three, which is what sank run 1
+	const menu = (items) => `<div class="mantine-Menu-dropdown"><div class="mantine-Menu-label">Hello, what would you like to do?</div>${items.map(i => `<button class="mantine-Menu-item"><div class="mantine-Menu-itemSection"><svg></svg></div><div class="mantine-Menu-itemLabel">${i}</div></button>`).join('')}</div>`;
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-collector' }).window; w.document.body.innerHTML = html; return w; };
+	console.log('\nMOB.626_Collector_Capture_Options - the browser branch, exactly');
+	check('tag - exactly Add Asset Photo', runJs(tagOne, pg(menu(['Add Asset Photo']))), true);
+	check('MUST FAIL: tag - the NATIVE branch (Take Photo, Select From Gallery)', runJs(tagOne, pg(menu(['Take Photo', 'Select From Gallery']))), false);
+	check('MUST FAIL: tag - Use photo… without a photo', runJs(tagOne, pg(menu(['Add Asset Photo', 'Use photo selected above']))), false);
+	check('MUST FAIL: tag - the menu never opened', runJs(tagOne, pg('<form id="asset-collector"></form>')), false);
+	check('with photo - both items, in order', runJs(withPhoto, pg(menu(['Add Asset Photo', 'Use photo selected above']))), true);
+	check('MUST FAIL: with photo - Use photo… missing', runJs(withPhoto, pg(menu(['Add Asset Photo']))), false);
+	check('closed - no labelled dropdown, form still open', runJs(closed, pg('<form id="asset-collector"></form><div class="mantine-Menu-dropdown"><button class="mantine-Menu-item">Other</button></div>')), true);
+	check('MUST FAIL: closed - the capture menu is still open', runJs(closed, pg('<form id="asset-collector"></form>' + menu(['Add Asset Photo']))), false);
+	check('MUST FAIL: closed - the FORM is gone too (Escape discarded it - bugs §13)', runJs(closed, pg('')), false);
+	{
+		const w = pg('<form id="asset-collector"><label>Tag</label><button type="button" class="ab"><svg data-icon="barcode-read"></svg></button><button type="button" class="cd"><svg data-icon="wand-magic-sparkles"></svg></button></form>');
+		let hit = null; w.document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { hit = b.className; }));
+		check('open - clicks the button holding the barcode-read icon', runJs(open, w) && hit === 'ab', true);
+	}
+	check('MUST FAIL: open - icon renamed (no barcode-read)', runJs(open, pg('<form id="asset-collector"><button><svg data-icon="barcode"></svg></button></form>')), false);
+}
+
+/* ===========================================================================================
+ * MOB.320 - the status badge read EXACTLY (StatusMenuIcon.tsx:131 `Status: <Badge>{label}</Badge>`).
+ * ========================================================================================= */
+{
+	const F = 'MOB.320_Work_Status_Update.json';
+	const isComplete = bodyOf(F, 'Test the status badge now reads exactly "Complete"');
+	const serverReady = bodyOf(F, 'SERVER: after a reload the badge reads "Ready"');
+	const pg = (label) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window;
+		// no <p> wrapper: the HTML PARSER closes a <p> at a <div>, moving the badge out of the span - React never does
+		w.document.body.innerHTML = `<div><span>Status: <div class="mantine-Badge-root"><span class="mantine-Badge-label">${label}</span></div></span></div>`; return w; };
+	console.log('\nMOB.320_Work_Status_Update - the badge, exactly');
+	check('Complete reads Complete', runJs(isComplete, pg('Complete')), true);
+	check('MUST FAIL: "Not Completed" is not "Complete" (the old `contains` passed here)', runJs(isComplete, pg('Not Completed')), false);
+	check('Ready after reload', runJs(serverReady, pg('Ready')), true);
+	check('MUST FAIL: Canceled is not Ready', runJs(serverReady, pg('Canceled')), false);
+}
+
+/* ===========================================================================================
+ * MOB.387 - Edit Item prefill: the six inputs hold exactly the card's values.
+ * ========================================================================================= */
+{
+	const F = 'MOB.387_Work_Condition_Edit_Prefill.json';
+	const prefill = bodyOf(F, 'PREFILLED from the card');
+	const premise = bodyOf(F, 'PREMISE: exactly one `Pump 0102 · Mounting/Support` card');
+	const form = (v) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window;
+		w.document.body.innerHTML = '<form id="work-condition-form">' + Object.entries(v).map(([k, x]) => `<input id="${k}" value="${x}">`).join('') + '</form>'; return w; };
+	const OK = { assetId: 'Pump 0102', assetStandardDetailId: 'Structural', inspectionElementId: 'Mounting/Support', conditionFound: '1', conditionScore: '2', stressScore: '3' };
+	console.log('\nMOB.387_Work_Condition_Edit_Prefill - the form holds the card, exactly');
+	check('prefill - all six', runJs(prefill, form(OK)), true);
+	check('MUST FAIL: prefill - an empty form (defaultValues never resolved)', runJs(prefill, form({ ...OK, assetId: '', inspectionElementId: '' })), false);
+	check('MUST FAIL: prefill - a score off by one', runJs(prefill, form({ ...OK, stressScore: '4' })), false);
+	check('MUST FAIL: prefill - a field missing', runJs(prefill, form({ assetId: 'Pump 0102' })), false);
+	const card = (el, f, sc, st) => `<div class="mantine-Paper-root"><button><p class="mantine-Text-root">${el}</p></button><button aria-label="Menu"></button><ul><li>Condition Found: <span>${f}</span></li><li>Condition Score: <span>${sc}</span></li><li>Stress Score: <span>${st}</span></li></ul></div>`;
+	const pg = (cards) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window;
+		w.document.body.innerHTML = `<div class="mantine-Paper-root"><p class="mantine-Text-root">Pump 0102</p>${cards.join('')}</div>`; return w; };
+	check('premise - one Mounting/Support 1/2/3', runJs(premise, pg([card('Mounting/Support', 1, 2, 3), card('Pump Body', 1, 2, 3)])), true);
+	check('MUST FAIL: premise - its scores changed', runJs(premise, pg([card('Mounting/Support', 1, 2, 4)])), false);
+	check('MUST FAIL: premise - two Mounting/Support cards', runJs(premise, pg([card('Mounting/Support', 1, 2, 3), card('Mounting/Support', 1, 2, 3)])), false);
+}
+
+/* ===========================================================================================
+ * MOB.536 / MOB.537 - AV header: job status menu items; `Tag ID: {tagNumber ?? 'None'}` and its button.
+ * ========================================================================================= */
+{
+	const F6 = 'MOB.536_AssetVerify_Job_Status_Menu.json', F7 = 'MOB.537_AssetVerify_Header_Tag.json';
+	const menuExact = bodyOf(F6, 'MENU: exactly IN PROGRESS');
+	const restoreOpen = bodyOf(F6, 'RESTORE: if the job still reads canceled');
+	const none = bodyOf(F7, '`Tag ID: None`');
+	const base = bodyOf(F7, '`Tag ID: 0000` — Tank 0000');
+	const openEdit = bodyOf(F7, 'Open the Tag ID edit button');
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-verify/x' }).window; w.document.body.innerHTML = html; return w; };
+	// Mantine 8 MenuItem: itemSection + itemLabel inside the item - so a loose selector triple-counts
+	const items = (xs) => `<div class="mantine-Menu-dropdown">${xs.map(x => `<button class="mantine-Menu-item"><div class="mantine-Menu-itemSection"><svg></svg></div><div class="mantine-Menu-itemLabel">${x}</div></button>`).join('')}</div>`;
+	const header = (tag) => `<div class="mantine-Group-root"><p class="mantine-Text-root"><strong>Tag ID: </strong>${tag}</p><button type="button" class="edit"><svg data-icon="pen-to-square"></svg></button></div>`
+		+ `<div class="mantine-Group-root"><p class="mantine-Text-root"><strong>Desc: </strong>x</p><button type="button" class="desc"></button></div>`;
+	const job = (canceled) => `<div class="mantine-Flex-root"><div class="mantine-Indicator-root dot"></div><h3 class="mantine-Title-root">DATADOG MOBILE JOB</h3></div>` + (canceled ? '<div>This verification job has been canceled.</div>' : '');
+	console.log('\nMOB.536 / MOB.537 - the AV header');
+	check('menu - exactly COMPLETED + CANCELED', runJs(menuExact, pg(items(['Mark as COMPLETED', 'Mark as CANCELED']))), true);
+	check('MUST FAIL: menu - READY offered too', runJs(menuExact, pg(items(['Mark as READY', 'Mark as COMPLETED', 'Mark as CANCELED']))), false);
+	check('MUST FAIL: menu - the current status offered (IN PROGRESS)', runJs(menuExact, pg(items(['Mark as IN PROGRESS', 'Mark as CANCELED']))), false);
+	{
+		const w = pg(job(false)); let n = 0; w.document.querySelector('.dot').addEventListener('click', () => n++);
+		check('restore - not canceled: the menu is NOT opened', runJs(restoreOpen, w) && n === 0, true);
+	}
+	{
+		const w = pg(job(true)); let n = 0; w.document.querySelector('.dot').addEventListener('click', () => n++);
+		check('restore - canceled: the status dot is clicked', runJs(restoreOpen, w) && n === 1, true);
+	}
+	check('tag - None branch', runJs(none, pg(header('None'))), true);
+	check('MUST FAIL: tag - None expected, a tag present', runJs(none, pg(header('0000'))), false);
+	check('tag - 0000', runJs(base, pg(header('0000'))), true);
+	check('MUST FAIL: tag - the leftover marker', runJs(base, pg(header('DD-TAG-EDIT'))), false);
+	{
+		const w = pg(header('0000')); let hit = null; w.document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { hit = b.className; }));
+		check('open edit - the Tag ID group\'s button, not the Desc one', runJs(openEdit, w) && hit === 'edit', true);
+	}
+	// the page's General Info form renders its OWN #tagNumber behind the modal (run 1: two matches)
+	const closedEdit = bodyOf(F7, 'The edit form closed');
+	const gi = '<form id="mobile-genInfo"><input id="tagNumber" value="0000"></form>';
+	check('edit closed - modal gone, General Info #tagNumber still on the page', runJs(closedEdit, pg(gi)), true);
+	check('MUST FAIL: edit closed - the modal still holds its #tagNumber',
+		runJs(closedEdit, pg(gi + '<div class="mantine-Modal-content"><input id="tagNumber" value="DD-TAG-EDIT"></div>')), false);
+}
+
+/* ===========================================================================================
+ * MOB.951 / MOB.952 - phone width: the mobile form branch; the crew shortcut hidden by design.
+ * ========================================================================================= */
+{
+	const branch = bodyOf('MOB.951_Phone_Form_Branch.json', 'THE MOBILE FORM BRANCH');
+	const sentinel = bodyOf('MOB.952_Phone_Header_And_List.json', 'BY DESIGN: the header crew shortcut');
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x/form/y' }).window; w.document.body.innerHTML = html; return w; };
+	console.log('\nMOB.951 / MOB.952 - phone width');
+	check('branch - #senor-work-form, no desktop panel', runJs(branch, pg('<form id="senor-work-form"></form>')), true);
+	check('MUST FAIL: branch - the DESKTOP form (tablet)', runJs(branch, pg('<div id="apm-dv-tabpanel"></div>')), false);
+	check('MUST FAIL: branch - both (impossible, but must not pass)', runJs(branch, pg('<form id="senor-work-form"></form><div id="apm-dv-tabpanel"></div>')), false);
+	check('by design - .mobile-crew present and display:none', runJs(sentinel, pg('<style>.mobile-crew{display:none}</style><div class="mobile-crew">Admin</div>')), true);
+	check('MUST FAIL: by design - shown (the design changed)', runJs(sentinel, pg('<div class="mobile-crew">Admin</div>')), false);
+	check('MUST FAIL: by design - absent altogether', runJs(sentinel, pg('<div></div>')), false);
+	// jsdom has no layout: give every element a phone-sized on-screen rect, so only the SELECTOR is on trial
+	const search = bodyOf('MOB.952_Phone_Header_And_List.json', "search control is ON SCREEN");
+	const laid = (html) => { const w = pg(html); w.innerWidth = 320; w.innerHeight = 550;
+		w.Element.prototype.getBoundingClientRect = () => ({ left: 10, right: 220, top: 330, bottom: 366, width: 210, height: 36 }); return w; };
+	check('search - the list\'s own SearchInput (Find Workstage(s))', runJs(search, laid('<input placeholder="Find Workstage(s)">')), true);
+	check('MUST FAIL: search - only a type=search input (run 1\'s guess)', runJs(search, laid('<input type="search">')), false);
+	{
+		const w = laid('<input placeholder="Find Workstage(s)">');
+		w.Element.prototype.getBoundingClientRect = () => ({ left: 10, right: 400, top: 330, bottom: 366, width: 390, height: 36 });
+		check('MUST FAIL: search - wider than the phone (off screen right)', runJs(search, w), false);
+	}
+}
+
+/* ===========================================================================================
+ * MOB.358 offline leg - AssetGeolocate.tsx:272 OfflineGeolocateForm vs the online AssetLocationForm.
+ * ========================================================================================= */
+{
+	const off = bodyOf('MOB.358_Work_Asset_Geolocate.json', 'OFFLINE FORM:');
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window; w.document.body.innerHTML = html; return w; };
+	const OFF = '<form id="mobile-geolocate-offline"><p>Location details are unavailable offline.</p><p>Submit to update latitude/longitude.</p></form>';
+	console.log('\nMOB.358 offline leg - the offline geolocate form, not the online one');
+	check('offline form rendered', runJs(off, pg(OFF)), true);
+	check('MUST FAIL: the ONLINE form (override unseen)', runJs(off, pg('<form id="mobile-geolocate"><input name="address"></form>')), false);
+	check('MUST FAIL: the message outside the offline form', runJs(off, pg('<p>Location details are unavailable offline.</p><p>Submit to update latitude/longitude.</p>')), false);
+}
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS');
 process.exit(failures ? 1 : 0);

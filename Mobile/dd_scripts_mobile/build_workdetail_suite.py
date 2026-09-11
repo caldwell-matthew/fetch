@@ -63,6 +63,11 @@ CHILDREN = ["MOB.347_Work_Asset_Status",
             # unsaved - the same read-only discipline as MOB.351/356.
             "MOB.389_Work_Lookup_Case_Insensitive",
             "MOB.911_Offline_Geolocate",
+            # Read-only: opens `Edit Item` on the fixture's permanent condition, closes unsaved.
+            "MOB.387_Work_Condition_Edit_Prefill",
+            # Overrides `navigator.onLine` and removes it (`delete` + reload) before it ends;
+            # before MOB.358 so the stubbing child stays last.
+            "MOB.912_Offline_Connection_Screens",
             # LAST on purpose: MOB.358 stubs `fetch` and `getCurrentPosition`. Both are
             # removed with alwaysExecute, but a leaked fetch stub is the worst thing to
             # hand a later child, so it runs when there are none after it.

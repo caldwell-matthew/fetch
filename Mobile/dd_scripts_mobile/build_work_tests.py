@@ -33,7 +33,7 @@ was actively clicking the wrong button.
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
 STAGE_URL = f"{BASE}/work/{FIXTURE_ID}"
@@ -51,23 +51,45 @@ TAGS = ["Mobile", "env:dev", "Work Order", "CRUD"]
 # optional steps invite. If a template requiring status notes is ever used here, re-add
 # these steps but scope the Submit locator to the modal instead of the whole page.
 
-# Ends on Ready so the fixture is always left in a known state.
-STATUS_SEQUENCE = ["Pending", "In Progress", "On Hold", "Complete", "Canceled", "Ready"]
+# ALL EIGHT assignable statuses (WORK_STATUS_OPTIONS minus Superseded/Created, which the menu
+# hides). Requested and Not Completed were offered and never clicked until 2026-09-11.
+STATUS_SEQUENCE = ["Pending", "In Progress", "On Hold", "Requested", "Not Completed", "Complete",
+                   "Canceled"]
+# The badge is read EXACTLY: `contains "Complete"` would also pass on "Not Completed".
+BADGE_JS = ("const span = [...document.querySelectorAll('span')]\n"
+            "  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\n"
+            "const badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\n"
+            "const now = badge ? (badge.textContent || '').trim() : null;\n")
 
 
-def transition(label, first=False):
-    """One status change: open menu -> pick status -> settle -> verify."""
+def transition(label, first=False, always=False):
+    """One status change: open menu -> pick status -> settle -> read the badge EXACTLY.
+    ⚠️ The badge is set OPTIMISTICALLY (`StatusMenuIcon` modifies the cache before the mutation),
+    so this proves the menu did what was asked, not that the server has it - see the reloads."""
     return [
         step("click", f"Open the status menu (-> {label})",
-             {"element": xpath_el(STAGE_URL, STATUS_TARGET)}),
+             {"element": xpath_el(STAGE_URL, STATUS_TARGET)}, always=always, timeout=30),
         step("click", f"Mark as {label}" + (" (optional: may already be set)" if first else ""),
              {"element": xpath_el(STAGE_URL,
-                 f'//button[starts-with(normalize-space(.), "Mark as {label}")]')},
-             optional=first),
-        step("wait", f"Wait for the status mutation (-> {label})", {"value": 3}),
-        step("assertElementContent", f'Test status is now "{label}"',
-             {"check": "contains", "value": label,
-              "element": xpath_el(STAGE_URL, STATUS_TARGET)}),
+                 f'//button[normalize-space(.)="Mark as {label}"]')},
+             optional=first, always=always, timeout=30),
+        step("wait", f"Wait for the status mutation (-> {label})", {"value": 3}, always=always),
+        jsassert(f'Test the status badge now reads exactly "{label}"',
+                 BADGE_JS + f"return now === '{label}';", always=always, timeout=30),
+    ]
+
+
+def reload_reads(label, always=False):
+    """A RELOAD, then the badge: the server's status, not the optimistic one."""
+    return [
+        go(STAGE_URL, "the fixture work order (reload: the server's status)") if not always else
+        step("goToUrl", "Navigate to the fixture work order (reload: the server's status)",
+             {"value": STAGE_URL}, always=True),
+        step("wait", "Let the detail view begin rendering", {"value": 2}, always=always),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
+             always=always, timeout=30),
+        jsassert(f'⭐ SERVER: after a reload the badge reads "{label}"',
+                 BADGE_JS + f"return now === '{label}';", always=always, timeout=30),
     ]
 
 
@@ -92,14 +114,21 @@ steps = [go(STAGE_URL, "the fixture work order"),
          step("assertPageContains", "Test work order detail rendered", {"value": "Status:"})]
 for i, label in enumerate(STATUS_SEQUENCE):
     steps += transition(label, first=(i == 0))
+    if label == "Not Completed":
+        steps += reload_reads("Not Completed")       # one mid-walk server proof
+# 🛑 RESTORE - `always`. Until 2026-09-11 the final "-> Ready" was an ordinary step, so a failure
+# anywhere left the fixture on whatever status it had reached: it sat `Canceled` for two days and
+# dropped out of the crew's list (a stage outside In Progress/On Hold/Ready is not fetched).
+steps += transition("Ready", always=True) + reload_reads("Ready", always=True)
 
 write(test(
     "MOB.320_Work_Status_Update",
-    "`MOB.320` Walk the fixture work order through all six statuses, ending on Ready.\n"
-    f"- Sequence: {' -> '.join(STATUS_SEQUENCE)}\n"
-    "- Always ENDS ON Ready, so the fixture is left in a known state and the test is\n"
-    "  repeatable. Each transition is verified against the status badge, not just the\n"
-    "  toast, so a silently-failed mutation is caught.\n"
+    "`MOB.320` Walk the fixture work order through ALL EIGHT assignable statuses, ending on Ready.\n"
+    f"- Sequence: {' -> '.join(STATUS_SEQUENCE)} -> Ready\n"
+    "- Each transition reads the badge EXACTLY (`Complete` ≠ `Not Completed`). The badge is\n"
+    "  optimistic, so a RELOAD proves the server twice: after Not Completed, and at Ready.\n"
+    "- The final -> Ready and its reload are `always`: a failure mid-walk can no longer strand\n"
+    "  the fixture (it once sat Canceled and fell out of the crew's list).\n"
     "- Only the first leg is optional: StatusMenuIcon hides the CURRENT status, so\n"
     "  'Mark as Pending' is absent if a previous run left it there. Its assertion still\n"
     "  holds in that case.\n"

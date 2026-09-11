@@ -41,8 +41,9 @@ WHY THE FIXTURE GUARD IS CRITICAL RATHER THAN AN EXCLUSIVE-OR
   but here the panel IS the subject: a run that saw the empty state has proven nothing about
   `WorkLookupDetails`. So the row guard is critical and NAMED as a fixture guard, so that a
   failure reads as "Pump 0102 lost its work history" and not as a broken locator.
-  `Pump 0102` is attached to the fixture work order (see Fixtures), and MOB.390/391 add
-  records against it every run, so history exists.
+  `Pump 0102` is attached to the fixture work order (see Fixtures), so that work order is in
+  its history. (MOB.390/391 add a condition and a failure against it and delete them again -
+  they leave nothing behind.)
 
 READ-ONLY. Opens a modal, reads four tabs, closes it. Nothing is typed, nothing is submitted.
   ⚠️ It does NOT touch the `StructuredQuery` filter bar that `AssetWorkHistoryList` renders

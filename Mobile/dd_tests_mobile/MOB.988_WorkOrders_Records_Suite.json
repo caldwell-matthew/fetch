@@ -1,14 +1,17 @@
 {
-    "test_name": "MOB.999_Verify_Scratch",
+    "test_name": "MOB.988_WorkOrders_Records_Suite",
     "details": {
-        "name": "MOB.999_Verify_Scratch",
+        "name": "MOB.988_WorkOrders_Records_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "**SCRATCH \u2014 re-pointed by `verify.py`. Currently: `MOB.537_AssetVerify_Header_Tag`.**\n- Exists to verify ONE leaf for **2 billed runs** instead of the 6-15 its real suite\n  costs, because **a subtest is billed as its own run**.\n- \u26a0\ufe0f **A fresh session is not the same as a suite session.** In its real suite a child\n  inherits what earlier children left behind (a sort, a filter, a switched crew). A test\n  can pass here and fail there \u2014 **run the real suite once before believing it.**\n- \ud83d\uded1 Wired into nothing. Its contents are disposable and change constantly; do not cite\n  it as coverage anywhere.",
+        "message": "`MOB.988` Records added to fixture EYRpYJ9QYdQ1JFF10JtB0Q: the four ELMO charges, a\ncondition score and a failure.\n- MUTATES dev: each charge is permanent residue (mobile has no delete for them).\n- MOB.390/391 are SELF-CLEANING: each adds a key the fixture does not hold, proves it after\n  a reload, and deletes it again (owner-sanctioned, trap 2).\n- Split from `MOB.991` at its execution ceiling (Appendix F).\n- Logs in once, then chains its subtests in the same browser session.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog; run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
-            "scratch"
+            "E2E",
+            "Suite",
+            "Work Order",
+            "CRUD"
         ],
         "locations": [
             "gcp:us-west2"
@@ -328,10 +331,75 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "MOB.537_AssetVerify_Header_Tag",
+                "name": "MOB.350_Work_Add_Equipment_Charge",
                 "noScreenshot": false,
                 "params": {
-                    "subtestPublicId": "by9-8vj-n26",
+                    "subtestPublicId": "nas-bgk-epn",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.360_Work_Add_Labor_Charge",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "3q4-v28-rkq",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.370_Work_Add_Material_Charge",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "prf-35c-576",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.380_Work_Add_Other_Charge",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "d98-sa6-mdc",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.390_Work_Add_Condition",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "a3i-kqa-tjt",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.391_Work_Add_Failure",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "8xt-y47-5ze",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

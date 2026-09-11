@@ -72,25 +72,54 @@ write(suite(
 
 write(suite(
     "MOB.991_WorkOrders_Suite",
-    "`MOB.991` Work order CRUD against fixture EYRpYJ9QYdQ1JFF10JtB0Q.\n"
+    "`MOB.991` Work order lifecycle against fixture EYRpYJ9QYdQ1JFF10JtB0Q: create, read, the\n"
+    "status walk, the detail tabs, list search/sort, a note, the add-form picker.\n"
     "- MUTATES dev: MOB.300 creates a work order that cannot be deleted from mobile\n"
-    "  (tagged 'DD SYNTHETIC MOBILE'), and MOB.320 changes the fixture's status before\n"
-    "  reverting it to Ready. Consider running this on demand rather than on a schedule.",
-    # COMPLETE, IN RUN ORDER. This list had drifted badly: it named only the first three
-    # while ten more (the detail tabs and every charge type) had been appended to the JSON by
-    # build_work_ui_tests / build_charge_tests / build_tab_tests. One DD_FORCE rebuild here
-    # would have silently deleted all ten and the suite would still have reported PASS -
-    # trap 12, and by far the largest instance of it found so far.
+    "  (tagged 'DD SYNTHETIC MOBILE'), MOB.392 adds a note, and MOB.320 changes the fixture's\n"
+    "  status before reverting it to Ready.\n"
+    "- The record adds (charges, condition, failure) are `MOB.988` — split out because this\n"
+    "  suite hit Datadog's execution ceiling (Appendix F).",
+    # COMPLETE, IN RUN ORDER. This list once named only the first three while ten more had
+    # been appended to the JSON by other generators; one DD_FORCE rebuild would have silently
+    # deleted them (trap 12). Diff it against the JSON before any rebuild.
+    # SPLIT 2026-09-11: the six record-adding children moved to MOB.988 below. MOB.991 had
+    # run 474s with 13 children and a 70-step addition hit the ceiling at 1071s; MOB.390/391's
+    # reload proofs and deletes (bugs §40) added ~70s more, and every write test is due a
+    # reload proof (checklist 🟢 #25). Two suites give both room.
     ["MOB.300_Work_Create", "MOB.310_Work_Read", "MOB.320_Work_Status_Update",
      "MOB.330_Work_Detail_Tabs", "MOB.340_Work_Search_Sort",
-     "MOB.350_Work_Add_Equipment_Charge", "MOB.360_Work_Add_Labor_Charge",
-     "MOB.370_Work_Add_Material_Charge", "MOB.380_Work_Add_Other_Charge",
-     "MOB.390_Work_Add_Condition", "MOB.391_Work_Add_Failure",
      "MOB.392_Work_Add_Note", "MOB.393_Work_Add_Form"],
-    # MOB.134_Work_Form_Fill is deliberately NOT wired here (2026-08-18). It has never
-    # passed - see its build script's header - and one unproven child was masking 13
-    # working ones. Re-add it here and run wire_suite.py once it goes green standalone.
+    # MOB.134_Work_Form_Fill is archived (dd_tests_mobile/_archive/) - never wire it here.
     ["Mobile", "env:dev", "E2E", "Suite", "Work Order", "CRUD"],
+))
+
+write(suite(
+    "MOB.988_WorkOrders_Records_Suite",
+    "`MOB.988` Records added to fixture EYRpYJ9QYdQ1JFF10JtB0Q: the four ELMO charges, a\n"
+    "condition score and a failure.\n"
+    "- MUTATES dev: each charge is permanent residue (mobile has no delete for them).\n"
+    "- MOB.390/391 are SELF-CLEANING: each adds a key the fixture does not hold, proves it after\n"
+    "  a reload, and deletes it again (owner-sanctioned, trap 2).\n"
+    "- Split from `MOB.991` at its execution ceiling (Appendix F).",
+    ["MOB.350_Work_Add_Equipment_Charge", "MOB.360_Work_Add_Labor_Charge",
+     "MOB.370_Work_Add_Material_Charge", "MOB.380_Work_Add_Other_Charge",
+     "MOB.390_Work_Add_Condition", "MOB.391_Work_Add_Failure"],
+    ["Mobile", "env:dev", "E2E", "Suite", "Work Order", "CRUD"],
+))
+
+write(suite(
+    "MOB.983_AssetVerify_Extra_Suite",
+    "`MOB.983` The AV fixture job's header, status menu and the offline queue — all three\n"
+    "SELF-RESTORING on job Z0EVwQcdJZhMURcBFkp0E0, each proved after a reload.\n"
+    "- Separate from `MOB.993` (14 children) to keep that suite's runtime down.\n"
+    "- Order is load-bearing: MOB.537 (the Tank's tag, round trip) · MOB.913 (a verify held\n"
+    "  offline, drained, unverified; its restore reloads) · MOB.536 LAST — a failed status\n"
+    "  restore can drop the job from the crew's list, so nothing may run after it.\n"
+    "  `reset_av_fixture.py --apply` is the 0-run fallback.",
+    ["MOB.537_AssetVerify_Header_Tag",
+     "MOB.913_Offline_Transaction_Queue",
+     "MOB.536_AssetVerify_Job_Status_Menu"],
+    ["Mobile", "env:dev", "Asset Verification", "suite", "self-restoring"],
 ))
 
 write(suite(
@@ -111,6 +140,6 @@ write(suite(
     ["Mobile", "env:dev", "E2E", "Suite", "Menu"],
 ))
 
-print("wrote MOB.990_Smoke_Suite, MOB.991_WorkOrders_Suite, MOB.992_Menu_Suite")
+print("wrote MOB.990_Smoke_Suite, MOB.991_WorkOrders_Suite, MOB.988, MOB.983, MOB.992_Menu_Suite")
 # MOB.999_Mobile_Suite was deleted from Datadog on 2026-08-07; the "pending your call"
 # message that used to print here outlived the decision by five days.

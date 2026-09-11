@@ -129,6 +129,8 @@ write(test(
                              # swaps a prototype method and restores it `always`, asserted
                              "MOB.750_AssetLookup_Tag_Lookup_Menu",
                              "MOB.720_AssetLookup_Event_Readings",
+                             # the Readings tab's EMPTY state, beside the populated one
+                             "MOB.721_AssetLookup_Readings_Empty",
                              "MOB.740_AssetLookup_Work_History",
                              "MOB.741_Work_Attachments_Docs",
                              "MOB.735_AssetLookup_View_In_Map",

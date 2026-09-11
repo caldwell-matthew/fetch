@@ -23,17 +23,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import TESTS  # noqa: E402
 
 DEVICES = ["chrome.tablet"]
+# THE ONE EXCEPTION: the phone-width suite and its children (`_Phone_` in the name) run on
+# `chrome.mobile_small` ONLY - still ONE device per test, READ-ONLY, in their own suite that is
+# run on its own. That keeps this script's rule: never two concurrent sessions on the fixture.
+PHONE = ["chrome.mobile_small"]
 
 changed = 0
 for path in sorted(glob.glob(os.path.join(TESTS, "*.json"))):
     doc = json.load(open(path))
     opts = doc["details"].setdefault("options", {})
-    if opts.get("device_ids") == DEVICES:
+    want = PHONE if "_Phone_" in os.path.basename(path) else DEVICES
+    if opts.get("device_ids") == want:
         continue
-    print(f"{os.path.basename(path):42} {opts.get('device_ids')} -> {DEVICES}")
-    opts["device_ids"] = list(DEVICES)
+    print(f"{os.path.basename(path):42} {opts.get('device_ids')} -> {want}")
+    opts["device_ids"] = list(want)
     with open(path, "w") as f:
         f.write(json.dumps(doc, indent=4))
     changed += 1
 
-print(f"\n{changed} test(s) updated" if changed else "\nall tests already tablet-only")
+print(f"\n{changed} test(s) updated" if changed else "\nall tests on their device (tablet; phone for _Phone_)")

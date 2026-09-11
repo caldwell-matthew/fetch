@@ -205,6 +205,8 @@ write(test(
                    for c in ["MOB.620_Collector_Photo_Picker",
                              "MOB.621_Collector_Photo_Add",
                              "MOB.622_Collector_Photo_Carousel",
+                             # the capture menus; a photo in the reducer, the form discarded
+                             "MOB.626_Collector_Capture_Options",
                              "MOB.600_Collector_Create_Asset",
                              "MOB.610_Collector_Search",
                              "MOB.623_Collector_Saved_Photo_Menu",
