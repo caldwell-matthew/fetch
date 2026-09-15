@@ -4,7 +4,7 @@
         "name": "MOB.951_Phone_Form_Branch",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.951` **PHONE WIDTH \u2014 a work form renders its MOBILE branch.**\n- `FormDetails.tsx` picks the desktop form at `screen.availWidth >= 750` (MOB.355, on tablet)\n  and `#senor-work-form` below it \u2014 where `MobileSignatureField` lives. No tablet run can\n  reach it (trap 1).\n- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. \ud83d\uded1 READ-ONLY.",
+        "message": "`MOB.951` **PHONE WIDTH \u2014 a work form renders its MOBILE branch.**\n- `FormDetails.tsx` picks the desktop form at `screen.availWidth >= 750` (MOB.355, on tablet)\n  and `#senor-work-form` below it \u2014 where `MobileSignatureField` lives. No tablet run can\n  reach it (trap 1).\n- Its image field renders the mobile `Upload Photo` button \u2014 asserted exactly when the server says the\n  opened form has an image field (never clicked: it opens a file dialog).\n- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. \ud83d\uded1 READ-ONLY.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -199,6 +199,32 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "GATE: the Forms tab is SELECTED \u2014 re-clicked every 3s until it is (a click on the settling tab strip can miss)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tab = [...document.querySelectorAll('[role=\"tab\"]')].find(t => (t.textContent || '').trim() === 'Forms');\nif (!tab) return false;\nif (tab.getAttribute('aria-selected') === 'true') return true;\nconst at = Number(sessionStorage.getItem('__dd951_forms_click') || 0);\nif (Date.now() - at > 3000) { sessionStorage.setItem('__dd951_forms_click', String(Date.now())); tab.click(); }\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the gate's sessionStorage key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd951_forms_click');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Wait for the forms list",
                 "noScreenshot": false,
                 "params": {
@@ -291,6 +317,32 @@
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 IMAGE FIELD (server): the form has an image field exactly when an `Upload Photo` button renders (`Forms/ImageInput.tsx:145`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd951_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => {\n  const formId = (location.pathname.match(/\\/form\\/([^/?#]+)/) || [])[1];\n  const form = ((data.workStage && data.workStage.forms) || []).find(f => f && f.id === formId);\n  if (!form || !document.getElementById('senor-work-form')) return false;\n  const hasImage = (form.fields || []).some(x => x && x.__typename === 'WorkStageFormDetail'\n    && x.attributeTypeId && x.attributeTypeId.type === 'image');\n  const button = [...document.querySelectorAll('button')]\n    .some(b => (b.textContent || '').replace(/\\s+/g, ' ').trim() === 'Upload Photo');\n  return hasImage === button;\n})()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { forms { id fields { __typename ... on WorkStageFormDetail { id attributeTypeId { type } } } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd951_server', '__dd951_server:inflight', '__dd951_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             }
         ]
     }

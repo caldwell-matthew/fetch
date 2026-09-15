@@ -26,9 +26,9 @@ WHY THESE WERE UNREACHABLE, AND WHAT CHANGED
   The online half is what makes the offline half mean something: the same screen, same session,
   one property different.
 
-NOT HERE: the offline geolocate form (`AssetGeolocate.tsx:272`) only renders after the geolocate
-button returns a position - a Mapbox + geolocation chain that `MOB.358` stubs and has never run
-meaningfully. It stays a checklist row.
+NOT HERE: the offline geolocate form (`AssetGeolocate.tsx:272`) renders only after the geolocate
+button returns a position, so it needs `MOB.358`'s geolocation + Mapbox stubs - `MOB.358`'s offline
+leg covers it.
 
 🛑 READ-ONLY. Nothing is submitted; Asset Lookup's query is `skip: !navigator.onLine`. RESTORE is
 `always` per leg: delete the getter, reload (a reload discards any JS override), and a hard gate

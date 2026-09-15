@@ -17,6 +17,8 @@ WHAT IT RUNS (testing_checklist.md 🔧 MAINTENANCE)
   work      the fixture work order is `Ready` and in the crew's mobile list      (check 10)
   mob302    `Bypass Valve 0001` holds 0 attachments; its work order holds its one photo
   mob39x    no leftover MOB.390/391 key on the fixture (a failed delete stops their premise)
+  docs      the docs agree with themselves and the JSON: no finished row in ▶ OPEN WORK, no `#N`
+            citing a checklist row that does not exist, the Rows line and test counts current (check 11)
 
   🛑 `drift` WRITES into dd_tests_mobile/ while it runs (and restores it). It is SKIPPED if a
   verify.py / dd_tools run is in flight - running it then could corrupt the run's scratch.
@@ -165,9 +167,58 @@ def check_mob39x():
                 f"(want 0 — clean from desktop) · original condition: {len(orig_c)} (want 1)")
 
 
+def check_docs():
+    """The drift the docs keep re-growing: a finished row left in OPEN WORK, a citation of a deleted
+    checklist row, and counts that no longer match the boxes or the test JSON."""
+    import re
+    mobile = os.path.join(HERE, "..")
+    ck = open(os.path.join(mobile, "testing_checklist.md")).read()
+    problems = []
+    section = ck[ck.index("## ▶ OPEN WORK"):ck.index("### ⚪ NOT A GAP")]
+    rows = set()
+    for line in section.splitlines():
+        m = re.match(r"\| \*\*#?(\d+)\b", line)
+        if not m:
+            continue
+        rows.add(int(m.group(1)))
+        state = line.rstrip().rstrip("|").rsplit("|", 1)[-1].strip()
+        if re.search(r"✅|\bbuilt\b|\bfixed\b|\bdone\b", state):
+            problems.append(f"OPEN WORK #{m.group(1)} reads as finished ({state[:50]!r}) - delete the row")
+    docs = glob.glob(os.path.join(mobile, "*.md")) + [os.path.join(TESTS, "_archive", "README.md")]
+    for path in docs:
+        for m in re.finditer(r"(?<![\w§/])#(\d{2})(?:\s*[–-]\s*#?(\d{2}))?\b", open(path).read()):
+            for n in range(int(m.group(1)), int(m.group(2) or m.group(1)) + 1):
+                if n not in rows:
+                    problems.append(f"{os.path.basename(path)} cites checklist #{n}, which is not a row")
+    for path in glob.glob(os.path.join(HERE, "build_*.py")):
+        for i, line in enumerate(open(path).read().split("\n"), 1):
+            for m in re.finditer(r"checklist[^#\n]{0,4}#(\d{2})", line):
+                if int(m.group(1)) not in rows:
+                    problems.append(f"{os.path.basename(path)}:{i} cites checklist #{m.group(1)}, which is not a row")
+    boxes = {k: len(re.findall(rf"^- \[{re.escape(k)}\]", ck, re.M)) for k in ("x", "~", " ", "-")}
+    want = (f"| Rows | {boxes['x']} `[x]` · {boxes['~']} `[~]` · {boxes[' ']} `[ ]` · {boxes['-']} `[-]` "
+            f"— {sum(boxes.values())} rows.")
+    if want not in ck:
+        problems.append(f"the checklist's Rows line should read: {want}")
+    tests = {os.path.basename(p)[:-5]: json.load(open(p)) for p in glob.glob(os.path.join(TESTS, "*.json"))}
+    tests = {n: d for n, d in tests.items() if "Verify_Scratch" not in n}
+    suites = [n for n, d in tests.items() if any(st["type"] == "playSubTest" for st in steps_of(d))]
+    steps = sum(len(steps_of(d)) for d in tests.values())
+    slots = sum(1 for n in suites for st in steps_of(tests[n]) if st["type"] == "playSubTest")
+    leaves = len(tests) - len(suites)
+    for name, want in (("testing_checklist.md", f"**{leaves} leaf tests · {len(suites)} suites** · {steps} steps · {slots} subtest slots"),
+                       ("coverage.md", f"**{leaves} leaf tests · {len(suites)} suites · {steps} steps · {slots} subtest slots**")):
+        if want not in open(os.path.join(mobile, name)).read():
+            problems.append(f"{name}'s test counts should read: {want}")
+    problems = list(dict.fromkeys(problems))
+    if not problems:
+        return True, f"OPEN WORK rows {sorted(rows)} all open · citations resolve · counts current"
+    return False, f"{len(problems)} problem(s): " + "; ".join(problems[:4])
+
+
 CHECKS = {"wiring": check_wiring, "sync": check_sync, "drift": check_drift, "literals": check_literals,
           "bench": check_bench, "av": check_av, "work": check_work, "mob302": check_mob302,
-          "mob39x": check_mob39x}
+          "mob39x": check_mob39x, "docs": check_docs}
 
 
 def main(names):

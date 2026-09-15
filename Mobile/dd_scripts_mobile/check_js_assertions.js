@@ -71,14 +71,20 @@ function bodyOf(testFile, nameFragment) {
 
 // `sessionStorage` is passed alongside `document` because MOB.623 carries a value between steps
 // through it; jsdom only provides one when the window has a URL.
+// MutationObserver callbacks are microtasks, so the recorder cases (MOB.626/914) are async: each is
+// pushed onto `pending`, awaits `flushObservers()` after a DOM change, and the tally waits for them all.
+const pending = [];
+const flushObservers = () => new Promise(r => setTimeout(r, 0));
+
 const runJs = (code, win) => {
 	let ss;
 	try { ss = win.sessionStorage; } catch (e) { ss = undefined; }   // opaque-origin windows throw
 	// `window` too: MOB.123 carries ids between steps on it (MOB.470's `__ddSW` proved that
 	// survives from one Datadog step to the next while the page does not navigate).
-	// `location` and `navigator` for MOB.912 (route, `navigator.onLine`); `getComputedStyle` for MOB.952.
-	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator', 'getComputedStyle',
-		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator, win.getComputedStyle.bind(win));
+	// `location` and `navigator` for MOB.912 (route, `navigator.onLine`); `getComputedStyle` for MOB.952;
+	// `MutationObserver` for the MOB.626/914 flash recorders.
+	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator', 'getComputedStyle', 'MutationObserver',
+		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator, win.getComputedStyle.bind(win), win.MutationObserver);
 };
 
 /* ===========================================================================================
@@ -396,7 +402,7 @@ const SEG_LABELS = ['Quantity Adjustment', 'Stock Item', 'Photos', 'Docs'];
 
 function materialPage({ modal = true, values = ['1', '2', '3', '4'], labels = SEG_LABELS, checked = '1',
 	addPhoto = false, addFile = false, carousel = false, table = false, rowButton = false,
-	modalImg = false } = {}) {
+	modalImg = false, roPhotos = null, roFiles = null, split = false, roButton = null } = {}) {
 	const dom = new JSDOM('<body></body>', { url: 'http://localhost/' });
 	const doc = dom.window.document;
 	const tr = doc.createElement('tr');
@@ -415,12 +421,22 @@ function materialPage({ modal = true, values = ['1', '2', '3', '4'], labels = SE
 		// relabel: MOB.351's helper writes the value as the label text
 		[...sc.querySelectorAll('label span')].forEach((sp, i) => { sp.textContent = labels[i] ?? sp.textContent; });
 		m.appendChild(sc);
+		if (split) { const h = doc.createElement('p'); h.textContent = 'Storeroom Item'; m.appendChild(h); }
 		const btn = (label) => { const b = doc.createElement('button'); b.textContent = label; m.appendChild(b); };
 		if (addPhoto) btn('Add Photo');
 		if (addFile) btn('Add File');
 		if (carousel) { const c = doc.createElement('div'); c.className = 'mantine-Carousel-root'; m.appendChild(c); }
 		if (table) m.appendChild(doc.createElement('table'));
 		if (modalImg) { const img = doc.createElement('img'); img.className = 'file-image'; m.appendChild(img); }
+		// cd91ece65d: below the storeroom item's own panel, `ReadOnlyAttachments` shows the material
+		// item's — a readOnly carousel (no add buttons) or `No photos`; a table or `No documents`
+		const heading = (txt) => { const p = doc.createElement('p'); p.textContent = txt; m.appendChild(p); };
+		if (roPhotos !== null || roFiles !== null) heading('Material Item (read only)');
+		if (roPhotos === 'carousel') { const c = doc.createElement('div'); c.className = 'mantine-Carousel-root'; m.appendChild(c); }
+		if (roPhotos === 'empty') heading('No photos');
+		if (roFiles === 'table') m.appendChild(doc.createElement('table'));
+		if (roFiles === 'empty') heading('No documents');
+		if (roButton) { const b = doc.createElement('button'); b.textContent = roButton; m.appendChild(b); }
 		doc.body.appendChild(m);
 	}
 	return dom.window;
@@ -442,6 +458,23 @@ check('MUST FAIL: docs with a carousel', runJs(M865.docs, materialPage({ addFile
 check('MUST FAIL: docs with Add Photo', runJs(M865.docs, materialPage({ addFile: true, addPhoto: true })), false);
 check('cross: photos body on the docs DOM', runJs(M865.photos, materialPage({ addFile: true })), false);
 check('cross: docs body on the photos DOM', runJs(M865.docs, materialPage({ addPhoto: true, carousel: true })), false);
+// the served build (cd91ece65d): storeroom panel + the material item's read-only section
+check('photos (new DOM) - storeroom Add Photo + read-only material carousel', runJs(M865.photos, materialPage({ addPhoto: true, roPhotos: 'carousel' })), true);
+check('photos (new DOM) - storeroom Add Photo + `No photos`', runJs(M865.photos, materialPage({ addPhoto: true, roPhotos: 'empty' })), true);
+check('docs (new DOM) - storeroom Add File + read-only material table', runJs(M865.docs, materialPage({ addFile: true, roFiles: 'table' })), true);
+check('docs (new DOM) - storeroom Add File + `No documents`', runJs(M865.docs, materialPage({ addFile: true, roFiles: 'empty' })), true);
+// the SPLIT checks (checklist #39): Storeroom Item first, then a read-only tail with no add buttons
+{
+	const photosSplit = bodyOf(MOB865, 'PHOTOS SPLIT:'), docsSplit = bodyOf(MOB865, 'DOCS SPLIT:');
+	check('split - photos: storeroom, then a read-only carousel', runJs(photosSplit, materialPage({ split: true, addPhoto: true, roPhotos: 'carousel' })), true);
+	check('split - photos: storeroom, then `No photos`', runJs(photosSplit, materialPage({ split: true, addPhoto: true, roPhotos: 'empty' })), true);
+	check('MUST FAIL: split - the read-only half offers Add Photo', runJs(photosSplit, materialPage({ split: true, addPhoto: true, roPhotos: 'carousel', roButton: 'Add Photo' })), false);
+	check('MUST FAIL: split - the OLD single panel (no headings)', runJs(photosSplit, materialPage({ addPhoto: true, carousel: true })), false);
+	check('MUST FAIL: split - read-only heading but neither a carousel nor `No photos`', runJs(photosSplit, materialPage({ split: true, addPhoto: true, roFiles: 'table' })), false);
+	check('split - docs: storeroom, then a read-only table', runJs(docsSplit, materialPage({ split: true, addFile: true, roFiles: 'table' })), true);
+	check('split - docs: storeroom, then `No documents`', runJs(docsSplit, materialPage({ split: true, addFile: true, roFiles: 'empty' })), true);
+	check('MUST FAIL: split - the read-only half offers Add File', runJs(docsSplit, materialPage({ split: true, addFile: true, roFiles: 'table', roButton: 'Add File' })), false);
+}
 // avatar XOR - branch recorded by the click step, judged by the next
 {
 	const none = materialPage({ modal: false });
@@ -1991,9 +2024,9 @@ const M913 = {
 	held: bodyOf(MOB913, 'HELD (leg 1): still 1 pending'),
 	listed: bodyOf(MOB913, 'LISTED: `Pending Transactions` shows the held VERIFY_ASSET'),
 	drained: bodyOf(MOB913, 'DRAINED: the pending indicator is gone'),
-	restore: bodyOf(MOB913, 'RESTORE (leg 1): unverify the first asset'),
+	restore: bodyOf(MOB913, 'RESTORE (leg 1): unverify every checked asset'),
 };
-function page913({ count = 0, wifi = 'wifi', modal = null, checked = false } = {}) {
+function page913({ count = 0, wifi = 'wifi', modal = null, checked = false, checked2 = false } = {}) {
 	const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0' }).window;
 	const doc = w.document;
 	const status = count ? `<div class="mantine-Indicator-root"><div class="mantine-Indicator-indicator">${count}</div><svg data-icon="upload"></svg></div>` : '';
@@ -2001,15 +2034,34 @@ function page913({ count = 0, wifi = 'wifi', modal = null, checked = false } = {
 	doc.body.innerHTML = `<header><svg data-icon="${wifi}"></svg>${status}</header>`
 		+ '<div class="mantine-Indicator-root"><div class="mantine-Indicator-indicator">7</div><span>job status</span></div>'
 		+ (modal ? `<section class="mantine-Modal-content">${modal}</section>` : '')
-		+ `<input type="checkbox" ${checked ? 'checked' : ''}><input type="checkbox">`;
-	w.__clicks = 0;
-	doc.querySelector('input[type="checkbox"]').addEventListener('click', () => { w.__clicks++; });
+		+ `<input type="checkbox" ${checked ? 'checked' : ''}><input type="checkbox" ${checked2 ? 'checked' : ''}>`;
+	w.__clicks = 0; w.__clicked = [];
+	doc.querySelectorAll('input[type="checkbox"]').forEach((b, i) => b.addEventListener('click', () => { w.__clicks++; w.__clicked.push(i); }));
 	return w;
 }
 const LIST = (op, vars) => `<h3>Pending Transactions</h3><div class="mantine-Paper-root"><p>abc123</p><p>${op}</p><p>${JSON.stringify(vars, null, 2)}</p></div>`;
 console.log('\nMOB.913_Offline_Transaction_Queue - held, counted, listed, drained; restore unverifies only when checked');
 check('baseline - nothing pending, wifi icon', runJs(M913.baseline, page913()), true);
 check('MUST FAIL: baseline - 1 pending already', runJs(M913.baseline, page913({ count: 1 })), false);
+{
+	// the list kept open through the drain, refreshed: `Pending Transactions` Box > Group > Title, Refresh
+	const emptied = bodyOf(MOB913, 'EMPTIED: the still-open list, refreshed');
+	const listPage = (rows, extra = '') => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-verify/Z0EVwQcdJZhMURcBFkp0E0' }).window;
+		w.document.body.innerHTML = `<div class="box"><div class="group"><h3>Pending Transactions</h3><div><button>Refresh</button></div></div><div class="scroll">${rows}</div></div>${extra}`;
+		w.__refresh = 0; w.document.querySelector('button').addEventListener('click', () => w.__refresh++);
+		return w;
+	};
+	check('913 emptied - the refreshed list reads No logs found.', runJs(emptied, listPage('<p>No logs found.</p>')), true);
+	{
+		const w = listPage(LIST('VERIFY_ASSET', { id: 'x', verified: true }).replace('<h3>Pending Transactions</h3>', ''));
+		const first = runJs(emptied, w), second = runJs(emptied, w);
+		check('MUST FAIL: 913 emptied - the stale list still shows VERIFY_ASSET: refreshes once, not twice within 2s', !first && !second && w.__refresh === 1, true);
+	}
+	check('MUST FAIL: 913 emptied - no list is open', runJs(emptied, listPage('').window ? listPage('') : (() => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/x' }).window; return w; })()), false);
+	check('MUST FAIL: 913 emptied - `No logs found.` outside the list while it still shows VERIFY_ASSET',
+		runJs(emptied, listPage('<p>VERIFY_ASSET</p>', '<p>No logs found.</p>')), false);
+}
 check('MUST FAIL: baseline - the header never rendered (no wifi icon)', runJs(M913.baseline, page913({ wifi: 'none' })), false);
 check('queued - the upload indicator reads 1', runJs(M913.queued, page913({ count: 1, wifi: 'wifi-slash' })), true);
 check('MUST FAIL: queued - nothing pending (the mutation went straight out)', runJs(M913.queued, page913({ wifi: 'wifi-slash' })), false);
@@ -2028,6 +2080,15 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
 {
 	const w = page913({ checked: false });
 	check('restore - not checked: NOT clicked (never verifies by accident)', runJs(M913.restore, w) && w.__clicks === 0, true);
+}
+{
+	// the case the old restore missed: the verify landed on another row, the first box is clear
+	const w = page913({ checked: false, checked2: true });
+	check('restore - only the SECOND box is checked: that one is clicked', runJs(M913.restore, w) && w.__clicks === 1 && w.__clicked[0] === 1, true);
+}
+{
+	const w = page913({ checked: true, checked2: true });
+	check('restore - both checked: both clicked, once each', runJs(M913.restore, w) && w.__clicks === 2, true);
 }
 
 /* ===========================================================================================
@@ -2126,7 +2187,7 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
 {
 	const F = 'MOB.320_Work_Status_Update.json';
 	const isComplete = bodyOf(F, 'Test the status badge now reads exactly "Complete"');
-	const serverReady = bodyOf(F, 'SERVER: after a reload the badge reads "Ready"');
+	const serverReady = bodyOf(F, 'After a reload the badge reads "Ready"');
 	const pg = (label) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window;
 		// no <p> wrapper: the HTML PARSER closes a <p> at a <div>, moving the badge out of the span - React never does
 		w.document.body.innerHTML = `<div><span>Status: <div class="mantine-Badge-root"><span class="mantine-Badge-label">${label}</span></div></span></div>`; return w; };
@@ -2215,6 +2276,31 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
 	check('branch - #senor-work-form, no desktop panel', runJs(branch, pg('<form id="senor-work-form"></form>')), true);
 	check('MUST FAIL: branch - the DESKTOP form (tablet)', runJs(branch, pg('<div id="apm-dv-tabpanel"></div>')), false);
 	check('MUST FAIL: branch - both (impossible, but must not pass)', runJs(branch, pg('<form id="senor-work-form"></form><div id="apm-dv-tabpanel"></div>')), false);
+	{
+		const gate = bodyOf('MOB.951_Phone_Form_Branch.json', 'GATE: the Forms tab is SELECTED');
+		const tabs = (sel) => { const w = pg(`<button role="tab" aria-selected="false">General Info</button><button role="tab" aria-selected="${sel}">Forms</button>`);
+			w.__n = 0; w.document.querySelectorAll('[role="tab"]')[1].addEventListener('click', () => w.__n++); return w; };
+		{ const w = tabs('true'); check('951 gate - Forms already selected: passes without clicking', runJs(gate, w) && w.__n === 0, true); }
+		{ const w = tabs('false'); const a = runJs(gate, w), b = runJs(gate, w);
+		  check('MUST FAIL: 951 gate - Forms not selected: re-clicks once, not again within 3s', !a && !b && w.__n === 1, true); }
+		check('MUST FAIL: 951 gate - no Forms tab at all', runJs(gate, pg('<button role="tab" aria-selected="true">General Info</button>')), false);
+
+		const img = bodyOf('MOB.951_Phone_Form_Branch.json', 'IMAGE FIELD (server)');
+		const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return fail(e); } }, catch() { return this; } });
+		const fail = (e) => ({ then() { return this; }, catch(f) { f(e); return sync(undefined); } });
+		const srv = (html, types, formId = 'y') => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x/form/y' }).window;
+			w.document.body.innerHTML = html;
+			const answer = { data: { workStage: { forms: [{ id: formId, fields: types.map(t => ({ __typename: 'WorkStageFormDetail', attributeTypeId: { type: t } })) }] } } };
+			w.fetch = () => sync({ json: () => sync(answer) }); return w; };
+		const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+		const FORM = '<form id="senor-work-form"></form>', BTN = '<button><span>Upload Photo</span></button>';
+		check('951 image - an image field and its Upload Photo button', twice(img, srv(FORM + BTN, ['string', 'image'])), true);
+		check('951 image - no image field and no button', twice(img, srv(FORM, ['string', 'integer'])), true);
+		check('MUST FAIL: 951 image - an image field but no Upload Photo button', twice(img, srv(FORM, ['image'])), false);
+		check('MUST FAIL: 951 image - an Upload Photo button with no image field', twice(img, srv(FORM + BTN, ['string'])), false);
+		check('MUST FAIL: 951 image - the mobile form is not on the page', twice(img, srv(BTN, ['image'])), false);
+		check('MUST FAIL: 951 image - the form on screen is not in the answer', twice(img, srv(FORM + BTN, ['image'], 'OTHER')), false);
+	}
 	check('by design - .mobile-crew present and display:none', runJs(sentinel, pg('<style>.mobile-crew{display:none}</style><div class="mobile-crew">Admin</div>')), true);
 	check('MUST FAIL: by design - shown (the design changed)', runJs(sentinel, pg('<div class="mobile-crew">Admin</div>')), false);
 	check('MUST FAIL: by design - absent altogether', runJs(sentinel, pg('<div></div>')), false);
@@ -2244,5 +2330,319 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
 	check('MUST FAIL: the message outside the offline form', runJs(off, pg('<p>Location details are unavailable offline.</p><p>Submit to update latitude/longitude.</p>')), false);
 }
 
-console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS');
-process.exit(failures ? 1 : 0);
+/* ===========================================================================================
+ * dd_tools.server_assert - a GENUINE server read (trap 6): POST /graphql, stored, judged, re-asked.
+ * Used where a reload would read the app's own persisted cache write: MOB.320's status,
+ * MOB.390/391's add and post-delete.
+ * ========================================================================================= */
+{
+	const S320 = bodyOf('MOB.320_Work_Status_Update.json', 'SERVER: `workStage.status` is `NotCompleted`');
+	const S390gone = bodyOf('MOB.390_Work_Add_Condition.json', "SERVER: the run's condition is gone");
+	const S391one = bodyOf('MOB.391_Work_Add_Failure.json', 'SERVER: exactly ONE failure');
+	// a synchronous thenable, so one runJs call can fire the request AND store its answer
+	const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return fail(e); } }, catch() { return this; } });
+	const fail = (e) => ({ then() { return this; }, catch(f) { f(e); return sync(undefined); } });
+	const page = (answer) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window;
+		w.__calls = [];
+		w.fetch = (url, opts) => {
+			w.__calls.push({ url, opts });
+			const a = typeof answer === 'function' ? answer(w.__calls.length) : answer;
+			return a instanceof Error ? fail(a) : sync({ json: () => sync(a) });
+		};
+		return w;
+	};
+	const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+	console.log('\nserver_assert - a /graphql read, not the persisted cache (MOB.320, MOB.390, MOB.391)');
+	{
+		const w = page({ data: { workStage: { status: 'NotCompleted' } } });
+		const first = runJs(S320, w), second = runJs(S320, w);
+		check('status - the first poll asks, a later poll judges', first === false && second === true, true);
+		const c = w.__calls[0], body = JSON.parse(c.opts.body);
+		check('request - POST /graphql, same-origin cookie, apollo-require-preflight, the fixture id',
+			c.url === '/graphql' && c.opts.method === 'POST' && c.opts.credentials === 'same-origin'
+			&& c.opts.headers['apollo-require-preflight'] === '*' && /workStage/.test(body.query)
+			&& body.variables.id === 'EYRpYJ9QYdQ1JFF10JtB0Q', true);
+	}
+	{
+		const w = page({ data: { workStage: { status: 'Complete' } } });
+		check('MUST FAIL: status - the server says Complete', twice(S320, w), false);
+		check('MUST FAIL: status - the UI LABEL "Not Completed" (local run 1: the server holds the enum)', twice(S320, page({ data: { workStage: { status: 'Not Completed' } } })), false);
+		check('a wrong answer is not re-asked within 2s (no request storm)', w.__calls.length === 1, true);
+	}
+	{
+		const w = page((n) => ({ data: { workStage: { status: n === 1 ? 'OnHold' : 'NotCompleted' } } }));
+		twice(S320, w);                                     // stale answer judged false and discarded
+		w.sessionStorage.setItem('__dd320_status:at', '0'); // ...2s later
+		runJs(S320, w);                                     // asks again
+		check('stale answer - discarded, re-asked, then true', runJs(S320, w) === true && w.__calls.length === 2, true);
+	}
+	check('MUST FAIL: GraphQL errors', twice(S320, page({ errors: [{ message: 'nope' }] })), false);
+	check('MUST FAIL: workStage null (a throw counts as false)', twice(S320, page({ data: { workStage: null } })), false);
+	check('MUST FAIL: the request itself fails', twice(S320, page(new Error('offline'))), false);
+	const cond = (...names) => ({ data: { workStage: { condition: names.map(n => ({ inspectionElementId: { name: n } })) } } });
+	const withOrig = (w, n) => { w.sessionStorage.setItem('__dd39x_origCount', String(n)); return w; };
+	check('cleaned - Pump Body gone from the server, Mounting/Support still there', twice(S390gone, withOrig(page(cond('Mounting/Support')), 1)), true);
+	check('MUST FAIL: cleaned - the server still holds Pump Body (the cache said gone)', twice(S390gone, withOrig(page(cond('Mounting/Support', 'Pump Body')), 1)), false);
+	check('MUST FAIL: cleaned - the original went with it', twice(S390gone, withOrig(page(cond()), 1)), false);
+	const fl = (...reps) => ({ data: { workStage: { failures: reps.map(r => ({ failureTypeId: { name: 'BELT (R-L1)' }, repairTypeId: { name: r }, rootCauseTypeId: { name: 'TIME' } })) } } });
+	check('failure add - exactly one ADJUST beside the MISSED original', twice(S391one, page(fl('MISSED', 'ADJUST'))), true);
+	check('MUST FAIL: failure add - none (the server refused it, bugs §40)', twice(S391one, page(fl('MISSED'))), false);
+	check('MUST FAIL: failure add - two', twice(S391one, page(fl('MISSED', 'ADJUST', 'ADJUST'))), false);
+}
+
+/* ===========================================================================================
+ * build_tab_tests.submit_and_assert - the ARMED gate: click Submit only once SubmitButton is
+ * `type="submit"` (`type={isValid ? 'submit' : 'button'}`, trap 8). MOB.390 Datadog run 1 clicked
+ * the inert `type="button"` with every field filled; its retry passed.
+ * ========================================================================================= */
+{
+	const armedC = bodyOf('MOB.390_Work_Add_Condition.json', 'Submit is ARMED');
+	const armedF = bodyOf('MOB.391_Work_Add_Failure.json', 'Submit is ARMED');
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window; w.document.body.innerHTML = html; return w; };
+	console.log('\nsubmit_and_assert - the ARMED gate (MOB.390, MOB.391)');
+	check('condition - armed: type="submit"', runJs(armedC, pg('<form id="work-condition-form"></form><button form="work-condition-form" type="submit">Submit</button>')), true);
+	check('MUST FAIL: condition - still validating: type="button" (the race run 1 lost)', runJs(armedC, pg('<button form="work-condition-form" type="button">Submit</button>')), false);
+	check('MUST FAIL: condition - no submit button at all', runJs(armedC, pg('<div></div>')), false);
+	check('MUST FAIL: condition - only the FAILURE form is armed', runJs(armedC, pg('<button form="work-failure-form" type="submit">Submit</button>')), false);
+	check('failure - armed: type="submit"', runJs(armedF, pg('<button form="work-failure-form" type="submit">Submit</button>')), true);
+	check('MUST FAIL: failure - type="button"', runJs(armedF, pg('<button form="work-failure-form" type="button">Submit</button>')), false);
+}
+
+/* ===========================================================================================
+ * Checklist #38/#40 - offline messages (MOB.626 collector leg, MOB.914 Asset Lookup) and the
+ * condition/failure card labels (MOB.387). The GUARDED clicks must refuse online: there the
+ * click opens a native file dialog (Add Asset Photo) or posts to the AI route (Get Description).
+ * ========================================================================================= */
+{
+	const MSG = 'This feature requires an internet connection.';
+	const pg = (html, url = 'https://dev.mentorapm.com/apm-mobile/asset-collector') => { const w = new JSDOM('<body></body>', { url }).window; w.document.body.innerHTML = html; return w; };
+	const OFF = '<svg data-icon="wifi-slash"></svg>', ON = '<svg data-icon="wifi"></svg>';
+	console.log('\nChecklist #38/#40 - offline messages and card labels (MOB.626, MOB.914, MOB.387)');
+
+	// MOB.626 - the guarded `Add Asset Photo` click and its popover
+	const guard626 = bodyOf('MOB.626_Collector_Capture_Options.json', 'GUARD + record + click `Add Asset Photo`');
+	const pop626 = bodyOf('MOB.626_Collector_Capture_Options.json', 'OFFLINE: `Add Asset Photo` rendered OFFLINE_FEATURE_MESSAGE');
+	const menu626 = '<div class="mantine-Menu-dropdown"><div>Hello, what would you like to do?</div><button class="mantine-Menu-item">Add Asset Photo</button></div>';
+	{
+		const w = pg(OFF + menu626); let clicked = 0; w.document.querySelector('.mantine-Menu-item').addEventListener('click', () => clicked++);
+		check('626 guard - offline: Add Asset Photo is clicked once', runJs(guard626, w) && clicked === 1, true);
+	}
+	{
+		const w = pg(ON + menu626); let clicked = 0; w.document.querySelector('.mantine-Menu-item').addEventListener('click', () => clicked++);
+		check('MUST FAIL: 626 guard - ONLINE: refuses, and never clicks (a file dialog would open)', !runJs(guard626, w) && clicked === 0, true);
+	}
+	// the recorder: the guard installs an observer, the popover FLASHES in and out, the check reads the record
+	pending.push((async () => {
+		const w = pg(OFF + menu626); runJs(guard626, w);
+		const p = w.document.createElement('div'); p.className = 'mantine-Popover-dropdown'; p.textContent = MSG; w.document.body.appendChild(p);
+		await flushObservers(); p.remove(); await flushObservers();
+		check('626 recorder - a message that flashed in and out is recorded', runJs(pop626, w), true);
+	})());
+	pending.push((async () => {
+		const w = pg(OFF + menu626); runJs(guard626, w);
+		const p = w.document.createElement('div'); p.textContent = 'Choose a file'; w.document.body.appendChild(p); await flushObservers();
+		check('MUST FAIL: 626 recorder - the DOM changed but the message never rendered', runJs(pop626, w), false);
+	})());
+
+	// MOB.914 - Asset Lookup: the named row's ACTIVE panel, and the guarded Get Description
+	const W = 'https://dev.mentorapm.com/apm-mobile/asset-lookup';
+	const row = (name, tabLabel, panel, other = '') => `<div class="mantine-Accordion-item"><div class="mantine-Accordion-control">⚡ ${name}</div>`
+		+ `<div role="tab" aria-selected="true" aria-controls="p-${tabLabel.replace(' ', '')}">${tabLabel}</div>`
+		+ `<div role="tabpanel" id="p-${tabLabel.replace(' ', '')}">${panel}</div></div>${other}`;
+	const readings = bodyOf('MOB.914_Offline_Feature_Messages.json', 'READINGS OFFLINE:');
+	const history = bodyOf('MOB.914_Offline_Feature_Messages.json', 'WORK HISTORY OFFLINE:');
+	check('914 readings - the tab is the offline message', runJs(readings, pg(row('Building 0000', 'Readings', `<p>${MSG}</p>`), W)), true);
+	check('MUST FAIL: 914 readings - the ONLINE empty state (the event never landed)', runJs(readings, pg(row('Building 0000', 'Readings', '<p>No readings recorded for this asset.</p>'), W)), false);
+	check('MUST FAIL: 914 readings - the message sits in ANOTHER row', runJs(readings, pg(row('Building 0000', 'Readings', '<p>No readings recorded for this asset.</p>', row('Tank 0000', 'Readings', `<p>${MSG}</p>`)), W)), false);
+	check('914 work history - the tab is the offline message', runJs(history, pg(row('Building 0000', 'Work History', `<p>${MSG}</p>`), W)), true);
+	check('MUST FAIL: 914 work history - the active tab is Readings, not Work History', runJs(history, pg(row('Building 0000', 'Readings', `<p>${MSG}</p>`), W)), false);
+	const guard914 = bodyOf('MOB.914_Offline_Feature_Messages.json', 'GUARD + record + click `Get Description`');
+	const seen914 = bodyOf('MOB.914_Offline_Feature_Messages.json', 'GET DESCRIPTION OFFLINE:');
+	const menu914 = (styled) => `<div class="mantine-Menu-dropdown"><button class="mantine-Menu-item"${styled ? ' style="opacity: 0.6; cursor: default;"' : ''}>Get Description</button><button class="mantine-Menu-item">Delete Photo</button></div>`;
+	{
+		const w = pg(OFF + menu914(true), W); const clicks = []; w.document.querySelectorAll('.mantine-Menu-item').forEach(b => b.addEventListener('click', () => clicks.push(b.textContent)));
+		check('914 guard - offline + styled disabled: ONLY Get Description is clicked', runJs(guard914, w) && clicks.length === 1 && clicks[0] === 'Get Description', true);
+	}
+	{
+		const w = pg(ON + menu914(true), W); let n = 0; w.document.querySelectorAll('.mantine-Menu-item').forEach(b => b.addEventListener('click', () => n++));
+		check('MUST FAIL: 914 guard - ONLINE: refuses and clicks nothing (the AI route)', !runJs(guard914, w) && n === 0, true);
+	}
+	{
+		const w = pg(OFF + menu914(false), W); let n = 0; w.document.querySelectorAll('.mantine-Menu-item').forEach(b => b.addEventListener('click', () => n++));
+		check('MUST FAIL: 914 guard - offline icon but the item is NOT disabled: refuses', !runJs(guard914, w) && n === 0, true);
+	}
+	pending.push((async () => {
+		const w = pg(OFF + menu914(true), W); runJs(guard914, w);
+		const p = w.document.createElement('div'); p.textContent = MSG; w.document.body.appendChild(p);
+		await flushObservers(); p.remove(); await flushObservers();
+		check('914 recorder - the flashed message is recorded', runJs(seen914, w), true);
+	})());
+	pending.push((async () => {
+		const w = pg(OFF + menu914(true), W); runJs(guard914, w);
+		const p = w.document.createElement('div'); p.textContent = 'Describing…'; w.document.body.appendChild(p); await flushObservers();
+		check('MUST FAIL: 914 recorder - the DOM changed but the message never rendered', runJs(seen914, w), false);
+	})());
+
+	// MOB.914 - Tank 0000's Readings: `Add reading types` offline opens the message popover (EventReadings.tsx:300)
+	const rGuard = bodyOf('MOB.914_Offline_Feature_Messages.json', "FIXTURE GUARD: Tank 0000's Readings panel");
+	const rClick = bodyOf('MOB.914_Offline_Feature_Messages.json', 'GUARD + click `Add reading types`');
+	const rPop = bodyOf('MOB.914_Offline_Feature_Messages.json', 'ADD READING TYPES OFFLINE');
+	const withReadings = '<p>0 of 2 recorded recently (in 24h)</p><button aria-label="Add reading types"></button>';
+	check('914 readings guard - readings listed and the add-types button', runJs(rGuard, pg(row('Tank 0000', 'Readings', withReadings), W)), true);
+	check('MUST FAIL: 914 readings guard - no readings: the tab is the offline message (`:240`)', runJs(rGuard, pg(row('Tank 0000', 'Readings', `<p>${MSG}</p>`), W)), false);
+	check('MUST FAIL: 914 readings guard - readings but no button (no `canCreate`)', runJs(rGuard, pg(row('Tank 0000', 'Readings', '<p>0 of 2 recorded recently (in 24h)</p>'), W)), false);
+	check('MUST FAIL: 914 readings guard - the button sits in ANOTHER row', runJs(rGuard, pg(row('Tank 0000', 'Readings', '<p>0 of 2 recorded recently (in 24h)</p>', row('Building 0000', 'Readings', withReadings)), W)), false);
+	{
+		const w = pg(OFF + row('Tank 0000', 'Readings', withReadings), W); let n = 0; w.document.querySelector('[aria-label="Add reading types"]').addEventListener('click', () => n++);
+		check('914 add-types click - offline: clicked once', runJs(rClick, w) && n === 1, true);
+	}
+	{
+		const w = pg(ON + row('Tank 0000', 'Readings', withReadings), W); let n = 0; w.document.querySelector('[aria-label="Add reading types"]').addEventListener('click', () => n++);
+		check('MUST FAIL: 914 add-types click - ONLINE: refuses and never clicks (the modal would open)', !runJs(rClick, w) && n === 0, true);
+	}
+	check('914 add-types popover - the message in a Popover dropdown, no modal', runJs(rPop, pg(`<div class="mantine-Popover-dropdown"><p>${MSG}</p></div>`, W)), true);
+	check('MUST FAIL: 914 add-types popover - the AddReadingTypes modal opened too', runJs(rPop, pg(`<div class="mantine-Popover-dropdown"><p>${MSG}</p></div><div class="mantine-Modal-content"></div>`, W)), false);
+	check('MUST FAIL: 914 add-types popover - the message outside any popover', runJs(rPop, pg(`<p>${MSG}</p>`, W)), false);
+	check('MUST FAIL: 914 add-types popover - only a substring class (the arrow), not the dropdown token', runJs(rPop, pg(`<div class="mantine-Popover-dropdownArrow"><p>${MSG}</p></div>`, W)), false);
+
+	// MOB.387 - the condition card's always-rendered rows, and the failure table's Discovery Code
+	const labels387 = bodyOf('MOB.387_Work_Condition_Edit_Prefill.json', 'also lists `Stress Decision Score:`');
+	const disc387 = bodyOf('MOB.387_Work_Condition_Edit_Prefill.json', '`Discovery Code` row');
+	const card = (extra) => `<div class="mantine-Paper-root"><p class="mantine-Text-root">Pump 0102</p><div class="mantine-Paper-root"><button><p>Mounting/Support</p></button>`
+		+ `<ul><li>Condition Found: <span>1</span></li><li>Condition Score: <span>2</span></li><li>Stress Score: <span>3</span></li>${extra}</ul></div></div>`;
+	const W2 = 'https://dev.mentorapm.com/apm-mobile/work/x';
+	check('387 labels - Stress Decision Score: and Notes: rows', runJs(labels387, pg(card('<li>Stress Decision Score: <span></span></li><li><div>Notes: <p></p></div></li>'), W2)), true);
+	check('MUST FAIL: 387 labels - Notes: missing', runJs(labels387, pg(card('<li>Stress Decision Score: <span></span></li>'), W2)), false);
+	check('387 discovery - a Discovery Code cell in the visible panel', runJs(disc387, pg('<div role="tabpanel"><table><tr><td>Discovery Code</td><td></td></tr></table></div>', W2)), true);
+	check('MUST FAIL: 387 discovery - only in a HIDDEN panel', runJs(disc387, pg('<div role="tabpanel" style="display: none;"><table><tr><td>Discovery Code</td></tr></table></div>', W2)), false);
+}
+
+/* ===========================================================================================
+ * MOB.386 - Edit Item SAVE (checklist #36): the gear on exactly one card, the picked score held,
+ * Submit armed (`isValid && isDirty` -> type="submit"). The server reads are server_assert's cases.
+ * ========================================================================================= */
+if (!fs.existsSync(path.join(TESTS, 'MOB.386_Work_Condition_Edit_Save.json'))) {
+	console.log('\nMOB.386 - SKIPPED: MOB.386_Work_Condition_Edit_Save.json is not built yet');
+} else {
+	const F386 = 'MOB.386_Work_Condition_Edit_Save.json';
+	const gear = bodyOf(F386, 'card\'s gear');
+	const holds4 = bodyOf(F386, 'The form now holds Condition Left 4');
+	const armed = bodyOf(F386, 'Submit is ARMED');
+	const W = 'https://dev.mentorapm.com/apm-mobile/work/x';
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: W }).window; w.document.body.innerHTML = html; return w; };
+	const card = (el) => `<div class="mantine-Paper-root"><button>${el}</button><button aria-label="Menu"></button><ul><li>Condition Found: <span>1</span></li></ul></div>`;
+	const asset = (...cards) => `<div class="mantine-Paper-root"><p class="mantine-Text-root">Pump 0102</p>${cards.join('')}</div>`;
+	console.log('\nMOB.386 - Edit Item save: gear, held score, armed Submit');
+	{
+		const w = pg(asset(card('Mounting/Support'), card('Pump Body'))); let hit = 0;
+		w.document.querySelectorAll('[aria-label="Menu"]')[0].addEventListener('click', () => hit++);
+		w.document.querySelectorAll('[aria-label="Menu"]')[1].addEventListener('click', () => hit += 10);
+		check('386 gear - clicks ONLY the Mounting/Support card\'s gear', runJs(gear, w) && hit === 1, true);
+	}
+	check('MUST FAIL: 386 gear - two Mounting/Support cards (never guess which)', runJs(gear, pg(asset(card('Mounting/Support'), card('Mounting/Support')))), false);
+	check('386 holds - #conditionScore reads 4', runJs(holds4, pg('<input id="conditionScore" value="4">')), true);
+	check('MUST FAIL: 386 holds - still the prefilled 2', runJs(holds4, pg('<input id="conditionScore" value="2">')), false);
+	check('386 armed - button[form="work-condition-form"] type="submit"', runJs(armed, pg('<button form="work-condition-form" type="submit">Submit</button>')), true);
+	check('MUST FAIL: 386 armed - type="button" (not yet valid AND dirty)', runJs(armed, pg('<button form="work-condition-form" type="button">Submit</button>')), false);
+}
+
+/* ===========================================================================================
+ * MOB.134 - a work form's integer field (checklist #42). The guard tags ONLY the first visible
+ * `mantine-NumberInput-input` that the server calls this form's empty integer field; the proof and
+ * the restore read that field back. jsdom has no layout, so `offsetParent` is modelled per input.
+ * ========================================================================================= */
+{
+	const G134 = bodyOf('MOB.134_Work_Form_Fill.json', 'FIELD GUARD (server)');
+	const H134 = bodyOf('MOB.134_Work_Form_Fill.json', 'SERVER: the field holds 134');
+	const R134 = bodyOf('MOB.134_Work_Form_Fill.json', 'RESTORED (server): the field holds no value');
+	const B134 = bodyOf('MOB.134_Work_Form_Fill.json', "The input holds '134' BEFORE the blur");
+	const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return fail(e); } }, catch() { return this; } });
+	const fail = (e) => ({ then() { return this; }, catch(f) { f(e); return sync(undefined); } });
+	const page = (html, answer) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q/form/F1' }).window;
+		w.document.body.innerHTML = html;
+		w.document.querySelectorAll('input').forEach(e => Object.defineProperty(e, 'offsetParent', { get: () => (e.hasAttribute('data-hidden') ? null : e.parentNode) }));
+		w.fetch = () => sync({ json: () => sync(answer) });
+		return w;
+	};
+	const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+	const num = (id, hidden) => `<input id="${id}" class="mantine-NumberInput-input"${hidden ? ' data-hidden' : ''}>`;
+	const panel = (...inputs) => `<div id="apm-dv-tabpanel">${inputs.join('')}</div>`;
+	const form = (fields, id = 'F1') => ({ data: { workStage: { forms: [{ id, fields }] } } });
+	const fd = (id, type, value = null) => ({ __typename: 'WorkStageFormDetail', id, value, attributeTypeId: { type } });
+	const stored = (w) => { w.sessionStorage.setItem('__dd134_field', 'I1'); return w; };
+	console.log('\nMOB.134 - the work form field fill: guard, proof, restore');
+	{
+		const w = page(panel(num('I1')), form([fd('I1', 'integer')]));
+		check('134 guard - the first number input is an empty integer field: tagged, id stored',
+			twice(G134, w) && w.document.getElementById('I1').getAttribute('data-dd134') === 'target' && w.sessionStorage.getItem('__dd134_field') === 'I1', true);
+	}
+	check("134 guard - it holds this test's own 134 (a run died before its restore): accepted", twice(G134, page(panel(num('I1')), form([fd('I1', 'integer', '134')]))), true);
+	check('134 guard - a hidden number input first, the visible integer field after it', twice(G134, page(panel(num('X', true), num('I1')), form([fd('I1', 'integer')]))), true);
+	{
+		const w = page(panel(num('F9')), form([fd('F9', 'float')]));
+		check('MUST FAIL: 134 guard - the first number input is a FLOAT field, and nothing is tagged', !twice(G134, w) && !w.document.querySelector('[data-dd134]'), true);
+	}
+	{
+		const w = page(panel(num('I1')), form([fd('I1', 'integer', '7')]));
+		check('MUST FAIL: 134 guard - the integer field holds a REAL value, and nothing is tagged', !twice(G134, w) && !w.document.querySelector('[data-dd134]'), true);
+	}
+	check('MUST FAIL: 134 guard - the form on screen is not in the answer', twice(G134, page(panel(num('I1')), form([fd('I1', 'integer')], 'OTHER'))), false);
+	check('MUST FAIL: 134 guard - the visible input is not a field of this form', twice(G134, page(panel(num('ZZ')), form([fd('I1', 'integer')]))), false);
+	check('MUST FAIL: 134 guard - only a substring class (the wrapper), no input token (trap 3)', twice(G134, page(panel('<input id="I1" class="mantine-NumberInput-inputWrapper">'), form([fd('I1', 'integer')]))), false);
+	check('134 proof - the server holds "134"', twice(H134, stored(page('', form([fd('I1', 'integer', '134')])))), true);
+	check('134 proof - the server holds the number 134', twice(H134, stored(page('', form([fd('I1', 'integer', 134)])))), true);
+	check('MUST FAIL: 134 proof - still empty (the blur saved nothing)', twice(H134, stored(page('', form([fd('I1', 'integer')])))), false);
+	check('MUST FAIL: 134 proof - no stored field id (the guard never tagged one)', twice(H134, page('', form([fd('I1', 'integer', '134')]))), false);
+	check('134 restored - null', twice(R134, stored(page('', form([fd('I1', 'integer')])))), true);
+	check('134 restored - empty string', twice(R134, stored(page('', form([fd('I1', 'integer', '')])))), true);
+	check('MUST FAIL: 134 restored - still 134', twice(R134, stored(page('', form([fd('I1', 'integer', '134')])))), false);
+	check('MUST FAIL: 134 restored - the field is missing from the answer', twice(R134, stored(page('', form([fd('I2', 'integer')])))), false);
+	check('134 before blur - the TAGGED input holds 134', runJs(B134, page('<input data-dd134="target" value="134">', {})), true);
+	check('MUST FAIL: 134 before blur - 134 sits in an untagged input', runJs(B134, page('<input data-dd134="x"><input value="134">', {})), false);
+	{
+		const C134 = bodyOf('MOB.134_Work_Form_Fill.json', "Clear it as React sees a user's edit");
+		const N134 = bodyOf('MOB.134_Work_Form_Fill.json', 'SAFETY NET (always)');
+		{
+			const w = page('<input data-dd134="target" value="134">', {}); let events = 0;
+			w.document.querySelector('input').addEventListener('input', () => events++);
+			check('134 clear - the tagged input is emptied and an input event fires', runJs(C134, w) && w.document.querySelector('input').value === '' && events === 1, true);
+		}
+		check('MUST FAIL: 134 clear - no tagged input', runJs(C134, page('<input value="134">', {})), false);
+		const netPage = (stored) => { const w = page('', {}); w.__posts = []; w.fetch = (u, o) => { w.__posts.push(JSON.parse(o.body)); return { then() { return this; }, catch() { return this; } }; };
+			if (stored) w.sessionStorage.setItem('__dd134_field', 'I1'); return w; };
+		{
+			const w = netPage(true); runJs(N134, w); runJs(N134, w);
+			const p = w.__posts[0] || {};
+			check('134 net - one mutation, the stored field set to null, not repeated', w.__posts.length === 1 && /updateWorkStageFormDetail/.test(p.query) && p.variables.id === 'I1' && p.variables.data.value === null, true);
+		}
+		{ const w = netPage(false); check('MUST FAIL: 134 net - nothing tagged: sends nothing', runJs(N134, w) && w.__posts.length === 0 ? false : true, false); }
+	}
+}
+
+/* ===========================================================================================
+ * MOB.399 - the Warranties tab's EMPTY state on MOB.302's work order (its asset has no warranty),
+ * scoped to the ACTIVE panel; and the banner absent there.
+ * ========================================================================================= */
+{
+	const empty = bodyOf('MOB.399_Work_Warranties.json', 'EMPTY STATE: the active Warranties panel');
+	const noBanner = bodyOf('MOB.399_Work_Warranties.json', 'BANNER: absent on a work order with no warranty');
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM' }).window; w.document.body.innerHTML = html; return w; };
+	const tabs = (active) => ['Assets', 'Warranties'].map((n, i) => `<button role="tab"${n === active ? ' data-active="true"' : ''} aria-controls="p${i}">${n}</button>`).join('');
+	const panels = (assets, warranties) => `<div role="tabpanel" id="p0">${assets}</div><div role="tabpanel" id="p1">${warranties}</div>`;
+	const EMPTY = '<h4>Bypass Valve 0001</h4><p>No Warranties Found...</p>';
+	console.log('\nMOB.399 - the Warranties empty state and the banner');
+	check('399 empty - Bypass Valve 0001 with No Warranties Found... in the active panel', runJs(empty, pg(tabs('Warranties') + panels('', EMPTY))), true);
+	check('MUST FAIL: 399 empty - warranty content renders too', runJs(empty, pg(tabs('Warranties') + panels('', EMPTY + '<p>Expiration Date</p>'))), false);
+	check('MUST FAIL: 399 empty - the ACTIVE tab is Assets', runJs(empty, pg(tabs('Assets') + panels(EMPTY, EMPTY))), false);
+	check('MUST FAIL: 399 empty - the empty text sits only in the inactive panel', runJs(empty, pg(tabs('Warranties') + panels(EMPTY, '<h4>Bypass Valve 0001</h4>'))), false);
+	check('MUST FAIL: 399 empty - another asset', runJs(empty, pg(tabs('Warranties') + panels('', '<h4>Pump 0102</h4><p>No Warranties Found...</p>'))), false);
+	check('399 banner - absent', runJs(noBanner, pg('<p>Status: READY</p>')), true);
+	check('MUST FAIL: 399 banner - present', runJs(noBanner, pg('<div role="alert">Assets Related to the Work Order are under Warranty</div>')), false);
+}
+
+Promise.all(pending).then(() => {
+	console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL PASS');
+	process.exit(failures ? 1 : 0);
+});

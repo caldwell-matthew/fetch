@@ -276,7 +276,7 @@ steps = work_cache_warm() + [
     step("assertPageLacks", "RESTORED: the modal is gone and nothing was submitted",
          {"value": "Updating Asset Location"}, always=True, timeout=30),
 
-    # ---- OFFLINE LEG - the same modal's other branch (checklist 🟢 #20) ------------------------
+    # ---- OFFLINE LEG - the same modal's other branch ------------------------
     # `AssetGeolocate.tsx:272` renders `OfflineGeolocateForm` when `!navigator.onLine` - the
     # PROPERTY, which an `offline` event does not change. A step-defined getter reaches it (the
     # probe that settled that: step JS runs in the page's world). No event is dispatched, so

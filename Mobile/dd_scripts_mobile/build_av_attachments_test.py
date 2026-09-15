@@ -1,4 +1,4 @@
-"""Build MOB.546 - the ATTACHMENTS tab on the AV full-page asset detail (checklist 🟢 #11).
+"""Build MOB.546 - the ATTACHMENTS tab on the AV full-page asset detail.
 
 WHAT SHIPPED WITHOUT A TEST
   `AssetDetails.tsx:214` renders `SegmentedAssetAttachments` for a template section of type
@@ -140,7 +140,7 @@ steps = av_job_gate(JOB_ID) + [
 
 write(test(
     "MOB.546_AssetVerify_Asset_Attachments",
-    "`MOB.546` **The `Attachments` tab on the AV full-page asset detail** — checklist 🟢 #11.\n"
+    "`MOB.546` **The `Attachments` tab on the AV full-page asset detail**.\n"
     "- READ-ONLY. Switches segments and reads. Nothing is uploaded: an upload here would land\n"
     "  and leave residue on a shared fixture, so `Add Photo`/`Add File` are asserted present\n"
     "  and never clicked.\n"

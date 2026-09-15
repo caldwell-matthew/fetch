@@ -82,6 +82,8 @@ write(test(
         # -------- the popup
         step("assertPageContains", "PROOF: the geocoder popup opened (it shows coordinates)",
              {"value": "Latitude"}),
+        step("assertPageContains", "…and its `Longitude` row (`GeocoderPopup.tsx:33`)",
+             {"value": "Longitude"}, timeout=15),
         step("assertElementPresent", 'The popup offers "Add Work"',
              {"element": xpath_el(MAP_URL, ADD_WORK)}, timeout=30),
         step("click", 'Click "Add Work"', {"element": xpath_el(MAP_URL, ADD_WORK)},

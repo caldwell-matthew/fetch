@@ -45,7 +45,7 @@ write(test(
     "- Logs in once, then chains its subtests in the same browser session.\n"
     "- MUTATES dev, but self-restores: MOB.510 verifies exactly one of the job's two\n"
     "  assets and unverifies the same one. It must never verify both - that would flip the\n"
-    "  job to COMPLETED, and the status can never be moved back (bugs_found #10).\n"
+    "  job to COMPLETED, and the status can never be moved back (bugs §10).\n"
     "- Order matters. MOB.500 asserts the resting state and doubles as a fixture guard, so\n"
     "  it runs first and fails fast if a previous run left the job dirty.\n"
     "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"

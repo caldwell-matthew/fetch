@@ -1,4 +1,4 @@
-"""Build MOB.721_AssetLookup_Readings_Empty - the Readings tab's empty state (checklist 🟢 #21).
+"""Build MOB.721_AssetLookup_Readings_Empty - the Readings tab's empty state.
 
 WHAT THE SOURCE SAYS (`AssetLookup/AssetLookupDetails/EventReadings.tsx`, origin/development)
   Outside a work order the tab's `fields` are derived ONLY from the asset's current readings

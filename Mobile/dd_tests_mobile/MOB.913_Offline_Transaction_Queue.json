@@ -4,7 +4,7 @@
         "name": "MOB.913_Offline_Transaction_Queue",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.913` **The offline queue holds, counts, drains and replays a mutation.**\n- In a browser the queue closes on window `offline` and opens on `online`\n  (`gateQueueLinkOnNetworkChange`) \u2014 the events `MOB.910` dispatches.\n- Leg 1: offline \u2192 verify an AV asset \u2192 header indicator **1**, still 1 after 6s (held) \u2192\n  `Pending Transactions` lists `VERIFY_ASSET` \u2192 online \u2192 indicator gone \u2192 **reload: the server\n  has it** \u2192 unverify.\n- Leg 2: offline \u2192 verify \u2192 held \u2192 **reload while held** \u2192 the app replays IndexedDB on\n  startup \u2192 1 of 2, nothing pending \u2192 unverify.\n- \ud83d\uded1 Self-restoring (`always`): `online`, a conditional unverify, a reload and a hard\n  0-of-2 gate. `reset_av_fixture.py --apply` is the 0-run fallback.",
+        "message": "`MOB.913` **The offline queue holds, counts, drains and replays a mutation.**\n- In a browser the queue closes on window `offline` and opens on `online`\n  (`gateQueueLinkOnNetworkChange`) \u2014 the events `MOB.910` dispatches.\n- Leg 1: offline \u2192 verify an AV asset \u2192 header indicator **1**, still 1 after 6s (held) \u2192\n  `Pending Transactions` lists `VERIFY_ASSET` \u2192 online \u2192 indicator gone, the still-open list refreshes to `No logs found.` \u2192 **reload: the server\n  has it** \u2192 unverify.\n- Leg 2: offline \u2192 verify \u2192 held \u2192 **reload while held** \u2192 the app replays IndexedDB on\n  startup \u2192 1 of 2, nothing pending \u2192 unverify.\n- \ud83d\uded1 Self-restoring (`always`): `online`, a conditional unverify, a reload and a hard\n  0-of-2 gate. `reset_av_fixture.py --apply` is the 0-run fallback.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -453,30 +453,6 @@
                 "timeout": 20
             },
             {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Close the list",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Escape"
-                },
-                "type": "pressKey"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Let it close",
-                "noScreenshot": false,
-                "params": {
-                    "value": 1
-                },
-                "type": "wait"
-            },
-            {
                 "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
@@ -526,6 +502,56 @@
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 EMPTIED: the still-open list, refreshed, reads `No logs found.` \u2014 no VERIFY_ASSET left (`PendingTransactionLogs.tsx:58`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const title = [...document.querySelectorAll('h3')].find(h => (h.textContent || '').trim() === 'Pending Transactions');\nconst box = title && title.parentElement && title.parentElement.parentElement;\nif (!box) return false;\nconst t = box.textContent || '';\nif (t.includes('No logs found.') && !t.includes('VERIFY_ASSET')) return true;\nconst at = Number(sessionStorage.getItem('__dd913_refresh') || 0);\nif (Date.now() - at > 2000) {\n  sessionStorage.setItem('__dd913_refresh', String(Date.now()));\n  const b = [...box.querySelectorAll('button')].find(x => (x.textContent || '').trim() === 'Refresh');\n  if (b) b.click();\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the refresh gate's sessionStorage key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd913_refresh');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the list",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -787,10 +813,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "RESTORE (leg 1): unverify the first asset \u2014 only if its box is checked",
+                "name": "RESTORE (leg 1): unverify every checked asset \u2014 the fixture's at rest is none",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const b = document.querySelector('input[type=\"checkbox\"]');\nif (b && b.checked) b.click();\nreturn true;"
+                    "code": "[...document.querySelectorAll('input[type=\"checkbox\"]')]\n  .filter(b => b.checked).forEach(b => b.click());\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 20
@@ -1435,10 +1461,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "RESTORE (leg 2): unverify the first asset \u2014 only if its box is checked",
+                "name": "RESTORE (leg 2): unverify every checked asset \u2014 the fixture's at rest is none",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const b = document.querySelector('input[type=\"checkbox\"]');\nif (b && b.checked) b.click();\nreturn true;"
+                    "code": "[...document.querySelectorAll('input[type=\"checkbox\"]')]\n  .filter(b => b.checked).forEach(b => b.click());\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 20

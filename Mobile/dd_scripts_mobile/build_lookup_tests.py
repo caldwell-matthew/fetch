@@ -131,6 +131,9 @@ write(test(
                              "MOB.720_AssetLookup_Event_Readings",
                              # the Readings tab's EMPTY state, beside the populated one
                              "MOB.721_AssetLookup_Readings_Empty",
+                             # offline messages (Readings, Work History, Get Description, Add reading types) -
+                             # read-only; restores `online` and reloads Asset Lookup `always`
+                             "MOB.914_Offline_Feature_Messages",
                              "MOB.740_AssetLookup_Work_History",
                              "MOB.741_Work_Attachments_Docs",
                              "MOB.735_AssetLookup_View_In_Map",

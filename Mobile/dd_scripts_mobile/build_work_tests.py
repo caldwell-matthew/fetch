@@ -11,20 +11,18 @@ all of these, each of which has already cost us a failed run:
   - "whichever work order happens to be first"
   - the crew-scoped list (workStages(crew: '<SESSION>')), which is what broke MOB.140
 
-STATUS MATRIX (MOB.320): walks the six statuses from the checklist and finishes on Ready,
-so the fixture always ends in the same known state and the test is repeatable.
+STATUS MATRIX (MOB.320): every assignable status, then back to Ready (`always`):
 
-  Pending -> In Progress -> On Hold -> Complete -> Canceled -> Ready
+  Pending -> In Progress -> On Hold -> Requested -> Not Completed -> Complete -> Canceled -> Ready
 
-  StatusMenuIcon filters the CURRENT status out of its menu, so "Mark as X" is absent
-  whenever the record already is X. Consecutive steps never repeat a status, so every
-  transition after the first is deterministic. Only the FIRST leg is optional, to cover
-  the case where a previous run left the record on Pending - and its assertion still
-  holds in that case, because the status is Pending either way.
+  StatusMenuIcon filters the CURRENT status out of its menu, so "Mark as X" is absent whenever the
+  record already is X - only the first leg is optional. The badge is read EXACTLY ("Complete" is
+  not "Not Completed").
 
-  Caveat: the "Complete" assertion uses contains(), which would also match "Not Completed".
-  We never set Not Completed, so it is unambiguous in this sequence - do not add it
-  without tightening that assertion.
+  ⚠️ SERVER PROOF IS A /graphql READ, NOT A RELOAD. StatusMenuIcon writes the status into the Apollo
+  cache with `cache.modify` BEFORE it sends UPDATE_WORK_STAGE, and that cache is persisted, so a
+  reload reads back the app's own write (test_authoring trap 6). `dd_tools.server_assert` asks the
+  server (`workStage(id).status`), at Not Completed and at the final Ready.
 
 There are no status-notes steps: the fixture template's requireStatusNotes is confirmed
 false (see the note beside STATUS_SEQUENCE). That removed 12 optional steps, one of which
@@ -33,7 +31,7 @@ was actively clicking the wrong button.
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, jsassert, server_assert  # noqa: E402
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
 STAGE_URL = f"{BASE}/work/{FIXTURE_ID}"
@@ -79,8 +77,17 @@ def transition(label, first=False, always=False):
     ]
 
 
+STATUS_Q = "query($id: ID!) { workStage(id: $id) { status } }"
+
+
+def server_status(label):
+    """The server stores the ENUM, not the menu label: `Not Completed` -> `NotCompleted` (measured over the
+    API; the UPDATE_WORK_STAGE request sends `NotCompleted`). Local run 1 compared the label and failed."""
+    return label.replace(" ", "")
+
+
 def reload_reads(label, always=False):
-    """A RELOAD, then the badge: the server's status, not the optimistic one."""
+    """A RELOAD (the persisted cache shows the status), then the SERVER's own answer over /graphql."""
     return [
         go(STAGE_URL, "the fixture work order (reload: the server's status)") if not always else
         step("goToUrl", "Navigate to the fixture work order (reload: the server's status)",
@@ -88,9 +95,11 @@ def reload_reads(label, always=False):
         step("wait", "Let the detail view begin rendering", {"value": 2}, always=always),
         step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
              always=always, timeout=30),
-        jsassert(f'⭐ SERVER: after a reload the badge reads "{label}"',
+        jsassert(f'After a reload the badge reads "{label}" (the persisted cache — not a server proof, trap 6)',
                  BADGE_JS + f"return now === '{label}';", always=always, timeout=30),
-    ]
+    ] + server_assert(f'⭐ SERVER: `workStage.status` is `{server_status(label)}` — asked over /graphql, not read from the cache',
+                      "__dd320_status", STATUS_Q, {"id": FIXTURE_ID},
+                      f"data.workStage.status === '{server_status(label)}'", always=always)
 
 
 write(test(

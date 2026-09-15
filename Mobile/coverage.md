@@ -4,20 +4,23 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**122 leaf tests · 16 suites · 3609 steps · 117 subtest slots** — counted from the test JSON.
-5 leaves are standalone by design.
+**125 leaf tests · 16 suites · 3824 steps · 120 subtest slots** — counted from the test JSON.
+5 leaves are in no suite, by design.
+Every local test matches Datadog (`preflight.py sync`).
 
 ## 🛑 Read this before quoting a coverage number
 
 **"Covered" means a browser test drives the surface and asserts something about it — not that
 the surface is safe.** Four gaps separate the two:
 
-1. **Runs are manual** — regression *capability*, not detection. *(Settled.)*
+1. **Runs are manual today** — regression *capability*, not detection, until the planned weekly
+   Datadog schedule lands (checklist #37 — late game, once no more tests are being made).
 2. **A green test is not necessarily a meaningful one.** Five have been caught proving nothing:
    `MOB.340` against an empty list, `MOB.348` counting generic buttons, `MOB.346` with a
    `|| true`, `MOB.358` flipping a checkbox by position, and `MOB.390`/`391` re-submitting a key
    the server refused, green on a closing modal (bugs §40). `audit_assertions.py` encodes the
-   first four shapes; the fifth is why optimistic writes are now proved after a reload.
+   first four shapes; the fifth is why writes are now proved on the server (`server_assert`) or, for
+   optimistic adds, after a reload.
 3. **Fixture monoculture** — a handful of work orders, two AV assets, one storeroom item.
 4. **Mostly happy paths.** Negative cases live in `MOB.343`, `356`, `389`, `530`, `720`, `347`,
    `741` and the search sweep.
@@ -36,8 +39,10 @@ nobody thought to list).
 | shape | strength | example |
 |---|---|---|
 | **Biconditional** — one fact read in two states, required to disagree | ⭐ strongest | `MOB.622` indicators at one photo and at two · `MOB.912` online control → offline screen, same session |
-| **Read-back after a reload** — assert the RECORD, not the form | ⭐ strong — *where the write is optimistic* | `MOB.390`/`391` read their key back · charges and `MOB.392` count exactly +1. ⚠️ A reload renders the **persisted Apollo cache**, not the server: sound only for writes made through `optimisticResponse` (never persisted); a write the app makes straight into the cache reads back its own value (`MOB.320`'s status, the post-delete checks — checklist #32). 🛑 a row the client just prepended is NOT one (bugs §34) |
+| **Read-back after a reload** — assert the RECORD, not the form | ⭐ strong — *where the write is optimistic* | charges and `MOB.392` count exactly +1. ⚠️ A reload renders the **persisted Apollo cache**, not the server: sound only for writes made through `optimisticResponse` (never persisted); a write the app makes straight into the cache reads back its own value (trap 6). 🛑 a row the client just prepended is NOT one (bugs §34) |
 | **A `network-only` read** | ⭐ strongest server proof | `MOB.302` and `MOB.600` read Asset Lookup (`MOBILE_ASSET_LOOKUP` is `network-only`) |
+| **A `/graphql` read** (`dd_tools.server_assert`) | ⭐ strongest server proof | `MOB.320` the status · `MOB.390`/`391` the added key and the post-delete count · `MOB.386` the edited score |
+| **A recorder installed before the action** | solid — for UI that exists for milliseconds | `MOB.626`/`MOB.914` offline menu messages (bugs §43) · `MOB.750` the file-dialog request |
 | **Exclusive-or** — either branch passes, neither fails | solid | `MOB.720`, `MOB.399` — cannot go vacuous on an empty fixture |
 | **Positive presence with a polling gate** | ordinary | most `assertElementPresent` |
 | **Absence only** | ⚠️ weak alone | true on a blank page, a crash and a login redirect alike — needs a positive control |
@@ -53,7 +58,7 @@ nobody thought to list).
 ### `MOB.990_Smoke` — 14 children · read-only
 **The app boots, every route resolves, and the shell renders for an `Admin` session.**
 
-Eight route checks (`MOB.100`–`170`) plus `MOB.121` map controls (style, layers, zoom — not
+Eight route checks (`MOB.100`–`170`) plus `MOB.121` map controls (style, the layers panel and its heading, zoom — not
 2D/3D or Home), `MOB.123` the `Switch Map` picker (a real switch and back, read from
 `mobile-map-id`), `MOB.180` Home tiles, `MOB.171` Dev Logs, `MOB.910` the offline UI, and
 `MOB.900` — a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run.
@@ -65,9 +70,9 @@ loaded — the area suites cover that.
 
 `MOB.300` create (the create form has no `optimisticResponse`, so its modal closing is a server
 answer) · `MOB.310` read · `MOB.320` walks **every assignable status** — Pending, In Progress,
-On Hold, Requested, Not Completed, Complete, Canceled — reading the badge exactly, and restores Ready
-`always`. ⚠️ Its reload checks read the persisted cache `StatusMenuIcon` writes before the mutation,
-so they prove the menu and badge, not the server (checklist #32) · `MOB.330` tabs · `MOB.340` search/sort ·
+On Hold, Requested, Not Completed, Complete, Canceled — reading the badge exactly; it asks the server over
+`/graphql` for `NotCompleted` and the restored `Ready` (the badge alone reads a cache `StatusMenuIcon`
+writes before the mutation), and restores Ready `always` · `MOB.330` tabs · `MOB.340` search/sort ·
 `MOB.392` note, proved by exactly one more note after a reload · `MOB.393` the add-form picker.
 
 ### `MOB.988_WorkOrders_Records` — 6 children · leaves residue (charges)
@@ -76,9 +81,10 @@ so they prove the menu and badge, not the server (checklist #32) · `MOB.330` ta
 `MOB.350`/`360`/`370`/`380` — equipment, labor, material (Return, so stock is untouched), other —
 each counts its own record's cards, reloads, and requires exactly +1. `MOB.390` condition and
 `MOB.391` failure add a key the fixture does not hold, read it back after a reload, delete it from
-its own card (trap 2), and prove the original record untouched. The add proofs survive bugs §40;
-the post-delete check reads a cache the app already edited — `preflight.py mob39x` is the server
-check until checklist #32 lands. Split from `MOB.991` at the execution ceiling (checklist Appendix F).
+its own card (trap 2), and prove the original record untouched. Both are also read on the
+server over `/graphql` — the key present after the add, gone after the delete with the original's
+count unchanged — and both wait for an ARMED Submit (trap 8). 🛑 Both go red whenever the first add after a page load loses
+bugs §42's race (Datadog: `MOB.390` 2 of 3, `MOB.391` 3 of 3); from that check on they are `soft`, so the suite runs on. Split from `MOB.991` at the execution ceiling (checklist Appendix F).
 
 ### `MOB.985_WorkDetail` — 12 children · read-only
 **The work-order detail screen's secondary controls, and the negative cases.**
@@ -89,7 +95,8 @@ LocationForm · `MOB.349` record cycling · `MOB.355` form render (desktop branc
 mode the charge tests are blind to · `MOB.351` the `ESTIMATES` section on four tabs (no estimate
 row: the fixture has none) · `MOB.389` the Condition/Failure asset lookups ignore case · `MOB.911`
 the offline geolocate popover · `MOB.387` `Edit Item` opens the condition form filled with its card's
-six values, closed unsaved · ⭐ `MOB.912` `ConnectionRequired` (Asset Lookup) and the material-charge
+six values, closed unsaved; the card's `Stress Decision Score:`/`Notes:` rows and the failure table's
+`Discovery Code` · ⭐ `MOB.912` `ConnectionRequired` (Asset Lookup) and the material-charge
 offline message, reached by overriding `navigator.onLine`, each paired with its online control ·
 `MOB.358` the asset location form, online and — with `navigator.onLine` overridden — its offline
 state (last: it stubs `fetch`).
@@ -98,7 +105,7 @@ state (last: it stubs `fetch`).
 **The remaining work-order entry points and the work LIST.**
 
 `MOB.396` create from a job asset · `MOB.397` follow-up · `MOB.398` crew-assignment modal ·
-`MOB.394` permits · `MOB.399` warranties · `MOB.122` create from the map · `MOB.301` a photo in the
+`MOB.394` permits · `MOB.399` warranties (and the empty state on MOB.302's work order) · `MOB.122` create from the map · `MOB.301` a photo in the
 create form (a local `blob:`, discarded unsent) · `MOB.302` **`Copy to asset` reaches the server**
 — the asset lists the SAME attachment id (a link, not a copy), then the link is removed from the
 asset and the work order's image still loads · `MOB.341` map toggle · `MOB.343` search filters ·
@@ -126,7 +133,8 @@ just happened.
 `MOB.620` the picker (capture buttons asserted, never clicked) · `MOB.621` a photo reaches the
 carousel, discarded unsent · `MOB.622` the carousel at one photo **and** two, fullscreen, and the
 tag editor's `MentorLens Tags` · `MOB.626` the tag/description capture menus — exactly `Add Asset
-Photo` in a browser, plus `Use photo selected above` once the form holds a photo · `MOB.600` create an asset with a real photo — 🛑 red: the server
+Photo` in a browser, plus `Use photo selected above` once the form holds a photo, and offline the wand's and `Add Asset
+Photo`'s connection messages (recorded — they flash, bugs §43) · `MOB.600` create an asset with a real photo — 🛑 red: the server
 never receives it (bugs §34); its server proof is `soft`, so later children still run · `MOB.610`
 search · ⭐ `MOB.623` a photo added to an **existing** asset, polled until its `blob:` becomes a
 server URL; the saved photo's five-item menu exactly and in order; `Rotate Image` ×4 with the src
@@ -135,12 +143,14 @@ Attributes panel content · `MOB.624` the row avatar's attachments modal (its se
 bugs §35) · `MOB.625` list sort on our own rows against the server's order and `localeCompare`,
 and `Collected By Me` as a filter (sentinels carry bugs §38).
 
-### `MOB.995_AssetLookup` — 9 children · read-only
+### `MOB.995_AssetLookup` — 10 children · read-only
 **Asset lookup, three of its six detail tabs, and the work panel behind them.**
 
 `MOB.700` search and open · `MOB.750` the `Tag Lookup` menu — `Alphanumeric`'s browser branch
 proved by a prototype-`click` recorder (one file dialog, rear camera, images, one file; nothing
-uploaded); bugs §37 sentinelled · `MOB.720` Readings and `MOB.721` its empty state · ⭐ `MOB.740` `WorkLookupDetails`, which is
+uploaded); bugs §37 sentinelled · `MOB.720` Readings and `MOB.721` its empty state · ⭐ `MOB.914` the offline messages — the Readings
+and Work History tabs show `OFFLINE_FEATURE_MESSAGE`, `Add reading types` offline opens it in a popover,
+and `Get Description` on a saved photo, clicked only offline, renders it (recorded — bugs §43) · ⭐ `MOB.740` `WorkLookupDetails`, which is
 also the map's `WorkCard` · `MOB.741` the work-stage attachment panel and its image filter ·
 `MOB.735` `View in Map` (router state, not a URL) · `MOB.730`/`731` Near Me and its radius.
 Of the six tabs, `General Info` (`MOB.710`), `Work History` (`MOB.740`/`741`) and `Readings`
@@ -161,9 +171,9 @@ tests share `dd_tools.open_filters_drawer` (a bench drift-guard enforces one cop
 **The AV job's header and status menu, and the offline transaction queue — each proved after a
 reload, each put back.**
 
-`MOB.537` the full-page asset header's `Tag ID` — `None` and `0000` — and its own edit button:
+`MOB.537` the full-page asset header's `Tag ID` (`None` and `0000`) and `Desc:`, and the tag's own edit button:
 `0000` → `DD-TAG-EDIT` → `0000`, each proved after a reload · ⭐ `MOB.913` **the offline queue**: a
-verify made offline is held (pending 1, still 1 after 6s), listed in `Pending Transactions`,
+verify made offline is held (pending 1, still 1 after 6s), listed in `Pending Transactions` (still open, it refreshes to `No logs found.` once drained),
 drained on reconnect and on the server after a reload, and replayed from IndexedDB after a reload
 while held · `MOB.536` the job status menu — IN PROGRESS → CANCELED (the canceled alert) → IN
 PROGRESS, proved after a reload; last, because a failed restore can drop the job from the list.
@@ -172,7 +182,7 @@ PROGRESS, proved after a reload; last, because a failed restore can drop the job
 **The phone-width branches no tablet run can reach** (trap 1's one exception; run on its own).
 
 `MOB.951` a work form renders its MOBILE branch (`#senor-work-form`, below `availWidth` 750) and
-not the desktop one · `MOB.952` the affixed `+`, the list's search and the burger are on screen at
+not the desktop one, with its image field's `Upload Photo` exactly when the form has one · `MOB.952` the affixed `+`, the list's search and the burger are on screen at
 phone width; the header crew shortcut is hidden under 450px by design (the burger's `Switch Crews`
 is the phone path, and the login prefix reads the role there).
 
@@ -180,9 +190,9 @@ is the phone path, and the login prefix reads the role there).
 
 | suite | children | establishes |
 |---|---|---|
-| `MOB.992_Menu` | 7 | hamburger menu, resync, back arrow, header status icons, crew modal dismissal |
-| `MOB.989_FieldEdit` | 4 | the edit surfaces — `MOB.395` WO General Info, `MOB.710` the per-field pencil (three entry points), `MOB.545` asset attributes, `MOB.388` work-order attributes. All prove **persistence** after a reload and self-restore |
-| `MOB.998_MaterialLookup` | 5 | storeroom read and search · `MOB.860` cycle count `+1`/`-1` (self-restoring by construction — neither leg reads the quantity back) · `MOB.870` stocking (**one-way**) · `MOB.865` the Photos/Docs segments and row avatar modal · `MOB.855` column sort really reorders, `N matches` vs rows (bugs §33) |
+| `MOB.992_Menu` | 7 | hamburger menu, resync, back arrow, header status icons, crew modal dismissal and its always-shown offline description |
+| `MOB.989_FieldEdit` | 6 | the edit surfaces — `MOB.395` WO General Info, `MOB.710` the per-field pencil (three entry points), `MOB.545` asset attributes, `MOB.388` work-order attributes, `MOB.386` a condition's `Edit Item` save proved over `/graphql` (🛑 red whenever bugs §42's race is lost), `MOB.134` a work form's integer field saved on blur and cleared. All prove **persistence** and self-restore |
+| `MOB.998_MaterialLookup` | 5 | storeroom read and search · `MOB.860` cycle count `+1`/`-1` (self-restoring by construction — neither leg reads the quantity back) · `MOB.870` stocking (**one-way**) · `MOB.865` the Photos/Docs segments — the storeroom item's editable attachments above the material item's read-only ones — and the row avatar modal · `MOB.855` column sort really reorders, `N matches` vs rows (bugs §33) |
 | `MOB.997_Session` | 2 | ⭐ permission gating of the menu; crew scoping changes the visible job set. ⚠️ never run concurrently — mutates the session crew |
 | `MOB.987_EventReadings` | 2 | ⭐ `MOB.550` meter readings — a write the UI **fakes** (it hand-writes the cache), proved by the next run's cold read · `MOB.551` the reading-history popover |
 
@@ -211,16 +221,15 @@ the one diagnostic, kept while the work-list fixture is in flux.
 
 ## Where the next real gain is
 
-1. **Genuine server reads** (checklist #32) — one `dd_tools` helper turns ~10 reload proofs into
-   server proofs, and fixes the two that read the app's own writes today.
-2. **A suite pass** (paused) — ~21 children are green solo and have never run inside their
-   suites, and `MOB.988` and `MOB.983` have never run as suites.
-3. **The AV job reset decision** — one owner call (`cleanup_spec.md` §4); unlocks five tests
-   including verify-all.
-4. **Bugs §41** — until `deleteWorkOrders` works, work-order residue (≈5/day) cannot be pruned.
-5. **`Edit Item` save** (checklist #36) — `updateCollectionRecord` is untested.
-6. **Fixture diversity** — a second work-order shape (estimates, a required form field, a second
-   list status) would unlock `MOB.351`'s estimate rows, `MOB.357`'s non-zero path and `MOB.342`'s
-   exclusion leg.
+*Local replays (`local_run.py`, 0 Datadog runs) change the maths: a gap that was expensive to iterate
+on is now cheap to build, and Datadog runs go to verification and the weekly schedule.*
+
+1. **Suite runtimes, locally** (#31) — `local_timing.py`, to restructure any suite near Datadog's
+   execution ceiling before a suite pass. The weekly schedule (#37) is the late-game item.
+2. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), bugs §41 (residue),
+   a second work-order shape (estimate rows, a required form field, a second list status).
+
+⏸️ A local-only Playwright tier (#43 — genuinely offline, network errors, file choosers, the re-auth
+clock) is deferred by the owner.
 
 *Details: `testing_checklist.md` → ▶ OPEN WORK.*

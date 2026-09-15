@@ -73,4 +73,4 @@ if missing:
     sys.exit(1)
 
 print(f"\nWired {total_wired} subtest id(s) across {len(SUITES)} suite(s).")
-print("Now push again:  ./.venv/bin/python Mobile/dd_tools.py push")
+print("Now push the suite(s) you wired:  ./.venv/bin/python Mobile/dd_scripts_mobile/dd_tools.py push <suite>")

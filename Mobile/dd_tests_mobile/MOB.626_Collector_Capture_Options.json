@@ -571,6 +571,268 @@
             },
             {
                 "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Go OFFLINE \u2014 dispatch a window `offline` event",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('offline'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form re-render offline",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OFFLINE: the header shows the offline icon (`wifi-slash`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click the description wand (its offline branch only opens a message)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nconst svg = f && f.querySelector('svg[data-icon=\"wand-magic-sparkles\"]');\nconst b = svg && svg.closest('button, [role=\"button\"], .mantine-ActionIcon-root');\nif (!b) return false;\nb.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the popover open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 OFFLINE: the wand's popover reads `This feature requires an internet connection.`",
+                "noScreenshot": false,
+                "params": {
+                    "value": "This feature requires an internet connection."
+                },
+                "type": "assertPageContains",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the popover by clicking the form's title (NOT Escape \u2014 bugs \u00a713)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Get New Asset\")]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-title \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the tag capture menu (its `barcode-read` icon beside the field)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nconst svg = f && f.querySelector('svg[data-icon=\"barcode-read\"]');\nconst b = svg && svg.closest('button');\nif (!b) return false;\nb.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + record + click `Add Asset Photo` \u2014 ONLY while the offline icon shows (online it opens a file dialog)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelector('[data-icon=\"wifi-slash\"]')) return false;\nwindow.__dd626Seen = 0;\nnew MutationObserver(() => { if ((document.body.textContent || '').includes('This feature requires an internet connection.')) window.__dd626Seen++; })\n  .observe(document.body, { childList: true, subtree: true, characterData: true });\nconst dd = [...document.querySelectorAll('.mantine-Menu-dropdown')]\n  .find(d => (d.textContent || '').includes('Hello, what would you like to do?'));\nconst items = dd ? [...dd.querySelectorAll('.mantine-Menu-item')]\n  .map(i => (i.textContent || '').trim()) : null;\nconst it = dd && [...dd.querySelectorAll('.mantine-Menu-item')]\n  .find(i => (i.textContent || '').trim() === 'Add Asset Photo');\nif (!it) return false;\nit.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the popover open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 OFFLINE: `Add Asset Photo` rendered OFFLINE_FEATURE_MESSAGE (recorded by the observer), not a file dialog",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return (window.__dd626Seen || 0) > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "\ud83d\udcca (optional) the message is still on screen once the menu has closed \u2014 red while bugs \u00a743 is open (it flashes and unmounts with the menu)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('.mantine-Menu-dropdown')\n  && (document.body.textContent || '').includes('This feature requires an internet connection.');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 5
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Back ONLINE \u2014 dispatch a window `online` event (always)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('online'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form re-render online",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu by clicking the form's title (NOT Escape \u2014 bugs \u00a713)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Get New Asset\")]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-title \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The capture menu is closed, and the form is still open",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const dd = [...document.querySelectorAll('.mantine-Menu-dropdown')]\n  .find(d => (d.textContent || '').includes('Hello, what would you like to do?'));\nconst items = dd ? [...dd.querySelectorAll('.mantine-Menu-item')]\n  .map(i => (i.textContent || '').trim()) : null;\nreturn !dd && !!document.getElementById('asset-collector');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,

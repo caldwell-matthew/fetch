@@ -24,8 +24,8 @@ DANGER - THE GEAR MENU IN MOB.397 CONTAINS "Delete Item"
   in one dropdown. Mobile is delete-free (trap 2) and nothing here may click that entry, so
   the menu item is matched by EXACT text, never by position or a substring. Keep it that way.
 
-  (That same file is where `wPerms.canDelete` - a field that does not exist - gates the whole
-  menu, `bugs_found.md` §4b.)
+  The whole menu renders only for a role with work `delete`, `update` or `create`
+  (`Menu.tsx:30`, `wPerms.delete` since #4156).
 """
 import json, os, sys
 
@@ -330,7 +330,6 @@ write(test(
 # mounted). Also accepts every label WarrantyDetails can emit - a Time warranty renders
 # "Expiration Date"/"Remaining Days", a reading-based one "Current Reading"/"Exp. Reading" -
 # because which type the fixture carries is not this test's business.
-# UNVERIFIED as of 2026-08-12: built and pushed, not yet run green.
 WARRANTY_CONTENT = """
 const t = (document.body.textContent || '');
 return ['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading']
@@ -353,6 +352,21 @@ return ['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading']
 # The parse is deliberately forgiving - if no number can be read, the check falls back to
 # asserting only that the banner does not appear on a tab with NO warranties at all, which is
 # still a real (if weaker) statement rather than a vacuous one.
+# THE EMPTY STATE, on a work order that has no warranty. The fixture's `Pump 0102` carries one, so the
+# empty state is asserted on MOB.302's work order, whose `Bypass Valve 0001` holds none (read over the
+# API): scoped to the ACTIVE Warranties panel, it must name the asset, show `No Warranties Found...`
+# (`Warrenties.tsx:86`) and render none of the warranty-content labels - never a blank tab.
+NO_WARRANTY_WO = f"{WORK_URL}/RcdI0xcpc8NBV8VoRNNBYM"
+EMPTY_WARRANTY = """
+const tabEl = document.querySelector('[role="tab"][data-active]');
+const id = tabEl && tabEl.getAttribute('aria-controls');
+const p = id ? document.getElementById(id) : null;
+if (!p || (tabEl.textContent || '').trim() !== 'Warranties') return false;
+const t = p.textContent || '';
+return t.includes('Bypass Valve 0001') && t.includes('No Warranties Found...')
+  && !['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading'].some(k => t.includes(k));
+"""
+
 WARRANTY_BANNER = """
 const BANNER = 'Assets Related to the Work Order are under Warranty';
 const t = document.body.innerText || '';
@@ -380,7 +394,9 @@ write(test(
     "  (added 2026-08-20). It is driven by `hasActiveWarranties`, NOT by the tab, so the two\n"
     "  can legitimately disagree: the tab lists every warranty, the banner appears only while\n"
     "  one is still ACTIVE. The assertion is therefore a **consistency** check, not a\n"
-    "  presence check — see the note in the generator.",
+    "  presence check — see the note in the generator.\n"
+    "- **The empty state** is asserted on `MOB.302`'s work order, whose `Bypass Valve 0001` has no\n"
+    "  warranty: `No Warranties Found...` in the active panel, no warranty content, no banner.",
     open_work_detail() + [
         step("click", 'Open the "Warranties" tab',
              {"element": xpath_el(WORK_DETAIL, tab("Warranties"))}),
@@ -391,6 +407,19 @@ write(test(
                  "not a blank tab", WARRANTY_CONTENT),
         jsassert("BANNER: its presence agrees with whether a warranty is still active",
                  WARRANTY_BANNER),
+
+        # ---- the empty state, on MOB.302's work order (its asset has no warranty)
+        go(NO_WARRANTY_WO, "MOB.302's work order — its asset has no warranty"),
+        step("wait", "Let the detail view begin rendering", {"value": 2}),
+        step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}, timeout=30),
+        step("click", 'Open its "Warranties" tab', {"element": xpath_el(NO_WARRANTY_WO, tab("Warranties"))},
+             timeout=30),
+        step("wait", "Wait for the panel", {"value": 3}),
+        jsassert("⭐ EMPTY STATE: the active Warranties panel names `Bypass Valve 0001` and shows "
+                 "`No Warranties Found...` — no warranty content", EMPTY_WARRANTY, timeout=30),
+        jsassert("BANNER: absent on a work order with no warranty (paired with the empty state above)",
+                 "return !(document.body.textContent || '').includes('Assets Related to the Work Order are under Warranty');",
+                 timeout=10),
     ],
     ["Mobile", "env:dev", "Work Order", "read-only"],
 ))

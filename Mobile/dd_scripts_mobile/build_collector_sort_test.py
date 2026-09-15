@@ -1,4 +1,4 @@
-"""Build MOB.625 - the Asset Collector's sort, including `Collected By Me` (checklist 🟢 #14).
+"""Build MOB.625 - the Asset Collector's sort, including `Collected By Me`.
 
 WHAT THE SOURCE SAYS (`AssetCollector/index.tsx:132-137`, `utils/filterAssets.ts:searchSort`)
   `SortDropDown` offers `Created At ▲/▼`, `Name ▲/▼` and `Collected By Me`. The list is sorted
@@ -220,7 +220,7 @@ steps = [
 
 write(test(
     "MOB.625_Collector_List_Sort",
-    "`MOB.625` **The Asset Collector's sort, including `Collected By Me`** — checklist 🟢 #14.\n"
+    "`MOB.625` **The Asset Collector's sort, including `Collected By Me`**.\n"
     f"- Narrowed to this suite's own `{MARKER}` rows (the list is virtualised, and the data\n"
     "  is ours). `Created At ▼` equals the server's default order and `▲` its reverse, on the\n"
     "  rows common to both renders; `Name ▲/▼` equal their own `localeCompare` order. No order\n"

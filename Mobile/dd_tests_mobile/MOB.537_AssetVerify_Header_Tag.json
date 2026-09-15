@@ -307,6 +307,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "The header's `Desc:` line renders under `Tag ID:` (`AssetDetails.tsx:182` \u2014 `desc ?? 'None'`, never blank)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const d = [...document.querySelectorAll('strong')].find(x => (x.textContent || '').trim() === 'Desc:');\nconst line = d && d.parentElement;\nreturn !!line && (line.textContent || '').replace('Desc:', '').trim().length > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Back to the job in-app (`history.back()`)",
                 "noScreenshot": false,
                 "params": {

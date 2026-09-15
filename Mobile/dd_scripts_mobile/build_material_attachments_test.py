@@ -1,5 +1,5 @@
 """Build MOB.865_MaterialLookup_Item_Attachments - the storeroom item modal's `Photos` / `Docs`
-tabs and the row avatar image modal (checklist 🟢 #9).
+tabs and the row avatar image modal.
 
 WHAT SHIPPED WITHOUT A TEST
   `StockAdjustments.tsx` grew two segments beyond the ones `MOB.860`/`870` use:
@@ -76,6 +76,20 @@ ROW_JS = ("const row = [...document.querySelectorAll('tr')]\n"
           "if (!row) return false;\n")
 BUTTONS = "const t = [...m.querySelectorAll('button')].map(b => (b.textContent || '').trim());\n"
 CAROUSEL = "[class*=\"mantine-Carousel\"]"
+# `cd91ece65d`: each tab is `Storeroom Item` (editable PhotoAttachments / FileAttachments) above
+# `Material Item (read only)` (`ReadOnlyAttachments`: a readOnly carousel or `No photos`; a table
+# or `No documents`). The headings are leaf `<p>`s; the read-only half is every sibling after its heading.
+SECTIONS_JS = ("const leaves = [...m.querySelectorAll('p, div, span')].filter(e => e.children.length === 0);\n"
+               "const store = leaves.find(e => (e.textContent || '').trim() === 'Storeroom Item');\n"
+               "const ro = leaves.find(e => (e.textContent || '').trim() === 'Material Item (read only)');\n"
+               "const tail = []; let n = ro && ro.nextElementSibling;\n"
+               "while (n) { tail.push(n); n = n.nextElementSibling; }\n"
+               "const tb = tail.flatMap(e => (e.tagName === 'BUTTON' ? [e] : []).concat([...e.querySelectorAll('button')]))\n"
+               "  .map(b => (b.textContent || '').trim());\n"
+               "const tt = tail.map(e => e.textContent || '').join(' ');\n"
+               f"const hasCarousel = tail.some(e => e.matches('{CAROUSEL}') || !!e.querySelector('{CAROUSEL}'));\n"
+               "const hasTable = tail.some(e => e.tagName === 'TABLE' || !!e.querySelector('table'));\n"
+               "const ordered = !!store && !!ro && !!(store.compareDocumentPosition(ro) & 4);\n")
 
 
 def switch_segment(value, label):
@@ -168,6 +182,11 @@ steps += [
              timeout=30),
     jsassert("📊 REPORT: does the fixture item have photos? (a carousel is present) — informational",
              MODAL_JS + f"return !!m.querySelector('{CAROUSEL}');", optional=True, timeout=10),
+    jsassert("⭐ PHOTOS SPLIT: `Storeroom Item` first, then `Material Item (read only)` — and the read-only "
+             "half offers NO `Add Photo`/`Add File` and shows a carousel or `No photos`",
+             MODAL_JS + SECTIONS_JS +
+             "return ordered && !tb.includes('Add Photo') && !tb.includes('Add File')\n"
+             "  && (hasCarousel || tt.includes('No photos'));", timeout=30),
 ]
 steps += switch_segment("4", "Docs")
 steps += [
@@ -178,6 +197,11 @@ steps += [
              timeout=30),
     jsassert("📊 REPORT: does the fixture item have documents? (a file table is present) — informational",
              MODAL_JS + "return !!m.querySelector('table');", optional=True, timeout=10),
+    jsassert("⭐ DOCS SPLIT: `Storeroom Item` first, then `Material Item (read only)` — and the read-only "
+             "half offers NO `Add File`/`Add Photo` and shows a table or `No documents`",
+             MODAL_JS + SECTIONS_JS +
+             "return ordered && !tb.includes('Add File') && !tb.includes('Add Photo')\n"
+             "  && (hasTable || tt.includes('No documents'));", timeout=30),
 
     # ---- leave it as found ----------------------------------------------------------------
     jsassert(f"CLEANUP: remove this test's scratch key `{BRANCH_KEY}`",

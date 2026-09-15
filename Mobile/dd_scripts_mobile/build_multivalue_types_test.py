@@ -1,4 +1,4 @@
-"""Build MOB.807 - `MultiValueSelector`'s `enum` and `record` branches (checklist 🟢 #1).
+"""Build MOB.807 - `MultiValueSelector`'s `enum` and `record` branches.
 
 WHAT IT COVERS
   With operator `includes`, `StructuredQuery` swaps its value input for `MultiValueSelector`

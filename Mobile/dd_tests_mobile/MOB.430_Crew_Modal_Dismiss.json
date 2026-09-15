@@ -145,6 +145,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "The modal's description is `OFFLINE_FEATURE_MESSAGE` (always shown)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "This feature requires an internet connection."
+                },
+                "type": "assertPageContains",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Dismiss with Cancel",
                 "noScreenshot": false,
                 "params": {

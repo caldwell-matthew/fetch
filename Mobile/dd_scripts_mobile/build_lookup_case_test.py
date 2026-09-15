@@ -1,4 +1,4 @@
-"""Build MOB.389 - the work-order asset lookups match regardless of case (checklist 🟢 #19).
+"""Build MOB.389 - the work-order asset lookups match regardless of case.
 
 WHAT CHANGED, AND WHY IT NEEDS A TEST
   Until `cad415620c` the Condition and Failure forms filtered their asset lookup with

@@ -1,0 +1,959 @@
+{
+    "test_name": "MOB.914_Offline_Feature_Messages",
+    "details": {
+        "name": "MOB.914_Offline_Feature_Messages",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.914` **Asset Lookup's offline messages** \u2014 a dispatched `offline` event (`useNetwork`).\n- `Building 0000`: the Readings tab becomes **`This feature requires an internet connection.`** (not its online empty state) and a\n  never-loaded Work History tab shows the same message.\n- `Tank 0000`: with its readings loaded online, `Add reading types` offline opens the message popover\n  (`EventReadings.tsx:300`), not the add-types modal.\n- `Tank 0000`: the photo menu's `Get Description` is disabled offline \u2014 its click opens the message\n  instead of posting to the AI route. \ud83d\uded1 Clicked only while the offline icon shows; nothing else in\n  the menu is ever touched.\n- \ud83d\uded1 READ-ONLY. `online` is restored `always` and the page reloaded.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Offline",
+            "Asset Lookup",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to Asset Lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Building 0000",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Building 0000",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results (network-only)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Building 0000's row by its chevron (never the avatar \u2014 bugs \u00a735)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Building 0000\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Readings\" tab (ONLINE \u2014 its query must answer first)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Building 0000\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Readings\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Readings panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ONLINE HALF: the Readings tab reads `No readings recorded for this asset.` (MOB.721's empty state)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Building 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn (tabEl.textContent || '').trim() === 'Readings'\n  && t.includes('No readings recorded for this asset.');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Go OFFLINE \u2014 dispatch a window `offline` event (`useNetwork`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('offline'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail re-render offline",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OFFLINE: the header shows the offline icon (`wifi-slash`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 READINGS OFFLINE: the SAME tab is now `This feature requires an internet connection.` \u2014 not `No readings recorded for this asset.` (`EventReadings.tsx:240`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Building 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn (tabEl.textContent || '').trim() === 'Readings'\n  && t.includes('This feature requires an internet connection.') && !t.includes('No readings recorded for this asset.');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Work History\" tab (the queue is closed: its query is held)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Building 0000\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Work History\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Work History panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Dispatch `offline` AGAIN \u2014 the freshly mounted Work History instance started online (`useNetwork` on mount)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('offline'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Work History panel re-render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 WORK HISTORY OFFLINE: the tab is `This feature requires an internet connection.` (`WorkHistory.tsx:132`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Building 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn (tabEl.textContent || '').trim() === 'Work History'\n  && t.includes('This feature requires an internet connection.');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Back ONLINE before the next asset \u2014 dispatch `online`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('online'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it re-render online",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Tank 0000",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tank 0000",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the search results (network-only)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 8
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Tank 0000's row by its chevron (never the avatar \u2014 bugs \u00a735)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Tank 0000\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Readings\" tab (ONLINE \u2014 its latest readings must load first)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Tank 0000\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Readings\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Readings panel render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: Tank 0000's Readings panel lists readings (`N of M recorded recently`) and offers `Add reading types`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Tank 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn /\\d+ of \\d+ recorded recently/.test(t) && !!p.querySelector('[aria-label=\"Add reading types\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Go OFFLINE \u2014 dispatch a window `offline` event (`useNetwork`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('offline'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail re-render offline",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OFFLINE: the header shows the offline icon (`wifi-slash`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OFFLINE, the SAME panel still lists its readings and the button \u2014 the tab is not replaced by the message",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Tank 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn /\\d+ of \\d+ recorded recently/.test(t) && !!p.querySelector('[aria-label=\"Add reading types\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + click `Add reading types` \u2014 ONLY while offline (online it opens the AddReadingTypes modal)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!!!document.querySelector('[data-icon=\"wifi-slash\"]')) return false;\nconst items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Tank 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nconst b = p.querySelector('[aria-label=\"Add reading types\"]');\nif (!b) return false;\nb.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the popover open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 ADD READING TYPES OFFLINE: its popover reads `This feature requires an internet connection.` (`EventReadings.tsx:300`) \u2014 no AddReadingTypes modal",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const d = [...document.querySelectorAll('.mantine-Popover-dropdown')]\n  .find(x => (x.textContent || '').includes('This feature requires an internet connection.'));\nreturn !!d && !document.querySelector('.mantine-Modal-content');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Back ONLINE before the photo menu \u2014 dispatch `online`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('online'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the popover (Escape)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it re-render online",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Photos\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"Tank 0000\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Photos\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the photos render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: Tank 0000's Photos panel shows at least one photo with a gear",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Tank 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nreturn !!p.querySelector('[class*=\"mantine-Carousel-slide\"] [aria-label=\"Settings\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Go OFFLINE \u2014 dispatch a window `offline` event (`useNetwork`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('offline'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail re-render offline",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "OFFLINE: the header shows the offline icon (`wifi-slash`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the first photo's gear menu",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nconst it = items.find(i => { const c = i.querySelector('[class*=\"mantine-Accordion-control\"]');\n  return c && (c.textContent || '').includes('Tank 0000'); });\nif (!it) return false;\nconst tabEl = it.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...it.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!p || !tabEl) return false;\nconst t = (p.textContent || '');\nconst g = p.querySelector('[class*=\"mantine-Carousel-slide\"] [aria-label=\"Settings\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + record + click `Get Description` \u2014 ONLY while offline AND styled disabled (online it posts to the AI route)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!!!document.querySelector('[data-icon=\"wifi-slash\"]')) return false;\nwindow.__dd914Seen = 0;\nnew MutationObserver(() => { if ((document.body.textContent || '').includes('This feature requires an internet connection.')) window.__dd914Seen++; })\n  .observe(document.body, { childList: true, subtree: true, characterData: true });\nconst it = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Menu-item')]\n  .find(i => (i.textContent || '').trim() === 'Get Description');\nif (!it || !(it.getAttribute('style') || '').includes('opacity')) return false;\nit.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the popover open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 GET DESCRIPTION OFFLINE: `This feature requires an internet connection.` was rendered (recorded by the observer \u2014 `PhotoMenu.tsx` connection hint)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return (window.__dd914Seen || 0) > 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "\ud83d\udcca (optional) the message is still on screen once the menu has closed \u2014 red while bugs \u00a743 is open (it flashes and unmounts with the menu)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.querySelector('.mantine-Menu-dropdown')\n  && (document.body.textContent || '').includes('This feature requires an internet connection.');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 5
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: dispatch `online`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "window.dispatchEvent(new Event('online'));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu/popover (Escape \u2014 no modal is open here)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Reload Asset Lookup so no later subtest inherits an offline `useNetwork`",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the online icon is back (`wifi`), not `wifi-slash`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.querySelector('[data-icon=\"wifi\"]') && !document.querySelector('[data-icon=\"wifi-slash\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            }
+        ]
+    }
+}

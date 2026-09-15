@@ -491,6 +491,21 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "Select the baseline search first (typeText APPENDS \u2014 trap 17; a local replay typed `Pump 0102Pump 0102`)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Search for Pump 0102 with the filter still active",
                 "noScreenshot": false,
                 "params": {

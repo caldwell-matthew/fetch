@@ -69,9 +69,11 @@ def build(child, subtest_id):
         extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"))
 
 
-def _push():
-    r = subprocess.run([PY, os.path.join(SCRIPTS, "dd_tools.py"), "push"],
+def _push(*names):
+    """Push ONLY the named tests - the one being verified, then the scratch (owner rule: push what is edited)."""
+    r = subprocess.run([PY, os.path.join(SCRIPTS, "dd_tools.py"), "push", *names],
                        capture_output=True, text=True)
+    print(r.stdout.strip())
     if r.returncode:
         print(r.stdout[-800:])
         raise SystemExit("push failed - not running")
@@ -94,7 +96,7 @@ def main():
     # Now: push the CHILDREN first (the scratch on disk still holds its previous, valid
     # pointing), then resolve the child's real public_id in-process, then write and push once.
     # An invalid intermediate never reaches disk, let alone Datadog.
-    _push()                                   # ensures `child` exists remotely and has an id
+    _push(child)                              # ONLY the test being verified: it must exist remotely with an id
 
     sys.path.insert(0, SCRIPTS)
     from dd_tools import _conf, remote_ids    # noqa: E402
@@ -107,7 +109,7 @@ def main():
 
     write(build(child, ids[child]), force=True)   # scratch: always overwrite, that is the point
     print(f"pointed {SCRATCH} -> {child} ({ids[child]})")
-    _push()
+    _push(SCRATCH)
     print("pushed and wired")
 
     if "--no-run" in sys.argv:

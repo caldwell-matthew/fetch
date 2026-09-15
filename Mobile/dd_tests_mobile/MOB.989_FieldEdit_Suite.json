@@ -4,7 +4,7 @@
         "name": "MOB.989_FieldEdit_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "Editing existing records \u2014 the write path every module has and none of the read-only\nsuites cover.\n- Both children MUTATE but are **self-restoring**: each writes a run-unique marker and\n  then restores `DATADOG FIXTURE`.\n- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose \u2014 that suite is documented as\n  read-only and safe to schedule, and quietly adding a mutating child to it would make\n  that promise false.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
+        "message": "Editing existing records \u2014 the write path every module has and none of the read-only\nsuites cover.\n- Every child MUTATES but is **self-restoring**: the field edits write a run-unique marker and\n  restore `DATADOG FIXTURE`; `MOB.386` edits a condition score and restores 2; `MOB.134` fills a work\n  form's integer field and clears it.\n- \ud83d\uded1 `MOB.386` goes red whenever its first `Edit Item` loses bugs \u00a742's race \u2014 `soft`, so the\n  children after it still run.\n- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose \u2014 that suite is documented as\n  read-only and safe to schedule, and quietly adding a mutating child to it would make\n  that promise false.\n- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n  run wire_suite.py after pushing them.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -372,6 +372,32 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "ibn-6gd-ce3",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.386_Work_Condition_Edit_Save",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "3au-svx-ir4",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.134_Work_Form_Fill",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "2hc-cx9-z2g",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

@@ -1,4 +1,4 @@
-"""Build MOB.536 (job status menu) and MOB.537 (asset header Tag ID) - checklist 🟢 #26, #23, #27.
+"""Build MOB.536 (job status menu) and MOB.537 (asset header Tag ID).
 
 MOB.536 - `JobStatusIcon` (`AssetVerification/JobStatusIcon.tsx`), the dot beside the job's title
   Its Menu offers `Mark as IN PROGRESS` / `COMPLETED` / `CANCELED` (never the current one, never
@@ -15,9 +15,9 @@ MOB.537 - the full-page asset detail's header (`AssetVerification/AssetDetails.t
   opens `EditForm` for that one column and saves with `UPDATE_ASSET` (no optimisticResponse while
   online; the toast is in `update()`, so it is a server answer). MOB.710 covers `EditForm` from
   Asset Lookup; this is the header's own call site.
-  #23  both branches of the fallback: `⚡ Tank 0000` reads `Tag ID: 0000`, `A/C Motor 0002` (no
+  ·    both branches of the fallback: `⚡ Tank 0000` reads `Tag ID: 0000`, `A/C Motor 0002` (no
        tag) reads `Tag ID: None` - values read over the API.
-  #27  Tank 0000's tag: 0000 -> DD-TAG-EDIT -> reload proves it -> back to 0000 -> reload proves
+  ·    Tank 0000's tag: 0000 -> DD-TAG-EDIT -> reload proves it -> back to 0000 -> reload proves
        it. The description has the same button, but both fixture descriptions are long authored
        texts no typed restore could reproduce byte-for-byte - the tag is the same code path.
 """
@@ -62,6 +62,24 @@ def status_pick(label, always=False):
     ]
 
 
+# The menu never offers the CURRENT status (`JobStatusIcon`), so exactly COMPLETED + CANCELED means
+# IN PROGRESS: READY adds IN PROGRESS, COMPLETED and CANCELED each swap one. No alert alone can say that.
+EXITS_JS = ("const items = [...document.querySelectorAll('.mantine-Menu-item')]\n"
+            "  .map(i => (i.textContent || '').trim()).filter(x => x.indexOf('Mark as') === 0);\n"
+            "return items.length === 2 && items.includes('Mark as COMPLETED') && items.includes('Mark as CANCELED');")
+
+
+def in_progress_by_menu(label, always=False):
+    return [
+        jsassert("Open the job's status menu to read its exits", OPEN_STATUS_JS, always=always, timeout=30),
+        step("wait", "Let the menu open", {"value": 1}, always=always),
+        jsassert(f"⭐ {label}: the menu offers exactly IN PROGRESS's exits — `Mark as COMPLETED` and "
+                 "`Mark as CANCELED`", EXITS_JS, always=always, timeout=20),
+        step("pressKey", "Close the menu (Escape — nothing picked)", {"value": "Escape"}, always=True),
+        step("wait", "Let it close", {"value": 1}, always=True),
+    ]
+
+
 # ---------------------------------------------------------------------------------- MOB.536
 m536 = av_job_gate(JOB_ID) + [
     jsassert("PREMISE: the job is not canceled (no alert) — at rest IN_PROGRESS",
@@ -79,8 +97,9 @@ m536 = av_job_gate(JOB_ID) + [
     jsassert(f"⭐ CANCELED: `{CANCELED_ALERT}` is shown (`Job.tsx`)",
              TEXT + f"return t.includes('{CANCELED_ALERT}');", timeout=30),
 ] + status_pick("IN PROGRESS") + [
-    jsassert("⭐ BACK IN PROGRESS: the canceled alert is gone",
+    jsassert("BACK IN PROGRESS: the canceled alert is gone",
              TEXT + f"return !t.includes('{CANCELED_ALERT}');", timeout=30),
+] + in_progress_by_menu("BACK IN PROGRESS") + [
     # ---- restore, `always`: if the alert is still up, mark IN PROGRESS again ----------------
     jsassert("RESTORE: if the job still reads canceled, open its status menu",
              TEXT + f"if (!t.includes('{CANCELED_ALERT}')) return true;\n" + OPEN_STATUS_JS,
@@ -91,10 +110,10 @@ m536 = av_job_gate(JOB_ID) + [
              "if (it) it.click();\nreturn true;", always=True, timeout=15),
     step("wait", "Let the status reach the server", {"value": 4}, always=True),
 ] + [dict(s, alwaysExecute=True) for s in av_job_gate(JOB_ID)] + [
-    jsassert("⭐ SERVER (after a reload): the job is in the crew's list again, IN PROGRESS — no "
-             "canceled alert", TEXT + f"return t.includes('DATADOG MOBILE JOB') && !t.includes('{CANCELED_ALERT}');",
+    jsassert("After a reload: the job is in the crew's list again, with no canceled alert",
+             TEXT + f"return t.includes('DATADOG MOBILE JOB') && !t.includes('{CANCELED_ALERT}');",
              always=True, timeout=30),
-]
+] + in_progress_by_menu("SERVER (after a reload — UPDATE_MOBILE_JOB_STATUS is optimistic, so the reload is server-acknowledged)", always=True)
 
 write(test(
     "MOB.536_AssetVerify_Job_Status_Menu",
@@ -156,6 +175,10 @@ def reload_to_tank(always=False):
 m537 = av_job_gate(JOB_ID) + open_asset("A/C Motor 0002") + [
     jsassert("⭐ `Tag ID: None` — A/C Motor 0002 has no tag (the `?? 'None'` branch)",
              TAG_JS + "return tag === 'None';", timeout=30),
+    jsassert("The header's `Desc:` line renders under `Tag ID:` (`AssetDetails.tsx:182` — `desc ?? 'None'`, never blank)",
+             "const d = [...document.querySelectorAll('strong')].find(x => (x.textContent || '').trim() === 'Desc:');\n"
+             "const line = d && d.parentElement;\n"
+             "return !!line && (line.textContent || '').replace('Desc:', '').trim().length > 0;", timeout=30),
     jsassert("Back to the job in-app (`history.back()`)", "history.back();\nreturn true;", timeout=15),
     step("wait", "Let the job render", {"value": 3}),
 ] + open_asset("Tank 0000") + [

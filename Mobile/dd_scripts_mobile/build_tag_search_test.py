@@ -1,4 +1,4 @@
-"""Build MOB.547 - the photo tag search's CREATE button is an exclusive-or (checklist 🟢 #18).
+"""Build MOB.547 - the photo tag search's CREATE button is an exclusive-or.
 
 WHAT CHANGED, AND WHY IT IS WORTH A TEST
   `db95798d54` ("fix(tags): normalize searches and synchronize mobile tag options", 2026-09-10)
@@ -194,7 +194,7 @@ steps = av_job_gate(JOB_ID) + [
 write(test(
     "MOB.547_AssetVerify_Photo_Tag_Search",
     "`MOB.547` **The tag search's create button is an exclusive-or with an exact match** —\n"
-    "checklist 🟢 #18, covering `db95798d54` (2026-09-10).\n"
+    "covering `db95798d54` (2026-09-10).\n"
     "- READ-ONLY. It sets the search input's value and reads the dropdown. Selecting an option\n"
     "  assigns a tag and the create option posts a new one, so neither is ever clicked; it\n"
     "  leaves through `Done`.\n"

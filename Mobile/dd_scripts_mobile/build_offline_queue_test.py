@@ -1,5 +1,5 @@
 """Build MOB.913_Offline_Transaction_Queue - the offline queue holds a mutation, counts it, drains
-it on reconnect, and replays it after a reload (checklist 🟢 #24, T1.1).
+it on reconnect, and replays it after a reload (T1.1).
 
 WHY THIS WAS CALLED UNREACHABLE, AND WHY IT IS NOT
   T1.1 carried "mutate while offline", "queue drains", "survives a reload" and "pending count" as
@@ -30,7 +30,7 @@ optimistic, not gated on being online, and self-restoring by unverifying (MOB.51
     at rest (0 of 2, no pending indicator) -> `offline` -> verify
       -> the indicator reads 1, and STILL 1 after 6s (held, not merely in flight)
       -> `PendingTransactionLogs` lists `VERIFY_ASSET` with `"verified":true`
-    -> `online` -> the indicator is gone (drained)
+    -> `online`, the list still open -> the indicator is gone (drained) -> Refresh: `No logs found.`
     -> RELOAD -> the job reads 1 of 2 (the server has it) -> unverify -> reload -> 0 of 2
 ⭐ LEG 2 - SURVIVES A RELOAD
     at rest -> `offline` -> verify -> indicator 1 (held) -> RELOAD while it is held
@@ -38,7 +38,7 @@ optimistic, not gated on being online, and self-restoring by unverifying (MOB.51
     It never left before the reload: the queue was closed and the count held.
 
 🛑 RESTORE - `always`: dispatch `online` (a closed queue would hold every later request), then a
-conditional unverify (only if the first asset's box is checked), a reload and a HARD gate that
+unverify of every checked asset, a reload and a HARD gate that
 the job is back to 0 of 2. If a run dies half-way, `reset_av_fixture.py --apply` puts the
 fixture back for 0 runs.
 """
@@ -63,6 +63,23 @@ PENDING_JS = ("const up = document.querySelector('svg[data-icon=\"upload\"]');\n
               "const lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\n"
               "const pending = lab ? (lab.textContent || '').trim() : null;\n")
 TEXT = "const t = (document.body.textContent || '');\n"
+# `PendingTransactionLogs` loads the queue once on mount; its `Refresh` button re-reads IndexedDB
+# (`inspectMutationQueue` returns [] once drained) and then renders `No logs found.` (:58). The list is
+# kept OPEN through the drain - its header icon exists only while something is pending, so this is the
+# one way to see the empty state. Scoped to the list (its `Pending Transactions` title's Box), re-clicks
+# Refresh every 2s until the drained queue reads back empty.
+LIST_EMPTIED = ("const title = [...document.querySelectorAll('h3')].find(h => (h.textContent || '').trim() === 'Pending Transactions');\n"
+                "const box = title && title.parentElement && title.parentElement.parentElement;\n"
+                "if (!box) return false;\n"
+                "const t = box.textContent || '';\n"
+                "if (t.includes('No logs found.') && !t.includes('VERIFY_ASSET')) return true;\n"
+                "const at = Number(sessionStorage.getItem('__dd913_refresh') || 0);\n"
+                "if (Date.now() - at > 2000) {\n"
+                "  sessionStorage.setItem('__dd913_refresh', String(Date.now()));\n"
+                "  const b = [...box.querySelectorAll('button')].find(x => (x.textContent || '').trim() === 'Refresh');\n"
+                "  if (b) b.click();\n"
+                "}\n"
+                "return false;")
 
 
 def dispatch(evt, always=False):
@@ -106,9 +123,11 @@ def restore(label):
     return [
         dispatch("online", always=True),
         step("wait", "Let the queue drain", {"value": 4}, always=True),
-        jsassert(f"RESTORE ({label}): unverify the first asset — only if its box is checked",
-                 "const b = document.querySelector('input[type=\"checkbox\"]');\n"
-                 "if (b && b.checked) b.click();\nreturn true;", always=True, timeout=20),
+        # EVERY checked box, not the first: the verify's `[1]` and a later render can disagree on row
+        # order, and a miss would leave the fixture dirty for MOB.983's next child (MOB.536).
+        jsassert(f"RESTORE ({label}): unverify every checked asset — the fixture's at rest is none",
+                 "[...document.querySelectorAll('input[type=\"checkbox\"]')]\n"
+                 "  .filter(b => b.checked).forEach(b => b.click());\nreturn true;", always=True, timeout=20),
         step("wait", "Let the unverify reach the server", {"value": 4}, always=True),
     ] + [dict(s, alwaysExecute=True) for s in av_job_gate(JOB_ID)] + [
         step("click", 'Switch to the "All" filter', {"element": xpath_el(DETAIL, ALL_FILTER)},
@@ -131,14 +150,18 @@ steps = at_rest("leg 1") + queue_one_verify("leg 1") + [
              # JSON.stringify(variables, null, 2) -> `"verified": true`, with a space
              TEXT + "return t.includes('Pending Transactions') && t.includes('VERIFY_ASSET')\n"
              "  && /\"verified\":\\s*true/.test(t);", timeout=20),
-    step("pressKey", "Close the list", {"value": "Escape"}),
-    step("wait", "Let it close", {"value": 1}),
     jsassert("UI (optional: records whether the job counter follows the optimistic verify while "
              "it is unsent)", TEXT + f"return t.includes('{ONE}');", optional=True, timeout=10),
-    dispatch("online"),
+    dispatch("online"),                                    # the list stays OPEN through the drain
     step("wait", "Let the queue drain", {"value": 4}),
     jsassert("⭐ DRAINED: the pending indicator is gone once back online",
              PENDING_JS + "return pending === null;", timeout=30),
+    jsassert("⭐ EMPTIED: the still-open list, refreshed, reads `No logs found.` — no VERIFY_ASSET left "
+             "(`PendingTransactionLogs.tsx:58`)", LIST_EMPTIED, timeout=30),
+    jsassert("Remove the refresh gate's sessionStorage key",
+             "sessionStorage.removeItem('__dd913_refresh');\nreturn true;", always=True, timeout=15),
+    step("pressKey", "Close the list", {"value": "Escape"}, always=True),
+    step("wait", "Let it close", {"value": 1}, always=True),
 ] + av_job_gate(JOB_ID) + [
     step("click", 'Switch to the "All" filter', {"element": xpath_el(DETAIL, ALL_FILTER)}, timeout=30),
     step("wait", "Wait for the All list to re-render", {"value": 2}),
@@ -161,7 +184,7 @@ write(test(
     "- In a browser the queue closes on window `offline` and opens on `online`\n"
     "  (`gateQueueLinkOnNetworkChange`) — the events `MOB.910` dispatches.\n"
     "- Leg 1: offline → verify an AV asset → header indicator **1**, still 1 after 6s (held) →\n"
-    "  `Pending Transactions` lists `VERIFY_ASSET` → online → indicator gone → **reload: the server\n"
+    "  `Pending Transactions` lists `VERIFY_ASSET` → online → indicator gone, the still-open list refreshes to `No logs found.` → **reload: the server\n"
     "  has it** → unverify.\n"
     "- Leg 2: offline → verify → held → **reload while held** → the app replays IndexedDB on\n"
     "  startup → 1 of 2, nothing pending → unverify.\n"

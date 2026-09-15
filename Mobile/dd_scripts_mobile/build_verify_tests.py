@@ -5,7 +5,7 @@ FIXTURE  Z0EVwQcdJZhMURcBFkp0E0 - crew Admin, status IN_PROGRESS, exactly 2 asse
 
 WHY THAT EXACT SHAPE MATTERS - it is what makes these tests repeatable.
   VerificationCheckbox's update() runs on BOTH verify and unverify, and can only move the
-  job status FORWARD (bugs_found.md #10):
+  job status FORWARD (bugs §10):
 
       if (assetsVerified === assets.length && status !== 'COMPLETED') -> COMPLETED
       if (assetsVerified && status === 'READY')                       -> IN_PROGRESS
@@ -27,7 +27,7 @@ THE JOB DETAIL PAGE IS cache-only
 
 DO NOT ASSERT THE TOAST
   VerificationCheckbox calls toast.success BEFORE client.mutate and never awaits it
-  (bugs_found.md #11), so the toast proves only that the handler ran - not that anything
+  (bugs §11), so the toast proves only that the handler ran - not that anything
   persisted. The counter text and the Verified-filter contents are the real signals.
 
 FILTER STATE LEAKS BETWEEN SUBTESTS
@@ -140,11 +140,11 @@ write(test(
     f"  so `{FIXTURE_ID}` ends every run exactly as it started.\n"
     "- Deliberately does NOT verify both. Verifying every asset would flip the job to\n"
     "  COMPLETED, and `VerificationCheckbox` can never move a status back - unverifying\n"
-    "  afterwards would leave a COMPLETED job holding unverified assets (bugs_found #10).\n"
+    "  afterwards would leave a COMPLETED job holding unverified assets (bugs §10).\n"
     "- The unverify click targets the Verified tab, where exactly one row exists, so the\n"
     "  locator is unambiguous without needing to know the asset's name.\n"
     "- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n"
-    "  mutation is sent and is never awaited (bugs_found #11).",
+    "  mutation is sent and is never awaited (bugs §11).",
     open_job() + set_filter("All") + [
         step("assertPageContains", f'FIXTURE GUARD: job is at rest ("{BASELINE}")',
              {"value": BASELINE}),

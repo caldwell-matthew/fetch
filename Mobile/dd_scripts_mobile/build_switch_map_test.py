@@ -1,4 +1,4 @@
-"""Build MOB.123 - the map's `Switch Map` picker (checklist 🟢 #12).
+"""Build MOB.123 - the map's `Switch Map` picker.
 
 WHAT SHIPPED WITHOUT A TEST
   `ViewSelectButton.tsx` (shared by web and mobile, mounted by `MapGL/ControlButtons.tsx:76`)
@@ -189,7 +189,7 @@ steps = [
 
 write(test(
     "MOB.123_Map_Switch_Map",
-    "`MOB.123` **The map's `Switch Map` picker** — checklist 🟢 #12.\n"
+    "`MOB.123` **The map's `Switch Map` picker**.\n"
     "- **Switches and switches back.** `onSelect` only writes `mobile-map-id` to\n"
     "  sessionStorage — no mutation — so the test proves a real switch, not just that a modal\n"
     "  opened: OPEN (holds the stored map, ≥ 2 options, one checked) → DISMISS (no write) →\n"

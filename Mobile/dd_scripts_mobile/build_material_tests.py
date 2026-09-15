@@ -28,8 +28,8 @@ WHY MODAL-CLOSE IS REAL PROOF HERE
 
 PERMISSIONS
   Both stock forms are gated on `storeRoom?.permissions?.canAdjust`. That IS a real field
-  (`StoreroomItemPermission { canIssue, canAdjust }`) - unlike `wPerms.canDelete` in
-  bugs_found.md 4b, this one is not a typo. Checked before assuming.
+  (`StoreroomItemPermission { canIssue, canAdjust }`), checked against the schema before
+  assuming - permission field names differ between models (work uses `delete`, not `canDelete`).
 """
 import json, os, sys
 

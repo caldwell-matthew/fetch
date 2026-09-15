@@ -1,5 +1,4 @@
-"""Build MOB.301 - a photo reaches the NEW WORK ORDER form's carousel, without submitting
-(checklist 🟢 #2).
+"""Build MOB.301 - a photo reaches the NEW WORK ORDER form's carousel, without submitting.
 
 WHAT SHIPPED WITHOUT A TEST
   `WorkOrders/components/InsertForm/index.tsx:180-225` puts a `PhotoCarousel` at the top of the

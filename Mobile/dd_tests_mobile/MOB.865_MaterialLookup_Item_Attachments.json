@@ -471,6 +471,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "\u2b50 PHOTOS SPLIT: `Storeroom Item` first, then `Material Item (read only)` \u2014 and the read-only half offers NO `Add Photo`/`Add File` and shows a carousel or `No photos`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst leaves = [...m.querySelectorAll('p, div, span')].filter(e => e.children.length === 0);\nconst store = leaves.find(e => (e.textContent || '').trim() === 'Storeroom Item');\nconst ro = leaves.find(e => (e.textContent || '').trim() === 'Material Item (read only)');\nconst tail = []; let n = ro && ro.nextElementSibling;\nwhile (n) { tail.push(n); n = n.nextElementSibling; }\nconst tb = tail.flatMap(e => (e.tagName === 'BUTTON' ? [e] : []).concat([...e.querySelectorAll('button')]))\n  .map(b => (b.textContent || '').trim());\nconst tt = tail.map(e => e.textContent || '').join(' ');\nconst hasCarousel = tail.some(e => e.matches('[class*=\"mantine-Carousel\"]') || !!e.querySelector('[class*=\"mantine-Carousel\"]'));\nconst hasTable = tail.some(e => e.tagName === 'TABLE' || !!e.querySelector('table'));\nconst ordered = !!store && !!ro && !!(store.compareDocumentPosition(ro) & 4);\nreturn ordered && !tb.includes('Add Photo') && !tb.includes('Add File')\n  && (hasCarousel || tt.includes('No photos'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Switch to the \"Docs\" segment by VALUE (4) \u2014 never by text (\u00a722)",
                 "noScreenshot": false,
                 "params": {
@@ -529,6 +542,19 @@
                 },
                 "type": "assertFromJavascript",
                 "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 DOCS SPLIT: `Storeroom Item` first, then `Material Item (read only)` \u2014 and the read-only half offers NO `Add File`/`Add Photo` and shows a table or `No documents`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst leaves = [...m.querySelectorAll('p, div, span')].filter(e => e.children.length === 0);\nconst store = leaves.find(e => (e.textContent || '').trim() === 'Storeroom Item');\nconst ro = leaves.find(e => (e.textContent || '').trim() === 'Material Item (read only)');\nconst tail = []; let n = ro && ro.nextElementSibling;\nwhile (n) { tail.push(n); n = n.nextElementSibling; }\nconst tb = tail.flatMap(e => (e.tagName === 'BUTTON' ? [e] : []).concat([...e.querySelectorAll('button')]))\n  .map(b => (b.textContent || '').trim());\nconst tt = tail.map(e => e.textContent || '').join(' ');\nconst hasCarousel = tail.some(e => e.matches('[class*=\"mantine-Carousel\"]') || !!e.querySelector('[class*=\"mantine-Carousel\"]'));\nconst hasTable = tail.some(e => e.tagName === 'TABLE' || !!e.querySelector('table'));\nconst ordered = !!store && !!ro && !!(store.compareDocumentPosition(ro) & 4);\nreturn ordered && !tb.includes('Add File') && !tb.includes('Add Photo')\n  && (hasTable || tt.includes('No documents'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

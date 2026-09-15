@@ -4,7 +4,7 @@
         "name": "MOB.391_Work_Add_Failure",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.391` **Add a failure \u2014 proved after a reload \u2014 then delete it again.**\n- Four required lookups: asset, failure type, repair type, root cause type\n  (componentTypeId and discoveryCodeId are optional and skipped).\n- Key `BELT (R-L1) \u00b7 ADJUST \u00b7 TIME` \u2014 NOT the fixture's own\n  `MISSED` failure: the server keeps one per key and refused every repeat (bugs \u00a740).\n- \u2b50 Proof after a RELOAD: exactly one card with the key.\n- \ud83d\uded1 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n  only \u2014 guarded in the same step as the gear click \u2014 then a reload proves it gone and the\n  original untouched.",
+        "message": "`MOB.391` **Add a failure \u2014 proved after a reload \u2014 then delete it again.**\n- Four required lookups: asset, failure type, repair type, root cause type\n  (componentTypeId and discoveryCodeId are optional and skipped).\n- Key `BELT (R-L1) \u00b7 ADJUST \u00b7 TIME` \u2014 NOT the fixture's own\n  `MISSED` failure: the server keeps one per key and refused every repeat (bugs \u00a740).\n- \u2b50 Proof after a RELOAD: exactly one card with the key.\n- \ud83d\uded1 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n  only \u2014 guarded in the same step as the gear click \u2014 then a reload proves it gone and the\n  original untouched.\n- \ud83d\uded1 Red until bugs \u00a742 is fixed: on Datadog the first add after a page load never submits. The add\n  proofs and the cleanup are `soft`, so a suite's later children still run.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -429,6 +429,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "Submit is ARMED \u2014 `button[form=\"work-failure-form\"]` is `type=\"submit\"` (the form validated; trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[form=\"work-failure-form\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Submit the form",
                 "noScreenshot": false,
                 "params": {
@@ -460,11 +473,11 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Test the form modal closed (durable success signal)",
+                "name": "Test the form modal closed (durable success signal) \u2014 red while bugs \u00a742 is open: the first add after a page load does not submit",
                 "noScreenshot": false,
                 "params": {
                     "value": "Submit"
@@ -557,7 +570,7 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
@@ -570,7 +583,33 @@
                 "timeout": 30
             },
             {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: exactly ONE failure with the run's key \u2014 asked over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd39x_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const fs = data.workStage.failures;\n  const is = (f, rep) => f.failureTypeId && f.repairTypeId && f.rootCauseTypeId\n    && f.failureTypeId.name === 'BELT (R-L1)' && f.rootCauseTypeId.name === 'TIME' && f.repairTypeId.name === rep;\n  return { mine: fs.filter(f => is(f, 'ADJUST')).length, orig: fs.filter(f => is(f, 'MISSED')).length }; })().mine === 1); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { failures { failureTypeId { name } repairTypeId { name } rootCauseTypeId { name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
                 "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd39x_server', '__dd39x_server:inflight', '__dd39x_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
@@ -595,7 +634,7 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
@@ -631,7 +670,7 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
@@ -740,17 +779,43 @@
                 "type": "wait"
             },
             {
-                "allowFailure": false,
+                "allowFailure": true,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 CLEANED: no failure with the run's key, and the original (BELT (R-L1) \u00b7 MISSED \u00b7 TIME) is untouched \u2014 same count as before",
+                "name": "\u2b50 CLEANED: no failure with the run's key, and the original (BELT (R-L1) \u00b7 MISSED \u00b7 TIME) is untouched \u2014 same count as before (after a reload: the cache the delete already edited)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst isKey = (c, rep) => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Repair Type'] === rep && c.row['Root Cause'] === 'TIME';\nconst mine = cards.filter(c => isKey(c, 'ADJUST'));\nconst orig = cards.filter(c => isKey(c, 'MISSED'));\nconst before = sessionStorage.getItem('__dd39x_origCount');\nreturn mine.length === 0 && before !== null && orig.length === Number(before);"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the run's failure is gone and the original (BELT (R-L1) \u00b7 MISSED \u00b7 TIME) is untouched \u2014 asked over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd39x_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const r = (() => { const fs = data.workStage.failures;\n  const is = (f, rep) => f.failureTypeId && f.repairTypeId && f.rootCauseTypeId\n    && f.failureTypeId.name === 'BELT (R-L1)' && f.rootCauseTypeId.name === 'TIME' && f.repairTypeId.name === rep;\n  return { mine: fs.filter(f => is(f, 'ADJUST')).length, orig: fs.filter(f => is(f, 'MISSED')).length }; })(); return r.mine === 0 && r.orig === Number(sessionStorage.getItem('__dd39x_origCount')); })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { failures { failureTypeId { name } repairTypeId { name } rootCauseTypeId { name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd39x_server', '__dd39x_server:inflight', '__dd39x_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             },
             {
                 "allowFailure": false,

@@ -4,7 +4,7 @@
         "name": "MOB.510_AssetVerify_Verify_Unverify",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.510` Verify one asset, prove it moved tabs, then put it back.\n- SELF-RESTORING: verifies exactly ONE of the two assets and unverifies the same one,\n  so `Z0EVwQcdJZhMURcBFkp0E0` ends every run exactly as it started.\n- Deliberately does NOT verify both. Verifying every asset would flip the job to\n  COMPLETED, and `VerificationCheckbox` can never move a status back - unverifying\n  afterwards would leave a COMPLETED job holding unverified assets (bugs_found #10).\n- The unverify click targets the Verified tab, where exactly one row exists, so the\n  locator is unambiguous without needing to know the asset's name.\n- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n  mutation is sent and is never awaited (bugs_found #11).",
+        "message": "`MOB.510` Verify one asset, prove it moved tabs, then put it back.\n- SELF-RESTORING: verifies exactly ONE of the two assets and unverifies the same one,\n  so `Z0EVwQcdJZhMURcBFkp0E0` ends every run exactly as it started.\n- Deliberately does NOT verify both. Verifying every asset would flip the job to\n  COMPLETED, and `VerificationCheckbox` can never move a status back - unverifying\n  afterwards would leave a COMPLETED job holding unverified assets (bugs \u00a710).\n- The unverify click targets the Verified tab, where exactly one row exists, so the\n  locator is unambiguous without needing to know the asset's name.\n- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n  mutation is sent and is never awaited (bugs \u00a711).",
         "tags": [
             "Mobile",
             "env:dev",

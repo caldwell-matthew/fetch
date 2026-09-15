@@ -1,5 +1,4 @@
-"""Build MOB.855_MaterialLookup_Column_Sort - the column-header sort and the match count
-(checklist 🟢 #13).
+"""Build MOB.855_MaterialLookup_Column_Sort - the column-header sort and the match count.
 
 WHAT IS PROVEN, AND HOW A SORT IS PROVEN HONESTLY
   `MaterialLookup/index.tsx` renders a `Th` per column whose button refetches with `sortId` set

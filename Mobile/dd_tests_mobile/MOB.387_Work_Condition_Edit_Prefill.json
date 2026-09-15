@@ -150,6 +150,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "The card also lists `Stress Decision Score:` and `Notes:` (`ConditionDetails.tsx:42-43`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...new Set([...document.querySelectorAll('li')]\n  .filter(li => norm(li.textContent).indexOf('Condition Found:') === 0)\n  .map(li => li.closest('[class*=\"mantine-Paper-root\"]')))].filter(Boolean);\nconst orig = cards.filter(c => {\n  const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n  const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n  const b = c.querySelector('button');\n  return a && norm(a.textContent) === 'Pump 0102' && b && norm(b.textContent) === 'Mounting/Support';\n});\nif (orig.length !== 1) return false;\nconst lis = [...orig[0].querySelectorAll('li')].map(li => norm(li.textContent));\nreturn lis.some(t => t.indexOf('Stress Decision Score:') === 0) && lis.some(t => t.indexOf('Notes:') === 0);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open that card's gear",
                 "noScreenshot": false,
                 "params": {
@@ -362,6 +375,55 @@
                 "noScreenshot": false,
                 "params": {
                     "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...new Set([...document.querySelectorAll('li')]\n  .filter(li => norm(li.textContent).indexOf('Condition Found:') === 0)\n  .map(li => li.closest('[class*=\"mantine-Paper-root\"]')))].filter(Boolean);\nconst orig = cards.filter(c => {\n  const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n  const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n  const b = c.querySelector('button');\n  return a && norm(a.textContent) === 'Pump 0102' && b && norm(b.textContent) === 'Mounting/Support';\n});\nconst lis = orig.length === 1 ? [...orig[0].querySelectorAll('li')].map(li => norm(li.textContent)) : [];\nconst same = ['Condition Found: 1', 'Condition Score: 2', 'Stress Score: 3'].every(v => lis.includes(v));\nreturn orig.length === 1 && same;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Failure tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Failure\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the failure cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The fixture's failure table has a `Discovery Code` row (`FailureDetails.tsx:30` \u2014 always rendered)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst tds = [...document.querySelectorAll('[role=\"tabpanel\"]:not([style*=\"display: none\"]) td')];\nreturn tds.some(td => norm(td.textContent) === 'Discovery Code');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

@@ -281,6 +281,32 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "The layers control is headed `Layers` (`Map/Layers/layersList.tsx:116`)",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Layers",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/map",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" layers-title \")]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the Layers panel",
                 "noScreenshot": false,
                 "params": {

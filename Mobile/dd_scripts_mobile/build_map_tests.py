@@ -87,6 +87,9 @@ write(test(
         # The STYLE toggle above does flip, because `changeMapStyle` updates React state -
         # which is exactly why that one is the load-bearing proof and this one is not.
         # -------- layers panel
+        step("assertElementContent", "The layers control is headed `Layers` (`Map/Layers/layersList.tsx:116`)",
+             {"check": "contains", "value": "Layers", "element": xpath_el(MAP_URL, LAYERS + "//h4")},
+             timeout=30),
         step("click", "Open the Layers panel", {"element": xpath_el(MAP_URL, LAYERS)},
              timeout=30),
         step("wait", "Wait for the layers modal", {"value": 3}),

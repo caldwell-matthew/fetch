@@ -489,13 +489,39 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 SERVER: after a reload the badge reads \"Not Completed\"",
+                "name": "After a reload the badge reads \"Not Completed\" (the persisted cache \u2014 not a server proof, trap 6)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Not Completed';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: `workStage.status` is `NotCompleted` \u2014 asked over /graphql, not read from the cache",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd320_status\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.status === 'NotCompleted'); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { status } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd320_status', '__dd320_status:inflight', '__dd320_status:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             },
             {
                 "allowFailure": false,
@@ -758,13 +784,39 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 SERVER: after a reload the badge reads \"Ready\"",
+                "name": "After a reload the badge reads \"Ready\" (the persisted cache \u2014 not a server proof, trap 6)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const span = [...document.querySelectorAll('span')]\n  .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);\nconst badge = span && span.querySelector('[class*=\"mantine-Badge\"]');\nconst now = badge ? (badge.textContent || '').trim() : null;\nreturn now === 'Ready';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: `workStage.status` is `Ready` \u2014 asked over /graphql, not read from the cache",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd320_status\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.status === 'Ready'); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { status } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd320_status', '__dd320_status:inflight', '__dd320_status:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             }
         ]
     }

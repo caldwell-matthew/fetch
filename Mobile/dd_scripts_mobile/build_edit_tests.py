@@ -478,7 +478,7 @@ def open_work_attributes():
 write(test(
     "MOB.388_Work_Attribute_Edit",
     f"`MOB.388` Edit the `{WO_ATTRIBUTE}` attribute on the fixture **work order** and prove it\n"
-    "persisted — checklist 🟢 #17.\n"
+    "persisted.\n"
     "- **SELF-RESTORING**, MOB.545's two-leg shape: leg 1 writes `DD SYNTHETIC EDIT <runid>`,\n"
     f"  a reload proves it is no longer `{WO_ATTR_BASELINE}`; leg 2 writes `{WO_ATTR_BASELINE}`\n"
     "  back and a reload proves it is exact.\n"
@@ -523,14 +523,19 @@ login_steps = json.load(
 # Keep COMPLETE - a child missing here is silently dropped on the next DD_FORCE rebuild and
 # the suite then passes with the test absent (trap 12).
 CHILDREN = ["MOB.395_Work_GenInfo_Edit", "MOB.710_AssetLookup_Field_Edit",
-            "MOB.545_AssetVerify_Attribute_Edit", "MOB.388_Work_Attribute_Edit"]
+            "MOB.545_AssetVerify_Attribute_Edit", "MOB.388_Work_Attribute_Edit",
+            # MOB.386: red whenever its first `Edit Item` loses bugs §42's race (`soft`, so MOB.134 still runs)
+            "MOB.386_Work_Condition_Edit_Save", "MOB.134_Work_Form_Fill"]
 
 write(test(
     "MOB.989_FieldEdit_Suite",
     "Editing existing records — the write path every module has and none of the read-only\n"
     "suites cover.\n"
-    "- Both children MUTATE but are **self-restoring**: each writes a run-unique marker and\n"
-    f"  then restores `{BASELINE}`.\n"
+    "- Every child MUTATES but is **self-restoring**: the field edits write a run-unique marker and\n"
+    f"  restore `{BASELINE}`; `MOB.386` edits a condition score and restores 2; `MOB.134` fills a work\n"
+    "  form's integer field and clears it.\n"
+    "- 🛑 `MOB.386` goes red whenever its first `Edit Item` loses bugs §42's race — `soft`, so the\n"
+    "  children after it still run.\n"
     "- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose — that suite is documented as\n"
     "  read-only and safe to schedule, and quietly adding a mutating child to it would make\n"
     "  that promise false.\n"

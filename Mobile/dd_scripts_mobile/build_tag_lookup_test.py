@@ -1,4 +1,4 @@
-"""Build MOB.750 - Asset Lookup's `Tag Lookup` menu (checklist 🟢 #16).
+"""Build MOB.750 - Asset Lookup's `Tag Lookup` menu.
 
 WHAT IT IS
   `AssetLookup/TagLookup/index.tsx` renders a `Tag Lookup` button whose Mantine `Menu` offers
@@ -154,7 +154,7 @@ steps = [
 
 write(test(
     "MOB.750_AssetLookup_Tag_Lookup_Menu",
-    "`MOB.750` **Asset Lookup's `Tag Lookup` menu** — checklist 🟢 #16.\n"
+    "`MOB.750` **Asset Lookup's `Tag Lookup` menu**.\n"
     "- The menu offers exactly `Scan Barcode` then `Alphanumeric`.\n"
     "- ⭐ **`Alphanumeric`'s browser branch, proved without a file chooser**: the test swaps\n"
     "  `HTMLInputElement.prototype.click` for a recorder, clicks the item for real, and requires\n"

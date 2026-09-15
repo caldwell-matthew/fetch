@@ -4,7 +4,7 @@
         "name": "MOB.399_Work_Warranties",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.399` The **Warranties** tab renders its real content.\n- READ-ONLY. `WarrentyList` displays only; there is no form.\n- The fixture carries a **real warranty** (added by the repo owner 2026-08-12), so this\n  asserts actual content: `Expiration Date` for a Time warranty or `Exp. Reading` for a\n  reading-based one. **The `No Warranties Found...` empty state is deliberately NOT\n  accepted** \u2014 allowing it would leave an escape hatch that passes on a tab rendering\n  nothing (trap 5).\n- **Also covers the red `Assets Related to the Work Order are under Warranty` banner**\n  (added 2026-08-20). It is driven by `hasActiveWarranties`, NOT by the tab, so the two\n  can legitimately disagree: the tab lists every warranty, the banner appears only while\n  one is still ACTIVE. The assertion is therefore a **consistency** check, not a\n  presence check \u2014 see the note in the generator.",
+        "message": "`MOB.399` The **Warranties** tab renders its real content.\n- READ-ONLY. `WarrentyList` displays only; there is no form.\n- The fixture carries a **real warranty** (added by the repo owner 2026-08-12), so this\n  asserts actual content: `Expiration Date` for a Time warranty or `Exp. Reading` for a\n  reading-based one. **The `No Warranties Found...` empty state is deliberately NOT\n  accepted** \u2014 allowing it would leave an escape hatch that passes on a tab rendering\n  nothing (trap 5).\n- **Also covers the red `Assets Related to the Work Order are under Warranty` banner**\n  (added 2026-08-20). It is driven by `hasActiveWarranties`, NOT by the tab, so the two\n  can legitimately disagree: the tab lists every warranty, the banner appears only while\n  one is still ACTIVE. The assertion is therefore a **consistency** check, not a\n  presence check \u2014 see the note in the generator.\n- **The empty state** is asserted on `MOB.302`'s work order, whose `Bypass Valve 0001` has no\n  warranty: `No Warranties Found...` in the active panel, no warranty content, no banner.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -200,6 +200,105 @@
                     "code": "\nconst BANNER = 'Assets Related to the Work Order are under Warranty';\nconst t = document.body.innerText || '';\nconst banner = t.indexOf(BANNER) !== -1;\nconst hasAnyWarranty = ['Expiration Date', 'Exp. Reading', 'Remaining Days']\n    .some(k => t.indexOf(k) !== -1);\nif (!hasAnyWarranty) return !banner;          // no warranties at all -> no banner\nconst days = [...t.matchAll(/Remaining Days:?\\s*(-?[0-9]+)/g)].map(m => parseInt(m[1], 10));\nif (!days.length) return true;                 // reading-based only: nothing parseable here\nconst anyLive = days.some(d => d > 0);\nreturn banner === anyLive;\n"
                 },
                 "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to MOB.302's work order \u2014 its asset has no warranty",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open its \"Warranties\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Warranties\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the panel",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 EMPTY STATE: the active Warranties panel names `Bypass Valve 0001` and shows `No Warranties Found...` \u2014 no warranty content",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst tabEl = document.querySelector('[role=\"tab\"][data-active]');\nconst id = tabEl && tabEl.getAttribute('aria-controls');\nconst p = id ? document.getElementById(id) : null;\nif (!p || (tabEl.textContent || '').trim() !== 'Warranties') return false;\nconst t = p.textContent || '';\nreturn t.includes('Bypass Valve 0001') && t.includes('No Warranties Found...')\n  && !['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading'].some(k => t.includes(k));\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BANNER: absent on a work order with no warranty (paired with the empty state above)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !(document.body.textContent || '').includes('Assets Related to the Work Order are under Warranty');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
             }
         ]
     }

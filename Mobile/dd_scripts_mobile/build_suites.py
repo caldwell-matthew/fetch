@@ -85,11 +85,11 @@ write(suite(
     # SPLIT 2026-09-11: the six record-adding children moved to MOB.988 below. MOB.991 had
     # run 474s with 13 children and a 70-step addition hit the ceiling at 1071s; MOB.390/391's
     # reload proofs and deletes (bugs §40) added ~70s more, and every write test is due a
-    # reload proof (checklist 🟢 #25). Two suites give both room.
+    # reload proof. Two suites give both room.
     ["MOB.300_Work_Create", "MOB.310_Work_Read", "MOB.320_Work_Status_Update",
      "MOB.330_Work_Detail_Tabs", "MOB.340_Work_Search_Sort",
      "MOB.392_Work_Add_Note", "MOB.393_Work_Add_Form"],
-    # MOB.134_Work_Form_Fill is archived (dd_tests_mobile/_archive/) - never wire it here.
+    # MOB.134_Work_Form_Fill is a child of MOB.989_FieldEdit_Suite (build_edit_tests.py), not of a suite built here.
     ["Mobile", "env:dev", "E2E", "Suite", "Work Order", "CRUD"],
 ))
 

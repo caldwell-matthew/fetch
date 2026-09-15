@@ -281,6 +281,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "\u2026and its `Longitude` row (`GeocoderPopup.tsx:33`)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Longitude"
+                },
+                "type": "assertPageContains",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "The popup offers \"Add Work\"",
                 "noScreenshot": false,
                 "params": {

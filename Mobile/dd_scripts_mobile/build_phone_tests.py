@@ -33,11 +33,37 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, jsassert, server_assert  # noqa: E402
 
 PHONE = ["chrome.mobile_small"]
 WORK_URL = BASE + "/work"
-WO_URL = f"{BASE}/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+WO_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
+WO_URL = f"{BASE}/work/{WO_ID}"
+# A click on the phone tab strip while it is still settling can land without switching tabs (a local
+# replay's forced click stayed on General Info): the gate polls, and re-clicks the tab every 3s until
+# Mantine marks it selected.
+FORMS_SELECTED = ("const tab = [...document.querySelectorAll('[role=\"tab\"]')].find(t => (t.textContent || '').trim() === 'Forms');\n"
+                  "if (!tab) return false;\n"
+                  "if (tab.getAttribute('aria-selected') === 'true') return true;\n"
+                  "const at = Number(sessionStorage.getItem('__dd951_forms_click') || 0);\n"
+                  "if (Date.now() - at > 3000) { sessionStorage.setItem('__dd951_forms_click', String(Date.now())); tab.click(); }\n"
+                  "return false;")
+FORMS_Q = ("query($id: ID!) { workStage(id: $id) { forms { id fields { __typename "
+           "... on WorkStageFormDetail { id attributeTypeId { type } } } } } }")
+# The phone form renders an image field through `Forms/ImageInput.tsx`, whose enabled state is an
+# `Upload Photo` button (:145). A biconditional against the server's field types, so a form without an
+# image field cannot pass vacuously on a missing button, nor one with it on a stray button elsewhere.
+UPLOAD_PHOTO_IFF_IMAGE = (
+    "(() => {\n"
+    "  const formId = (location.pathname.match(/\\/form\\/([^/?#]+)/) || [])[1];\n"
+    "  const form = ((data.workStage && data.workStage.forms) || []).find(f => f && f.id === formId);\n"
+    "  if (!form || !document.getElementById('senor-work-form')) return false;\n"
+    "  const hasImage = (form.fields || []).some(x => x && x.__typename === 'WorkStageFormDetail'\n"
+    "    && x.attributeTypeId && x.attributeTypeId.type === 'image');\n"
+    "  const button = [...document.querySelectorAll('button')]\n"
+    "    .some(b => (b.textContent || '').replace(/\\s+/g, ' ').trim() === 'Upload Photo');\n"
+    "  return hasImage === button;\n"
+    "})()")
 PANEL = '//*[@role="tabpanel"][not(contains(@style, "display: none"))]'
 FORM_CARD = (f'({PANEL}//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")]'
              '[.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Title-root ")]])[1]')
@@ -69,6 +95,10 @@ m951 = [
              DEVICE_JS + "return w > 0 && w < 750;", timeout=15),
     step("click", "Open the Forms tab",
          {"element": xpath_el(WO_URL, '//*[@role="tab"][contains(normalize-space(.), "Form")]')}, timeout=30),
+    jsassert("GATE: the Forms tab is SELECTED — re-clicked every 3s until it is (a click on the settling "
+             "tab strip can miss)", FORMS_SELECTED, timeout=30),
+    jsassert("Remove the gate's sessionStorage key",
+             "sessionStorage.removeItem('__dd951_forms_click');\nreturn true;", always=True, timeout=15),
     step("wait", "Wait for the forms list", {"value": 3}),
     step("assertElementPresent", "FIXTURE GUARD: the work order has at least one form card",
          {"element": xpath_el(WO_URL, FORM_CARD)}, timeout=30),
@@ -80,13 +110,16 @@ m951 = [
              "did NOT (`FormDetails.tsx`, `availWidth < 750`)",
              "return !!document.getElementById('senor-work-form') && !document.getElementById('apm-dv-tabpanel');",
              timeout=30),
-]
+] + server_assert("⭐ IMAGE FIELD (server): the form has an image field exactly when an `Upload Photo` button renders "
+                  "(`Forms/ImageInput.tsx:145`)", "__dd951_server", FORMS_Q, {"id": WO_ID}, UPLOAD_PHOTO_IFF_IMAGE)
 write(on_phone(test(
     "MOB.951_Phone_Form_Branch",
     "`MOB.951` **PHONE WIDTH — a work form renders its MOBILE branch.**\n"
     "- `FormDetails.tsx` picks the desktop form at `screen.availWidth >= 750` (MOB.355, on tablet)\n"
     "  and `#senor-work-form` below it — where `MobileSignatureField` lives. No tablet run can\n"
     "  reach it (trap 1).\n"
+    "- Its image field renders the mobile `Upload Photo` button — asserted exactly when the server says the\n"
+    "  opened form has an image field (never clicked: it opens a file dialog).\n"
     "- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. 🛑 READ-ONLY.",
     m951,
     ["Mobile", "env:dev", "Phone", "Work Order", "Forms", "read-only"],

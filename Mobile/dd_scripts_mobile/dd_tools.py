@@ -1,7 +1,7 @@
 """Shared helpers for building, pushing, and running the MOB.* mobile suite.
 
 Run from the repo root with the venv python, e.g.:
-    ./.venv/bin/python Mobile/dd_scripts/dd_tools.py push       # sync dd_tests_mobile/ to Datadog
+    ./.venv/bin/python Mobile/dd_scripts/dd_tools.py push MOB.914 MOB.995   # push ONLY the tests being edited (--all: a deliberate full sync)
     ./.venv/bin/python Mobile/dd_scripts/dd_tools.py run MOB.990_Smoke_Suite
 """
 import os, sys, json, glob, time, certifi
@@ -273,6 +273,59 @@ def prove_record_count(key, needles, what, url, tab_xpath, soft=False):
                  timeout=30, soft=soft),
         jsassert("Remove this test's sessionStorage key",
                  f"sessionStorage.removeItem('{key}');\nreturn true;", always=True, timeout=15),
+    ]
+
+
+# ---------------------------------------------------------------------------------------------
+# A GENUINE SERVER READ - for the proofs a reload cannot give (test_authoring.md trap 6).
+# ---------------------------------------------------------------------------------------------
+# A reload renders the PERSISTED Apollo cache (apollo3-cache-persist; the work-order detail query is
+# cache-first), so it reads back whatever the app wrote into the cache - including writes made
+# BEFORE the mutation: StatusMenuIcon's status and removeFromCollection's delete. This asks the
+# server itself: the page POSTs to /graphql with the session cookie (`credentials: 'same-origin'`)
+# and the one header the app's own HttpLink adds (`apollo-require-preflight: *`,
+# client/mobile/graphql/index.tsx:43-49). The app's cache is never touched.
+#
+# ONE self-refreshing step. The first poll fires the request and returns false; a later poll judges
+# the stored answer. An answer that fails the predicate is discarded and asked again (at most every
+# 2s, never while one is in flight), so a mutation still reaching the server is WAITED FOR rather
+# than judged on a stale snapshot - until the step's timeout. `predicate` is a JS expression over
+# `data` (the GraphQL `data` object); a throw counts as false. `window.fetch`, so the bench can stub it.
+def server_read_js(key, query, variables, predicate):
+    import json as _json
+    k = _json.dumps(key)
+    q = _json.dumps(" ".join(query.split()))
+    v = _json.dumps(variables)
+    return (
+        f"const K = {k}, F = K + ':inflight', T = K + ':at';\n"
+        "const raw = sessionStorage.getItem(K);\n"
+        "if (raw) {\n"
+        "  let ok = false;\n"
+        f"  try {{ const data = (JSON.parse(raw) || {{}}).data; ok = !!data && !!({predicate}); }} catch (e) {{ ok = false; }}\n"
+        "  if (ok) return true;\n"
+        "  sessionStorage.removeItem(K);\n"
+        "}\n"
+        "if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n"
+        "  sessionStorage.setItem(F, '1');\n"
+        "  sessionStorage.setItem(T, String(Date.now()));\n"
+        "  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n"
+        "      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n"
+        f"      body: JSON.stringify({{ query: {q}, variables: {v} }}) }})\n"
+        "    .then(r => r.json())\n"
+        "    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n"
+        "    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n"
+        "}\n"
+        "return false;")
+
+
+def server_assert(name, key, query, variables, predicate, soft=False, always=False, timeout=45):
+    """A /graphql read judged by `predicate`, then its scratch keys removed (`always`)."""
+    return [
+        jsassert(name, server_read_js(key, query, variables, predicate),
+                 soft=soft, always=always, timeout=timeout),
+        jsassert("Remove the server read's sessionStorage keys",
+                 f"['{key}', '{key}:inflight', '{key}:at'].forEach(k => sessionStorage.removeItem(k));\n"
+                 "return true;", always=True, timeout=15),
     ]
 
 
@@ -708,8 +761,27 @@ def remote_ids(api):
     return {t["name"]: t["public_id"] for t in api.list_tests().to_dict()["tests"]}
 
 
-def push():
-    """Create missing MOB.* tests, update existing ones.
+def _local_test_files(names=()):
+    """Every local test JSON, or only the named ones (`MOB.914` or a full test name); a ref matching
+    anything but exactly one test is refused."""
+    files = sorted(glob.glob(os.path.join(HERE, "*.json")))
+    if not names:
+        return files
+    picked = []
+    for ref in names:
+        hits = [p for p in files if os.path.basename(p)[:-5] == ref or os.path.basename(p).startswith(ref + "_")]
+        if len(hits) != 1:
+            raise SystemExit(f"push: {ref!r} matches {len(hits)} tests in dd_tests_mobile/")
+        picked += hits
+    return picked
+
+
+def push(*names, all_tests=False):
+    """Create or update ONLY the named MOB.* tests on Datadog (`--all` for a deliberate full sync).
+
+    🛑 PUSH ONLY WHAT IS BEING EDITED (the owner's rule, 2026-09-14). This used to sync every local test
+    on every call - and `verify.py` called it twice per verify - so each check re-uploaded ~125 tests and
+    published whatever unverified local change sat on disk. With no names it now refuses.
 
     RETURNS NON-ZERO IF ANY TEST FAILED TO SYNC, and prints a loud summary. That matters
     more than it sounds: a push that errors while the caller keeps going leaves Datadog on
@@ -717,11 +789,15 @@ def push():
     never uploaded. That happened - a rejected `public_id` field silently kept MOB.600 three
     steps behind while the local JSON looked right. Always chain with && , never ; .
     """
+    if not names and not all_tests:
+        print("push: name the tests you are editing (dd_tools.py push MOB.914 MOB.995_AssetLookup_Suite), "
+              "or pass --all for a deliberate full sync")
+        return 2
     failed = []
     with ApiClient(_conf()) as c:
         api = SyntheticsApi(c)
         ids = remote_ids(api)
-        for f in sorted(glob.glob(os.path.join(HERE, "*.json"))):
+        for f in _local_test_files(() if all_tests and not names else names):
             d = json.load(open(f))["details"]
             try:
                 body = SyntheticsBrowserTest(**{k: d[k] for k in BODY_KEYS})
@@ -777,10 +853,11 @@ def _progress(elapsed, eta, waiting):
         print(f"  {bar}", flush=True)
 
 
-def run(*names, timeout=2400, push_first=True):
+def run(*names, timeout=2400, push_first=False):
     """Trigger tests and poll until they finish, drawing a live progress bar.
 
-    ⭐ IT PUSHES FIRST AND REFUSES TO RUN IF THE PUSH FAILED. A run measures whatever Datadog
+    ⭐ IT REFUSES TO RUN A TEST THAT DIFFERS FROM THE LOCAL JSON (and, with `--push`, pushes the NAMED
+    tests first - never everything). It used to push every local test before each run. A run measures whatever Datadog
     currently holds, so a rejected push means the next run silently grades the OLD code and
     reports a verdict about a version that no longer exists locally. That happened on
     2026-09-10: a suite regenerated by its build script carried `PENDING-WIRE-UP` again, its
@@ -794,7 +871,7 @@ def run(*names, timeout=2400, push_first=True):
     flight return the previous result the whole time. So the bar answers "is this normal or
     is it stuck?", which is the actual question during a 6-minute wait.
     """
-    if push_first and push():
+    if push_first and push(*names):
         print("\n🛑 PUSH FAILED - NOT RUNNING. Datadog still holds the old version, so any\n"
               "   result would be about code you no longer have. Fix the push first; if it is\n"
               "   `PENDING-WIRE-UP`, run wire_suite.py and push again.")
@@ -805,6 +882,20 @@ def run(*names, timeout=2400, push_first=True):
     with ApiClient(_conf()) as c:
         api = SyntheticsApi(c)
         ids = remote_ids(api)
+        # the stale guard, without pushing: a named test whose steps differ from Datadog is refused
+        sig = lambda st: [(x.get("name"), (x.get("params") or {}).get("subtestPublicId")
+                           or (x.get("params") or {}).get("subtest_public_id")) for x in st]
+        stale = []
+        for n in names:
+            p = os.path.join(HERE, n + ".json")
+            if n in ids and os.path.exists(p):
+                remote = api.get_browser_test(ids[n]).to_dict().get("steps") or []
+                if sig(json.load(open(p))["details"]["steps"]) != sig(remote):
+                    stale.append(n)
+        if stale:
+            print(f"🛑 NOT RUNNING - local and Datadog differ for {stale}. Push what you edited first: "
+                  f"dd_tools.py push {' '.join(stale)}")
+            return 1
         missing = [n for n in names if n not in ids]
         if missing:
             print("not found:", missing)
@@ -969,10 +1060,10 @@ def report(name, index=0):
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "push"
     if cmd == "push":
-        sys.exit(push())
+        sys.exit(push(*[a for a in sys.argv[2:] if not a.startswith("--")], all_tests="--all" in sys.argv[2:]))
     elif cmd == "run":
-        args = [a for a in sys.argv[2:] if a != "--no-push"]
-        sys.exit(run(*args, push_first="--no-push" not in sys.argv[2:]))
+        args = [a for a in sys.argv[2:] if not a.startswith("--")]
+        sys.exit(run(*args, push_first="--push" in sys.argv[2:]))
     elif cmd == "pull":
         sys.exit(pull(*sys.argv[2:]))
     elif cmd == "report":

@@ -32,9 +32,10 @@ MUTATES: each run adds a permanent note to the fixture (MOB.392). MOB.390/391 ar
 SELF-CLEANING - see the block above them.
 """
 import os, sys
+import re
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert, server_assert,  # noqa: E402
                       stash_record_count, prove_record_count)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
@@ -160,7 +161,7 @@ def number(field_id, label, value):
                 {"value": value, "element": xpath_el(STAGE_URL, f'//*[@id="{field_id}"]')})
 
 
-def submit_and_assert(submit_xpath=None, toast="Item added"):
+def submit_and_assert(submit_xpath=None, toast="Item added", soft=False):
     """Assert the MODAL CLOSED, not the toast.
 
     ⚠️ THE MODAL CLOSING IS NOT A SERVER ANSWER (bugs §40). `addToCollection` passes an
@@ -184,12 +185,24 @@ def submit_and_assert(submit_xpath=None, toast="Item added"):
     with the modal (`{opened && Form(...)}`), so its absence is a true closed signal. Other
     buttons on the page read 'SUBMIT' or 'Create Work Order', so there is no collision.
     """
-    steps = [
+    steps = []
+    # 🛑 ARM FIRST. `SubmitButton` is `type={isValid ? 'submit' : 'button'}` and react-hook-form validates
+    # the last pick asynchronously, so a click right after it can land on the inert `type="button"` -
+    # a silent no-op (trap 8). Datadog run 1 of MOB.390 (2026-09-14) did exactly that with every field
+    # filled; its retry passed. A polling gate on the button's own `type` removes the race.
+    m = re.search(r'@form="([^"]+)"', submit_xpath or "")
+    if m:
+        steps.append(jsassert(
+            f"Submit is ARMED — `button[form=\"{m.group(1)}\"]` is `type=\"submit\"` (the form validated; trap 8)",
+            f"const b = document.querySelector('button[form=\"{m.group(1)}\"]');\n"
+            "return !!b && b.type === 'submit';", timeout=30))
+    steps += [
         step("click", "Submit the form",
              {"element": xpath_el(STAGE_URL, submit_xpath or SUBMIT)}),
         step("wait", "Wait for the add mutation", {"value": 3}),
-        step("assertPageLacks", "Test the form modal closed (durable success signal)",
-             {"value": "Submit"}),
+        step("assertPageLacks", "Test the form modal closed (durable success signal)"
+             + (" — red while bugs §42 is open: the first add after a page load does not submit" if soft else ""),
+             {"value": "Submit"}, soft=soft),
     ]
     if toast:
         steps.append(step("assertPageContains", f"Test the {toast!r} toast (optional: transient)",
@@ -217,6 +230,18 @@ def submit_and_assert(submit_xpath=None, toast="Item added"):
 #   A leftover from a failed cleanup stops the test at the premise - it never deletes a record
 #   this run did not create. Clean it from desktop.
 K_ORIG = "__dd39x_origCount"
+# ⚠️ The post-delete check cannot trust a reload: `removeFromCollection` drops the card from the
+# persisted Apollo cache BEFORE its fire-and-forget mutation (trap 6). These ask the server.
+COND_Q = "query($id: ID!) { workStage(id: $id) { condition { inspectionElementId { name } } } }"
+FAIL_Q = ("query($id: ID!) { workStage(id: $id) { failures { failureTypeId { name } "
+          "repairTypeId { name } rootCauseTypeId { name } } } }")
+SERVER_COND = ("(() => { const cs = data.workStage.condition;\n"
+               f"  return {{ mine: cs.filter(c => c.inspectionElementId && c.inspectionElementId.name === '{INSPECTION_ELEMENT}').length,\n"
+               f"           orig: cs.filter(c => c.inspectionElementId && c.inspectionElementId.name === '{ORIGINAL_ELEMENT}').length }}; }})()")
+SERVER_FAIL = ("(() => { const fs = data.workStage.failures;\n"
+               "  const is = (f, rep) => f.failureTypeId && f.repairTypeId && f.rootCauseTypeId\n"
+               f"    && f.failureTypeId.name === '{FAILURE_TYPE}' && f.rootCauseTypeId.name === '{ROOT_CAUSE_TYPE}' && f.repairTypeId.name === rep;\n"
+               f"  return {{ mine: fs.filter(f => is(f, '{REPAIR_TYPE}')).length, orig: fs.filter(f => is(f, '{ORIGINAL_REPAIR}')).length }}; }})()")
 NORM = "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\n"
 PAPER = '[class*="mantine-Paper-root"]'
 TXT = '[class*="mantine-Text-root"]'
@@ -271,7 +296,13 @@ def reopen(tab_label, why):
     ]
 
 
-def add_prove_delete(what, tab_label, cards_js, key_desc, orig_desc, values_js, add_steps):
+def add_prove_delete(what, tab_label, cards_js, key_desc, orig_desc, values_js, add_steps, *,
+                     server_q, server_counts):
+    # 🛑 bugs §42 - the owner's call (option A, as MOB.386): assert the FIRST add after a page load. On
+    # Datadog (2026-09-14, 2 of 2 each) its Submit was armed, clicked, and the modal never closed - the
+    # form's zod schema was built before GET_SCHEMA loaded. From the modal-closed check on, every proof
+    # and the cleanup are `soft`: the test goes red, the run continues, and a suite's later children still
+    # run (the MOB.346 lesson). The cleanup checks still prove nothing was left behind.
     return open_fixture() + [
         step("click", f"Open the {tab_label} tab", {"element": xpath_el(STAGE_URL, tab(tab_label))}),
         step("wait", f"Let the {tab_label} cards render", {"value": 2}),
@@ -284,31 +315,38 @@ def add_prove_delete(what, tab_label, cards_js, key_desc, orig_desc, values_js, 
         step("click", "Open the add form", {"element": xpath_el(STAGE_URL, ADD_BTN)}),
         *add_steps,
     ] + submit_and_assert({"Condition": SUBMIT_CONDITION, "Failure": SUBMIT_FAILURE}[tab_label],
-                          toast=None) + [
+                          toast=None, soft=True) + [
         step("wait", "Let the server answer before reloading", {"value": 3}),
     ] + reopen(tab_label, "reload: the server's answer") + [
         jsassert(f"⭐ SERVER PROOF: exactly ONE {what} with the run's key after a RELOAD, carrying "
                  "the picked values",
-                 cards_js + f"return mine.length === 1 && {values_js};", timeout=30),
+                 cards_js + f"return mine.length === 1 && {values_js};", timeout=30, soft=True),
+    ] + server_assert(f"⭐ SERVER: exactly ONE {what} with the run's key — asked over /graphql",
+                      "__dd39x_server", server_q, {"id": FIXTURE_ID}, f"{server_counts}.mine === 1", soft=True) + [
 
         # ---- delete what this run added (owner-sanctioned) --------------------------------
         jsassert(f"🛑 GUARD + open its gear: only if exactly one {what} has the run's key (the "
                  "premise proved it was absent before this run's add)",
                  cards_js + "if (mine.length !== 1) return false;\n"
                  "const g = mine[0].el.querySelector('[aria-label=\"Menu\"]');\n"
-                 "if (!g) return false;\ng.click();\nreturn true;", timeout=30),
+                 "if (!g) return false;\ng.click();\nreturn true;", timeout=30, soft=True),
         step("wait", "Let the menu open", {"value": 1}),
         step("click", "Click `Delete Item` — on THIS card (its own record id)",
-             {"element": xpath_el(STAGE_URL, DELETE_ITEM)}, timeout=30),
+             {"element": xpath_el(STAGE_URL, DELETE_ITEM)}, timeout=30, soft=True),
         step("wait", "Let the confirmation open", {"value": 1}),
-        step("click", 'Confirm: "Yes"', {"element": xpath_el(STAGE_URL, CONFIRM_YES)}, timeout=30),
+        step("click", 'Confirm: "Yes"', {"element": xpath_el(STAGE_URL, CONFIRM_YES)}, timeout=30, soft=True),
         step("wait", "Wait for the remove mutation", {"value": 3}),
     ] + reopen(tab_label, "reload: after the delete") + [
         jsassert(f"⭐ CLEANED: no {what} with the run's key, and the original ({orig_desc}) is "
-                 "untouched — same count as before",
+                 "untouched — same count as before (after a reload: the cache the delete already edited)",
                  cards_js + f"const before = sessionStorage.getItem('{K_ORIG}');\n"
                  "return mine.length === 0 && before !== null && orig.length === Number(before);",
-                 timeout=30),
+                 timeout=30, soft=True),
+    ] + server_assert(f"⭐ SERVER: the run's {what} is gone and the original ({orig_desc}) is untouched — "
+                      "asked over /graphql",
+                      "__dd39x_server", server_q, {"id": FIXTURE_ID},
+                      f"(() => {{ const r = {server_counts}; return r.mine === 0 "
+                      f"&& r.orig === Number(sessionStorage.getItem('{K_ORIG}')); }})()", soft=True) + [
         jsassert("Remove this test's sessionStorage key",
                  f"sessionStorage.removeItem('{K_ORIG}');\nreturn true;", always=True, timeout=15),
     ]
@@ -325,7 +363,9 @@ write(test(
     "- ⭐ Proof after a RELOAD: exactly one card with the key and 1 / 2 / 3.\n"
     "- 🛑 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n"
     "  only — guarded in the same step as the gear click — then a reload proves it gone and the\n"
-    "  original untouched.",
+    "  original untouched.\n"
+    "- 🛑 Red until bugs §42 is fixed: on Datadog the first add after a page load never submits. The add\n"
+    "  proofs and the cleanup are `soft`, so a suite's later children still run.",
     add_prove_delete(
         "condition", "Condition", COND_CARDS,
         f"{ASSET} · {INSPECTION_GROUP} · {INSPECTION_ELEMENT}", ORIGINAL_ELEMENT, COND_VALUES, [
@@ -340,7 +380,7 @@ write(test(
             *lookup("conditionFound", "condition found", CONDITION_FOUND, exact=True),
             *lookup("conditionScore", "condition left", CONDITION_LEFT, exact=True),
             *lookup("stressScore", "stress score", STRESS_SCORE, exact=True),
-        ]),
+        ], server_q=COND_Q, server_counts=SERVER_COND),
     TAGS + ["Condition", "self-cleaning"],
 ))
 
@@ -354,7 +394,9 @@ write(test(
     "- ⭐ Proof after a RELOAD: exactly one card with the key.\n"
     "- 🛑 Self-cleaning with an **owner-sanctioned delete** (trap 2): `Delete Item` on that card\n"
     "  only — guarded in the same step as the gear click — then a reload proves it gone and the\n"
-    "  original untouched.",
+    "  original untouched.\n"
+    "- 🛑 Red until bugs §42 is fixed: on Datadog the first add after a page load never submits. The add\n"
+    "  proofs and the cleanup are `soft`, so a suite's later children still run.",
     add_prove_delete(
         "failure", "Failure", FAIL_CARDS,
         f"{FAILURE_TYPE} · {REPAIR_TYPE} · {ROOT_CAUSE_TYPE}",
@@ -364,7 +406,7 @@ write(test(
             *lookup("failureTypeId", "failure type", FAILURE_TYPE),
             *lookup("repairTypeId", "repair type", REPAIR_TYPE),
             *lookup("rootCauseTypeId", "root cause type", ROOT_CAUSE_TYPE),
-        ]),
+        ], server_q=FAIL_Q, server_counts=SERVER_FAIL),
     TAGS + ["Failures", "self-cleaning"],
 ))
 

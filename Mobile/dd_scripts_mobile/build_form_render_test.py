@@ -1,19 +1,9 @@
 """Build MOB.355_Work_Form_Render - the work form RENDERS. Deliberately not filled.
 
 WHY THIS EXISTS, AND WHY IT IS SCOPED THIS WAY
-  `MOB.134` tried to FILL a work form and never passed - five attempts, five distinct causes,
-  and the last one measured is decisive: typed text never lands in the field at all (DIAG-1
-  failed before the blur even happened). See `dd_tests_mobile/_archive/README.md`.
-
-  But everything UP TO the typing worked, every time: the work list gate, the work order, the
-  Forms tab, the form card, the route, the container, the field widgets. The route
-  `/work/:workStageId/form/:formId` was therefore recorded as uncovered when in fact only the
-  WRITE was blocked - and the repo owner's point (2026-08-21) is the right one: work forms are
-  freely customisable, so what is worth asserting is that the form RENDERS ITS DEFINITION, not
-  that a particular field accepts particular text.
-
-  So this proves the route and the render, and stops there. It is the achievable part of what
-  `MOB.134` was trying to do, and it is worth more than the nothing that was there before.
+  Work forms are freely customisable (the repo owner, 2026-08-21), so what is durable to assert here
+  is that the form RENDERS ITS DEFINITION, not that a particular field accepts particular text.
+  Filling a field is `MOB.134` (`build_form_fill_test.py`).
 
 TEMPLATE-AGNOSTIC ON PURPOSE
   A work form's contents are configured per workflow: fields, TEXT widgets, sections and
@@ -30,8 +20,7 @@ TEMPLATE-AGNOSTIC ON PURPOSE
 whenever `screen.availWidth >= 750`, and chrome.tablet is above that (trap 18). The phone
 container cannot exist here, and trap 1 forbids adding a phone device.
 
-READ-ONLY. It types nothing and submits nothing - which is also why it can pass where
-`MOB.134` could not.
+READ-ONLY. It types nothing and submits nothing.
 """
 import os, sys
 
@@ -117,14 +106,11 @@ steps = (
 
 write(test(
     "MOB.355_Work_Form_Render",
-    "`MOB.355` A work order's **form renders** — the achievable half of what `MOB.134` was\n"
-    "trying to do.\n"
+    "`MOB.355` A work order's **form renders** — the read-only half; `MOB.134` fills a field.\n"
     "- **Covers `/work/:workStageId/form/:formId`**, the only entry in\n"
-    "  `MOBILE_ROUTES.WORK.children` and previously the one route in mobile with no passing\n"
-    "  test. Everything up to the typing always worked; only the WRITE was blocked.\n"
-    "- **Deliberately does NOT fill anything.** Typed text never lands in these fields\n"
-    "  (measured — `dd_tests_mobile/_archive/README.md`), and work forms are freely\n"
-    "  customisable anyway, so the render is the durable thing to assert.\n"
+    "  `MOBILE_ROUTES.WORK.children`.\n"
+    "- **Deliberately does NOT fill anything** — work forms are freely customisable, so the render\n"
+    "  is the durable thing to assert here; `MOB.134` proves a field saves.\n"
     "- **Template-agnostic**: names no field, form or count. It asserts the shape the renderer\n"
     "  always produces — the route, `#apm-dv-tabpanel`, ≥1 `.ws-form-widget`, real inputs\n"
     "  inside those widgets, and the trailing `Progress` bar that proves the whole component\n"
@@ -132,7 +118,7 @@ write(test(
     "  swapped.\n"
     "- ⚠️ `#apm-dv-tabpanel`, **not** `#senor-work-form` — `FormDetails.tsx:106` renders the\n"
     "  desktop form above 750px and chrome.tablet is above it (trap 18).\n"
-    "- **READ-ONLY**, which is also why it can pass where `MOB.134` could not.",
+    "- **READ-ONLY.**",
     steps,
     tags=["Mobile", "env:dev", "Work Orders", "read-only"],
 ))

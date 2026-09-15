@@ -4,7 +4,7 @@
         "name": "MOB.388_Work_Attribute_Edit",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.388` Edit the `Heater Hz` attribute on the fixture **work order** and prove it\npersisted \u2014 checklist \ud83d\udfe2 #17.\n- **SELF-RESTORING**, MOB.545's two-leg shape: leg 1 writes `DD SYNTHETIC EDIT <runid>`,\n  a reload proves it is no longer `7`; leg 2 writes `7`\n  back and a reload proves it is exact.\n- Same `Attributes` component as `MOB.545`, different mutation\n  (`UPDATE_WORKSTAGE_ATTRIBUTE`). The fixture template's ATTRIBUTES section and the\n  `Heater Hz` string attribute were confirmed through the API before building.\n- Matched by LABEL: attribute inputs are keyed by the attribute record's uuid.",
+        "message": "`MOB.388` Edit the `Heater Hz` attribute on the fixture **work order** and prove it\npersisted.\n- **SELF-RESTORING**, MOB.545's two-leg shape: leg 1 writes `DD SYNTHETIC EDIT <runid>`,\n  a reload proves it is no longer `7`; leg 2 writes `7`\n  back and a reload proves it is exact.\n- Same `Attributes` component as `MOB.545`, different mutation\n  (`UPDATE_WORKSTAGE_ATTRIBUTE`). The fixture template's ATTRIBUTES section and the\n  `Heater Hz` string attribute were confirmed through the API before building.\n- Matched by LABEL: attribute inputs are keyed by the attribute record's uuid.",
         "tags": [
             "Mobile",
             "env:dev",

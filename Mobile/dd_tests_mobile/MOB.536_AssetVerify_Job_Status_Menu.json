@@ -405,13 +405,75 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 BACK IN PROGRESS: the canceled alert is gone",
+                "name": "BACK IN PROGRESS: the canceled alert is gone",
                 "noScreenshot": false,
                 "params": {
                     "code": "const t = (document.body.textContent || '');\nreturn !t.includes('This verification job has been canceled.');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the job's status menu to read its exits",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const title = [...document.querySelectorAll('[class*=\"mantine-Title-root\"]')]\n  .find(h => (h.textContent || '').includes('DATADOG MOBILE JOB'));\nconst row = title && title.closest('[class*=\"mantine-Flex-root\"]');\nconst dot = row && row.querySelector('[class*=\"mantine-Indicator-root\"]');\nif (!dot) return false;\ndot.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 BACK IN PROGRESS: the menu offers exactly IN PROGRESS's exits \u2014 `Mark as COMPLETED` and `Mark as CANCELED`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')]\n  .map(i => (i.textContent || '').trim()).filter(x => x.indexOf('Mark as') === 0);\nreturn items.length === 2 && items.includes('Mark as COMPLETED') && items.includes('Mark as CANCELED');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu (Escape \u2014 nothing picked)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": false,
@@ -637,13 +699,75 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 SERVER (after a reload): the job is in the crew's list again, IN PROGRESS \u2014 no canceled alert",
+                "name": "After a reload: the job is in the crew's list again, with no canceled alert",
                 "noScreenshot": false,
                 "params": {
                     "code": "const t = (document.body.textContent || '');\nreturn t.includes('DATADOG MOBILE JOB') && !t.includes('This verification job has been canceled.');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the job's status menu to read its exits",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const title = [...document.querySelectorAll('[class*=\"mantine-Title-root\"]')]\n  .find(h => (h.textContent || '').includes('DATADOG MOBILE JOB'));\nconst row = title && title.closest('[class*=\"mantine-Flex-root\"]');\nconst dot = row && row.querySelector('[class*=\"mantine-Indicator-root\"]');\nif (!dot) return false;\ndot.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER (after a reload \u2014 UPDATE_MOBILE_JOB_STATUS is optimistic, so the reload is server-acknowledged): the menu offers exactly IN PROGRESS's exits \u2014 `Mark as COMPLETED` and `Mark as CANCELED`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const items = [...document.querySelectorAll('.mantine-Menu-item')]\n  .map(i => (i.textContent || '').trim()).filter(x => x.indexOf('Mark as') === 0);\nreturn items.length === 2 && items.includes('Mark as COMPLETED') && items.includes('Mark as CANCELED');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu (Escape \u2014 nothing picked)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
             }
         ]
     }

@@ -136,6 +136,8 @@ write(test(
 
         # -------- THE QUESTION: submit the search box with that filter still active
         step("click", "Focus the search input", {"element": xpath_el(LOOKUP_URL, SEARCH)}),
+        step("pressKey", "Select the baseline search first (typeText APPENDS — trap 17; a local replay typed "
+             "`Pump 0102Pump 0102`)", {"value": "a", "modifiers": ["Control"]}),
         step("typeText", f"Search for {SEARCH_TERM} with the filter still active",
              {"value": SEARCH_TERM, "element": xpath_el(LOOKUP_URL, SEARCH)}),
         step("pressKey", "Submit the search", {"value": "Enter"}),

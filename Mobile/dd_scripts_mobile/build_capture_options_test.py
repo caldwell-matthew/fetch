@@ -1,4 +1,4 @@
-"""Build MOB.626_Collector_Capture_Options - the tag / description capture menus (checklist 🟢 #28).
+"""Build MOB.626_Collector_Capture_Options - the tag / description capture menus.
 
 WHAT THE SOURCE SAYS (`AssetCollector/Form/CaptureImageOptions.tsx`, origin/development)
   The new-asset form puts a capture icon beside `Tag` (`CaptureTagIcon`, faBarcodeRead) and beside
@@ -127,6 +127,51 @@ steps = [
              "const it = [...document.querySelectorAll('.mantine-Menu-item')]\n"
              "  .find(i => (i.textContent || '').trim() === 'Use photo selected above');\n"
              "return !!it && !it.hasAttribute('data-disabled') && !it.disabled;", soft=True, timeout=15),
+] + close_menu() + [
+    # ---- OFFLINE - `useNetwork` consumers, so a dispatched `offline` reaches them --
+    # `CaptureDescriptionIcon.tsx:62` swaps the wand for an ActionIcon whose click only toggles a popover
+    # with OFFLINE_FEATURE_MESSAGE; `CaptureImageOptions`' `Add Asset Photo` is an `OfflineMenuPopoverItem`
+    # that opens the same message INSTEAD of the file dialog. 🛑 A file dialog cannot be dismissed, so
+    # that click happens in JS and only after the same step proves the offline icon is showing.
+    jsassert("Go OFFLINE — dispatch a window `offline` event", "window.dispatchEvent(new Event('offline'));\nreturn true;",
+             timeout=15),
+    step("wait", "Let the form re-render offline", {"value": 2}),
+    jsassert("OFFLINE: the header shows the offline icon (`wifi-slash`)",
+             "return !!document.querySelector('[data-icon=\"wifi-slash\"]');", timeout=20),
+    jsassert("Click the description wand (its offline branch only opens a message)",
+             "const f = document.getElementById('asset-collector');\n"
+             f"const svg = f && f.querySelector('svg[data-icon=\"{ICONS['description']}\"]');\n"
+             "const b = svg && svg.closest('button, [role=\"button\"], .mantine-ActionIcon-root');\n"
+             "if (!b) return false;\nb.click();\nreturn true;", timeout=30),
+    step("wait", "Let the popover open", {"value": 1}),
+    step("assertPageContains", "⭐ OFFLINE: the wand's popover reads `This feature requires an internet connection.`",
+         {"value": "This feature requires an internet connection."}, timeout=20),
+    step("click", "Close the popover by clicking the form's title (NOT Escape — bugs §13)",
+         {"element": xpath_el(COLLECTOR_URL, f'{FORM_MODAL}{MODAL_TITLE}')}, timeout=30),
+    step("wait", "Let it close", {"value": 1}),
+] + open_menu("tag") + [
+    # ⚠️ The message FLASHES: the item's click closes the menu, and the popover is anchored to that item,
+    # so it unmounts ~100-200ms later (local probe: seen at 7ms, gone by 200ms, no file chooser). A live
+    # read after a wait can never find it - a MutationObserver installed BEFORE the click records it.
+    jsassert("🛑 GUARD + record + click `Add Asset Photo` — ONLY while the offline icon shows (online it opens a file dialog)",
+             "if (!document.querySelector('[data-icon=\"wifi-slash\"]')) return false;\n"
+             "window.__dd626Seen = 0;\n"
+             "new MutationObserver(() => { if ((document.body.textContent || '').includes('This feature requires an internet connection.')) window.__dd626Seen++; })\n"
+             "  .observe(document.body, { childList: true, subtree: true, characterData: true });\n"
+             + MENU_JS +
+             "const it = dd && [...dd.querySelectorAll('.mantine-Menu-item')]\n"
+             "  .find(i => (i.textContent || '').trim() === 'Add Asset Photo');\n"
+             "if (!it) return false;\nit.click();\nreturn true;", timeout=30),
+    step("wait", "Let the popover open", {"value": 1}),
+    jsassert("⭐ OFFLINE: `Add Asset Photo` rendered OFFLINE_FEATURE_MESSAGE (recorded by the observer), not a file dialog",
+             "return (window.__dd626Seen || 0) > 0;", timeout=20),
+    jsassert("📊 (optional) the message is still on screen once the menu has closed — red while bugs §43 is open (it flashes and unmounts with the menu)",
+             "return !document.querySelector('.mantine-Menu-dropdown')\n"
+             "  && (document.body.textContent || '').includes('This feature requires an internet connection.');",
+             optional=True, timeout=5),
+    jsassert("Back ONLINE — dispatch a window `online` event (always)",
+             "window.dispatchEvent(new Event('online'));\nreturn true;", always=True, timeout=15),
+    step("wait", "Let the form re-render online", {"value": 2}, always=True),
 ] + close_menu() + [
     # ---- discard -----------------------------------------------------------------------------
     step("click", "Close the form with its X — DISCARDING the photo, never submitting",

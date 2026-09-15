@@ -1,5 +1,5 @@
 """Build MOB.624_Collector_Row_Avatar_Modal - the row avatar opens the asset's attachments
-modal (checklist 🟢 #15).
+modal.
 
 WHAT SHIPPED WITHOUT A TEST
   `AssetAvatarWithModal.tsx` wraps every collector and work-asset row's avatar in a click target

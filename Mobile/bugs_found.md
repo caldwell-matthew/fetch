@@ -10,20 +10,19 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | **Source** | read in the code; mechanism clear, not observed failing |
 
 **Rules for this file**
-- Every status was read against the served code, `origin/development@db49958d6e`. Re-read a row
+- Every status was read against the served code, `origin/development@c63586256a`. Re-read a row
   before acting on it once the sync line in `testing_checklist.md` has moved on.
 - **🔧 fix pending** = a PR is open; delete the entry once it merges and the served code has it.
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
   state the fact directly. This is what is wrong now, not a history.
 - **Numbers are never reused or renumbered** (other docs cite them). Gaps are expected: §1–§4,
-  §4c (§4b remains), §5–§9, §14–§17, §19, §23, §26, §27, §36. Dead code is not filed.
+  §4b, §4c, §5–§9, §14–§17, §19, §23, §26, §27, §36. Dead code is not filed.
 - File a finding the day it is found. A finding that lives only in a generator comment is lost.
 
 ## Index
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 4b | `WorkCollectionMenu` gates on a permission field that does not exist | Source | 🔧 **fix pending** — PR open; `ui/Menu.tsx:30` reads `wPerms.canDelete` until it merges |
 | 10 | Mobile job status only moves forward | Runtime | ❌ `VerificationCheckbox.tsx:44` never reverses `COMPLETED` |
 | 11 | Verification toast fires before the mutation | Source | ❌ `VerificationCheckbox.tsx:24` |
 | 12 | Asset detail route implements 6 of 16 template section types | Source | ❌ latent |
@@ -38,7 +37,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 29 | A Mapbox failure makes Geolocate fail silently | Source | ❌ `reverseGeocode` has no `ok` check or `catch` |
 | 30 | The offline queue's link classes have no Jest tests | Source | ⚠️ Synthetics half covered by `MOB.913`; Jest being done elsewhere |
 | 31 | A deploy takes over a running session silently and deletes its cache | Source | ❌ no `controllerchange` handler in `client` |
-| 32 | Work-stage Docs upload gated on `asset.create` | Source | ❌ `Attachments.tsx:124` |
+| 32 | Work-stage Docs upload gated on `asset.create` | Source | ❌ `Attachments.tsx:126` |
 | 33 | Material Lookup shows at most 500 items under a label counting all | Runtime | ❌ 996 items, 500 rows |
 | 34 | **Collecting an asset WITH a photo from a browser never reaches the server** | Runtime + Source | 🛑 `MOB.600`'s server proof is red until fixed |
 | 35 | Clicks inside the row-avatar modal toggle the row behind it | Runtime + Source | ❌ `MOB.624` sentinels it |
@@ -47,29 +46,10 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 39 | A record-field `includes` filter is saved with no value | Runtime + API + Source | ❌ `MOB.807` sentinels it |
 | 40 | **A rejected add or edit looks saved** — the server's refusal is swallowed | API + Source | 🛑 `addToCollection` / `updateCollectionRecord` |
 | 41 | **A work order created from mobile cannot be deleted** | API + Source | ❌ `removeWorkById` rolls back; blocks residue pruning |
+| 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | 🛑 `MOB.386`, `MOB.390`, `MOB.391` are red until fixed |
+| 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
 
 ---
-
-## §4b · `WorkCollectionMenu` checks a permission field that does not exist
-
-`WorkOrders/components/ui/Menu.tsx:29-30`
-
-```js
-const wPerms = sess?.session?.me?.role?.permissions?.work;
-if (!wPerms.canDelete && !wPerms.update && !wPerms.create) return null;   // line 30
-...
-{ wPerms.delete && <Menu.Item ...>Delete Item</Menu.Item> }               // line 69
-```
-
-1. **`canDelete` is not a permission field.** The GraphQL type exposes `create · update · read ·
-   delete` (`permissionGroup/schema/index.ts:46`). So the guard collapses to
-   `!update && !create`, and a delete-only role gets no gear menu at all, although line 69 would
-   render its Delete Item.
-2. **Missing optional chaining.** Line 29 uses `?.`; line 30 dereferences `wPerms` unguarded. A
-   role with no `work` entry throws a `TypeError` — a render crash, not a hidden menu.
-
-**Fix:** `if (!wPerms?.delete && !wPerms?.update && !wPerms?.create) return null;`
-**Status: 🔧 fix pending** — a PR is open. Delete this entry once it is merged and served.
 
 ## §10 · Mobile job status only moves forward
 
@@ -107,7 +87,7 @@ client.mutate({ mutation: VERIFY_ASSETDocument, ... });
 ```
 
 Nothing awaits or catches the result, so a rejected mutation still reports "Asset verified" — in
-the module whose record says the asset was physically inspected. `AdHocForm.tsx:127` has the same
+the module whose record says the asset was physically inspected. `AdHocForm.tsx:49` has the same
 shape (`toast.success('Form added')` before its mutate).
 **Tests:** a toast proves the handler ran, not persistence (trap 7).
 
@@ -276,7 +256,7 @@ never really goes offline.
 
 ## §32 · Work-stage Docs upload gated on `asset.create`
 
-`DetailPage/Attachments.tsx:124` vs `WorkStageAttachments.tsx:32,135` — two halves of one panel
+`DetailPage/Attachments.tsx:126` vs `WorkStageAttachments.tsx:32,135` — two halves of one panel
 attach to the **same work stage** under different permissions:
 
 ```tsx
@@ -428,7 +408,7 @@ refusals checked first — so the failure is inside the batch.
 **Likely cause (unconfirmed):** a table referencing `workstage`/`work` that the batch does not
 clear first; the error text drops the driver's message, so which one is not visible.
 **Impact:** deleting such a work order from desktop fails the same way. Test residue cannot be
-pruned (187 work orders since Aug 5, ≈5/day).
+pruned (190 marked work orders, created Aug 5–23).
 **Fix:** include the driver's error in the message, find the referencing table, add it to the
 batch (or cascade).
 
@@ -466,3 +446,65 @@ Include the driver's reasons in the error: unwrap AggregateError.errors in the r
 Add workstageeventreading and workstagecertification to the batch. Both are setup copied from the workflow at creation, like the estimated costs and assignments the batch already deletes. workstageexternalresource probably belongs with them too.
 Delete from S3 only after trx.commit().
 Actual labor/material/equipment rows and follow-up work orders are a policy question, not residue. I'd refuse those with a clear message, like the existing charges/schedule/conditions/failures checks, and not delete them silently.
+
+## §42 · A condition or failure form's first Submit after a page load does nothing — its schema is built before it loads
+
+`ConditionForm` (`WorkOrders/components/Conditions/Form.tsx:88`) passes `schemaData?._info?.fields ?? []`
+to `useCustomForm` while `GET_SCHEMA('WorkStageCondition')` is still loading. `useFormWithValidation`
+(`components/utils/hooks/index.ts:56-62`) builds its zod schema in a `useMemo` whose deps are
+`[withDynamicSchema ? formFields : undefined]` — `[undefined]` here — so the schema is built once, from
+`[]`, and never rebuilt when the fields arrive. An empty zod object is always valid (Submit arms) and
+strips every key: `handleSubmit` hands the submit handler `{}`, and its
+`if (!values.assetId || !values.assetStandardDetailId || !values.inspectionElementId) return;` exits.
+No request, no error; the modal stays open.
+
+**How it showed.** `MOB.386`: Condition Left 2 → 4, Submit armed, clicked — the modal
+never closed and the server still held 2. Local probes, first open in a fresh browser session, 8 of 8:
+react-hook-form reports `isSubmitSuccessful: true` with no errors; the page's `ApolloClient` receives no
+`query` or `mutate`; the form's resolver returns **0 of the 8** values the form holds. Closed and
+reopened on the same page (schema now cached): the resolver returns all 8, `UPDATE_WORKSTAGE_CONDITION`
+goes out (200) and the modal closes.
+
+**The add path, both forms.** On Datadog `MOB.390` (add a condition) failed 2 of 3 runs and `MOB.391` (add a
+failure) 3 of 3 — a race, not a certainty: `MOB.390`'s third run submitted and passed end to end. Each failure: Submit armed and clicked, the modal never closed, nothing reached the server. A read-only
+local probe, after a page load: the resolver on each untouched add form reports **no** required-field
+errors (`isValid: true`); closed and reopened it reports `assetId`, … (`isValid: false`) — the empty-schema
+signature. Local replays usually win the race (both had passed locally); Datadog loses it most of the time.
+
+**User-visible effect.** Open a work order, add a condition or a failure — or a condition card's gear →
+`Edit Item` — and Submit:
+nothing happens, however often it is tapped, until the form is closed and reopened.
+**Not measured:** whether a returning user's persisted Apollo cache already holds `GET_SCHEMA` at first
+mount.
+**Both forms:** `Conditions/Form.tsx:88` and `Failures/Form.tsx:57` build their forms the same way — both confirmed above.
+**Fix:** pass `withDynamicSchema: true` from both forms, or render the form body only once `GET_SCHEMA`
+has resolved, so `useCustomForm` first runs with the fields.
+**Tests:** `MOB.386` asserts the first open's save (`soft` — red until fixed); its restore opens and
+closes `Edit Item` once first, so it restores either way. `MOB.390`/`391` assert the first add (`soft` from
+the modal-closed check on — red until fixed); their cleanup checks still prove nothing was left.
+
+## §43 · An offline menu item's "requires an internet connection" message flashes and vanishes with the menu
+
+Two menus show `OFFLINE_FEATURE_MESSAGE` in a `Popover` wrapped around a `Menu.Item`, inside the menu's
+dropdown:
+- `AssetCollector/Form/CaptureImageOptions.tsx:11-39` (`OfflineMenuPopoverItem`) — the collector's
+  `Add Asset Photo` (browser) and `Take Photo` / `Select From Gallery` (native), in
+  `<Menu closeOnItemClick>` (`:91`).
+- `ui/PhotoCarousel/PhotoMenu.tsx:109-124` — a saved photo's gear, for items disabled offline
+  (`Get Description`); its `<Menu>` (`:33`) keeps Mantine's default `closeOnItemClick`.
+
+Offline, the item's `onClick` opens the popover, and Mantine 8.3.18's `Menu.Item` then closes the menu
+anyway: `MenuItem.mjs:46-53` runs the app's handler, then `closeDropdownImmediately()`
+(`createEventHandler` ignores `PhotoMenu`'s `preventDefault()` / `stopPropagation()`). The dropdown
+unmounts and takes the popover with it.
+
+**How it showed.** `Add Asset Photo` offline: the message rendered ~7 ms after the click and was gone by
+200 ms (a `MutationObserver` recorder, local). `Get Description` offline (`MOB.914`, local): the recorder
+saw the message; it was not on screen once the menu had closed.
+**User-visible effect.** Offline, tapping one of these items just closes the menu — the explanation is
+never readable, so the item looks broken.
+**Not tested:** the native `Take Photo` / `Select From Gallery` items (same component, native branch).
+**Fix:** keep the menu open for the offline tap — `closeMenuOnClick={online}` on these items (Mantine's
+per-item override, `MenuItem.mjs:50-51`) — or show the message outside the dropdown (a notification).
+**Tests:** `MOB.626` and `MOB.914` prove the message rendered with a recorder installed before the click;
+each has an optional sentinel, "still on screen once the menu has closed", red while §43 is open.

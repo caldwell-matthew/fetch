@@ -6,23 +6,52 @@
 |---|---|
 | `testing_checklist.md` | what is left to do, and what has run |
 | `coverage.md` | what a green run proves |
-| **`test_authoring.md`** | how to write a test without repeating a known mistake — fixtures, operational rules, tooling, the 31 traps |
+| **`test_authoring.md`** | how to build a test and prove it (locally, then on Datadog) without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 33 traps |
 | `bugs_found.md` | what the tests found in the app |
 | `cleanup_spec.md` | test residue: what exists, what can be removed, never-touch fixtures |
 
 🛑 **The traps are the load-bearing part.** Each is a mistake that has already cost at least one
 run. Read the relevant trap *before* debugging a locator.
 
+## The loop — prove it locally, then confirm on Datadog
+
+Datadog run credits are limited, so a test is finished locally: **steps 1–4 cost 0 runs**. Step 5
+spends runs and waits for the owner's go-ahead — state the cost when asking.
+
+| # | step | how | runs |
+|---|---|---|---|
+| 1 | Read the component on `origin/development` | `git show origin/development:client/mobile/…` — its branches, its submit path, what a closing modal really proves (traps 6, 8, 18) | 0 |
+| 2 | Build | `build_*.py` → `set_device.py`. Replacing existing JSON needs `DD_FORCE=1`; run `check_drift.py` first (trap 19) | 0 |
+| 3 | Static checks | `preflight.py` — or one at a time: the bench (a must-fail case for every new JS step, trap 27), `check_literals.py`, `check_drift.py` | 0 |
+| 4 | Replay locally | `local_run.py <test>` until it passes, or is red only where designed (a `soft` bug proof). Before explaining a red, open its screenshot in `Mobile/local_runs/<test>/` | 0 |
+| 5 | Confirm on Datadog | `verify.py <test>` — pushes only that test and the scratch harness, then runs it | 2 (3 when red) |
+| 6 | Wire | add the child to its suite's builder → `wire_suite.py` → `dd_tools.py push <suite>`. A suite holding `PENDING-WIRE-UP` makes every push fail, and `verify.py` refuses to run after a failed push | 0 |
+
+- **A local pass is a pre-check, not a verdict.** Datadog's browser, location and timing differ;
+  only step 5 goes into the checklist's 📊 RUN STATUS. A mutating replay writes what a Datadog run
+  writes — `preflight.py` before and after.
+- **What a replay cannot show:** `uploadFiles` (skipped, the run marked INCOMPLETE — trap 12). A
+  click Playwright refuses as not actionable is retried forced and flagged, because Datadog clicks it —
+  but a forced click on an element still animating can land without effect (`MOB.951`'s Forms tab at
+  320px stayed on General Info). Read a flagged forced click before trusting the steps after it.
+- **`--continue`** runs past a red step (Datadog stops there) — to see every red, or to time a suite.
+- **When a red has a cause the steps cannot show, probe the app locally.** A scratch Playwright
+  script can log in through `local_run` (`Run(page, variables, …).steps(login["steps"])`) and read what
+  no test step can — network traffic, react-hook-form state, the page's Apollo client (reached through
+  React's fiber props). That is how bugs §42 was isolated. Read the server over the API before and
+  after, and restore anything the probe writes.
+
 ## Fixtures
 
 | Fixture | Id | Used by | Must stay |
 |---|---|---|---|
-| Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.310–395 | crew `Admin`, status **`Ready`** (`MOB.320` restores it `always`; outside In Progress/On Hold/Ready it leaves the crew's list — bugs §25). `desc` owned by MOB.395, ends every run `DATADOG FIXTURE`. Holds ONE permanent condition (`Pump 0102 · Structural · Mounting/Support`, 1/2/3) and ONE failure (`MISSED`) — each the unique key's slot (bugs §40) |
+| Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.134, MOB.310–395 | crew `Admin`, status **`Ready`** (`MOB.320` restores it `always`; outside In Progress/On Hold/Ready it leaves the crew's list — bugs §25). `desc` owned by MOB.395, ends every run `DATADOG FIXTURE`. Holds ONE permanent condition (`Pump 0102 · Structural · Mounting/Support`, 1/2/3 — `MOB.386` edits Condition Left and restores 2) and ONE failure (`MISSED`) — each the unique key's slot (bugs §40). Its first form's first integer field is empty at rest (`MOB.134` writes `134` and clears it) |
 | Work order | `RcdI0xcpc8NBV8VoRNNBYM` | MOB.302 | holds the photo `MOB.302` links to `Bypass Valve 0001` |
 | Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–590, 536, 537, 913 | crew `Admin`, `IN_PROGRESS`, exactly **2 assets** — `⚡ Tank 0000` (tag `0000`; the symbol is part of the stored name) and `A/C Motor 0002` (no tag) — neither verified. `reset_av_fixture.py --check` asserts it for 0 runs; match names by **containment** (trap 29) |
 | Asset | `Pump 0102` | MOB.387, 389–391, 700, 710 | attached to the work order; `desc` owned by MOB.710, ends `DATADOG FIXTURE`. 🛑 **Never touch its attachments** (owner) |
 | Asset | `Bypass Valve 0001` (`wFRo1MMwoAMkdxA4hVpIhB`) | MOB.302 | no photos at rest — `MOB.302` links one and unlinks it |
-| Asset | `⚡ Building 0000` | MOB.721 | zero event readings |
+| Asset | `⚡ Building 0000` | MOB.721, MOB.914 | zero event readings |
+| Asset | `⚡ Tank 0000` (the mobile job's asset) | MOB.546, MOB.914 | at least one photo with a gear — `MOB.914`'s fixture guard |
 | Asset type | `Actuator Tools` | MOB.600 | exists |
 | Storeroom / item | `Central Storeroom` · `000-000-000 Adamantium` | MOB.850/860/870 | visible to `Admin`, `canAdjust` on |
 
@@ -45,34 +74,37 @@ login-bearing test asserts the role right after login.
 - **Crew-scoped data is shared state.** `mobileJobsForCrew` and `workStages(crew: '<SESSION>')`
   are crew-scoped, so anything switching crews changes what other tests see — why `MOB.200` is in
   no suite.
-- **The crew's work list grows with every create run** (≈5/day) and virtualises. Anchor on the
+- **The crew's work list grows with every create run** (~4 work orders per full pass) and virtualises. Anchor on the
   fixture by id; on the list, narrow before measuring (trap 30).
 - **Classify a test by what it leaves on the SERVER**: `read-only` (no server write; a restored
   sessionStorage toggle still counts), `self-restoring` (writes, puts it back), `leaves-residue`.
-  Classify by reading the steps, not the message. ⚠️ Tags are applied inconsistently (47 leaves
+  Classify by reading the steps, not the message. ⚠️ Tags are applied inconsistently (38 leaves
   carry none), so never filter on them for safety — the checklist's suite table is the source of
   truth. Change tags in generator **and** JSON together (trap 19).
 - **Deleting a test from Datadog requires un-wiring it first** — the API refuses a test used as a
   subtest. Remove the `playSubTest` step → `push` → delete.
-- **Wire a new test last.** build → `push` (creates it) → `verify.py` until green → add to its
-  suite → `wire_suite.py` → `push`. Any suite still holding `PENDING-WIRE-UP` makes every push
-  fail, and `verify.py` refuses to run after a failed push.
+- **Push and pull only the tests being edited** (owner). `dd_tools.py push` takes test names and refuses
+  without them; never sync everything as a side effect, and never rebuild a test only to tidy its description.
 - **`write` refuses to overwrite existing JSON without `DD_FORCE=1`** — the JSON is the source of
   truth for anything hand-authored (trap 12).
-- 🛑 **Scheduling is settled: manual only. Do not propose it.** (All tests are `paused`; `push`
-  omits `status`, so it cannot change that.)
+- **Scheduling: manual today; weekly Datadog runs are the owner's late-game plan, once no more
+  tests are being made** (checklist #37); suite runtimes are measured locally first (#31). All tests are `paused`, and `push` omits `status`, so enabling a schedule needs a
+  deliberate push change — suites only, staggered (trap 1).
 
 ## Tooling
 
 | Command | Purpose |
 |---|---|
-| `preflight.py` | ⭐ every 0-run check in one command — wiring, local↔Datadog by content, drift, literals, bench, and the fixtures (AV job at rest, work order `Ready`, MOB.302's photo/asset, no MOB.390/391 leftovers). Run before any suite. Skips `drift` while a run is in flight |
-| `verify.py <test>` | prove ONE test through the `MOB.999_Verify_Scratch` harness — 2 runs (3 when red: Datadog retries once) |
-| `dd_tools.py push` | sync `dd_tests_mobile/` → Datadog. Exits non-zero on failure — chain with `&&` |
+| `preflight.py` | ⭐ every 0-run check in one command — wiring, local↔Datadog by content, drift, literals, bench, the docs' own consistency (`docs`), and the fixtures (AV job at rest, work order `Ready`, MOB.302's photo/asset, no MOB.390/391 leftovers). Run before any suite. Skips `drift` while a run is in flight |
+| `local_run.py <test>` | ⭐ **replay a test locally in Playwright — 0 Datadog runs** (the loop, step 4). The same step JSON with Datadog's rules — polling to each timeout, "Multiple elements found", `optional`/`soft`/`always` — globals read from the API, MOB.000's login prefixed, the test's own device (tablet 768×1020, phone 320×550). Headless by default; a failure saves its screenshot and error to `Mobile/local_runs/<test>/`. `--headed` to watch in a Chromium window · `--continue` past a red step · `--trace` for a replayable timeline (`python -m playwright show-trace`) · `--max-timeout` to iterate fast · `--device large_phone` (430×932, **local only** — no Datadog device) · `LOCAL_RUN_TESTS=<dir>` to replay a sandbox build. `--live` rewrites `local_runs/live.png` each step, but VS Code's image tab does not reload it — watch with `--headed`. Avoid `--slow-mo`: a forced click on a moving element misses |
+| `local_timing.py [suite …]` | every suite locally, one at a time (`--continue`), into `local_runs/timing/summary.md` — runtimes for the weekly schedule (checklist #37). Local seconds are an estimate; compare with its `DATADOG_LAST` |
+| `verify.py <test>` | confirm ONE test on Datadog (the loop, step 5) through the `MOB.999_Verify_Scratch` harness — 2 runs (3 when red: Datadog retries once). Pushes only that test and the scratch harness |
+| `dd_tools.py push <test …>` | push ONLY the tests being edited (owner rule) — refuses without names; `--all` is a deliberate full sync. Exits non-zero on failure — chain with `&&` |
 | `dd_tools.py pull <name>` | fetch a test back after a Datadog-UI edit |
-| `dd_tools.py run <suite>` · `report <suite> [n]` | trigger + poll · per-step results with run age |
+| `dd_tools.py run <suite>` · `report <suite> [n]` | trigger + poll — refuses a named test whose steps differ from Datadog (`--push` pushes the named tests first) · per-step results with run age |
 | `wire_suite.py` | fill in `subtestPublicId` once children exist. Re-run after any suite rebuild |
 | `check_drift.py` | where a generator and its JSON disagree, changing nothing; names what a rebuild would LOSE. Run before any `DD_FORCE=1` |
+| `sweep_strings.py` | the rendered-string sweep: every JSX text child in `client/mobile` that no test's params contain — the source of new OPEN WORK rows. Catches TypeScript fragments too; every hit needs a read |
 | `check_literals.py` | every asserted literal still exists in the served app (`--self-test` after a rule change). Blind to a paraphrase whose words all exist — copy constants verbatim |
 | `node check_js_assertions.js` | the bench: runs every `assertFromJavascript` in jsdom against a DOM modelled on the component source, each with a must-fail case (trap 27) |
 | `audit_assertions.py` | assertions that pass without proving their name — TAUTOLOGY · GENERIC-COUNT · NAME-MISMATCH · VACUOUS-ABSENCE · LOADBEARING-OPT · CRITICAL-DIAG. A heuristic: every hit needs a human read. Exit 1 on any HIGH |
@@ -88,6 +120,7 @@ login-bearing test asserts the role right after login.
 |---|---|
 | `step(…, optional=, soft=, always=)` | `optional` = `allowFailure`, non-critical · `soft` = `allowFailure` + critical (fails the test, the run continues) · `always` = `alwaysExecute` (runs after an earlier failure; for restore legs and state a later run needs) |
 | `jsassert(name, body)` | a `Run JavaScript` assertion; the body is a function body that `return`s a boolean |
+| `server_assert(name, key, query, variables, predicate, soft=, always=)` | ⭐ **the server read** — one self-refreshing step POSTs a same-origin `/graphql` query and judges `data` with a JS predicate, then clears its `sessionStorage` keys. A predicate compares what the SERVER stores: the enum `NotCompleted`, not the badge's `Not Completed` |
 | `av_job_gate(job_id)` | **the** way into an AV job — clicks the row, gates on the asset ROWS, polls |
 | `work_cache_warm(wait)` | warm the work lookup cache before a deep link; claims nothing else |
 | `work_list_gate(wait, require_row)` | readiness where `loadedAll` matters (the map toggle). Its LOADEDALL checks cannot poll (trap 21) — prefer `require_row=True` |
@@ -95,7 +128,7 @@ login-bearing test asserts the role right after login.
 | `open_filters_drawer()` | the Filters drawer with the re-click gate; gate on `Add Filter`, never the trigger |
 | `upload_steps(url, picker=…)` | `[reveal, uploadFiles]`, reading the one working `uploadFiles` step out of `MOB.600`'s JSON (trap 12) |
 | `reveal_file_button(scope=…)` | a Mantine `FileButton`'s hidden input; fails closed on an ambiguous match — always pass `scope` |
-| `stash_record_count` / `prove_record_count` | count the innermost cards in the active panel containing every needle, reload, require exactly +1 — the server proof for optimistic adds (bugs §40) |
+| `stash_record_count` / `prove_record_count` | count the innermost cards in the active panel containing every needle, reload, require exactly +1 — sound for `optimisticResponse` adds (bugs §40), not for writes made straight into the cache (trap 6) |
 | `pick_visible_option_js` *(in `build_tab_tests.py`)* | click the ONE visible ListFilter option (`offsetParent !== null`) — closed dropdowns stay mounted (trap 3) |
 
 ---
@@ -103,7 +136,7 @@ login-bearing test asserts the role right after login.
 ## Locator & assertion traps
 
 *1–17 are locator/assertion traps; 18–27 process traps (how tooling, fixtures or framing misled);
-28–31 more locator and fixture traps.*
+28–33 more locator, fixture and offline traps.*
 
 **1 · Never add a second `device_id`.** Datadog runs each device as a **concurrent** session, and
 the mutating tests share one fixture, so two devices race (caught when a phone session walked the
@@ -168,8 +201,8 @@ persists only the base cache, and a refused write never reaches it. It is **no p
 the app makes straight into the cache before the mutation — `StatusMenuIcon`'s status
 (`cache.modify`, then `mutate`) and `removeFromCollection`'s delete (`cache.modify`, then a
 fire-and-forget `mutate`). Read the write path before trusting a reload; for a real server read use
-a `network-only` surface (Asset Lookup, as `MOB.302` does) or a same-origin `/graphql` fetch
-(checklist #32).
+a `network-only` surface (Asset Lookup, as `MOB.302` does) or `dd_tools.server_assert` (a same-origin
+`/graphql` read — `MOB.320`, `MOB.390`/`391`, `MOB.386`).
 
 **7 · Toasts are transient, and some fire before the mutation.** `VerificationCheckbox` and
 `AdHocForm` toast before `client.mutate` (bugs §11). Demote a toast to `optional` only after
@@ -179,6 +212,10 @@ replacing it with something stronger.
 — a soft-disabled "can submit now" gate: the tap never reaches `onSubmit` and no error shows on a
 field nobody touched — so "clicked, no toast" is ambiguous. Required fields come from the **runtime** schema,
 which can demand more than the model file (`unitPrice` broke MOB.380).
+**An ARMED Submit is not a save either.** Wait for `button[form=…]` to be `type="submit"` before the
+click (`MOB.390`'s Datadog run 1 clicked it while still inert), then prove the save on the server: a
+zod schema built before its fields load is empty — always valid — and strips every value, so the
+submit handler's guard returns without a request (bugs §42, `MOB.386`).
 
 **9 · `placeholder` is an attribute, not page text.** Use
 `//input[@placeholder="Find Mobile Job(s)"]`, not `assertPageContains`.
@@ -246,8 +283,9 @@ write it — failing forever. Put `always` on the steps that write state a later
 earlier failure and the test still fails.
 
 **17 · `typeText` APPENDS.** Edit = click → `pressKey` `{"value": "a", "modifiers": ["Control"]}`
-(Control — runners are Linux) → type. And re-typing the value a field already holds leaves
-`isDirty` false, so the submit does nothing (trap 8) — use `{{ RUNID }}` for a value that differs.
+(Control — runners are Linux; `local_run.py` sends ⌘ on macOS) → type. And re-typing the value a field already holds leaves
+`isDirty` false, so the submit does nothing (trap 8) — use `{{ RUNID }}` for a value that differs. On Datadog, `pressKey Delete` after a select-all did NOT clear a
+Mantine `NumberInput` (`MOB.134`; the local replay did): clear through the native value setter and an `input` event.
 
 **18 · A component can branch on VIEWPORT WIDTH.** `FormDetails.tsx` renders the desktop form
 (`#apm-dv-tabpanel`) at `screen.availWidth >= 750` and `#senor-work-form` below; `chrome.tablet`
@@ -274,7 +312,8 @@ assert the SET (e.g. count group headers), and compare POSITIONS, not "the first
 **23 · When a test keeps failing, ask whether a smaller test captures most of the value.**
 `MOB.134` (fill a form) failed five times on five causes; `MOB.355` (the form renders) was
 available from attempt two and passed first time. Two failures are a signal about scope, not
-locators. Prefer template-agnostic assertions where content is configurable, and state plainly
+locators — but probe before archiving: `MOB.134`'s last cause was the VALUE (letters typed into a
+`NumberInput`, which drops them), and it passed locally once it typed digits (`build_form_fill_test.py`). Prefer template-agnostic assertions where content is configurable, and state plainly
 what the smaller test does NOT cover.
 
 **24 · The results API lags a finished run.** A stale "latest" result does not mean the run never
@@ -320,3 +359,18 @@ renders comes out reversed. Keep a floor: fewer than 2 rows in common must FAIL.
 `getAttribute('capture')` read null. Read `el.capture` (attribute as fallback), and make the bench
 model the non-reflecting case. When one step checks several facts, split it into `soft` steps so
 the failure names the broken one.
+
+**32 · A message that flashes cannot be polled — record it before the action.** Mantine's `Menu.Item`
+closes its menu on click even after the handler calls `preventDefault`, so an offline popover inside
+the dropdown mounts and unmounts within ~200ms (bugs §43); an assertion after the click polls an empty
+page. In the SAME step as the click, install a `MutationObserver` that counts the message
+(`window.__dd626Seen`), guard the click (offline icon present — online it opens a file dialog or posts
+to the AI route), then assert the count. On the bench, pass `MutationObserver` into the step and await
+a macrotask after each DOM change — observer callbacks are asynchronous.
+
+**33 · A dispatched `offline` reaches only what is already mounted.** Mantine's `useNetwork` (8.3.18)
+starts `online: true` and copies `navigator.onLine` on mount — which a dispatched event does not change
+— so only instances mounted before the window `offline` event flip. The same event closes the app's
+`QueueLink`, so a query fired after it hangs: a loading overlay, not the offline message. Open the
+panel online, then go offline (`MOB.914`'s Readings); a panel that must mount offline needs a second
+dispatch after it mounts (its Work History).

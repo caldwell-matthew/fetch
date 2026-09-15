@@ -111,6 +111,10 @@ write(test(
         step("assertPageContains", "Test crew switcher opened", {"value": "Switch Crew"}),
         step("assertPageContains", "Test current-crew label is shown",
              {"value": "Currently logged in as"}),
+        # `RoleSelection.tsx:28` sets the Radio.Group description to OFFLINE_FEATURE_MESSAGE
+        # UNCONDITIONALLY - the crew modal always says it, online or not.
+        step("assertPageContains", "The modal's description is `OFFLINE_FEATURE_MESSAGE` (always shown)",
+             {"value": "This feature requires an internet connection."}, timeout=15),
         step("click", "Dismiss with Cancel",
              {"element": xpath_el(HOME, '//button[normalize-space(.)="Cancel"]')}),
         step("assertPageLacks", "Test crew switcher closed",
@@ -130,7 +134,17 @@ write(test(
     "  /login?src=mobile, which would break every subsequent subtest.\n"
     "- Order matters: the non-destructive 'Take Me Back' path is exercised first, then the\n"
     "  real logout last.\n"
-    "- Ends the session by design; nothing may follow it.",
+    "- Ends the session by design; nothing may follow it.\n"
+    "- Guards that the session role is exactly \"Admin\". The org has several\n"
+    "  similarly-named roles and only this one can create/update work orders; drift\n"
+    "  onto another otherwise surfaces as an unexplained missing control.\n"
+    "- A wait sits between the environment picker and the shell assertion: choosing an\n"
+    "  environment triggers a redirect into /apm-mobile, and asserting immediately races\n"
+    "  the SPA mount. Observed failing while the very next step clicked the same burger\n"
+    "  successfully.\n"
+    "- The environment picker click is scoped to ACTIVE orgs only\n"
+    "  (enviroment-btn--active). MultiLoginPage renders inactive orgs too, and\n"
+    "  clicking one does not navigate - leaving the run stranded on /login/sso.",
     login_steps + [
         open_menu(1),
         step("click", "Click Log Out", {"element": xpath_el(HOME, item("Log Out"))}),

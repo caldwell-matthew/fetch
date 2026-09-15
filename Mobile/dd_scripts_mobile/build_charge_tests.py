@@ -25,7 +25,7 @@ SUBMIT LOCATOR
   the page. A bare Submit locator is what silently clicked the wrong control six times a
   run in MOB.320 - see the note in build_work_tests.py.
 
-SERVER PROOF (bugs §40, checklist 🟢 #25): each test counts the cards of ITS OWN item (name + the
+SERVER PROOF (bugs §40): each test counts the cards of ITS OWN item (name + the
 dated line only a real charge renders - estimates have none) before the add, reloads after it,
 and requires exactly one more. The modal closing is NOT a server answer: `addToCollection` closes
 it in the optimistic `update()`, so a refused add closes it too.

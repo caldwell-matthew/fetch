@@ -18,7 +18,7 @@ REQUIRED FIELDS
   (GET_SCHEMA `_info.fields`) can mark more fields required than the SDL shows - exactly how
   `unitPrice` broke MOB.380 twice. If submit silently does nothing, suspect a required field
   before suspecting the locator (SubmitButton is `type={isValid ? 'submit' : 'button'}`,
-  so an invalid form is a SILENT no-op - bugs_found.md #9).
+  so an invalid form is a SILENT no-op - bugs §9).
 
 THE AFFIXED "+" BUTTON HAS NO ACCESSIBLE NAME
   `AffixedInsertButton` renders an icon-only Mantine ActionIcon: no text, no aria-label. It

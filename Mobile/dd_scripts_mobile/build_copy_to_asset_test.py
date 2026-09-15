@@ -1,5 +1,4 @@
-"""Build MOB.302 - a work-order photo's `Copy to asset`, proved on the server and cleaned up
-(checklist 🟢 #3).
+"""Build MOB.302 - a work-order photo's `Copy to asset`, proved on the server and cleaned up.
 
 ⭐ THE ONE OWNER-SANCTIONED DELETE (trap 2). Trap 2 forbids delete steps unless the repo owner
 names the flow. The owner did, for this test only: copy the work order's photo to its asset,

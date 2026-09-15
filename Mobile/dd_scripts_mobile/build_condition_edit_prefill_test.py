@@ -1,5 +1,4 @@
-"""Build MOB.387_Work_Condition_Edit_Prefill - `Edit Item` opens the form FILLED from its card
-(checklist 🟢 #19).
+"""Build MOB.387_Work_Condition_Edit_Prefill - `Edit Item` opens the form FILLED from its card.
 
 WHAT THE SOURCE SAYS (origin/development)
   Each condition card's gear is `WorkCollectionMenu` (`WorkOrders/components/ui/Menu.tsx`) with
@@ -58,6 +57,13 @@ steps = [
     step("wait", "Let the condition cards render", {"value": 2}),
     jsassert("PREMISE: exactly one `Pump 0102 · Mounting/Support` card, reading 1 / 2 / 3",
              CARD_JS + ORIG_VALUES + "return orig.length === 1 && same;", timeout=30),
+    # `ConditionDetails.tsx:42-43` renders both rows UNCONDITIONALLY (the fixture's values are null,
+    # so they show empty) - labels no test had asserted.
+    jsassert("The card also lists `Stress Decision Score:` and `Notes:` (`ConditionDetails.tsx:42-43`)",
+             CARD_JS + "if (orig.length !== 1) return false;\n"
+             "const lis = [...orig[0].querySelectorAll('li')].map(li => norm(li.textContent));\n"
+             "return lis.some(t => t.indexOf('Stress Decision Score:') === 0) && lis.some(t => t.indexOf('Notes:') === 0);",
+             timeout=30),
     jsassert("Open that card's gear",
              CARD_JS + "if (orig.length !== 1) return false;\n"
              "const g = orig[0].querySelector('[aria-label=\"Menu\"]');\n"
@@ -83,6 +89,12 @@ steps = [
     step("wait", "Let the condition cards render", {"value": 2}),
     jsassert("UNCHANGED after a reload: the card still reads 1 / 2 / 3",
              CARD_JS + ORIG_VALUES + "return orig.length === 1 && same;", timeout=30),
+    # ---- the failure card's table (read-only) ----------------------------------
+    step("click", "Open the Failure tab", {"element": xpath_el(STAGE_URL, tab("Failure"))}, timeout=30),
+    step("wait", "Let the failure cards render", {"value": 2}),
+    jsassert("The fixture's failure table has a `Discovery Code` row (`FailureDetails.tsx:30` — always rendered)",
+             NORM + "const tds = [...document.querySelectorAll('[role=\"tabpanel\"]:not([style*=\"display: none\"]) td')];\n"
+             "return tds.some(td => norm(td.textContent) === 'Discovery Code');", timeout=30),
 ]
 
 write(test(

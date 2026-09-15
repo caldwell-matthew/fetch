@@ -1,5 +1,5 @@
 """Build MOB.551_AssetVerify_Reading_History - `AssetReadingTimeline`'s popover: its three fetch
-states, the timeline/chart toggle, and the offline branch (checklist 🟢 #8).
+states, the timeline/chart toggle, and the offline branch.
 
 WHAT SHIPPED WITHOUT A TEST
   `EventReadings/Timeline.tsx` fetches an asset's reading history ON OPEN (`skip: !opened`) and
