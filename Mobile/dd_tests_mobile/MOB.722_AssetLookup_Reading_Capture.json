@@ -1,0 +1,609 @@
+{
+    "test_name": "MOB.722_AssetLookup_Reading_Capture",
+    "details": {
+        "name": "MOB.722_AssetLookup_Reading_Capture",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.722` **Capture a reading from Asset Lookup's Readings tab** \u2014 proved over `/graphql`.\n- On the first `DD SYNTHETIC MOBILE` row (a critical guard requires its `Name` to be `DD SYNTHETIC MOBILE <8 digits>`\n  before anything is written) \u2014 not a fixture, and not an asset whose readings another test counts.\n- Reading type `Test 1`: added through `Add reading types` only when the asset lacks it (the picker\n  hides types already shown), so every run ends at the same field.\n- Types `722<5 random digits>`, tabs out to arm Submit (`filledInputs` counts on blur), submits.\n- \u2b50 **Server proof**: the asset's `latestReadings` for that type is exactly the typed value \u2014 the\n  toast is transient and the rendered previous entry is the app's own cache write (trap 6).\n- \u26a0\ufe0f **LEAVES RESIDUE**: one Event per run (`Test 1`, `722xxxxx`) on that throwaway asset.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Lookup",
+            "Readings",
+            "residue",
+            "module:asset-lookup"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(5) }}",
+                    "example": "48120"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(5) }}",
+                    "example": "48120"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for \"DD SYNTHETIC MOBILE\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter \u2014 there is no search button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESULT GUARD: a \"DD SYNTHETIC MOBILE\" row rendered (MOB.600 residue)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand that row",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: the row's `Name` cell is exactly `DD SYNTHETIC MOBILE <8 digits>` \u2014 a throwaway asset; record the name",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst tr = [...it.querySelectorAll('tr')].find(t => {\n  const b = t.querySelector('b');\n  return b && b.textContent.trim() === 'Name';\n});\nconst name = tr && tr.cells.length >= 2 ? tr.cells[1].textContent.trim() : '';\nif (!/^DD SYNTHETIC MOBILE \\d{8}$/.test(name)) return false;\nsessionStorage.setItem('__dd722_asset', name);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Readings\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Readings\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Readings\" tab is active",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[@role=\"tab\"][normalize-space(.)=\"Readings\"][@data-active]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The asset-scoped readings form mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//form[starts-with(@id, \"asset-lookup-readings-\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ENSURE 1/3: the `Test 1` field is already on the form \u2014 or open `Add reading types` (once, when it is not loading)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst form = it.querySelector('form[id^=\"asset-lookup-readings-\"]');\nif (!form) return false;\nconst field = () => [...form.querySelectorAll('input[placeholder=\"Enter reading\"]')].find(inp => {\n  const root = inp.closest('.mantine-NumberInput-root');\n  const box = root && root.parentElement;\n  const t = box && box.querySelector('.mantine-Text-root');\n  return !!t && t.textContent.trim() === 'Test 1';\n});\nconst picker = () => [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => (m.textContent || '').includes('Add Reading Types'));\nif (field() || picker()) return true;\nconst b = it.querySelector('[aria-label=\"Add reading types\"]');\nif (!b || b.disabled || b.hasAttribute('data-loading')) return false;\nif (!window.__dd722_open) { window.__dd722_open = 1; b.click(); }\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ENSURE 2/3: the field exists \u2014 or `Test 1` is picked in the MultiSelect (a pill)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst form = it.querySelector('form[id^=\"asset-lookup-readings-\"]');\nif (!form) return false;\nconst field = () => [...form.querySelectorAll('input[placeholder=\"Enter reading\"]')].find(inp => {\n  const root = inp.closest('.mantine-NumberInput-root');\n  const box = root && root.parentElement;\n  const t = box && box.querySelector('.mantine-Text-root');\n  return !!t && t.textContent.trim() === 'Test 1';\n});\nconst picker = () => [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => (m.textContent || '').includes('Add Reading Types'));\nif (field()) return true;\nconst m = picker();\nif (!m) return false;\nif ([...m.querySelectorAll('.mantine-Pill-label')]\n  .some(p => p.textContent.trim() === 'Test 1')) return true;\nconst opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => o.textContent.trim() === 'Test 1');\nif (opts.length === 1) { opts[0].click(); return false; }\nconst inp = m.querySelector('input');\nif (inp) { inp.focus(); inp.click(); }\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ENSURE 3/3: confirm with `Add` if the picker is open \u2014 the `Test 1` field is on the form; tag its input",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst form = it.querySelector('form[id^=\"asset-lookup-readings-\"]');\nif (!form) return false;\nconst field = () => [...form.querySelectorAll('input[placeholder=\"Enter reading\"]')].find(inp => {\n  const root = inp.closest('.mantine-NumberInput-root');\n  const box = root && root.parentElement;\n  const t = box && box.querySelector('.mantine-Text-root');\n  return !!t && t.textContent.trim() === 'Test 1';\n});\nconst picker = () => [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => (m.textContent || '').includes('Add Reading Types'));\nconst f = field();\nif (f) { document.querySelectorAll('[data-dd722]').forEach(n => n.removeAttribute('data-dd722'));\n  f.setAttribute('data-dd722', 'reading'); return true; }\nconst m = picker();\nif (!m) return false;\nconst add = [...m.querySelectorAll('button')].find(b => b.textContent.trim() === 'Add');\nif (add && !add.disabled && !window.__dd722_add) { window.__dd722_add = 1; add.click(); }\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the `Test 1` reading input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd722=\"reading\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Enter the reading `722<RUNID>`",
+                "noScreenshot": false,
+                "params": {
+                    "value": "722{{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd722=\"reading\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The input holds `722` + 5 digits; record it (the JS never reads RUNID)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('input[data-dd722=\"reading\"]');\nconst v = el ? (el.value || '').trim() : '';\nif (!/^722\\d{5}$/.test(v)) return false;\nsessionStorage.setItem('__dd722_value', v);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tab out \u2014 the form's onBlur recounts `filledInputs` (arms Submit)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Tab"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 this row's `button[form=\"asset-lookup-readings-\u2026\"]` is `type=\"submit\"` (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst b = it.querySelector('button[form^=\"asset-lookup-readings-\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the reading (CREATE_EVENT)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//button[starts-with(@form, \"asset-lookup-readings-\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "`Event readings captured.` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Event readings captured."
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the asset's latest `Test 1` reading is exactly the value typed (CREATE_EVENT stored)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd722_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const a = sessionStorage.getItem('__dd722_asset'), v = sessionStorage.getItem('__dd722_value');\n  if (!a || !v) return false;\n  const e = data.assets.edges.filter(x => x.name === a);\n  if (e.length !== 1) return false;\n  const r = (e[0].latestReadings || []).filter(x => x.readingType && x.readingType.name === 'Test 1');\n  return r.length === 1 && Number(r[0].reading) === Number(v); })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($p: TableQuery!) { assets(params: $p) { edges { id name latestReadings { id reading readingDate readingType { id name } } } } }\", variables: {\"p\": {\"limit\": 100, \"query\": {\"conditions\": [{\"column\": \"name\", \"operator\": \"CONTAINS\", \"value\": \"DD SYNTHETIC MOBILE\"}]}}} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd722_server', '__dd722_server:inflight', '__dd722_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The `Test 1` field now renders that value as its previous entry (the post-save cache write)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst form = it.querySelector('form[id^=\"asset-lookup-readings-\"]');\nif (!form) return false;\nconst field = () => [...form.querySelectorAll('input[placeholder=\"Enter reading\"]')].find(inp => {\n  const root = inp.closest('.mantine-NumberInput-root');\n  const box = root && root.parentElement;\n  const t = box && box.querySelector('.mantine-Text-root');\n  return !!t && t.textContent.trim() === 'Test 1';\n});\nconst picker = () => [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => (m.textContent || '').includes('Add Reading Types'));\nconst v = sessionStorage.getItem('__dd722_value');\nconst f = field();\nconst box = f && f.closest('.mantine-NumberInput-root') && f.closest('.mantine-NumberInput-root').parentElement;\nconst g = box && box.querySelector('.mantine-Group-root');\nreturn !!v && !!g && [...g.querySelectorAll('.mantine-Text-root')].some(t => t.textContent.trim() === v);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Collapse the row",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the row reports itself collapsed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nreturn !!c && c.getAttribute('aria-expanded') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP: remove this test's scratch keys, flags and tag, and the persisted search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd722_asset', '__dd722_value', 'asset_lookup_query'].forEach(k => sessionStorage.removeItem(k));\ndelete window.__dd722_open; delete window.__dd722_add;\ndocument.querySelectorAll('[data-dd722]').forEach(n => n.removeAttribute('data-dd722'));\nreturn !sessionStorage.getItem('__dd722_asset') && !sessionStorage.getItem('__dd722_value');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

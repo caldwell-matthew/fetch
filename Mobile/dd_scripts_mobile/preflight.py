@@ -73,12 +73,29 @@ def check_wiring():
             else f"{len(bad)} unwired: {bad[:4]} — run wire_suite.py, then push")
 
 
+# Datadog tests with no local JSON on purpose. `MOB.PDF_Upload_Recording` holds the owner-recorded PDF that
+# MOB.628 and MOB.866 upload (trap 12) - paused, never pushed from here, never deleted.
+REMOTE_ONLY = {"MOB.PDF_Upload_Recording"}
+
+
 def check_sync():
+    """Local JSON vs Datadog, by content - plus DUPLICATE NAMES, which `remote_ids` hides.
+
+    🛑 `remote_ids()` is a dict keyed by NAME, so two Datadog tests sharing one name collapse to
+    whichever the API listed last. `push` then updates that one and leaves the other behind, and
+    `wire_suite` chains whichever it happened to resolve - so a suite can silently run a stale
+    copy, and which copy is arbitrary. Found 2026-09-15: MOB.551 and MOB.624 each existed twice
+    (the strays 19 steps behind in MOB.624's case). Nothing chained the strays, but nothing
+    would have said so either.
+    """
     from dd_tools import ApiClient, SyntheticsApi, _conf, remote_ids
+    from collections import Counter
     local = local_tests()
-    diffs, extra = [], []
+    diffs, extra, dups = [], [], []
     with ApiClient(_conf()) as c:
         api = SyntheticsApi(c)
+        every = [t["name"] for t in api.list_tests().to_dict()["tests"] if t["name"].startswith("MOB.")]
+        dups = sorted(n for n, k in Counter(every).items() if k > 1)
         ids = remote_ids(api)
         for name, d in local.items():
             if name not in ids:
@@ -89,10 +106,11 @@ def check_sync():
                                (s.get("params") or {}).get("subtest_public_id")) for s in st]
             if sig(steps_of(d)) != sig(remote.get("steps") or []):
                 diffs.append(f"{name}: steps differ ({len(steps_of(d))} local vs {len(remote.get('steps') or [])})")
-        extra = [n for n in ids if n.startswith("MOB.") and n not in local]
-    ok = not diffs and not extra
+        extra = [n for n in ids if n.startswith("MOB.") and n not in local and n not in REMOTE_ONLY]
+    ok = not diffs and not extra and not dups
     msg = f"{len(local)} local tests match Datadog by content" if ok else "; ".join(
-        diffs[:5] + ([f"on Datadog only: {extra}"] if extra else []))
+        diffs[:5] + ([f"on Datadog only: {extra}"] if extra else [])
+        + ([f"DUPLICATE NAMES on Datadog (push/wire pick one at random): {dups}"] if dups else []))
     return ok, msg
 
 
@@ -134,13 +152,24 @@ def session():
 
 def check_work():
     s = session()
-    w = s.graphql("query($id: ID!) { workStage(id: $id) { status } }", {"id": WO_FIXTURE})["workStage"]
+    # `project` IS A PRECONDITION, not decoration. General Info resubmits every field it can
+    # update, and the server refuses a project whose record has no account - which is every
+    # project on dev (bugs §46). While the fixture references one, no General Info save on it
+    # can succeed and MOB.395 is red no matter what it types.
+    w = s.graphql("query($id: ID!) { workStage(id: $id) { status project { id name } } }",
+                  {"id": WO_FIXTURE})["workStage"]
     crew = s.graphql("query($crew: String) { workStages(crew: $crew) { edges { id } } }",
                      {"crew": "<SESSION>"})["workStages"]["edges"]
     listed = any(e["id"] == WO_FIXTURE for e in crew)
-    ok = w["status"] == "Ready" and listed
-    return ok, f"status {w['status']}, {'in' if listed else 'NOT in'} the crew's list" + (
-        "" if ok else " — MOB.320 ends on Ready; put it back (updateWorkStage status Ready)")
+    proj = w["project"]
+    ok = w["status"] == "Ready" and listed and proj is None
+    msg = f"status {w['status']}, {'in' if listed else 'NOT in'} the crew's list, project {proj and proj['name'] or 'none'}"
+    if w["status"] != "Ready" or not listed:
+        msg += " — MOB.320 ends on Ready; put it back (updateWorkStage status Ready)"
+    if proj is not None:
+        msg += (f" — clear it (updateWorkStage data {{project: null}}) or every General Info save "
+                f"on this fixture is rejected (bugs §46)")
+    return ok, msg
 
 
 def check_mob302():

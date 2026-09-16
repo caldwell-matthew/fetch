@@ -1,0 +1,1022 @@
+{
+    "test_name": "MOB.352_Work_Location_Save",
+    "details": {
+        "name": "MOB.352_Work_Location_Save",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.352` **`Edit Location` saves** \u2014 the globe menu's `LocationForm` writes the work stage's\n`address`/`x`/`y` (`UPDATE_WORK_STAGE`), proved over `/graphql`, then restored to FIXED values.\n- `MOB.348`/`MOB.911` only open the form. This one types a marker location, submits, and asks the\n  server; the modal closing is the mutation's `update()` (no optimisticResponse), not the proof.\n- Rest: `230 North Alexander Street, New Orleans, LA 70119` \u00b7 x -90.1025785 \u00b7 y 29.9782827. Marker: `DD MOB.352 LOCATION SAVE` \u00b7 x -90.0812 \u00b7\n  y 29.9511 (still New Orleans).\n- Restore, all `alwaysExecute`: the UI types the rest values back and the server read proves them;\n  a backstop sends `updateWorkStage` with the rest values only if the server is not at rest; the\n  last read requires rest + status `Ready`.\n- Fields are scoped to `#locationform` \u2014 the detail page behind has its own `Submit` (trap 3) \u2014\n  and cleared through the native setter + `input` event (trap 17).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Geolocation",
+            "self-restoring",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 1/2: the /work/:id route mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE 2/2: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): the stage's address/x/y are the fixed rest values, status `Ready`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd352_loc\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.status === 'Ready' && (w => !!w && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape any open menu or modal first",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The globe control renders on the title (the write)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"globe\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-globe \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the MapLink menu (the write)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//button[.//*[@data-icon=\"globe\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-globe \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The menu offers \"Edit Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Location\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the location form via \"Edit Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Location\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form is PREFILLED with the rest values (defaultValues from the work stage)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nif (!f) return false;\nconst v = id => { const el = f.querySelector('input#' + id); return el ? el.value : null; };\nreturn v('address') === '230 North Alexander Street, New Orleans, LA 70119' && v('x') !== '' && Math.abs(Number(v('x')) - (-90.1025785)) < 1e-6\n  && v('y') !== '' && Math.abs(Number(v('y')) - (29.9782827)) < 1e-6;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the form's Address (native value setter + input event \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nconst el = f && f.querySelector('input#address');\nif (!el) return false;\nel.focus();\nObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');\nel.dispatchEvent(new window.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type Address: DD MOB.352 LOCATION SAVE",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD MOB.352 LOCATION SAVE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//input[@id=\"address\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the form's X (native value setter + input event \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nconst el = f && f.querySelector('input#x');\nif (!el) return false;\nel.focus();\nObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');\nel.dispatchEvent(new window.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type X: -90.0812",
+                "noScreenshot": false,
+                "params": {
+                    "value": "-90.0812",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//input[@id=\"x\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the form's Y (native value setter + input event \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nconst el = f && f.querySelector('input#y');\nif (!el) return false;\nel.focus();\nObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');\nel.dispatchEvent(new window.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type Y: 29.9511",
+                "noScreenshot": false,
+                "params": {
+                    "value": "29.9511",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//input[@id=\"y\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form now holds the marker values \u2014 address `DD MOB.352 LOCATION SAVE`, x -90.0812, y 29.9511",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nif (!f) return false;\nconst v = id => { const el = f.querySelector('input#' + id); return el ? el.value : null; };\nreturn v('address') === 'DD MOB.352 LOCATION SAVE' && v('x') !== '' && Math.abs(Number(v('x')) - (-90.0812)) < 1e-6\n  && v('y') !== '' && Math.abs(Number(v('y')) - (29.9511)) < 1e-6;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `type=\"submit\"` inside #locationform (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('#locationform button[type=\"submit\"]');\nreturn !!b && (b.textContent || '').trim() === 'SUBMIT';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SUBMIT the marker location",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//button[normalize-space(.)=\"SUBMIT\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Work stage location has been updated` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Work stage location has been updated"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form is GONE and the page is still alive (the modal closes only once the server answers \u2014 no optimistic response)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.getElementById('locationform');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the stage now holds `DD MOB.352 LOCATION SAVE` \u00b7 x -90.0812 \u00b7 y 29.9511 \u2014 asked over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd352_loc\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => !!w && w.address === 'DD MOB.352 LOCATION SAVE' && Math.abs(Number(w.x) - (-90.0812)) < 1e-6 && Math.abs(Number(w.y) - (29.9511)) < 1e-6)(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape any open menu or modal first",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The globe control renders on the title (the restore)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//*[@data-icon=\"globe\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-globe \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the MapLink menu (the restore)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//button[.//*[@data-icon=\"globe\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-globe \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The menu offers \"Edit Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Location\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the location form via \"Edit Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Location\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the form's Address (native value setter + input event \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nconst el = f && f.querySelector('input#address');\nif (!el) return false;\nel.focus();\nObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');\nel.dispatchEvent(new window.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type Address: 230 North Alexander Street, New Orleans, LA 70119",
+                "noScreenshot": false,
+                "params": {
+                    "value": "230 North Alexander Street, New Orleans, LA 70119",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//input[@id=\"address\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the form's X (native value setter + input event \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nconst el = f && f.querySelector('input#x');\nif (!el) return false;\nel.focus();\nObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');\nel.dispatchEvent(new window.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type X: -90.1025785",
+                "noScreenshot": false,
+                "params": {
+                    "value": "-90.1025785",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//input[@id=\"x\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear the form's Y (native value setter + input event \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nconst el = f && f.querySelector('input#y');\nif (!el) return false;\nel.focus();\nObject.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');\nel.dispatchEvent(new window.Event('input', { bubbles: true }));\nreturn el.value === '';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type Y: 29.9782827",
+                "noScreenshot": false,
+                "params": {
+                    "value": "29.9782827",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//input[@id=\"y\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form now holds the rest values \u2014 address `230 North Alexander Street, New Orleans, LA 70119`, x -90.1025785, y 29.9782827",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('locationform');\nif (!f) return false;\nconst v = id => { const el = f.querySelector('input#' + id); return el ? el.value : null; };\nreturn v('address') === '230 North Alexander Street, New Orleans, LA 70119' && v('x') !== '' && Math.abs(Number(v('x')) - (-90.1025785)) < 1e-6\n  && v('y') !== '' && Math.abs(Number(v('y')) - (29.9782827)) < 1e-6;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `type=\"submit\"` inside #locationform (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('#locationform button[type=\"submit\"]');\nreturn !!b && (b.textContent || '').trim() === 'SUBMIT';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SUBMIT the rest location",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"locationform\"]//button[normalize-space(.)=\"SUBMIT\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Work stage location has been updated` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Work stage location has been updated"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form is GONE and the page is still alive (the modal closes only once the server answers \u2014 no optimistic response)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.getElementById('locationform');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 RESTORED (server): the UI wrote the fixed rest address/x/y back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd352_loc\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => !!w && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape \u2014 leave no modal open",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BACKSTOP: if the server is not at rest, send `updateWorkStage` with the FIXED rest values (reads first; sends nothing when the UI restore landed)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = '__dd352_net';\nconst st = sessionStorage.getItem(K);\nif (st === 'done') return true;\nif (st === 'asking') return false;\nsessionStorage.setItem(K, 'asking');\nconst post = body => window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n  headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' }, body: JSON.stringify(body) });\npost({ query: 'query($id: ID!) { workStage(id: $id) { id status address x y } }', variables: { id: 'EYRpYJ9QYdQ1JFF10JtB0Q' } })\n  .then(r => r.json())\n  .then(j => {\n    const w = j && j.data && j.data.workStage;\n    if ((w => !!w && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(w)) { sessionStorage.setItem(K, 'done'); return; }\n    sessionStorage.setItem(K + ':sent', '1');\n    return post({ query: 'mutation($id: ID!, $data: UpdateWorkStageInput!) { updateWorkStage(id: $id, data: $data) { id } }', variables: { id: 'EYRpYJ9QYdQ1JFF10JtB0Q', data: { address: '230 North Alexander Street, New Orleans, LA 70119', x: -90.1025785, y: 29.9782827 } } })\n      .then(() => sessionStorage.setItem(K, 'done'));\n  })\n  .catch(() => sessionStorage.setItem(K, 'done'));\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the backstop's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd352_net', '__dd352_net:sent'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 AT REST (server): address/x/y are the fixed rest values and the status is still `Ready`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd352_loc\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.status === 'Ready' && (w => !!w && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

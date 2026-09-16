@@ -41,7 +41,8 @@ MARKER = "DD SYNTHETIC MOBILE"
 KEEP_WORKS, KEEP_NOTES, KEEP_ASSETS = 10, 1, 4
 BATCH = 5
 FIXTURE_STAGES = {"EYRpYJ9QYdQ1JFF10JtB0Q": "the main fixture work order",
-                  "RcdI0xcpc8NBV8VoRNNBYM": "MOB.302's work order"}
+                  "RcdI0xcpc8NBV8VoRNNBYM": "MOB.302's work order",
+                  "xohY0klBZktB9VBRxc8k4J": "MOB.363/364/365's work order (20260910-16)"}
 NEVER_ASSETS = {"Pump 0102", "Bypass Valve 0001", "⚡ Tank 0000", "A/C Motor 0002"}
 
 

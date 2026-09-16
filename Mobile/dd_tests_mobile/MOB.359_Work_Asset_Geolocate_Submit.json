@@ -1,0 +1,909 @@
+{
+    "test_name": "MOB.359_Work_Asset_Geolocate_Submit",
+    "details": {
+        "name": "MOB.359_Work_Asset_Geolocate_Submit",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.359` **The asset location form submits** \u2014 `AssetGeolocate` on the fixture's Assets tab writes\n`Pump 0102`'s address fields (`UPDATE_ASSET`), proved over `/graphql`, restored to FIXED values.\n- `MOB.358` fills the form and never submits. Here a stubbed geocode fills it with a marker address,\n  `Include GIS` is turned OFF (the coordinates feed MOB.735/731 and equal the work order's x/y), and\n  the server read proves address/city/postal code written, state/country and lat/long unchanged.\n- The mutation is optimistic and not awaited, and the toast fires first \u2014 the server read is the proof.\n- Restore, all `alwaysExecute`: the stub answers the rest address and the form is submitted again; a\n  backstop sends the rest address fields only if the server is not at rest (never coordinates); the\n  last read requires every field and lat/long at rest.\n- \ud83d\udc1e The geolocate control renders only once the Asset schema is cached, which nothing on the work\n  pages does \u2014 the picker is opened and closed first (see MOB.354).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Geolocation",
+            "self-restoring",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Assets\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Assets\" is now the active tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"][@data-active=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): Pump 0102's address fields are at rest (`230 North Alexander Street` \u00b7 New Orleans \u00b7 LA \u00b7 70119 \u00b7 US) and so are its coordinates",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd359_asset\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((a => !!a && a.address === '230 North Alexander Street' && a.city === 'New Orleans' && a.postalCode === '70119' && !!a.state && a.state.id === 'LA' && !!a.countryCode && a.countryCode.id === 'US')(data.asset) && (a => !!a && Math.abs(Number(a.latitude) - (29.9782827)) < 1e-7 && Math.abs(Number(a.longitude) - (-90.1025785)) < 1e-7 && a.latitude !== null && a.longitude !== null)(data.asset)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { asset(id: $id) { id name address city postalCode latitude longitude state { id } countryCode { id } } }\", variables: {\"id\": \"oB5BUN1Es1Jctw8FVYwYBh\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd359_asset', '__dd359_asset:inflight', '__dd359_asset:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SCHEMA WARM: open `Add Asset` (its picker queries the Asset schema)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SCHEMA WARM: choose `Add Existing Asset`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-SegmentedControl-label \")][normalize-space(.)=\"Add Existing Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SCHEMA WARM: the picker mounted (nothing is searched or picked)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SCHEMA WARM: close the picker (its CloseButton beside the segmented control)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-SegmentedControl-root \")]/following-sibling::button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-CloseButton-root \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "SCHEMA WARM: the picker closed and the page is still alive",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.querySelector('input[name=\"asset-search\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: Pump 0102's row now renders the geolocate control (the schema is cached)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[@data-icon=\"location-crosshairs\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-location-crosshairs \")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape any open modal first",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Install the geolocation + Mapbox stubs \u2014 the geocode answers the written address (after the last go() \u2014 G7)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!window.__ddOrigFetch) window.__ddOrigFetch = window.fetch;\nif (!window.__ddOrigGeo) window.__ddOrigGeo = navigator.geolocation.getCurrentPosition;\nwindow.__dd359Features = [{place_type:['address'],text:'DD MOB Test Street',address:'359',properties:{}},{place_type:['place'],text:'Metairie',properties:{}},{place_type:['region'],text:'Louisiana',properties:{short_code:'US-LA'}},{place_type:['country'],text:'United States',properties:{short_code:'us'}},{place_type:['postcode'],text:'70001',properties:{}}];\nnavigator.geolocation.getCurrentPosition = function (ok) {\n  ok({ coords: { latitude: 29.9782827, longitude: -90.1025785, accuracy: 5 } });\n};\n// Mapbox ONLY \u2014 Apollo and the /graphql reads use fetch, so everything else passes through.\nwindow.fetch = function (input) {\n  var u = typeof input === 'string' ? input : ((input && input.url) || '');\n  if (u.indexOf('api.mapbox.com/geocoding') !== -1) {\n    return Promise.resolve(new Response(JSON.stringify({ features: window.__dd359Features }), { status: 200, headers: { 'Content-Type': 'application/json' } }));\n  }\n  return window.__ddOrigFetch.apply(window, arguments);\n};\nreturn typeof window.__ddOrigFetch === 'function' && window.__dd359Features[0].address === '359';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tap Pump 0102's geolocate control (the ActionIcon ROOT \u2014 MOB.911)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-ActionIcon-root \")][.//*[@data-icon=\"location-crosshairs\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-location-crosshairs \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The modal opened \u2014 \"Updating Asset Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Updating Asset Location"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"mobile-geolocate\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form holds the stubbed written address \u2014 `359 DD MOB Test Street` \u00b7 Metairie \u00b7 LA \u00b7 70001 \u00b7 US",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst vals = [...f.querySelectorAll('input')].map(i => (i.value || '').trim());\nreturn vals.includes('359 DD MOB Test Street') && vals.includes('Metairie') && vals.includes('70001')\n  && vals.includes('LA') && vals.includes('US');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Untick `Include GIS` BY FIELD ID and prove it off, with `Include Address` on, in the same step",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst gis = f.querySelector('input#includeGis'), adr = f.querySelector('input#includeAddress');\nif (!gis || !adr || gis.type !== 'checkbox' || adr.type !== 'checkbox') return false;\nif (gis.checked) gis.click();\nreturn gis.checked === false && adr.checked === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form revalidate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED (`type=\"submit\"`) with GIS off and Address on",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nconst gis = f && f.querySelector('input#includeGis'), adr = f && f.querySelector('input#includeAddress');\nconst b = document.querySelector('button[form=\"mobile-geolocate\"]');\nreturn !!gis && !gis.checked && !!adr && adr.checked && !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the written address",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"mobile-geolocate\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Asset location updated` toast (optional: it fires before the answer)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Asset location updated"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form is GONE and the page is still alive (not the proof)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.getElementById('mobile-geolocate');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: Pump 0102 now holds `359 DD MOB Test Street` \u00b7 Metairie \u00b7 LA \u00b7 70001 \u00b7 US \u2014 and its coordinates are UNCHANGED (no GIS write)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd359_asset\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((a => !!a && a.address === '359 DD MOB Test Street' && a.city === 'Metairie' && a.postalCode === '70001' && !!a.state && a.state.id === 'LA' && !!a.countryCode && a.countryCode.id === 'US')(data.asset) && (a => !!a && Math.abs(Number(a.latitude) - (29.9782827)) < 1e-7 && Math.abs(Number(a.longitude) - (-90.1025785)) < 1e-7 && a.latitude !== null && a.longitude !== null)(data.asset)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { asset(id: $id) { id name address city postalCode latitude longitude state { id } countryCode { id } } }\", variables: {\"id\": \"oB5BUN1Es1Jctw8FVYwYBh\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd359_asset', '__dd359_asset:inflight', '__dd359_asset:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape any open modal first",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Install the geolocation + Mapbox stubs \u2014 the geocode answers the rest address (after the last go() \u2014 G7)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!window.__ddOrigFetch) window.__ddOrigFetch = window.fetch;\nif (!window.__ddOrigGeo) window.__ddOrigGeo = navigator.geolocation.getCurrentPosition;\nwindow.__dd359Features = [{place_type:['address'],text:'North Alexander Street',address:'230',properties:{}},{place_type:['place'],text:'New Orleans',properties:{}},{place_type:['region'],text:'Louisiana',properties:{short_code:'US-LA'}},{place_type:['country'],text:'United States',properties:{short_code:'us'}},{place_type:['postcode'],text:'70119',properties:{}}];\nnavigator.geolocation.getCurrentPosition = function (ok) {\n  ok({ coords: { latitude: 29.9782827, longitude: -90.1025785, accuracy: 5 } });\n};\n// Mapbox ONLY \u2014 Apollo and the /graphql reads use fetch, so everything else passes through.\nwindow.fetch = function (input) {\n  var u = typeof input === 'string' ? input : ((input && input.url) || '');\n  if (u.indexOf('api.mapbox.com/geocoding') !== -1) {\n    return Promise.resolve(new Response(JSON.stringify({ features: window.__dd359Features }), { status: 200, headers: { 'Content-Type': 'application/json' } }));\n  }\n  return window.__ddOrigFetch.apply(window, arguments);\n};\nreturn typeof window.__ddOrigFetch === 'function' && window.__dd359Features[0].address === '230';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tap Pump 0102's geolocate control (the ActionIcon ROOT \u2014 MOB.911)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-ActionIcon-root \")][.//*[@data-icon=\"location-crosshairs\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-location-crosshairs \")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The modal opened \u2014 \"Updating Asset Location\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Updating Asset Location"
+                },
+                "type": "assertPageContains",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"mobile-geolocate\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form holds the stubbed rest address \u2014 `230 North Alexander Street` \u00b7 New Orleans \u00b7 LA \u00b7 70119 \u00b7 US",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst vals = [...f.querySelectorAll('input')].map(i => (i.value || '').trim());\nreturn vals.includes('230 North Alexander Street') && vals.includes('New Orleans') && vals.includes('70119')\n  && vals.includes('LA') && vals.includes('US');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Untick `Include GIS` BY FIELD ID and prove it off, with `Include Address` on, in the same step",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst gis = f.querySelector('input#includeGis'), adr = f.querySelector('input#includeAddress');\nif (!gis || !adr || gis.type !== 'checkbox' || adr.type !== 'checkbox') return false;\nif (gis.checked) gis.click();\nreturn gis.checked === false && adr.checked === true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form revalidate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED (`type=\"submit\"`) with GIS off and Address on",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nconst gis = f && f.querySelector('input#includeGis'), adr = f && f.querySelector('input#includeAddress');\nconst b = document.querySelector('button[form=\"mobile-geolocate\"]');\nreturn !!gis && !gis.checked && !!adr && adr.checked && !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the rest address",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"mobile-geolocate\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Asset location updated` toast (optional: it fires before the answer)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Asset location updated"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The location form is GONE and the page is still alive (not the proof)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.getElementById('mobile-geolocate');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 RESTORED (server): the UI wrote the rest address fields back, coordinates unchanged",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd359_asset\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((a => !!a && a.address === '230 North Alexander Street' && a.city === 'New Orleans' && a.postalCode === '70119' && !!a.state && a.state.id === 'LA' && !!a.countryCode && a.countryCode.id === 'US')(data.asset) && (a => !!a && Math.abs(Number(a.latitude) - (29.9782827)) < 1e-7 && Math.abs(Number(a.longitude) - (-90.1025785)) < 1e-7 && a.latitude !== null && a.longitude !== null)(data.asset)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { asset(id: $id) { id name address city postalCode latitude longitude state { id } countryCode { id } } }\", variables: {\"id\": \"oB5BUN1Es1Jctw8FVYwYBh\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd359_asset', '__dd359_asset:inflight', '__dd359_asset:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape \u2014 leave no modal open",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: both stubs removed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (window.__ddOrigFetch) { window.fetch = window.__ddOrigFetch; delete window.__ddOrigFetch; }\nif (window.__ddOrigGeo) { navigator.geolocation.getCurrentPosition = window.__ddOrigGeo; delete window.__ddOrigGeo; }\ndelete window.__dd359Features;\nreturn !window.__ddOrigFetch && !window.__ddOrigGeo && !window.__dd359Features;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BACKSTOP: if an address field is not at rest, send `updateAsset` with the FIXED rest address fields \u2014 never latitude/longitude/centroid (reads first; sends nothing when the UI restore landed)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = '__dd359_net';\nconst st = sessionStorage.getItem(K);\nif (st === 'done') return true;\nif (st === 'asking') return false;\nsessionStorage.setItem(K, 'asking');\nconst post = body => window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n  headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' }, body: JSON.stringify(body) });\npost({ query: 'query($id: ID!) { asset(id: $id) { id name address city postalCode latitude longitude state { id } countryCode { id } } }', variables: { id: 'oB5BUN1Es1Jctw8FVYwYBh' } })\n  .then(r => r.json())\n  .then(j => {\n    if ((a => !!a && a.address === '230 North Alexander Street' && a.city === 'New Orleans' && a.postalCode === '70119' && !!a.state && a.state.id === 'LA' && !!a.countryCode && a.countryCode.id === 'US')(j && j.data && j.data.asset)) { sessionStorage.setItem(K, 'done'); return; }\n    sessionStorage.setItem(K + ':sent', '1');\n    return post({ query: 'mutation($id: ID!, $data: UpdateAssetInput!) { updateAsset(id: $id, data: $data) { id } }', variables: { id: 'oB5BUN1Es1Jctw8FVYwYBh', data: { address: '230 North Alexander Street', city: 'New Orleans', postalCode: '70119', state: 'LA', countryCode: 'US' } } })\n      .then(() => sessionStorage.setItem(K, 'done'));\n  })\n  .catch(() => sessionStorage.setItem(K, 'done'));\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the backstop's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd359_net', '__dd359_net:sent'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 AT REST (server): Pump 0102's address fields and coordinates are the fixed rest values",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd359_asset\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((a => !!a && a.address === '230 North Alexander Street' && a.city === 'New Orleans' && a.postalCode === '70119' && !!a.state && a.state.id === 'LA' && !!a.countryCode && a.countryCode.id === 'US')(data.asset) && (a => !!a && Math.abs(Number(a.latitude) - (29.9782827)) < 1e-7 && Math.abs(Number(a.longitude) - (-90.1025785)) < 1e-7 && a.latitude !== null && a.longitude !== null)(data.asset)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { asset(id: $id) { id name address city postalCode latitude longitude state { id } countryCode { id } } }\", variables: {\"id\": \"oB5BUN1Es1Jctw8FVYwYBh\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd359_asset', '__dd359_asset:inflight', '__dd359_asset:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

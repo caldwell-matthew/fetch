@@ -226,6 +226,10 @@ def open_asset_detail():
         go(LOOKUP_URL, "asset lookup"),
         step("wait", "Wait for the page to mount", {"value": 5}),
         step("click", "Focus the search input", {"element": xpath_el(LOOKUP_URL, SEARCH)}),
+        # A suite shares one session and `asset_lookup_query` persists, so the box can already hold a
+        # term - and typeText APPENDS (trap 17). Without this the search reads "Pump 0102Pump 0102".
+        step("pressKey", "Select any existing search term (typeText APPENDS without this)",
+             {"value": "a", "modifiers": ["Control"]}),
         step("typeText", f"Search for {ASSET}",
              {"value": ASSET, "element": xpath_el(LOOKUP_URL, SEARCH)}),
         step("pressKey", "Submit the search (Enter - there is no search button)",

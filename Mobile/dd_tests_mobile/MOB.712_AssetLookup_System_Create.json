@@ -1,0 +1,796 @@
+{
+    "test_name": "MOB.712_AssetLookup_System_Create",
+    "details": {
+        "name": "MOB.712_AssetLookup_System_Create",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.712` **Create a System from an asset's `System` field** \u2014 proved over `/graphql`.\n- On the first `DD SYNTHETIC MOBILE` row in Asset Lookup (a critical guard requires its `Name` to be\n  `DD SYNTHETIC MOBILE <8 digits>` before anything is typed) \u2014 never a fixture.\n- `System` is hidden by default (`display: false`), so it is ticked in the column picker; the\n  selection persists to localStorage, so it is recorded first and unticked `always`.\n- Types `DD SYNTHETIC MOBILE <RUNID>` into the per-field `System` lookup and clicks `+ Create '\u2026'`:\n  `onCreate` fires CREATE_SYSTEM and UPDATE_ASSET without awaiting either and closes the modal,\n  so the modal and the transient `System updated` toast prove nothing (trap 6).\n- \u2b50 **Server proof**: exactly one System carries the typed name, and the asset's `systemId` is\n  that System by id and name.\n- \u26a0\ufe0f **LEAVES RESIDUE**: one System per run (mobile cannot delete one), and the marker asset's\n  `systemId` points at the newest.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Lookup",
+            "System",
+            "residue",
+            "module:asset-lookup"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "71248120"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "71248120"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to asset lookup",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-lookup"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the page to mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test the \"Asset Lookup\" page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Asset Lookup",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Asset Lookup\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the search input",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for \"DD SYNTHETIC MOBILE\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter \u2014 there is no search button)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESULT GUARD: a \"DD SYNTHETIC MOBILE\" row rendered (MOB.600 residue)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand that row",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail panel mount",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: the row's `Name` cell is exactly `DD SYNTHETIC MOBILE <8 digits>` \u2014 a throwaway asset; record the name",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst cell = label => {\n  const tr = [...it.querySelectorAll('tr')].find(t => {\n    const b = t.querySelector('b');\n    return b && b.textContent.trim() === label;\n  });\n  return tr && tr.cells.length >= 2 ? tr.cells[1] : null;\n};\nconst c = cell('Name');\nconst name = c ? c.textContent.trim() : '';\nif (!/^DD SYNTHETIC MOBILE \\d{8}$/.test(name)) return false;\nsessionStorage.setItem('__dd712_asset', name);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the General Info column picker (`table-columns`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//button[.//*[@data-icon=\"table-columns\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-table-columns \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The column picker is open (`Find Column(s)`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Column(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BEFORE: record the General Info column selection (localStorage \u2014 restored at the end)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = localStorage.getItem('_assetlookup_generalinfo_cols_');\nif (!v) return false;\ntry { JSON.parse(v); } catch (e) { return false; }\nsessionStorage.setItem('__dd712_cols', v);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Tick `System` in the picker \u2014 its checkbox is now checked",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const roots = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Checkbox-root')]\n  .filter(r => { const l = r.querySelector('.mantine-Checkbox-label');\n    return l && l.textContent.trim() === 'System'; });\nif (roots.length !== 1) return false;\nconst box = roots[0].querySelector('input[type=\"checkbox\"]');\nif (!box) return false;\nif (!box.checked && !window.__dd712_ticked) { window.__dd712_ticked = 1; box.click(); }\nreturn box.checked;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the column picker",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The `System` row now renders in General Info, with its edit pencil (`allowUpdate` and `asset.update`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//tr[.//b[normalize-space(.)=\"System\"]]//button[.//*[@data-icon=\"pen-to-square\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-pen-to-square \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the System edit form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//tr[.//b[normalize-space(.)=\"System\"]]//button[.//*[@data-icon=\"pen-to-square\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-pen-to-square \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The edit modal opened on the System lookup (`#systemId`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@id=\"systemId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the System lookup",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@id=\"systemId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any current System name (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type a new System name \"DD SYNTHETIC MOBILE {{ RUNID }}\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@id=\"systemId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The lookup holds `DD SYNTHETIC MOBILE <8 digits>`; record it (the JS never reads RUNID)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.querySelector('.mantine-Modal-content #systemId');\nconst v = el ? (el.value || '').trim() : '';\nif (!/^DD SYNTHETIC MOBILE \\d{8}$/.test(v)) return false;\nsessionStorage.setItem('__dd712_system', v);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The dropdown offers exactly ONE option `+ Create '<that name>'` (`ListFilter`, `noMatch`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const n = sessionStorage.getItem('__dd712_system');\nif (!n) return false;\nconst hits = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => (o.textContent || '').trim().indexOf('+ Create') === 0);\nreturn hits.length === 1 && hits[0].textContent.trim() === \"+ Create '\" + n + \"'\";"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `+ Create` \u2014 `onCreate`: CREATE_SYSTEM, then UPDATE_ASSET systemId",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"option\"][starts-with(normalize-space(.), \"+ Create\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Brief wait for the toast",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "`System updated` toast (optional: transient \u2014 UPDATE_ASSET's `update()`)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "System updated"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The System lookup's modal is gone and the row is still expanded (it closes whatever the server says \u2014 not proof)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nreturn !document.querySelector('.mantine-Modal-content #systemId')\n  && !!c && c.getAttribute('aria-expanded') === 'true';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: exactly ONE System carries the typed name (CREATE_SYSTEM stored it, once)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd712_server_system\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const n = sessionStorage.getItem('__dd712_system'); if (!n) return false;\n  return data.systems.edges.filter(s => s.name === n).length === 1; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($p: TableQuery!) { systems(params: $p) { edges { id name } } }\", variables: {\"p\": {\"limit\": 100, \"query\": {\"conditions\": [{\"column\": \"name\", \"operator\": \"CONTAINS\", \"value\": \"DD SYNTHETIC MOBILE\"}]}}} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd712_server_system', '__dd712_server_system:inflight', '__dd712_server_system:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the asset's `systemId` IS that System \u2014 same id, same name (UPDATE_ASSET)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd712_server_asset\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const a = sessionStorage.getItem('__dd712_asset'), n = sessionStorage.getItem('__dd712_system');\n  if (!a || !n) return false;\n  const as = data.assets.edges.filter(e => e.name === a);\n  const ss = data.systems.edges.filter(s => s.name === n);\n  return as.length === 1 && ss.length === 1 && !!as[0].systemId\n    && as[0].systemId.id === ss[0].id && as[0].systemId.name === n; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($p: TableQuery!) { assets(params: $p) { edges { id name systemId { id name } } } systems(params: $p) { edges { id name } } }\", variables: {\"p\": {\"limit\": 100, \"query\": {\"conditions\": [{\"column\": \"name\", \"operator\": \"CONTAINS\", \"value\": \"DD SYNTHETIC MOBILE\"}]}}} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd712_server_asset', '__dd712_server_asset:inflight', '__dd712_server_asset:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Close anything still open (optional)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "No System lookup modal is left open, and the marker row is still on the page",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nreturn !document.querySelector('.mantine-Modal-content #systemId');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the General Info column picker (`table-columns`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//button[.//*[@data-icon=\"table-columns\" or contains(concat(\" \", normalize-space(@class), \" \"), \" fa-table-columns \")]]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The column picker is open (`Find Column(s)`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Column(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE: untick `System` in the picker \u2014 its checkbox is now unchecked",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const roots = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Checkbox-root')]\n  .filter(r => { const l = r.querySelector('.mantine-Checkbox-label');\n    return l && l.textContent.trim() === 'System'; });\nif (roots.length !== 1) return false;\nconst box = roots[0].querySelector('input[type=\"checkbox\"]');\nif (!box) return false;\nif (box.checked && !window.__dd712_unticked) { window.__dd712_unticked = 1; box.click(); }\nreturn !box.checked;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the column picker",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: localStorage no longer shows `systemId`, and every other column is as recorded",
+                "noScreenshot": false,
+                "params": {
+                    "code": "let cur, before;\ntry { cur = JSON.parse(localStorage.getItem('_assetlookup_generalinfo_cols_') || 'null');\n  before = JSON.parse(sessionStorage.getItem('__dd712_cols') || 'null'); } catch (e) { return false; }\nif (!cur || cur.systemId) return false;\nif (!before) return true;\nconst keys = new Set([...Object.keys(before), ...Object.keys(cur)]);\nkeys.delete('systemId');\nreturn [...keys].every(k => !!cur[k] === !!before[k]);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Collapse the row",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(., \"DD SYNTHETIC MOBILE\")]])[1]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the row reports itself collapsed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {\n  const c = i.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');\n});\nif (!it) return false;\nconst c = it.querySelector('.mantine-Accordion-control');\nreturn !!c && c.getAttribute('aria-expanded') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP: remove this test's scratch keys and flags, and the persisted search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd712_asset', '__dd712_system', '__dd712_cols', 'asset_lookup_query'].forEach(k => sessionStorage.removeItem(k));\ndelete window.__dd712_ticked; delete window.__dd712_unticked;\nreturn !sessionStorage.getItem('__dd712_asset') && !sessionStorage.getItem('__dd712_system');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

@@ -10,7 +10,8 @@
             "env:dev",
             "CRUD",
             "field-edit",
-            "Asset Lookup"
+            "Asset Lookup",
+            "module:asset-lookup"
         ],
         "locations": [
             "gcp:us-west2"
@@ -117,6 +118,21 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any existing search term (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,
@@ -438,6 +454,21 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any existing search term (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,
@@ -771,6 +802,21 @@
                     }
                 },
                 "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any existing search term (typeText APPENDS without this)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
             },
             {
                 "allowFailure": false,

@@ -32,11 +32,19 @@ WHAT IT REPLAYS, WITH DATADOG'S RULES
     - devices: tablet 768x1020 (default), mobile_small 320x550, laptop_large 1440x1100
       (Datadog's browser-test devices); `screen` is emulated too, so `availWidth` branches match
 
-WHAT IT CANNOT
-    uploadFiles - the file lives in Datadog's storage (trap 12): reported SKIP and the run is
-    marked INCOMPLETE. Failure screenshots go to Mobile/local_runs/<test>/ (gitignored).
+UPLOADS WITH A STAND-IN FILE
+    uploadFiles - Datadog's bytes live in its storage (trap 12), so a local replay sets a stand-in
+    of the same name on the step's <input type=file>: `Mobile/local_fixtures/<name>` when present,
+    else a generated file by extension (a valid 64x64 PNG/JPEG-named PNG, a one-page PDF, text).
+    It really uploads to the dev server, as a Datadog run does. The step is named "(local stand-in)".
+    Failure screenshots go to Mobile/local_runs/<test>/ (gitignored).
+
+ONE REPLAY AT A TIME
+    Replays share the dev fixtures, so each takes `local_runs/.replay.lock` for its browser session
+    and a second one waits (it prints that it is waiting). A probe that writes should take it too.
 """
 import argparse
+import fcntl
 import glob
 import json
 import os
@@ -220,6 +228,45 @@ def act(loc, how, forced_steps, attempts):
     return True
 
 
+FIXTURES = os.path.join(HERE, "..", "local_fixtures")
+
+
+def stand_in(name):
+    """A local file for an uploadFiles step - Datadog's own bytes are not downloadable."""
+    import mimetypes, struct, zlib
+    path = os.path.join(FIXTURES, name)
+    mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
+    if os.path.exists(path):
+        return {"name": name, "mimeType": mime, "buffer": open(path, "rb").read()}
+    ext = name.rsplit(".", 1)[-1].lower()
+    if ext in ("png", "jpg", "jpeg", "heic", "gif", "webp"):
+        w = h = 64
+        raw = b"".join(b"\x00" + b"".join(bytes((x * 4 % 256, y * 4 % 256, 160)) for x in range(w)) for y in range(h))
+
+        def chunk(kind, data):
+            return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+        buf = (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+               + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))
+        return {"name": name.rsplit(".", 1)[0] + ".png", "mimeType": "image/png", "buffer": buf}
+    if ext == "pdf":
+        body = (b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+                b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n")
+        return {"name": name, "mimeType": "application/pdf", "buffer": body}
+    return {"name": name, "mimeType": mime, "buffer": b"DD SYNTHETIC MOBILE local stand-in\n"}
+
+
+def replay_lock():
+    """Hold local_runs/.replay.lock for the browser session - replays share the dev fixtures."""
+    os.makedirs(OUT, exist_ok=True)
+    fh = open(os.path.join(OUT, ".replay.lock"), "w")
+    try:
+        fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("waiting for another local replay to finish (local_runs/.replay.lock) ...", flush=True)
+        fcntl.flock(fh, fcntl.LOCK_EX)
+    return fh
+
+
 def page_text(page):
     return page.evaluate("() => document.body ? document.body.innerText : ''")
 
@@ -291,7 +338,10 @@ def run_step(page, step, variables, timeout, forced_steps):
             return True
         poll(truthy, timeout, "assertFromJavascript")
     elif t == "uploadFiles":
-        raise NotImplementedError("uploadFiles - the file lives in Datadog's storage")
+        xp = sub(xpath_of(p), variables)
+        files = [stand_in(f["name"]) for f in p.get("files", [])]
+        poll(lambda: one_element(page, xp, False).set_input_files(files) is None, timeout, "uploadFiles")
+        forced_steps.append("local stand-in file")
     else:
         raise NotImplementedError(f"step type {t!r}")
 
@@ -301,6 +351,7 @@ class Run:
     def __init__(self, page, variables, max_timeout, shots, keep_going=False):
         self.page, self.variables, self.max_timeout, self.shots = page, variables, max_timeout, shots
         self.keep_going = keep_going      # --continue: TIMING ONLY - a red step does not stop the rest
+        self.sub_locals = {}              # per-subtest local variables, see `steps`
         self.incomplete = False
         self.forced = 0
         self.n = 0
@@ -323,12 +374,32 @@ class Run:
             try:
                 if step["type"] == "playSubTest":
                     print(f"{pad}##   {name}")
-                    if not self.steps(find_test(name)["steps"], depth + 1):
-                        error = "Sub-test failed"
+                    # A SUBTEST'S LOCAL VARIABLES ARE ITS OWN, exactly as on Datadog.
+                    # `collect_variables` flattens every child's locals into one dict keyed by
+                    # NAME, and most tests call theirs `RUNID` - so the winner's pattern was
+                    # imposed on all of them. Measured 2026-09-15: MOB.980 went red because
+                    # MOB.710's `{{ numeric(8) }}` reached MOB.722, whose input guard wants
+                    # `722` + FIVE digits; it read `72252970672`. The same test is green on
+                    # Datadog, which scopes locals per subtest. So does this now.
+                    detail = find_test(name)
+                    if name not in self.sub_locals:
+                        self.sub_locals[name] = {
+                            v["name"]: local_value(v)
+                            for v in (detail.get("config") or {}).get("variables", [])
+                            if v.get("type") == "text"}
+                    outer = self.variables
+                    self.variables = {**outer, **self.sub_locals[name]}
+                    try:
+                        if not self.steps(detail["steps"], depth + 1):
+                            error = "Sub-test failed"
+                    finally:
+                        self.variables = outer
                 else:
                     forced = []
                     run_step(self.page, step, self.variables, timeout, forced)
-                    if forced:
+                    if forced == ["local stand-in file"]:
+                        name = f"{name}   (local stand-in)"
+                    elif forced:
                         self.forced += 1
                         name = f"{name}   (forced: {forced[0]})"
             except NotImplementedError as e:
@@ -413,6 +484,7 @@ def main():
         print(f"live view: {os.path.relpath(LIVE, HERE)} (redrawn every step)")
     from playwright.sync_api import sync_playwright
     print(f"{details['name']}  ·  local Chromium  ·  {device} {w}x{h}  ·  {len(steps)} top-level steps")
+    lock = replay_lock()
     t0 = time.time()
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=not args.headed, slow_mo=args.slow_mo)

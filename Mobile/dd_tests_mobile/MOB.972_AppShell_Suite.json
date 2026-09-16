@@ -1,0 +1,525 @@
+{
+    "test_name": "MOB.972_AppShell_Suite",
+    "details": {
+        "name": "MOB.972_AppShell_Suite",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.972` Every route's shell: Home, the online and offline guards, Dev Logs, the Transaction Log, the hamburger menu, the back arrow, header status icons.\n- Writes: MOB.131 verifies and un-verifies an asset on the AV fixture job; MOB.131 before MOB.132, whose search reads those entries.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Suite",
+            "class:writes",
+            "module:app-shell"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
+                    "name": "DATA_DOG_EMAIL",
+                    "type": "global"
+                },
+                {
+                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
+                    "name": "DATA_DOG_PASSWORD",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "id": "87b53e00-1675-4aa6-82c3-6e328e007d4b",
+                    "name": "DATA_DOG_EMAIL",
+                    "type": "global"
+                },
+                {
+                    "id": "9c503d08-e175-464a-aa8e-dc9c0087ce30",
+                    "name": "DATA_DOG_PASSWORD",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to mobile app",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ MOBDEV }}"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the SSO login form to hydrate",
+                "noScreenshot": false,
+                "params": {
+                    "value": 5
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type email",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ DATA_DOG_EMAIL }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"email\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Next\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@type=\"submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type password",
+                "noScreenshot": false,
+                "params": {
+                    "value": "{{ DATA_DOG_PASSWORD }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@name=\"password\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click \"Submit\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@type=\"submit\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Choose the \"development\" environment",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/login/sso?src=mobile",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//button[contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-button \")][contains(concat(\" \", normalize-space(@class), \" \"), \" enviroment-btn--active \")][.//p[normalize-space(.)=\"development\"]])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the app shell to mount after the env redirect",
+                "noScreenshot": false,
+                "params": {
+                    "value": 10
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Something went wrong."
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test authenticated mobile shell rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the menu to read the session role",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@aria-label=\"Toggle navigation\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Guard: session role is exactly \"Admin\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[.//div[normalize-space(.)=\"Switch Crews\"]]//div[normalize-space(.)=\"Admin\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the menu",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.180_Home_Screen",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "agr-zbt-jkf",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.900_Online_Guard",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "gn2-txi-94i",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.910_Offline_UI",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "5m7-7rn-s37",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.170_Nav_Dev_Logs",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "spi-745-suy",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.171_DevLogs_Contents",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "ur9-zj5-mxc",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.130_Nav_Transaction_Log",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "9hz-hdv-vdd",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.131_Transaction_Log_Contents",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "vq5-qxu-p23",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.132_TransactionLog_Search",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "8bn-ccw-2sr",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.400_Menu_Open_Close",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "g2h-4ix-xuj",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.410_Menu_Resync",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "gtj-7bu-7sq",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.420_Menu_Transaction_Log",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "8rg-c5z-i3r",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.430_Crew_Modal_Dismiss",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "4mk-rc8-wpu",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.450_Global_Back_Arrow",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "ae4-qv4-rmb",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.460_Global_Module_Resync",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "mqp-nhp-tgc",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.470_Header_Status_Icons",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "56x-4nb-nsj",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            }
+        ]
+    }
+}

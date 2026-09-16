@@ -881,24 +881,55 @@ check('MUST FAIL: empty page - absence alone must not pass (trap 5)',
 	runJs(M345.view, workList({ rows: 0 })), false);
 check('MUST FAIL: group headers and no rows', runJs(M345.view, workList({ rows: 0, groups: true })), false);
 
-console.log('\nMOB.345 - the narrowing guard (the reversal invariant needs a whole list)');
-{
-	const narrowed = bodyOf('MOB.345_Work_Sort_Persist.json', 'NARROWED: between 2 and 15');
-	const rows = (texts) => {
-		const dom = new JSDOM('<body></body>'); const doc = dom.window.document;
-		for (const t of texts) {
-			const p = doc.createElement('div'); p.className = 'mantine-Paper-root';
-			p.textContent = `${t} Description: x`; doc.body.appendChild(p);
-		}
-		return dom.window;
+/**
+ * The REAL WorkListItem shape (WorkListItem.tsx:41-107): a Paper whose FIRST child is the Group
+ * holding `_workSequence`, whose SECOND is the name, and only THEN the display fields, the
+ * "Description:" label and the description. MOB.345 keys a row on the first two, so a row's
+ * identity does not move when a display field arrives or goes - `displayFields.filter(v =>
+ * !!workStage[v.key])` (`:92`) renders NO LINE for a null field, so those lines come and go.
+ *
+ * A spec may be a bare sequence, or `{ seq, name, fields }` to vary the rest.
+ */
+function workRows(specs) {
+	const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/' });
+	const doc = dom.window.document;
+	const add = (parent, text) => {
+		const d = doc.createElement('div'); d.textContent = text; parent.appendChild(d); return d;
 	};
-	check('4 distinct rows - narrowed', runJs(narrowed, rows(['A-1', 'A-2', 'A-3', 'A-4'])), true);
-	check('MUST FAIL: 1 row - an order over one row is vacuous (trap 5)', runJs(narrowed, rows(['A-1'])), false);
-	check('MUST FAIL: 0 rows - the term matched nothing', runJs(narrowed, rows([])), false);
-	check('MUST FAIL: 16 rows - the filter did not bite, so Virtuoso may be windowing',
-		runJs(narrowed, rows(Array.from({ length: 16 }, (_, i) => `A-${i}`))), false);
-	check('MUST FAIL: duplicate row text - the rows cannot be told apart',
-		runJs(narrowed, rows(['SAME', 'SAME', 'OTHER'])), false);
+	for (const spec of specs) {
+		const { seq, name = 'Inspection (No Permit)', fields = ['Assets: Valve Group'] } =
+			typeof spec === 'string' ? { seq: spec } : spec;
+		const p = doc.createElement('div'); p.className = 'mantine-Paper-root';
+		add(p, seq);                                    // <Group> - _workSequence
+		add(p, name);                                   // the name Highlight
+		for (const f of fields) add(p, f);              // display fields - may be absent
+		add(p, 'Description:');
+		add(p, 'Inspection ...');
+		doc.body.appendChild(p);
+	}
+	return dom.window;
+}
+const rowIdentity = (spec) => (typeof spec === 'string' ? spec : spec.seq) + ' | ' +
+	(typeof spec === 'string' ? 'Inspection (No Permit)' : (spec.name || 'Inspection (No Permit)'));
+
+console.log('\nMOB.345 - the narrowing guard (at least 2 rows, and tellable apart)');
+{
+	const narrowed = bodyOf('MOB.345_Work_Sort_Persist.json', 'NARROWED: at least 2 rows render');
+	check('4 distinct rows', runJs(narrowed, workRows(['A-1', 'A-2', 'A-3', 'A-4'])), true);
+	check('MUST FAIL: 1 row - an order over one row is vacuous (trap 5)', runJs(narrowed, workRows(['A-1'])), false);
+	check('MUST FAIL: 0 rows - the term matched nothing', runJs(narrowed, workRows([])), false);
+	// ⭐ 2026-09-15: the old guard capped this at 15 to keep the list inside one Virtuoso
+	// window. It never could - the dev list has outgrown any search term - so `scroll_to_end`
+	// carries the proof instead and a long list is no longer a failure.
+	check('⭐ 16 rows PASS now - scroll_to_end handles a list longer than the window',
+		runJs(narrowed, workRows(Array.from({ length: 16 }, (_, i) => `A-${i}`))), true);
+	check('MUST FAIL: two rows share a sequence AND a name - they cannot be told apart',
+		runJs(narrowed, workRows(['SAME', 'SAME', 'OTHER'])), false);
+	check('MUST FAIL: identity ignores the display fields - same sequence, different Address, still a duplicate',
+		runJs(narrowed, workRows([{ seq: 'A-1', fields: ['Address: one'] },
+			{ seq: 'A-1', fields: ['Address: two'] }])), false);
+	check('⭐ a row that GAINED an Address line keeps the identity of one that has none',
+		runJs(narrowed, workRows([{ seq: 'A-1', fields: [] }, { seq: 'A-2', fields: ['Address: x'] }])), true);
 }
 
 /* ===========================================================================================
@@ -982,31 +1013,43 @@ check('restored - General Info is selected', runJs(M546.restored, detailPage()),
 check('MUST FAIL: restored - still on Attachments',
 	runJs(M546.restored, detailPage({ selectedTab: 'Attachments' })), false);
 
-console.log('\nMOB.345 - the reversal proof survives rows arriving mid-test');
+console.log('\nMOB.345 - the reversal proof, and the overlap it needs');
 {
 	const proof = bodyOf('MOB.345_Work_Sort_Persist.json', 'every row rendered in BOTH orders');
-	const page = (texts, stash) => {
-		const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/' });
-		const doc = dom.window.document;
-		for (const t of texts) {
-			const p = doc.createElement('div'); p.className = 'mantine-Paper-root';
-			p.textContent = `${t} Description: x`; doc.body.appendChild(p);
-		}
-		try { dom.window.sessionStorage.setItem('__dd345_asc', JSON.stringify(stash.map(t => `${t} Description: x`))); } catch (e) { /* opaque */ }
-		return dom.window;
+	const overlap = bodyOf('MOB.345_Work_Sort_Persist.json', 'the two captures OVERLAP');
+	const page = (specs, stash) => {
+		const win = workRows(specs);
+		try { win.sessionStorage.setItem('__dd345_asc', JSON.stringify(stash.map(rowIdentity))); }
+		catch (e) { /* opaque origin */ }
+		return win;
 	};
 	check('plain reversal', runJs(proof, page(['C', 'B', 'A'], ['A', 'B', 'C'])), true);
-	// ⭐ the 2026-09-10 case: '6' paged in between the two reads, and '1' scrolled out
-	check('⭐ a row ARRIVED and another LEFT - the common rows are still reversed',
+	// ⭐ THE CASE scroll_to_end EXISTS FOR. Ascending was captured at the TOP (A,B,C) and
+	// descending at the END of a longer list, so the descending window is the ascending head
+	// reversed with older rows below it. They overlap; the common rows reverse.
+	check('⭐ descending captured at the END of a longer list - the head still reverses',
+		runJs(proof, page(['C', 'B', 'A', 'z-1', 'z-2'], ['A', 'B', 'C'])), true);
+	// the 2026-09-10 case: a row paged in between the two reads and another scrolled out
+	check('a row ARRIVED and another LEFT - the common rows are still reversed',
 		runJs(proof, page(['6', 'C', 'B'], ['A', 'B', 'C'])), true);
 	check('MUST FAIL: the common rows are in the SAME order (no sort happened)',
 		runJs(proof, page(['B', 'C', '6'], ['A', 'B', 'C'])), false);
-	check('MUST FAIL: only one row in common - proves nothing, and means narrowing stopped',
+	check('MUST FAIL: only one row in common - proves nothing',
 		runJs(proof, page(['C', '7', '8'], ['A', 'B', 'C'])), false);
+	// ⭐ 2026-09-15 MEASURED: ascending held 20260910-1/2/3-001 and descending held
+	// 20260913-1-001, 20260911-1-001, 20260910-6-001 - two disjoint windows of one filtered
+	// list. The proof correctly returns false; the OVERLAP diag is what names the reason.
 	check('MUST FAIL: nothing in common at all (two disjoint Virtuoso windows)',
 		runJs(proof, page(['X', 'Y', 'Z'], ['A', 'B', 'C'])), false);
 	check('MUST FAIL: no captured order to compare against',
 		runJs(proof, page(['C', 'B', 'A'], [])), false);
+
+	check('overlap diag: 3 rows in common', runJs(overlap, page(['C', 'B', 'A'], ['A', 'B', 'C'])), true);
+	check('overlap diag: 2 in common is enough', runJs(overlap, page(['C', 'B', '9'], ['A', 'B', 'C'])), true);
+	check('MUST FAIL: overlap diag - only 1 row in common',
+		runJs(overlap, page(['C', '7', '8'], ['A', 'B', 'C'])), false);
+	check('⭐ MUST FAIL: overlap diag - the disjoint-window case it was written to name',
+		runJs(overlap, page(['X', 'Y', 'Z'], ['A', 'B', 'C'])), false);
 }
 
 /* ===========================================================================================
@@ -2640,6 +2683,1727 @@ if (!fs.existsSync(path.join(TESTS, 'MOB.386_Work_Condition_Edit_Save.json'))) {
 	check('MUST FAIL: 399 empty - another asset', runJs(empty, pg(tabs('Warranties') + panels('', '<h4>Pump 0102</h4><p>No Warranties Found...</p>'))), false);
 	check('399 banner - absent', runJs(noBanner, pg('<p>Status: READY</p>')), true);
 	check('MUST FAIL: 399 banner - present', runJs(noBanner, pg('<div role="alert">Assets Related to the Work Order are under Warranty</div>')), false);
+}
+
+/* ===========================================================================================
+ * MOB.385 (failure Edit Item save) + MOB.361 (job note edit + delete) - checklist #51/#52/#53.
+ * DOM from FailureDetails.tsx / Failures/index.tsx (a table in a CollapsableSection Paper under an
+ * asset Paper) and Notes.tsx (Paper > Group[name Text, Group[Pill, gear]] + Spoiler > rich text).
+ * Server reads are server_read_js bodies, stubbed with a synchronous fetch.
+ * ========================================================================================= */
+{
+	const F385 = 'MOB.385_Work_Failure_Edit_Save.json', F361 = 'MOB.361_Work_Note_Edit_Delete.json';
+	const stepsOf = (f) => JSON.parse(fs.readFileSync(path.join(TESTS, f))).details.steps.filter(s => s.type === 'assertFromJavascript');
+	const byName = (f, frag, nth = 0) => { const m = stepsOf(f).filter(s => s.name.includes(frag)); if (!m[nth]) throw new Error(`${f}: no JS step #${nth} matching "${frag}"`); return m[nth].params.code; };
+	const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return fail(e); } }, catch() { return this; } });
+	const fail = (e) => ({ then() { return this; }, catch(f) { f(e); return sync(undefined); } });
+	const W = 'https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q';
+	const pg = (html, answer, stash = {}) => {
+		const w = new JSDOM('<body></body>', { url: W }).window;
+		w.document.body.innerHTML = html;
+		for (const [k, v] of Object.entries(stash)) w.sessionStorage.setItem(k, v);
+		w.__gear = [];
+		w.document.querySelectorAll('[aria-label="Menu"]').forEach((g, i) => g.addEventListener('click', () => w.__gear.push(i)));
+		w.document.querySelectorAll('[role="option"]').forEach(o => {
+			Object.defineProperty(o, 'offsetParent', { get: () => (o.dataset.hid === '1' ? null : w.document.body) });
+			o.addEventListener('click', () => { w.__picked = (w.__picked || []).concat(o.dataset.v + (o.dataset.hid === '1' ? ':hidden' : '')); });
+		});
+		w.fetch = () => sync({ json: () => sync(answer) });
+		return w;
+	};
+	const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+
+	// ---- MOB.385 ---------------------------------------------------------------------------
+	const FID = 'YxYAgs5xtV5pQJFopUw5xN';
+	const fcard = (rep, root = 'TIME', ft = 'BELT (R-L1)') => `<div class="mantine-Paper-root"><div class="mantine-Group-root"><button><span><p class="mantine-Text-root">  </p></span></button><button aria-label="Menu"></button></div>`
+		+ `<div class="mantine-Collapse-root"><table><tbody><tr><td>Failure Type</td><td> ${ft} </td></tr><tr><td>Root Cause</td><td> ${root} </td></tr>`
+		+ `<tr><td>Repair Type</td><td> ${rep} </td></tr><tr><td>Discovery Code</td><td>  </td></tr></tbody></table></div></div>`;
+	const fasset = (name, ...cards) => `<div class="mantine-Paper-root"><p class="mantine-Text-root">${name}</p><div class="mantine-Box-root">${cards.join('')}</div></div>`;
+	const premise = byName(F385, 'PREMISE: exactly one');
+	const gearMissed = byName(F385, "card's gear — exactly one such card reading MISSED");
+	const gearAny = stepsOf(F385).find(s => /card's gear — exactly one such card$/.test(s.name)).params.code;
+	const prefill = byName(F385, 'opened PREFILLED from this card');
+	const pickRepair = byName(F385, 'Pick REPAIR'), pickMissed = byName(F385, 'Pick MISSED');
+	const holdsRepair = byName(F385, 'holds Repair Type REPAIR'), holdsMissed = byName(F385, 'holds Repair Type MISSED');
+	const noCascade = byName(F385, 'no cascade cleared them');
+	const armed385 = byName(F385, 'Submit is ARMED');
+	const closed385 = byName(F385, 'The failure form is closed');
+	const sPremise = byName(F385, 'PREMISE (server)'), sSaved = byName(F385, 'SERVER: the FIRST `Edit Item`'), sRestored = byName(F385, 'RESTORED (server)');
+	const failure = (o = {}) => ({ id: FID, assetId: { name: 'Pump 0102' }, componentTypeId: null, failureTypeId: { name: 'BELT (R-L1)' }, repairTypeId: { name: 'MISSED' }, rootCauseTypeId: { name: 'TIME' }, discoveryCodeId: null, ...o });
+	const fans = (...fs) => ({ data: { workStage: { failures: fs } } });
+	console.log('\nMOB.385 - failure Edit Item save: the card, the prefill, the pick, the server reads');
+	check('385 premise - one Pump 0102 BELT/MISSED/TIME card', runJs(premise, pg(fasset('Pump 0102', fcard('MISSED')))), true);
+	check('MUST FAIL: 385 premise - the card reads REPAIR (a run died before its restore)', runJs(premise, pg(fasset('Pump 0102', fcard('REPAIR')))), false);
+	check('MUST FAIL: 385 premise - two such cards', runJs(premise, pg(fasset('Pump 0102', fcard('MISSED'), fcard('MISSED')))), false);
+	check('MUST FAIL: 385 premise - under another asset', runJs(premise, pg(fasset('Tank 0000', fcard('MISSED')))), false);
+	{
+		const w = pg(fasset('Pump 0102', fcard('ADJUST'), fcard('MISSED')));
+		check('385 gear (edit) - clicks ONLY the MISSED card\'s gear, never MOB.391\'s ADJUST card', runJs(gearMissed, w) && w.__gear.join() === '1', true);
+	}
+	{
+		const w = pg(fasset('Pump 0102', fcard('REPAIR')));
+		check('MUST FAIL: 385 gear (edit) - the card reads REPAIR, and no gear is clicked', runJs(gearMissed, w) === false && w.__gear.length === 0, true);
+	}
+	{
+		const w = pg(fasset('Pump 0102', fcard('REPAIR')));
+		check('385 gear (restore) - finds the card while it reads REPAIR', runJs(gearAny, w) && w.__gear.join() === '0', true);
+	}
+	{
+		const w = pg(fasset('Pump 0102', fcard('MISSED'), fcard('REPAIR')));
+		check('MUST FAIL: 385 gear (restore) - two candidate cards, and no gear is clicked', runJs(gearAny, w) === false && w.__gear.length === 0, true);
+	}
+	{
+		const w = pg(fasset('Pump 0102', fcard('ADJUST')));
+		check('MUST FAIL: 385 gear (restore) - only MOB.391\'s ADJUST card, and no gear is clicked', runJs(gearAny, w) === false && w.__gear.length === 0, true);
+	}
+	const inputs = (ft, rep, root) => `<form id="work-failure-form"><input id="failureTypeId" value="${ft}"><input id="repairTypeId" value="${rep}"><input id="rootCauseTypeId" value="${root}"></form>`;
+	check('385 prefill - BELT (R-L1) / MISSED / TIME', runJs(prefill, pg(inputs('BELT (R-L1)', 'MISSED', 'TIME'))), true);
+	check('MUST FAIL: 385 prefill - an empty add form (no failure passed)', runJs(prefill, pg(inputs('', '', ''))), false);
+	check('MUST FAIL: 385 prefill - repair already REPAIR', runJs(prefill, pg(inputs('BELT (R-L1)', 'REPAIR', 'TIME'))), false);
+	const opt = (v, hid) => `<div role="option" data-v="${v}" data-hid="${hid ? 1 : 0}"><div class="custom-option"><div class="option-title">${v}</div><div class="option-description"></div></div></div>`;
+	{
+		const w = pg(opt('REPAIR', true) + opt('MISSED') + opt('REPLACE') + opt('REPAIR'));
+		check('385 pick - the visible REPAIR, not its hidden twin nor REPLACE', runJs(pickRepair, w) && w.__picked.join() === 'REPAIR', true);
+	}
+	{
+		const w = pg(opt('REPAIR', true) + opt('NOT LISTED'));
+		check('MUST FAIL: 385 pick - REPAIR only in a closed dropdown, nothing clicked', runJs(pickRepair, w) === false && !w.__picked, true);
+	}
+	{
+		const w = pg(opt('MISSED') + opt('MISSED'));
+		check('MUST FAIL: 385 pick - two visible MISSED, nothing clicked', runJs(pickMissed, w) === false && !w.__picked, true);
+	}
+	check('385 pick MISSED - the one visible', runJs(pickMissed, pg(opt('MISSED') + opt('ADJUST'))), true);
+	check('385 holds - #repairTypeId reads REPAIR', runJs(holdsRepair, pg(inputs('BELT (R-L1)', 'REPAIR', 'TIME'))), true);
+	check('MUST FAIL: 385 holds - still MISSED', runJs(holdsRepair, pg(inputs('BELT (R-L1)', 'MISSED', 'TIME'))), false);
+	check('385 holds MISSED', runJs(holdsMissed, pg(inputs('BELT (R-L1)', 'MISSED', 'TIME'))), true);
+	check('MUST FAIL: 385 holds MISSED - reads REPAIR', runJs(holdsMissed, pg(inputs('BELT (R-L1)', 'REPAIR', 'TIME'))), false);
+	check('385 no cascade - failure type and root cause kept', runJs(noCascade, pg(inputs('BELT (R-L1)', 'REPAIR', 'TIME'))), true);
+	check('MUST FAIL: 385 no cascade - root cause cleared', runJs(noCascade, pg(inputs('BELT (R-L1)', 'REPAIR', ''))), false);
+	check('385 armed - type="submit"', runJs(armed385, pg('<button form="work-failure-form" type="submit">Submit</button>')), true);
+	check('MUST FAIL: 385 armed - type="button"', runJs(armed385, pg('<button form="work-failure-form" type="button">Submit</button>')), false);
+	check('MUST FAIL: 385 armed - only the condition form is armed', runJs(armed385, pg('<button form="work-condition-form" type="submit">Submit</button>')), false);
+	check('385 closed - no failure form', runJs(closed385, pg('<div></div>')), true);
+	check('MUST FAIL: 385 closed - the form is still open', runJs(closed385, pg('<form id="work-failure-form"></form>')), false);
+	check('385 server premise - one failure, MISSED', twice(sPremise, pg('', fans(failure()))), true);
+	check('MUST FAIL: 385 server premise - it holds REPAIR', twice(sPremise, pg('', fans(failure({ repairTypeId: { name: 'REPAIR' } })))), false);
+	check('MUST FAIL: 385 server premise - a second failure (MOB.391 leftover)', twice(sPremise, pg('', fans(failure(), failure({ id: 'X', repairTypeId: { name: 'ADJUST' } })))), false);
+	check('MUST FAIL: 385 server premise - a discovery code is set', twice(sPremise, pg('', fans(failure({ discoveryCodeId: { id: 'd' } })))), false);
+	check('385 server saved - the same id holds REPAIR', twice(sSaved, pg('', fans(failure({ repairTypeId: { name: 'REPAIR' } })))), true);
+	check('MUST FAIL: 385 server saved - still MISSED (bugs §42: nothing sent)', twice(sSaved, pg('', fans(failure()))), false);
+	check('MUST FAIL: 385 server saved - REPAIR on a DIFFERENT failure id', twice(sSaved, pg('', fans(failure({ id: 'OTHER', repairTypeId: { name: 'REPAIR' } })))), false);
+	check('MUST FAIL: 385 server saved - REPAIR but root cause changed', twice(sSaved, pg('', fans(failure({ repairTypeId: { name: 'REPAIR' }, rootCauseTypeId: { name: 'DAMAGE' } })))), false);
+	check('MUST FAIL: 385 server saved - GraphQL errors', twice(sSaved, pg('', { errors: [{ message: 'nope' }] })), false);
+	check('385 server restored - MISSED again', twice(sRestored, pg('', fans(failure()))), true);
+	check('MUST FAIL: 385 server restored - still REPAIR', twice(sRestored, pg('', fans(failure({ repairTypeId: { name: 'REPAIR' } })))), false);
+
+	// ---- MOB.361 ---------------------------------------------------------------------------
+	const KB = '__dd361_before', KI = '__dd361_id';
+	const clear361 = byName(F361, 'Clear this test');
+	const nPremise = byName(F361, 'PREMISE (server)'), nAdded = byName(F361, 'SERVER: exactly ONE note');
+	const nEdited = byName(F361, "SERVER: the run's note"), nGone = byName(F361, 'SERVER: no note carries');
+	const armed361 = byName(F361, 'Submit is ARMED');
+	const gearEdit = byName(F361, 'Open the gear of the ONE card'), guardDel = byName(F361, 'GUARD + open its gear');
+	const edPrefill = byName(F361, 'editor opened PREFILLED'), edEdited = byName(F361, 'editor now reads');
+	const note = (text, name = 'New Note 2026-09-15 10:00') => `<div class="mantine-Paper-root"><div class="mantine-Group-root"><p class="mantine-Text-root">${name}</p><div class="mantine-Group-root"><div class="mantine-Pill-root">Mobile Note</div><button aria-label="Menu"></button></div></div>`
+		+ `<div class="mantine-Spoiler-root"><div class="mantine-Spoiler-content"><div class="rich-text-display"><p>${text}</p></div></div><button>Show more</button></div></div>`;
+	const R392 = 'This is a note - DD SYNTHETIC MOBILE', MINE = 'DD SYNTHETIC MOBILE 361 NOTE 48120735', EDITED = 'DD SYNTHETIC MOBILE 361 EDITED 48120735';
+	const notesTab = (active, inactive = '') => '<button role="tab" aria-controls="p0">Assets</button><button role="tab" data-active="true" aria-controls="p1">Notes</button>'
+		+ `<div role="tabpanel" id="p0" style="display: none;">${inactive}</div><div role="tabpanel" id="p1"><button>Add</button>${active}</div>`;
+	const BEFORE = JSON.stringify(['A', 'B', 'C']);
+	const nn = (id, desc) => ({ id, desc: `<p>${desc}</p>` });
+	const nans = (...ns) => ({ data: { workStage: { jobNotes: ns } } });
+	const REST = [nn('B', R392), nn('A', R392), nn('C', R392)];
+	console.log('\nMOB.361 - job note edit + delete: the premise licence, the guarded gear, the server reads');
+	{
+		const w = pg('', null, { [KB]: BEFORE, [KI]: 'N1' });
+		check('361 clear - both keys removed', runJs(clear361, w) && w.sessionStorage.getItem(KB) === null && w.sessionStorage.getItem(KI) === null, true);
+	}
+	{
+		const w = pg('', nans(...REST));
+		check('361 server premise - no marker note: the sorted ids are stored', twice(nPremise, w) && w.sessionStorage.getItem(KB) === BEFORE, true);
+	}
+	{
+		const w = pg('', nans(...REST, nn('L', 'DD SYNTHETIC MOBILE 361 NOTE 11112222')));
+		check('MUST FAIL: 361 server premise - a leftover marker note, and NO licence is stored', twice(nPremise, w) === false && w.sessionStorage.getItem(KB) === null, true);
+	}
+	{
+		const w = pg('', nans(...REST, nn('N1', MINE)), { [KB]: BEFORE });
+		check('361 server added - one new marker note with 8 digits: its id stored', twice(nAdded, w) && w.sessionStorage.getItem(KI) === 'N1', true);
+	}
+	check('MUST FAIL: 361 server added - nothing added', twice(nAdded, pg('', nans(...REST), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server added - RUNID never expanded (literal braces)', twice(nAdded, pg('', nans(...REST, nn('N1', 'DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}')), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server added - the marker note pre-dated the run (its id is in the baseline)', twice(nAdded, pg('', nans(nn('A', MINE), nn('B', R392), nn('C', R392), nn('D', R392)), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server added - two marker notes', twice(nAdded, pg('', nans(...REST, nn('N1', MINE), nn('N2', MINE)), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server added - no premise licence', twice(nAdded, pg('', nans(...REST, nn('N1', MINE)))), false);
+	check('MUST FAIL: 361 server added - MOB.392\'s text only', twice(nAdded, pg('', nans(...REST, nn('N1', R392)), { [KB]: BEFORE })), false);
+	check('361 server edited - the stored id holds EDITED', twice(nEdited, pg('', nans(...REST, nn('N1', EDITED)), { [KB]: BEFORE, [KI]: 'N1' })), true);
+	check('MUST FAIL: 361 server edited - still NOTE (the edit never saved)', twice(nEdited, pg('', nans(...REST, nn('N1', MINE)), { [KB]: BEFORE, [KI]: 'N1' })), false);
+	check('MUST FAIL: 361 server edited - EDITED appended to NOTE (select-all failed)', twice(nEdited, pg('', nans(...REST, nn('N1', MINE + EDITED)), { [KB]: BEFORE, [KI]: 'N1' })), false);
+	check('MUST FAIL: 361 server edited - EDITED on a different id', twice(nEdited, pg('', nans(...REST, nn('N9', EDITED)), { [KB]: BEFORE, [KI]: 'N1' })), false);
+	check('MUST FAIL: 361 server edited - no stored id', twice(nEdited, pg('', nans(...REST, nn('N1', EDITED)), { [KB]: BEFORE })), false);
+	check('361 server gone - exactly the baseline ids, no marker', twice(nGone, pg('', nans(...REST), { [KB]: BEFORE })), true);
+	check('MUST FAIL: 361 server gone - the marker note is still there (the cache said gone)', twice(nGone, pg('', nans(...REST, nn('N1', EDITED)), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server gone - ANOTHER note was deleted too', twice(nGone, pg('', nans(nn('A', R392), nn('B', R392)), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server gone - a different note replaced one', twice(nGone, pg('', nans(nn('A', R392), nn('B', R392), nn('Z', R392)), { [KB]: BEFORE })), false);
+	check('MUST FAIL: 361 server gone - no baseline', twice(nGone, pg('', nans(...REST))), false);
+	check('361 armed - type="submit"', runJs(armed361, pg('<button form="work-collection-form" type="submit">Submit</button>')), true);
+	check('MUST FAIL: 361 armed - type="button" (not valid AND dirty)', runJs(armed361, pg('<button form="work-collection-form" type="button">Submit</button>')), false);
+	for (const [label, body] of [['edit gear', gearEdit], ['delete guard', guardDel]]) {
+		{
+			const w = pg(notesTab(note(R392) + note(MINE) + note(R392)), null, { [KB]: BEFORE });
+			check(`361 ${label} - licence set, one marker card: ONLY its gear clicked`, runJs(body, w) && w.__gear.join() === '1', true);
+		}
+		{
+			const w = pg(notesTab(note(R392) + note(EDITED)), null, { [KB]: BEFORE });
+			check(`361 ${label} - the EDITED marker card also counts as this run's`, runJs(body, w) && w.__gear.join() === '1', true);
+		}
+		for (const [why, html, stash] of [
+			['no premise licence (a leftover stopped the premise)', notesTab(note(MINE)), {}],
+			['two marker cards', notesTab(note(MINE) + note(EDITED)), { [KB]: BEFORE }],
+			['only MOB.392\'s residue notes', notesTab(note(R392) + note(R392)), { [KB]: BEFORE }],
+			['the marker card only in the INACTIVE panel', notesTab(note(R392), note(MINE)), { [KB]: BEFORE }],
+		]) {
+			const w = pg(html, null, stash);
+			check(`MUST FAIL: 361 ${label} - ${why}, and NO gear is clicked`, runJs(body, w) === false && w.__gear.length === 0, true);
+		}
+	}
+	const modal = (text, n = 1) => '<div class="mantine-Modal-content"><form id="work-collection-form">' + `<div class="ProseMirror" contenteditable="true"><p>${text}</p></div>`.repeat(n) + '</form></div>';
+	check('361 editor prefill - the modal editor holds the NOTE marker', runJs(edPrefill, pg(modal(MINE))), true);
+	check('MUST FAIL: 361 editor prefill - an empty editor (the add form, not the edit)', runJs(edPrefill, pg(modal(''))), false);
+	check('MUST FAIL: 361 editor prefill - MOB.392\'s note', runJs(edPrefill, pg(modal(R392))), false);
+	check('MUST FAIL: 361 editor prefill - two editors', runJs(edPrefill, pg(modal(MINE, 2))), false);
+	check('MUST FAIL: 361 editor prefill - the marker only outside a modal', runJs(edPrefill, pg(`<div contenteditable="true"><p>${MINE}</p></div>`)), false);
+	check('361 editor edited - reads EDITED only', runJs(edEdited, pg(modal(EDITED))), true);
+	check('MUST FAIL: 361 editor edited - EDITED appended after NOTE', runJs(edEdited, pg(modal(MINE + EDITED))), false);
+	check('MUST FAIL: 361 editor edited - unchanged', runJs(edEdited, pg(modal(MINE))), false);
+}
+
+/* ===========================================================================================
+ * MOB.712 / MOB.722 - Asset Lookup writes on a `DD SYNTHETIC MOBILE` row (checklist #61, #62): the
+ * throwaway-asset guard, MOB.712's `System` column tick/untick (localStorage), its `+ Create` option
+ * and two /graphql predicates; MOB.722's ENSURE picker chain, the tagged reading input, the armed
+ * Submit and its /graphql predicate. Own runner: the shared `runJs` does not pass `localStorage`.
+ * ========================================================================================= */
+if (!fs.existsSync(path.join(TESTS, 'MOB.712_AssetLookup_System_Create.json'))
+	|| !fs.existsSync(path.join(TESTS, 'MOB.722_AssetLookup_Reading_Capture.json'))) {
+	console.log('\nMOB.712/722 - SKIPPED: not built yet');
+} else {
+	const F712 = 'MOB.712_AssetLookup_System_Create.json', F722 = 'MOB.722_AssetLookup_Reading_Capture.json';
+	const run7 = (code, w) => new Function('document', 'sessionStorage', 'localStorage', 'window', 'location', 'navigator',
+		`return (function(){${code}})()`)(w.document, w.sessionStorage, w.localStorage, w, w.location, w.navigator);
+	const twice7 = (body, w) => { run7(body, w); return run7(body, w); };
+	const sync7 = (v) => ({ then(f) { const r = f(v); return r && r.then ? r : sync7(r); }, catch() { return this; } });
+	const pg7 = (html, answer, ss = {}, ls = {}) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-lookup' }).window;
+		w.document.body.innerHTML = html;
+		if (answer !== undefined) w.fetch = () => sync7({ json: () => sync7(answer) });
+		Object.entries(ss).forEach(([k, v]) => w.sessionStorage.setItem(k, v));
+		Object.entries(ls).forEach(([k, v]) => w.localStorage.setItem(k, v));
+		return w;
+	};
+	const A = 'DD SYNTHETIC MOBILE 13783628', N = 'DD SYNTHETIC MOBILE 71248120';
+	const item = (name, inner = '', { expanded = true, desc = 'Created by Datadog Synthetics - safe to delete', nameCell = name } = {}) =>
+		`<div class="mantine-Accordion-item"><button class="mantine-Accordion-control" aria-expanded="${expanded}"><p>${name}</p><p>${desc}</p></button>`
+		+ `<div class="mantine-Accordion-panel"><table><tbody><tr><td><span><b>Name</b></span></td><td>${nameCell}</td></tr>`
+		+ `<tr><td><span><b>Description</b></span></td><td>${desc}</td></tr></tbody></table>${inner}</div></div>`;
+
+	console.log('\nMOB.712 - create a System: guard, column tick, + Create, server reads, restore');
+	{
+		const guard = bodyOf(F712, 'FIXTURE GUARD');
+		{ const w = pg7(item(A)); check('712 guard - a marker row with an 8-digit name: stored', run7(guard, w) && w.sessionStorage.getItem('__dd712_asset') === A, true); }
+		{ const w = pg7(item('Pump 0102', '', { desc: 'x' }) + item(A)); check('712 guard - a fixture row first, the marker row after it: the marker row', run7(guard, w) && w.sessionStorage.getItem('__dd712_asset') === A, true); }
+		{ const w = pg7(item('Pump 0102', '', { desc: 'DD SYNTHETIC MOBILE in a desc' })); check('MUST FAIL: 712 guard - a FIXTURE whose desc carries the marker, and nothing stored', run7(guard, w) === false && w.sessionStorage.getItem('__dd712_asset') === null, true); }
+		check('MUST FAIL: 712 guard - RUNID never expanded in the name', run7(guard, pg7(item('DD SYNTHETIC MOBILE {{ RUNID }}'))), false);
+		check('MUST FAIL: 712 guard - a 4-digit suffix', run7(guard, pg7(item('DD SYNTHETIC MOBILE 1234'))), false);
+		check('MUST FAIL: 712 guard - no marker row at all', run7(guard, pg7(item('Pump 0102', '', { desc: 'x' }))), false);
+
+		const cols = bodyOf(F712, 'BEFORE: record the General Info column selection');
+		const DEF = '{"name":true,"desc":true,"typeId":true,"tagId":true}';
+		{ const w = pg7('', undefined, {}, { _assetlookup_generalinfo_cols_: DEF }); check('712 cols - the stored selection is recorded', run7(cols, w) && w.sessionStorage.getItem('__dd712_cols') === DEF, true); }
+		check('MUST FAIL: 712 cols - no stored selection (the table never mounted)', run7(cols, pg7('')), false);
+		check('MUST FAIL: 712 cols - unparseable JSON', run7(cols, pg7('', undefined, {}, { _assetlookup_generalinfo_cols_: '{bad' })), false);
+
+		const tick = bodyOf(F712, 'Tick `System` in the picker');
+		const untick = bodyOf(F712, 'RESTORE: untick `System`');
+		const cb = (label, checked) => `<div class="mantine-Checkbox-root"><input type="checkbox" class="mantine-Checkbox-input"${checked ? ' checked' : ''}><label class="mantine-Checkbox-label">${label}</label></div>`;
+		const menu = (...boxes) => `<div class="mantine-Menu-dropdown"><input placeholder="Find Column(s)">${boxes.join('')}</div>`;
+		const clicks = (w) => { let n = 0; w.document.querySelectorAll('input[type=checkbox]').forEach(b => b.addEventListener('click', () => n++)); return () => n; };
+		{ const w = pg7(menu(cb('Name', true), cb('System', false), cb('System Type', false))); const n = clicks(w);
+			check('712 tick - unchecked: clicked ONCE across two polls, now checked', twice7(tick, w) && n() === 1, true); }
+		{ const w = pg7(menu(cb('System', true))); const n = clicks(w); check('712 tick - already checked (a died run): passes, no click', run7(tick, w) && n() === 0, true); }
+		{ const w = pg7(menu(cb('System', false))); w.document.querySelector('input[type=checkbox]').addEventListener('click', e => e.preventDefault()); const n = clicks(w);
+			check('MUST FAIL: 712 tick - the click did not take, and no second click on the next poll', twice7(tick, w) === false && n() === 1, true); }
+		{ const w = pg7(menu(cb('System', false), cb('System', false))); const n = clicks(w); check('MUST FAIL: 712 tick - two `System` boxes, none clicked', run7(tick, w) === false && n() === 0, true); }
+		check('MUST FAIL: 712 tick - only `System Type` (a substring label)', run7(tick, pg7(menu(cb('System Type', false)))), false);
+		check('MUST FAIL: 712 tick - a `System` box outside the open menu', run7(tick, pg7(cb('System', false))), false);
+		{ const w = pg7(menu(cb('System', true))); const n = clicks(w); check('712 untick - checked: clicked ONCE, now unchecked', twice7(untick, w) && n() === 1, true); }
+		{ const w = pg7(menu(cb('System', false))); const n = clicks(w); check('712 untick - already unchecked: passes, no click', run7(untick, w) && n() === 0, true); }
+		check('MUST FAIL: 712 untick - no picker open', run7(untick, pg7(cb('System', true))), false);
+
+		const holds = bodyOf(F712, 'The lookup holds');
+		const modal = (v) => `<div class="mantine-Modal-content"><input id="systemId" value="${v}"></div>`;
+		{ const w = pg7(modal(N)); check('712 holds - the modal lookup holds the marker + 8 digits: stored', run7(holds, w) && w.sessionStorage.getItem('__dd712_system') === N, true); }
+		check('MUST FAIL: 712 holds - RUNID never expanded', run7(holds, pg7(modal('DD SYNTHETIC MOBILE {{ RUNID }}'))), false);
+		check('MUST FAIL: 712 holds - appended to the old System (select-all failed)', run7(holds, pg7(modal('DD SYNTHETIC MOBILE 11112222' + N))), false);
+		check('MUST FAIL: 712 holds - `#systemId` only outside a modal', run7(holds, pg7(`<input id="systemId" value="${N}">`)), false);
+
+		const offer = bodyOf(F712, 'offers exactly ONE option');
+		const opt = (t) => `<div role="option">${t}</div>`;
+		const S = { __dd712_system: N };
+		check("712 offer - `+ Create '<name>'` above the existing Systems", run7(offer, pg7(opt(`+ Create '${N}'`) + opt('Main System'), undefined, S)), true);
+		check('MUST FAIL: 712 offer - no create option (the name matched an existing System)', run7(offer, pg7(opt(N), undefined, S)), false);
+		check('MUST FAIL: 712 offer - the create option names other text (a stale input)', run7(offer, pg7(opt("+ Create 'DD SYNTHETIC MOBILE'"), undefined, S)), false);
+		check('MUST FAIL: 712 offer - two create options', run7(offer, pg7(opt(`+ Create '${N}'`) + opt(`+ Create '${N}'`), undefined, S)), false);
+		check('MUST FAIL: 712 offer - nothing recorded', run7(offer, pg7(opt(`+ Create '${N}'`))), false);
+
+		const gone = bodyOf(F712, "System lookup's modal is gone");
+		check('712 closed - no lookup modal, the row still expanded', run7(gone, pg7(item(A))), true);
+		check('MUST FAIL: 712 closed - the lookup modal is still open', run7(gone, pg7(item(A) + modal(N))), false);
+		check('MUST FAIL: 712 closed - a blank page (no row)', run7(gone, pg7('')), false);
+		const left = bodyOf(F712, 'No System lookup modal is left open');
+		check('712 left open - none, and the row is there', run7(left, pg7(item(A))), true);
+		check('MUST FAIL: 712 left open - a blank page', run7(left, pg7('')), false);
+		check('MUST FAIL: 712 left open - the modal is still up', run7(left, pg7(item(A) + modal(N))), false);
+
+		const srvSys = bodyOf(F712, 'SERVER: exactly ONE System');
+		const srvAsset = bodyOf(F712, 'SERVER: the asset');
+		const SS = { __dd712_system: N, __dd712_asset: A };
+		const sys = (...s) => s.map(([id, name]) => ({ id, name }));
+		const ans = (assets, systems) => ({ data: { assets: { edges: assets }, systems: { edges: systems } } });
+		check('712 server system - exactly one with the typed name', twice7(srvSys, pg7('', ans([], sys(['S1', N], ['S0', 'DD SYNTHETIC MOBILE 11112222'])), SS)), true);
+		check('MUST FAIL: 712 server system - none (CREATE_SYSTEM never landed)', twice7(srvSys, pg7('', ans([], sys(['S0', 'Main'])), SS)), false);
+		check('MUST FAIL: 712 server system - two with the name (created twice)', twice7(srvSys, pg7('', ans([], sys(['S1', N], ['S2', N])), SS)), false);
+		check('MUST FAIL: 712 server system - nothing recorded', twice7(srvSys, pg7('', ans([], sys(['S1', N])))), false);
+		check('MUST FAIL: 712 server system - a GraphQL error answer', twice7(srvSys, pg7('', { errors: [{ message: 'x' }] }, SS)), false);
+		const as = (name, systemId) => ({ id: 'A-' + name, name, systemId });
+		check('712 server asset - its systemId is that System by id and name', twice7(srvAsset, pg7('', ans([as(A, { id: 'S1', name: N }), as('DD SYNTHETIC MOBILE 43398722', null)], sys(['S1', N])), SS)), true);
+		check('MUST FAIL: 712 server asset - systemId still null (UPDATE_ASSET never landed)', twice7(srvAsset, pg7('', ans([as(A, null)], sys(['S1', N])), SS)), false);
+		check('MUST FAIL: 712 server asset - linked to ANOTHER System of the same name', twice7(srvAsset, pg7('', ans([as(A, { id: 'S9', name: N })], sys(['S1', N])), SS)), false);
+		check('MUST FAIL: 712 server asset - a different marker asset holds it', twice7(srvAsset, pg7('', ans([as(A, null), as('DD SYNTHETIC MOBILE 43398722', { id: 'S1', name: N })], sys(['S1', N])), SS)), false);
+		check('MUST FAIL: 712 server asset - the System is missing from the systems list', twice7(srvAsset, pg7('', ans([as(A, { id: 'S1', name: N })], []), SS)), false);
+		check('MUST FAIL: 712 server asset - no asset recorded', twice7(srvAsset, pg7('', ans([as(A, { id: 'S1', name: N })], sys(['S1', N])), { __dd712_system: N })), false);
+
+		const restored = bodyOf(F712, 'RESTORED: localStorage no longer shows');
+		const L = (cur, before = DEF) => pg7('', undefined, before ? { __dd712_cols: before } : {}, cur ? { _assetlookup_generalinfo_cols_: cur } : {});
+		check('712 restored - systemId false, the rest as recorded', run7(restored, L('{"name":true,"desc":true,"typeId":true,"tagId":true,"systemId":false}')), true);
+		check('712 restored - systemId absent, the rest as recorded', run7(restored, L(DEF)), true);
+		check('712 restored - nothing recorded (a run died early): systemId not shown is enough', run7(restored, L('{"name":true,"systemId":false}', null)), true);
+		check('MUST FAIL: 712 restored - systemId still shown', run7(restored, L('{"name":true,"desc":true,"typeId":true,"tagId":true,"systemId":true}')), false);
+		check('MUST FAIL: 712 restored - Description was unticked too', run7(restored, L('{"name":true,"desc":false,"typeId":true,"tagId":true,"systemId":false}')), false);
+		check('MUST FAIL: 712 restored - another column was ticked', run7(restored, L('{"name":true,"desc":true,"typeId":true,"tagId":true,"address":true}')), false);
+		check('MUST FAIL: 712 restored - no stored selection at all', run7(restored, L(null)), false);
+
+		const collapsed = bodyOf(F712, 'RESTORED: the row reports itself collapsed');
+		check('712 collapsed - aria-expanded false', run7(collapsed, pg7(item(A, '', { expanded: false }))), true);
+		check('MUST FAIL: 712 collapsed - still expanded', run7(collapsed, pg7(item(A))), false);
+		const clean = bodyOf(F712, 'CLEANUP: remove this test');
+		{ const w = pg7('', undefined, { __dd712_asset: A, __dd712_system: N, __dd712_cols: DEF, asset_lookup_query: 'DD SYNTHETIC MOBILE' });
+			check('712 cleanup - its keys and the persisted search are removed', run7(clean, w) && ['__dd712_asset', '__dd712_system', '__dd712_cols', 'asset_lookup_query'].every(k => w.sessionStorage.getItem(k) === null), true); }
+	}
+
+	console.log('\nMOB.722 - capture a reading: guard, ENSURE chain, tagged input, armed Submit, server read');
+	{
+		const guard = bodyOf(F722, 'FIXTURE GUARD');
+		{ const w = pg7(item(A)); check('722 guard - a marker row: stored', run7(guard, w) && w.sessionStorage.getItem('__dd722_asset') === A, true); }
+		check('MUST FAIL: 722 guard - a fixture whose desc carries the marker', run7(guard, pg7(item('Pump 0102', '', { desc: 'DD SYNTHETIC MOBILE' }))), false);
+		check('MUST FAIL: 722 guard - no Name cell (the General Info table is not rendered)', run7(guard, pg7(`<div class="mantine-Accordion-item"><button class="mantine-Accordion-control">${A}</button></div>`)), false);
+
+		const field = (type, prev = '', val = '') => `<div class="mantine-Box-root"><div class="mantine-Group-root"><p class="mantine-Text-root">${type}</p>`
+			+ (prev ? `<div class="mantine-Group-root"><p class="mantine-Text-root">${prev}</p><p class="mantine-Text-root">09/15/2026 1:48 PM</p></div>` : '')
+			+ `</div><div class="mantine-InputWrapper-root mantine-NumberInput-root"><div class="mantine-Input-wrapper"><input name="id-${type}" placeholder="Enter reading" value="${val}"></div></div></div>`;
+		const panel = (fields, { add = '<button aria-label="Add reading types"></button>', submit = 'button', name = A } = {}) =>
+			item(name, `<div role="tabpanel"><div class="mantine-Paper-root"><div class="mantine-Group-root">${add}</div>`
+				+ `<form id="asset-lookup-readings-X"><div class="mantine-Stack-root">${fields}</div></form>`
+				+ `<button form="asset-lookup-readings-X" type="${submit}">Submit</button></div></div>`);
+		const picker = (pills = '', addDisabled = true) => '<div class="mantine-Modal-content"><div class="mantine-Paper-root"><p>Add Reading Types</p>'
+			+ `<div>${pills}<input placeholder="Search reading types"></div><button${addDisabled ? ' disabled' : ''}>Add</button></div></div>`;
+		const pill = (t) => `<div class="mantine-Pill-root"><span class="mantine-Pill-label">${t}</span></div>`;
+		const opt = (t) => `<div role="option">${t}</div>`;
+		const counter = (w, sel) => { let n = 0; w.document.querySelectorAll(sel).forEach(e => e.addEventListener('click', () => n++)); return () => n; };
+
+		const e1 = bodyOf(F722, 'ENSURE 1/3');
+		{ const w = pg7(panel(field('psi') + field('Test 1'))); const n = counter(w, '[aria-label="Add reading types"]'); check('722 ensure1 - the field exists: true, no click', run7(e1, w) && n() === 0, true); }
+		{ const w = pg7(panel(field('psi')) + picker()); check('722 ensure1 - the picker is already open: true', run7(e1, w), true); }
+		{ const w = pg7(panel('')); const n = counter(w, '[aria-label="Add reading types"]'); check('722 ensure1 - no field: `Add reading types` clicked ONCE across polls, still false', twice7(e1, w) === false && n() === 1, true); }
+		{ const w = pg7(panel('', { add: '<button aria-label="Add reading types" data-loading="true" disabled></button>' })); const n = counter(w, '[aria-label="Add reading types"]');
+			check('MUST FAIL: 722 ensure1 - the button is loading: no click', run7(e1, w) === false && n() === 0, true); }
+		check('MUST FAIL: 722 ensure1 - only a `Test 10` field (label is exact), no button', run7(e1, pg7(panel(field('Test 10'), { add: '' }))), false);
+		check('MUST FAIL: 722 ensure1 - `Test 1` only on ANOTHER row, no button on the marker row', run7(e1, pg7(panel(field('Test 1'), { name: 'Pump 0102', add: '' }).replace('Created by Datadog Synthetics - safe to delete', 'x') + panel('', { add: '' }))), false);
+
+		const e2 = bodyOf(F722, 'ENSURE 2/3');
+		check('722 ensure2 - the field exists: true', run7(e2, pg7(panel(field('Test 1')))), true);
+		check('722 ensure2 - the picker holds a `Test 1` pill: true', run7(e2, pg7(panel('') + picker(pill('Test 1')))), true);
+		{ const w = pg7(panel('') + picker() + opt('psi') + opt('Test 1')); const n = counter(w, '[role="option"]'); check('722 ensure2 - one `Test 1` option: clicked, false until the pill shows', run7(e2, w) === false && n() === 1, true); }
+		{ const w = pg7(panel('') + picker() + opt('Test 1') + opt('Test 1')); const n = counter(w, '[role="option"]'); check('MUST FAIL: 722 ensure2 - two `Test 1` options: none clicked', run7(e2, w) === false && n() === 0, true); }
+		check('MUST FAIL: 722 ensure2 - only a `Test 10` pill', run7(e2, pg7(panel('') + picker(pill('Test 10')))), false);
+		check('MUST FAIL: 722 ensure2 - no field and no picker', run7(e2, pg7(panel(''))), false);
+
+		const e3 = bodyOf(F722, 'ENSURE 3/3');
+		{ const w = pg7(panel(field('psi') + field('Test 1')) + '<input data-dd722="reading" id="stale">');
+			const tagged = () => [...w.document.querySelectorAll('[data-dd722]')];
+			check('722 ensure3 - the field exists: ITS input is the only one tagged', run7(e3, w) && tagged().length === 1 && tagged()[0].name === 'id-Test 1', true); }
+		{ const w = pg7(panel('') + picker(pill('Test 1'), false)); const n = counter(w, '.mantine-Modal-content button');
+			check('722 ensure3 - picker with `Add` enabled: clicked ONCE across polls, false until the field shows', twice7(e3, w) === false && n() === 1, true); }
+		{ const w = pg7(panel('') + picker('', true)); const n = counter(w, '.mantine-Modal-content button'); check('MUST FAIL: 722 ensure3 - `Add` disabled: no click', run7(e3, w) === false && n() === 0, true); }
+		{ const w = pg7(panel(field('Test 10'))); check('MUST FAIL: 722 ensure3 - only `Test 10`, no picker: nothing tagged', run7(e3, w) === false && !w.document.querySelector('[data-dd722]'), true); }
+
+		const holds = bodyOf(F722, 'The input holds `722`');
+		const tagged = (v) => `<input data-dd722="reading" value="${v}">`;
+		{ const w = pg7(tagged('72248120')); check('722 value - 722 + 5 digits: stored', run7(holds, w) && w.sessionStorage.getItem('__dd722_value') === '72248120', true); }
+		check('MUST FAIL: 722 value - RUNID never expanded', run7(holds, pg7(tagged('722{{ RUNID }}'))), false);
+		check('MUST FAIL: 722 value - the 722 prefix lost', run7(holds, pg7(tagged('48120'))), false);
+		check('MUST FAIL: 722 value - typed twice (appended)', run7(holds, pg7(tagged('7224812072248120'))), false);
+		check('MUST FAIL: 722 value - only an untagged input holds it', run7(holds, pg7('<input value="72248120">')), false);
+
+		const armed = bodyOf(F722, 'Submit is ARMED');
+		check('722 armed - the row\'s form button is type=submit', run7(armed, pg7(panel(field('Test 1'), { submit: 'submit' }))), true);
+		check('MUST FAIL: 722 armed - type=button (filledInputs not recounted)', run7(armed, pg7(panel(field('Test 1')))), false);
+		check('MUST FAIL: 722 armed - armed only on a non-marker row', run7(armed, pg7(panel(field('Test 1'), { submit: 'submit', name: 'Pump 0102' }).replace('Created by Datadog Synthetics - safe to delete', 'x') + panel(field('Test 1')))), false);
+
+		const srv = bodyOf(F722, 'SERVER: the asset');
+		const VS = { __dd722_asset: A, __dd722_value: '72248120' };
+		const rd = (type, reading) => ({ id: 'E' + reading, reading, readingDate: '2026-09-15T20:48:00Z', readingType: { id: 'T-' + type, name: type } });
+		const ra = (...edges) => ({ data: { assets: { edges: edges.map(([name, readings]) => ({ id: 'A-' + name, name, latestReadings: readings })) } } });
+		check('722 server - the asset\'s latest Test 1 is the typed value', twice7(srv, pg7('', ra([A, [rd('psi', 5), rd('Test 1', 72248120)]], ['DD SYNTHETIC MOBILE 43398722', []]), VS)), true);
+		check('MUST FAIL: 722 server - latest Test 1 is an older run\'s value', twice7(srv, pg7('', ra([A, [rd('Test 1', 72211111)]]), VS)), false);
+		check('MUST FAIL: 722 server - no readings at all (CREATE_EVENT never landed)', twice7(srv, pg7('', ra([A, []]), VS)), false);
+		check('MUST FAIL: 722 server - the value under `Test 10`', twice7(srv, pg7('', ra([A, [rd('Test 10', 72248120)]]), VS)), false);
+		check('MUST FAIL: 722 server - the value on ANOTHER marker asset', twice7(srv, pg7('', ra([A, []], ['DD SYNTHETIC MOBILE 43398722', [rd('Test 1', 72248120)]]), VS)), false);
+		check('MUST FAIL: 722 server - nothing recorded', twice7(srv, pg7('', ra([A, [rd('Test 1', 72248120)]]))), false);
+		check('MUST FAIL: 722 server - a GraphQL error answer', twice7(srv, pg7('', { errors: [{ message: 'x' }] }, VS)), false);
+
+		const prev = bodyOf(F722, 'now renders that value as its previous entry');
+		const V = { __dd722_value: '72248120' };
+		check('722 previous - the field renders the value beside its date', run7(prev, pg7(panel(field('Test 1', '72248120')), undefined, V)), true);
+		check('MUST FAIL: 722 previous - an older value rendered', run7(prev, pg7(panel(field('Test 1', '72211111')), undefined, V)), false);
+		check('MUST FAIL: 722 previous - the value only typed in the input, not rendered', run7(prev, pg7(panel(field('Test 1', '', '72248120')), undefined, V)), false);
+		check('MUST FAIL: 722 previous - on another type\'s field', run7(prev, pg7(panel(field('psi', '72248120') + field('Test 1')), undefined, V)), false);
+
+		const clean = bodyOf(F722, 'CLEANUP: remove this test');
+		{ const w = pg7(tagged('1'), undefined, { __dd722_asset: A, __dd722_value: '72248120', asset_lookup_query: 'DD SYNTHETIC MOBILE' });
+			check('722 cleanup - keys, persisted search and tag removed', run7(clean, w) && ['__dd722_asset', '__dd722_value', 'asset_lookup_query'].every(k => w.sessionStorage.getItem(k) === null) && !w.document.querySelector('[data-dd722]'), true); }
+	}
+}
+
+/* ===========================================================================================
+ * MOB.627 / MOB.628 - saved-photo writes (tags, avatar, delete) and the asset document add/delete,
+ * on the collector's `DD SYNTHETIC MOBILE` row. DOM from AssetCollector/index.tsx (Accordion item >
+ * control), AssetLookupDetails (Tabs), PhotoCarousel/index.tsx + PhotoMenu.tsx (slide > img + gear
+ * aria-label=Settings + the `Edit Tags (n)` Badge), Tags/index.tsx + TagSearchCombobox.tsx (Modal >
+ * PillsInput > Pill.root > Pill.label + Pill.remove; Combobox options role=option), and
+ * DetailPage/Attachments.tsx AttachmentTable (table > tbody > tr > Checkbox input + Anchor
+ * href=/api/attachment/<id>). Server reads are `dd_tools.server_read_js` against a stubbed fetch.
+ * ========================================================================================= */
+{
+	const F627 = 'MOB.627_Collector_Saved_Photo_Writes.json';
+	const F628 = 'MOB.628_Collector_Document_Add_Delete.json';
+	const b7 = (n) => bodyOf(F627, n);
+	const b8 = (n) => bodyOf(F628, n);
+	const NAME = 'DD SYNTHETIC MOBILE 43398722';
+	const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return sync(undefined); } }, catch() { return this; } });
+	// `answer` is the GraphQL body the stubbed /graphql returns; `ss` pre-fills sessionStorage.
+	const win = (html = '', { answer = {}, ss = {} } = {}) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-collector' }).window;
+		w.document.body.innerHTML = html;
+		w.fetch = () => sync({ json: () => sync(answer) });
+		for (const [k, v] of Object.entries(ss)) w.sessionStorage.setItem(k, v);
+		return w;
+	};
+	const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+	const control = (name = NAME, expanded = 'true') =>
+		`<button class="mantine-Accordion-control" aria-expanded="${expanded}"><div class="mantine-Indicator-indicator">4</div>${name}Actuator Tools</button>`;
+	const slide = (id, badge = 'Edit Tags (0)') =>
+		`<div class="mantine-Carousel-slide"><div><img src="${id.startsWith('blob:') ? id : `/api/attachment/${id}?org=SMCT2`}">`
+		+ `<button aria-label="Settings" data-slide="${id}"></button>`
+		+ `<div class="mantine-Badge-root"><span class="mantine-Badge-label">${badge}</span></div></div></div>`;
+	const row = (inner, name = NAME, expanded) =>
+		`<div class="mantine-Accordion-item">${control(name, expanded)}<div class="mantine-Accordion-panel">${inner}</div></div>`;
+	// a decoy row above ours (no marker) with its own slide + file input - scoping must skip it
+	const decoy = `<div class="mantine-Accordion-item"><button class="mantine-Accordion-control">Pump 0102</button><div>${slide('DECOY')}</div></div>`;
+	const edges = (atts, avatar = null, name = NAME) => ({ data: { assets: { edges: [{ id: 'A1', name, avatar, attachments: atts }] } } });
+	const att = (id, tags = [], fileType = 'image/png', fileName = 'shot.png') => ({ id, fileName, fileType, tags });
+
+	console.log('\nMOB.627 - saved-photo writes: stash, premise, upload id, tags, avatar, delete, cleanup');
+	// ---- stash the row name
+	{
+		const S = b7("Stash the row's asset name");
+		const w = win(decoy + row(''));
+		check('627 name - the marker row\'s name + 8 digits is stashed (badge digits and type text around it)', runJs(S, w) && w.sessionStorage.getItem('__dd627_name') === NAME, true);
+		check('MUST FAIL: 627 name - no marker row', runJs(S, win(decoy)), false);
+		check('MUST FAIL: 627 name - marker without 8 digits', runJs(S, win(row('', 'DD SYNTHETIC MOBILE'))), false);
+	}
+	// ---- premise
+	{
+		const P = b7('PREMISE (server): exactly ONE asset');
+		const w = win('', { answer: edges([att('X1'), att('X2')]), ss: { __dd627_name: NAME } });
+		check('627 premise - one asset by name: BEFORE stashed', twice(P, w) && w.sessionStorage.getItem('__dd627_before') === '["X1","X2"]', true);
+		const two = { data: { assets: { edges: [{ name: NAME, attachments: [] }, { name: NAME, attachments: [] }] } } };
+		check('MUST FAIL: 627 premise - two assets share the name', twice(P, win('', { answer: two, ss: { __dd627_name: NAME } })), false);
+		check('MUST FAIL: 627 premise - no stashed name', twice(P, win('', { answer: edges([]) })), false);
+	}
+	// ---- the upload's id off the last slide
+	{
+		const L = b7('UPLOAD LANDED: the last slide');
+		const w = win(decoy + row(slide('OLD1') + slide('NEW1')));
+		check('627 landed - the LAST slide\'s server URL id is stashed', runJs(L, w) && w.sessionStorage.getItem('__dd627_att') === 'NEW1', true);
+		check('MUST FAIL: 627 landed - the last slide is still the blob: preview', runJs(L, win(row(slide('OLD1') + slide('blob:https://dev/1')))), false);
+		check('MUST FAIL: 627 landed - no slide', runJs(L, win(row(''))), false);
+	}
+	const SS = { __dd627_name: NAME, __dd627_before: '["OLD1"]', __dd627_att: 'NEW1' };
+	const srv = (fragment, answer, ss = SS) => twice(b7(fragment), win('', { answer, ss }));
+	// ---- upload proof
+	{
+		const U = '⭐ SERVER: that id is the ONE new attachment';
+		check('627 upload - NEW1 is the one new untagged image, OLD1 intact', srv(U, edges([att('OLD1'), att('NEW1')])), true);
+		check('MUST FAIL: 627 upload - the stashed id was already there (in BEFORE)', srv(U, edges([att('OLD1'), att('NEW1')]), { ...SS, __dd627_att: 'OLD1' }), false);
+		check('MUST FAIL: 627 upload - NEW1 absent', srv(U, edges([att('OLD1')])), false);
+		check('MUST FAIL: 627 upload - an OLD attachment vanished', srv(U, edges([att('NEW1'), att('OTHER')])), false);
+		check('MUST FAIL: 627 upload - two new attachments', srv(U, edges([att('OLD1'), att('NEW1'), att('NEW2')])), false);
+		check('MUST FAIL: 627 upload - not an image', srv(U, edges([att('OLD1'), att('NEW1', [], 'application/pdf')])), false);
+		check('MUST FAIL: 627 upload - already tagged', srv(U, edges([att('OLD1'), att('NEW1', [{ id: 't', name: 'Test Tag' }])])), false);
+	}
+	// ---- tag editor open
+	{
+		const O = b7("Open the tag editor from OUR slide's");
+		const w = win(decoy + row(slide('OLD1') + slide('NEW1')), { ss: SS }); let hit = 0;
+		const labels = w.document.querySelectorAll('.mantine-Badge-label');
+		labels[labels.length - 1].addEventListener('click', () => hit++);
+		check('627 editor - clicks OUR slide\'s `Edit Tags (0)`', runJs(O, w) && hit === 1, true);
+		check('MUST FAIL: 627 editor - the last slide is not ours', runJs(O, win(row(slide('NEW1') + slide('OLD1')), { ss: SS })), false);
+		check('MUST FAIL: 627 editor - our photo already carries a tag (`Edit Tags (1)` / names)', runJs(O, win(row(slide('NEW1', 'Test Tag')), { ss: SS })), false);
+	}
+	// ---- tag add / remove / create proofs
+	const tag = (name) => ({ id: 'T-' + name, name });
+	check('627 tag add - our photo carries Test Tag', srv('SERVER (ADD_TAG_TO_ATTACHMENT)', edges([att('OLD1'), att('NEW1', [tag('Test Tag')])])), true);
+	check('MUST FAIL: 627 tag add - Test Tag only on ANOTHER photo', srv('SERVER (ADD_TAG_TO_ATTACHMENT)', edges([att('OLD1', [tag('Test Tag')]), att('NEW1', [tag('Test')])])), false);
+	check('627 tag remove - our photo has no Test Tag', srv('SERVER (REMOVE_TAG_FROM_ATTACHMENT)', edges([att('OLD1'), att('NEW1', [tag('Test')])])), true);
+	check('MUST FAIL: 627 tag remove - still tagged', srv('SERVER (REMOVE_TAG_FROM_ATTACHMENT)', edges([att('OLD1'), att('NEW1', [tag('Test Tag')])])), false);
+	check('MUST FAIL: 627 tag remove - our photo is gone altogether (vacuous absence)', srv('SERVER (REMOVE_TAG_FROM_ATTACHMENT)', edges([att('OLD1')])), false);
+	{
+		const E = b7('…and the editor agrees');
+		const modal = (pills) => `<section class="mantine-Modal-content"><p>Edit Attachment Tags</p><div>${pills}<input placeholder="Search tags..."></div></section>`;
+		const pill = (n) => `<div class="mantine-Pill-root"><span class="mantine-Pill-label">${n}</span><button class="mantine-Pill-remove"></button></div>`;
+		check('627 editor agrees - no Test Tag pill (another pill is fine)', runJs(E, win(modal(pill('Test')))), true);
+		check('MUST FAIL: 627 editor agrees - the Test Tag pill is still there', runJs(E, win(modal(pill('Test Tag')))), false);
+		check('MUST FAIL: 627 editor agrees - no tag editor open', runJs(E, win('<input placeholder="Search tags...">')), false);
+	}
+	{
+		const T = b7('Stash the typed name');
+		const pg = (v, ...opts) => {
+			const w = win(`<input placeholder="Search tags...">${opts.map(o => `<div role="option">${o}</div>`).join('')}`);
+			w.document.querySelector('input').value = v; w.__clicks = 0;
+			w.document.querySelectorAll('[role="option"]').forEach(o => o.addEventListener('click', () => w.__clicks++));
+			return w;
+		};
+		const w = pg('DD SYNTHETIC MOBILE 12345678', 'Test Tag', "+ Create Tag 'DD SYNTHETIC MOBILE 12345678'");
+		check('627 new tag - name stashed and the ONE matching create option clicked once', runJs(T, w) && w.sessionStorage.getItem('__dd627_newtag') === 'DD SYNTHETIC MOBILE 12345678' && w.__clicks === 1, true);
+		{ const w2 = pg('DD SYNTHETIC MOBILE {{ RUNID }}', "+ Create Tag 'DD SYNTHETIC MOBILE {{ RUNID }}'"); check('MUST FAIL: 627 new tag - {{ RUNID }} was not expanded, and nothing is created', !runJs(T, w2) && w2.__clicks === 0, true); }
+		{ const w3 = pg('DD SYNTHETIC MOBILE 12345678', 'DD SYNTHETIC MOBILE 12345678'); check('MUST FAIL: 627 new tag - no create option (the name already exists), nothing clicked', !runJs(T, w3) && w3.__clicks === 0, true); }
+		{ const w4 = pg('DD SYNTHETIC MOBILE 12345678', "+ Create Tag 'DD SYNTHETIC MOBILE 1234567'"); check('MUST FAIL: 627 new tag - the option offers a DIFFERENT name, nothing clicked', !runJs(T, w4) && w4.__clicks === 0, true); }
+	}
+	{
+		const C = 'SERVER (CREATE_TAG)';
+		const tags = (...names) => ({ data: { tags: { edges: names.map(tag) } } });
+		const ss = { __dd627_newtag: 'DD SYNTHETIC MOBILE 12345678' };
+		check('627 create - exactly one org tag with the typed name', srv(C, tags('DD SYNTHETIC MOBILE 1', 'DD SYNTHETIC MOBILE 12345678'), ss), true);
+		check('MUST FAIL: 627 create - not created', srv(C, tags('DD SYNTHETIC MOBILE 1'), ss), false);
+		check('MUST FAIL: 627 create - two with that name', srv(C, tags('DD SYNTHETIC MOBILE 12345678', 'DD SYNTHETIC MOBILE 12345678'), ss), false);
+		const S2 = { ...SS, __dd627_newtag: 'DD SYNTHETIC MOBILE 12345678' };
+		check('627 sentinel - the created tag is on our photo', srv('SENTINEL (optional): the CREATED tag', edges([att('OLD1'), att('NEW1', [tag('DD SYNTHETIC MOBILE 12345678')])]), S2), true);
+		check('MUST FAIL: 627 sentinel - the created tag never reached our photo', srv('SENTINEL (optional): the CREATED tag', edges([att('OLD1'), att('NEW1')]), S2), false);
+	}
+	{
+		const D = b7('The tag editor closed; our slide');
+		check('627 editor closed - no search box, last slide ours', runJs(D, win(row(slide('OLD1') + slide('NEW1')), { ss: SS })), true);
+		check('MUST FAIL: 627 editor closed - the search box is still mounted', runJs(D, win(row(slide('NEW1')) + '<input placeholder="Search tags...">', { ss: SS })), false);
+	}
+	// ---- the gear guard (the same body opens the gear for Set as Avatar and for Delete Photo)
+	{
+		const G = b7('the one new id');
+		check('627 gear guard - the avatar and delete guards are ONE body', G === b7('the delete can hit nothing'), true);
+		const w = win(decoy + row(slide('OLD1') + slide('NEW1')), { ss: SS }); const hits = [];
+		w.document.querySelectorAll('[aria-label="Settings"]').forEach(g => g.addEventListener('click', () => hits.push(g.getAttribute('data-slide'))));
+		check('627 gear guard - clicks ONLY our slide\'s gear', runJs(G, w) && hits.join() === 'NEW1', true);
+		{
+			const w2 = win(row(slide('NEW1') + slide('OLD1')), { ss: SS }); const h2 = [];
+			w2.document.querySelectorAll('[aria-label="Settings"]').forEach(g => g.addEventListener('click', () => h2.push(1)));
+			check('MUST FAIL: 627 gear guard - the last slide is an OLD photo, and no gear is clicked', !runJs(G, w2) && h2.length === 0, true);
+		}
+		check('MUST FAIL: 627 gear guard - the stashed id is in BEFORE (a pre-existing photo)', runJs(G, win(row(slide('OLD1')), { ss: { ...SS, __dd627_att: 'OLD1' } })), false);
+		check('MUST FAIL: 627 gear guard - nothing stashed', runJs(G, win(row(slide('NEW1')))), false);
+	}
+	check('627 avatar - asset.avatar is our photo', srv('SERVER (SET_ATTACHMENT_AS_AVATAR)', edges([att('OLD1'), att('NEW1')], { id: 'NEW1' })), true);
+	check('MUST FAIL: 627 avatar - avatar is another photo', srv('SERVER (SET_ATTACHMENT_AS_AVATAR)', edges([att('OLD1'), att('NEW1')], { id: 'OLD1' })), false);
+	check('MUST FAIL: 627 avatar - no avatar', srv('SERVER (SET_ATTACHMENT_AS_AVATAR)', edges([att('OLD1'), att('NEW1')])), false);
+	check('627 deleted - ours gone, exactly BEFORE left', srv('SERVER (REMOVE_ATTACHMENT): our photo is gone', edges([att('OLD1')])), true);
+	check('MUST FAIL: 627 deleted - still there', srv('SERVER (REMOVE_ATTACHMENT): our photo is gone', edges([att('OLD1'), att('NEW1')])), false);
+	check('MUST FAIL: 627 deleted - an OLD photo went with it', srv('SERVER (REMOVE_ATTACHMENT): our photo is gone', edges([])), false);
+	check('627 avatar cleared - no avatar after the delete', srv('deleting the avatar photo CLEARED', edges([att('OLD1')])), true);
+	check('MUST FAIL: 627 avatar cleared - a dangling avatar id', srv('deleting the avatar photo CLEARED', edges([att('OLD1')], { id: 'NEW1' })), false);
+	{
+		const A = b7('…and the carousel agrees');
+		check('627 carousel - one slide (BEFORE had one), not ours', runJs(A, win(row(slide('OLD1')), { ss: SS })), true);
+		check('MUST FAIL: 627 carousel - our slide is still there', runJs(A, win(row(slide('NEW1')), { ss: SS })), false);
+		check('MUST FAIL: 627 carousel - a slide too few', runJs(A, win(row(''), { ss: SS })), false);
+	}
+	// ---- cleanup and restore
+	{
+		const X = b7('CLEANUP: close a tag editor');
+		const w = win('<section class="mantine-Modal-content"><p>Edit Attachment Tags</p><button>Done</button></section>'); let done = 0;
+		w.document.querySelector('button').addEventListener('click', () => done++);
+		check('627 cleanup editor - an open tag editor gets its Done clicked', runJs(X, w) && done === 1, true);
+		const w2 = win('<section class="mantine-Modal-content"><p>Are you sure you want to delete this image?</p><button>Done</button></section>'); let d2 = 0;
+		w2.document.querySelector('button').addEventListener('click', () => d2++);
+		check('MUST FAIL: 627 cleanup editor - another modal\'s button is never clicked', runJs(X, w2) && d2 === 1, false);
+		const K = b7('CLEANUP: remove this test');
+		const wk = win('', { ss: { ...SS, __dd627_newtag: 'x', other: 'keep' } });
+		check('627 cleanup keys - all four removed, others kept', runJs(K, wk) && wk.sessionStorage.length === 1 && wk.sessionStorage.getItem('other') === 'keep', true);
+		const R = b7('RESTORED: the row reports itself collapsed');
+		check('627 restored - aria-expanded=false', runJs(R, win(row('', NAME, 'false'))), true);
+		check('MUST FAIL: 627 restored - still expanded', runJs(R, win(row('', NAME, 'true'))), false);
+		check('MUST FAIL: 627 restored - the row is gone', runJs(R, win(decoy)), false);
+	}
+
+	console.log('\nMOB.628 - asset document: stash, premise, reveal, file, row id, delete guards, proofs');
+	const fileRow = (id, name, checked = false) =>
+		`<tr><td><input type="checkbox" class="mantine-Checkbox-input"${checked ? ' checked' : ''} data-row="${id}"></td>`
+		+ `<td><a href="/api/attachment/${id}"><p>${name}</p></a></td><td><p>pdf</p></td></tr>`;
+	const docs = (rows, input = true) => row(`<table><thead><tr><th><button aria-label="Menu"></button></th></tr></thead><tbody>${rows}</tbody></table>`
+		+ (input ? '<button>Add File</button><input type="file" accept="*/*" style="display:none">' : '<button>Add File</button>'));
+	const PDF = 'dd_synthetic_mobile.pdf';
+	const S8 = { __dd628_name: NAME, __dd628_before: '["OLD1"]', __dd628_att: 'NEW1', __dd628_file: PDF };
+	{
+		const S = b8("Stash the row's asset name");
+		const w = win(decoy + docs(''));
+		check('628 name - stashed', runJs(S, w) && w.sessionStorage.getItem('__dd628_name') === NAME, true);
+		check('MUST FAIL: 628 name - no marker row', runJs(S, win(decoy)), false);
+		const P = b8('PREMISE (server)');
+		const wp = win('', { answer: edges([att('OLD1')]), ss: { __dd628_name: NAME } });
+		check('628 premise - BEFORE stashed', twice(P, wp) && wp.sessionStorage.getItem('__dd628_before') === '["OLD1"]', true);
+		check('MUST FAIL: 628 premise - no asset with that name', twice(P, win('', { answer: edges([], null, 'DD SYNTHETIC MOBILE 1'), ss: { __dd628_name: NAME } })), false);
+	}
+	{
+		const V = b8("Reveal the row's hidden");
+		const w = win(decoy + docs(''));
+		check('628 reveal - the ONE accept=*/* input in the marker row is tagged and shown', runJs(V, w) && w.document.querySelector('input[type=file]').getAttribute('data-dd-upload') === '1', true);
+		check('MUST FAIL: 628 reveal - a second */* input elsewhere on the page (ambiguous)', runJs(V, win(docs('') + '<input type="file" accept="*/*">')), false);
+		check('MUST FAIL: 628 reveal - only image/* inputs', runJs(V, win(docs('', false) + '<input type="file" accept="image/*">')), false);
+	}
+	{
+		const I = b8('The input holds exactly ONE file');
+		const withFiles = (files) => { const w = win('<input type="file" data-dd-upload="1">'); Object.defineProperty(w.document.querySelector('input'), 'files', { get: () => files }); return w; };
+		const w = withFiles([{ name: PDF, type: 'application/pdf' }]);
+		check('628 file - one pdf, name stashed', runJs(I, w) && w.sessionStorage.getItem('__dd628_file') === PDF, true);
+		check('MUST FAIL: 628 file - a PNG (the Docs filter would drop it)', runJs(I, withFiles([{ name: 'shot.png', type: 'image/png' }])), false);
+		check('MUST FAIL: 628 file - two files', runJs(I, withFiles([{ name: PDF, type: 'application/pdf' }, { name: 'b.pdf', type: 'application/pdf' }])), false);
+		check('MUST FAIL: 628 file - no files', runJs(I, withFiles([])), false);
+	}
+	{
+		const R = b8('The file table shows exactly ONE row');
+		const ss = { __dd628_file: PDF, __dd628_before: '["OLD1"]' };
+		const w = win(decoy + docs(fileRow('OLD1', PDF) + fileRow('NEW1', PDF)), { ss });
+		check('628 row - the one fresh row with the name (an old same-named PDF skipped): id stashed', runJs(R, w) && w.sessionStorage.getItem('__dd628_att') === 'NEW1', true);
+		check('MUST FAIL: 628 row - two fresh rows with the name', runJs(R, win(docs(fileRow('NEW1', PDF) + fileRow('NEW2', PDF)), { ss })), false);
+		check('MUST FAIL: 628 row - only the pre-existing row', runJs(R, win(docs(fileRow('OLD1', PDF)), { ss })), false);
+	}
+	{
+		const U = (answer, ss = S8) => twice(b8('SERVER (CREATE_PENDING_ATTACHMENTS)'), win('', { answer, ss }));
+		check('628 upload - NEW1 is the one new pdf', U(edges([att('OLD1'), att('NEW1', [], 'application/pdf', PDF)])), true);
+		check('MUST FAIL: 628 upload - the new attachment is an image', U(edges([att('OLD1'), att('NEW1', [], 'image/png', PDF)])), false);
+		check('MUST FAIL: 628 upload - another file name', U(edges([att('OLD1'), att('NEW1', [], 'application/pdf', 'other.pdf')])), false);
+		check('MUST FAIL: 628 upload - an old attachment vanished', U(edges([att('NEW1', [], 'application/pdf', PDF)])), false);
+	}
+	{
+		const C = b8('GUARD + check the box');
+		const w = win(decoy + docs(fileRow('OLD1', PDF) + fileRow('NEW1', PDF)), { ss: S8 });
+		const cbs = () => [...w.document.querySelectorAll('input[type=checkbox]')].filter(c => c.checked).map(c => c.getAttribute('data-row')).join();
+		check('628 check - ONLY our row is checked', runJs(C, w) && cbs() === 'NEW1', true);
+		check('628 check - polled again it does NOT untick ours', runJs(C, w) && cbs() === 'NEW1', true);
+		{
+			const w2 = win(docs(fileRow('OLD1', PDF, true) + fileRow('NEW1', PDF)), { ss: S8 });
+			check('MUST FAIL: 628 check - another row is already checked, and ours stays unchecked', !runJs(C, w2) && !w2.document.querySelector('[data-row="NEW1"]').checked, true);
+		}
+		check('MUST FAIL: 628 check - our row is absent', runJs(C, win(docs(fileRow('OLD1', PDF)), { ss: S8 })), false);
+		check('MUST FAIL: 628 check - the stashed id is in BEFORE', runJs(C, win(docs(fileRow('OLD1', PDF)), { ss: { ...S8, __dd628_att: 'OLD1' } })), false);
+	}
+	{
+		const D = b8('GUARD + click `Delete File(s)`');
+		const menu = '<div class="mantine-Menu-dropdown"><button class="mantine-Menu-item"><span class="mantine-Menu-itemLabel">Delete File(s)</span></button></div>';
+		const pg = (rows, dd = menu) => { const w = win(docs(rows) + dd, { ss: S8 }); w.__del = 0; const i = w.document.querySelector('.mantine-Menu-item'); if (i) i.addEventListener('click', () => w.__del++); return w; };
+		const w = pg(fileRow('OLD1', PDF) + fileRow('NEW1', PDF, true));
+		check('628 delete - only ours checked: Delete File(s) clicked once', runJs(D, w) && w.__del === 1, true);
+		{ const w2 = pg(fileRow('OLD1', PDF, true) + fileRow('NEW1', PDF, true)); check('MUST FAIL: 628 delete - two rows checked, and nothing is clicked', !runJs(D, w2) && w2.__del === 0, true); }
+		{ const w3 = pg(fileRow('OLD1', PDF, true) + fileRow('NEW1', PDF)); check('MUST FAIL: 628 delete - the checked row is NOT ours, and nothing is clicked', !runJs(D, w3) && w3.__del === 0, true); }
+		check('MUST FAIL: 628 delete - no dropdown open', runJs(D, pg(fileRow('NEW1', PDF, true), '')), false);
+		check('MUST FAIL: 628 delete - two dropdowns open', runJs(D, pg(fileRow('NEW1', PDF, true), menu + menu)), false);
+	}
+	{
+		const X = (answer) => twice(b8('SERVER (REMOVE_ATTACHMENT): the PDF is gone'), win('', { answer, ss: S8 }));
+		check('628 deleted - gone, exactly BEFORE', X(edges([att('OLD1')])), true);
+		check('MUST FAIL: 628 deleted - still there', X(edges([att('OLD1'), att('NEW1', [], 'application/pdf', PDF)])), false);
+		check('MUST FAIL: 628 deleted - an old attachment went too', X(edges([])), false);
+		const T = b8('…and the table agrees');
+		check('628 table - no row with our id, Add File there', runJs(T, win(docs(fileRow('OLD1', PDF)), { ss: S8 })), true);
+		check('MUST FAIL: 628 table - our row still listed', runJs(T, win(docs(fileRow('NEW1', PDF)), { ss: S8 })), false);
+		check('MUST FAIL: 628 table - the panel lost Add File', runJs(T, win(row('<table><tbody></tbody></table>'), { ss: S8 })), false);
+		const K = b8('CLEANUP: remove this test');
+		const wk = win('', { ss: { ...S8, other: 'keep' } });
+		check('628 cleanup keys - all four removed, others kept', runJs(K, wk) && wk.sessionStorage.length === 1, true);
+		const R = b8('RESTORED: the row reports itself collapsed');
+		check('628 restored - collapsed', runJs(R, win(row('', NAME, 'false'))), true);
+		check('MUST FAIL: 628 restored - expanded', runJs(R, win(row('', NAME, 'true'))), false);
+	}
+}
+
+/* ===========================================================================================
+ * MOB.866 - the storeroom item's Photos / Docs: server premise, guarded uploads, server proofs, the
+ * guarded photo and document deletes, the rest state. DOM from MaterialLookup/index.tsx (Modal) >
+ * StockAdjustments.tsx (Box > SegmentedControl, <p>Storeroom Item</p>, the PhotoAttachments /
+ * FileAttachments Box, <p>Material Item (read only)</p>, ReadOnlyAttachments), PhotoCarousel
+ * (Carousel.Slide > Image img[alt=fileName][src=reportLinkPreview] + gear aria-label=Settings),
+ * Attachments.tsx AttachmentTable (thead gear aria-label=Menu, disabled until a row is ticked; tbody tr >
+ * Checkbox input + Anchor href=/api/attachment/<id>; FileButton's hidden accept-any-file input),
+ * PhotoAttachments' DeletePhotoConfirmation (a @mantine/modals modal: its own .mantine-Modal-content) and
+ * useFileDialog (inputs appended to <body>; the camera's `capture` a non-reflecting property, trap 31).
+ * reportLinkPreview read over the API 2026-09-15: /api/attachment/<id>?org=SMCT2&imagePreview=true.
+ * ========================================================================================= */
+if (!fs.existsSync(path.join(TESTS, 'MOB.866_MaterialLookup_Item_Attachment_Delete.json'))) {
+	console.log('\nMOB.866 - SKIPPED: not built yet');
+} else {
+	const F866 = 'MOB.866_MaterialLookup_Item_Attachment_Delete.json';
+	const b6 = (n) => bodyOf(F866, n);
+	const up6 = (f) => JSON.parse(fs.readFileSync(path.join(TESTS, f))).details.steps.filter(s => s.type === 'uploadFiles');
+	const PHOTO = up6('MOB.600_Collector_Create_Asset.json')[0].params.files[0].name;
+	const DOC = up6(F866)[1].params.files[0].name;
+	const E = '__dd866_empty', M = '__dd866_mat', P = '__dd866_photo', D = '__dd866_doc';
+	const READY = { [E]: '1', [M]: '0' };
+	const sync6 = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync6(r); } catch (e) { return sync6(undefined); } }, catch() { return this; } });
+	const SRC = (id) => `https://dev.mentorapm.com/api/attachment/${id}?org=SMCT2&imagePreview=true`;
+	const pg6 = ({ modal = true, seg = '3', slides = [], rows = [], roSlides = [], roRows = [], headings = true,
+		wrongBtn = false, fileInputs = 1, menus = [], confirms = 0, confirmFirst = false, picker = null,
+		answer = null, ss = {}, outsideInput = false } = {}) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/material-lookup' }).window;
+		const doc = w.document;
+		w.__clicks = [];
+		const hit = (t) => () => w.__clicks.push(t);
+		const el = (tag, attrs = {}, ...kids) => {
+			const e = doc.createElement(tag);
+			for (const [k, v] of Object.entries(attrs)) {
+				if (k === 'text') e.textContent = v; else if (k === 'click') e.addEventListener('click', v); else e.setAttribute(k, v);
+			}
+			kids.forEach(c => e.appendChild(c));
+			return e;
+		};
+		const slide = (s, ro) => el('div', { class: 'mantine-Carousel-slide' }, el('div', {},
+			el('img', { class: 'mantine-Image-root', alt: s.alt, src: s.src }),
+			el('div', { class: 'mantine-Group-root' }, el('button', { class: 'mantine-ActionIcon-root', 'aria-label': 'Settings', click: hit('gear:' + (ro ? 'ro:' : '') + s.src) }))));
+		const carousel = (list, ro) => el('div', { class: 'mantine-Carousel-root' }, el('div', { class: 'mantine-Carousel-viewport' },
+			el('div', { class: 'mantine-Carousel-container' }, ...list.map(s => slide(s, ro)))));
+		const table = (list, editable) => {
+			const gear = el('button', { class: 'mantine-ActionIcon-root', 'aria-label': 'Menu', click: hit('menu-gear') });
+			gear.disabled = !list.some(r => r.checked);
+			const tr = (r) => {
+				const cells = [];
+				if (editable) {
+					const box = el('input', { type: 'checkbox', class: 'mantine-Checkbox-input' });
+					box.checked = !!r.checked;
+					box.addEventListener('click', () => { w.__clicks.push('tick'); gear.disabled = ![...doc.querySelectorAll('input[type="checkbox"]')].some(x => x.checked); });
+					cells.push(el('td', {}, el('div', { class: 'mantine-Checkbox-root' }, box)));
+				}
+				const a = el('a', r.href ? { class: 'mantine-Anchor-root', href: r.href } : { class: 'mantine-Anchor-root' }, el('p', { class: 'mantine-Text-root', text: r.name }));
+				cells.push(el('td', {}, a), el('td', {}, el('p', { class: 'mantine-Text-root', text: 'pdf' })));
+				return el('tr', {}, ...cells);
+			};
+			return el('div', { class: 'mantine-ScrollArea-root' }, el('table', { class: 'mantine-Table-table' },
+				el('thead', {}, el('tr', {}, ...(editable ? [el('th', {}, gear)] : []), el('th', { text: 'Name' }), el('th', { text: 'Type' }))),
+				el('tbody', {}, ...list.map(tr))));
+		};
+		const confirm = () => el('div', { class: 'mantine-Modal-content' },
+			el('button', { class: 'mantine-Modal-close', click: hit('confirm-x') }),
+			el('div', { class: 'mantine-Modal-body' }, el('div', {},
+				el('p', { class: 'mantine-Text-root', text: 'Are you sure you want to delete this image?' }),
+				el('div', {}, el('button', { text: 'Yes', click: hit('yes') }), el('button', { text: 'No', click: hit('no') })))));
+		if (confirmFirst) for (let i = 0; i < confirms; i++) doc.body.appendChild(confirm());
+		if (modal) {
+			const box = el('div', { class: 'mantine-Box-root' });
+			box.appendChild(segmentedControl(doc, 'mantine-seg866', ['1', '2', '3', '4'], seg));
+			const photos = seg === '3';
+			const att = el('div');
+			if (photos) {
+				if (slides.length) att.appendChild(carousel(slides));
+				att.appendChild(el('button', { text: 'Add Photo' }));
+				if (wrongBtn) att.appendChild(el('button', { text: 'Add File' }));
+			} else {
+				if (rows.length) att.appendChild(table(rows, true));
+				att.appendChild(el('button', { text: 'Add File' }));
+				for (let i = 0; i < fileInputs; i++) att.appendChild(el('input', { type: 'file', accept: '*/*', style: 'display:none' }));
+				if (wrongBtn) att.appendChild(el('button', { text: 'Add Photo' }));
+			}
+			if (headings) box.appendChild(el('p', { class: 'mantine-Text-root', text: 'Storeroom Item' }));
+			box.appendChild(el('div', { class: 'mantine-Box-root' }, att));
+			if (headings) box.appendChild(el('p', { class: 'mantine-Text-root', text: 'Material Item (read only)' }));
+			if (photos) box.appendChild(roSlides.length ? carousel(roSlides, true) : el('p', { class: 'mantine-Text-root', text: 'No photos' }));
+			else box.appendChild(roRows.length ? table(roRows, false) : el('p', { class: 'mantine-Text-root', text: 'No documents' }));
+			doc.body.appendChild(el('div', { class: 'mantine-Modal-content' },
+				el('header', { class: 'mantine-Modal-header' }, el('h2', { class: 'mantine-Modal-title' }, el('p', { text: '000-000-000 Adamantium' })),
+					el('button', { class: 'mantine-Modal-close', click: hit('item-x') })),
+				el('div', { class: 'mantine-Modal-body' }, box)));
+		}
+		if (!confirmFirst) for (let i = 0; i < confirms; i++) doc.body.appendChild(confirm());
+		for (const items of menus) doc.body.appendChild(el('div', { class: 'mantine-Menu-dropdown' },
+			...items.map(t => el('button', { class: 'mantine-Menu-item', click: hit('item:' + t) },
+				el('div', { class: 'mantine-Menu-itemSection' }), el('div', { class: 'mantine-Menu-itemLabel', text: t })))));
+		if (picker) {
+			doc.body.appendChild(el('div', { class: 'mantine-Modal-content' }, el('h2', { text: 'Select Photo Source' }), el('button', { class: 'mantine-Modal-close', click: hit('picker-x') })));
+			if (picker.stale) doc.body.appendChild(el('div', { 'data-dd-upload': '1', id: 'stale' }));
+			for (let i = 0; i < (picker.gallery ?? 1); i++) doc.body.appendChild(el('input', { type: 'file', accept: 'image/*', style: 'display:none', class: 'gallery' }));
+			for (let i = 0; i < (picker.camera ?? 1); i++) {
+				const c = el('input', { type: 'file', accept: 'image/*', style: 'display:none', class: 'camera' });
+				Object.defineProperty(c, 'capture', { value: 'environment' });   // a property, no attribute (trap 31)
+				doc.body.appendChild(c);
+			}
+		}
+		if (outsideInput) doc.body.appendChild(el('input', { type: 'file', accept: '*/*', style: 'display:none', class: 'outside' }));
+		if (answer) w.fetch = () => sync6({ json: () => sync6(answer) });
+		for (const [k, v] of Object.entries(ss)) w.sessionStorage.setItem(k, v);
+		return w;
+	};
+	const twice6 = (body, w) => { runJs(body, w); return runJs(body, w); };
+	const ans = (s, m = []) => ({ data: { s: { edges: s }, m: { edges: m } } });
+	const img = (id = 'P1', fileName = PHOTO, fileType = 'image/png') => ({ id, fileName, fileType });
+	const pdf = (id = 'D1', fileName = DOC, fileType = 'application/pdf') => ({ id, fileName, fileType });
+	const srv6 = (frag, answer, ss = {}) => { const w = pg6({ modal: false, answer, ss }); return [twice6(b6(frag), w), w]; };
+	const clicks6 = (w) => w.__clicks.join();
+
+	console.log('\nMOB.866 - storeroom item photo + PDF: premise, guarded uploads and deletes, server proofs, rest');
+	{
+		// index.tsx: `<Loading visible={loading && !previousData} />` + `{data?.results ? `${totalCount} matches` : ''}`
+		const RD = b6('READY: the material list has loaded');
+		const list = (count, overlay) => { const w = pg6({ modal: false }); const d = w.document;
+			if (overlay) { const o = d.createElement('div'); o.className = 'm_9814e45f mantine-LoadingOverlay-overlay mantine-Overlay-root'; d.body.appendChild(o); }
+			const p = d.createElement('p'); p.className = 'mantine-Text-root'; p.textContent = count; d.body.appendChild(p); return w; };
+		check('866 ready - `996 matches` and no overlay', runJs(RD, list('996 matches', false)), true);
+		check('866 ready - a thousands separator (`1,204 matches`)', runJs(RD, list('1,204 matches', false)), true);
+		check('MUST FAIL: 866 ready - the loading overlay still covers the page (replay 1)', runJs(RD, list('996 matches', true)), false);
+		check('MUST FAIL: 866 ready - no count yet (data.results absent)', runJs(RD, list('', false)), false);
+		check('MUST FAIL: 866 ready - `matches` without a number', runJs(RD, list('matches', false)), false);
+	}
+	{
+		const PR = 'PREMISE (server): the storeroom item holds NO attachment';
+		{ const [r, w] = srv6(PR, ans([], [])); check('866 premise - empty: passes, flags the premise and records the material count 0', r && w.sessionStorage.getItem(E) === '1' && w.sessionStorage.getItem(M) === '0', true); }
+		{ const [r, w] = srv6(PR, ans([], [{ id: 'X' }, { id: 'Y' }])); check("866 premise - the material item's 2 are recorded, not judged", r && w.sessionStorage.getItem(M) === '2', true); }
+		{ const [r, w] = srv6(PR, ans([img('LEFT')])); check('MUST FAIL: 866 premise - a leftover attachment: false, and nothing flagged', r === false && w.sessionStorage.getItem(E) === null, true); }
+		check('MUST FAIL: 866 premise - a GraphQL error answer', srv6(PR, { errors: [{ message: 'x' }] })[0], false);
+		const K = b6("Remove the server read's sessionStorage keys");
+		const wk = pg6({ modal: false, ss: { __dd866_server: '{}', '__dd866_server:inflight': '1', '__dd866_server:at': '1', ...READY, [P]: 'P1' } });
+		check("866 server keys - the read's three keys go, the test's stash (premise flag, photo id) stays", runJs(K, wk) && wk.sessionStorage.getItem('__dd866_server') === null && wk.sessionStorage.getItem(E) === '1' && wk.sessionStorage.getItem(P) === 'P1', true);
+		const C = b6("Clear this test's sessionStorage keys");
+		const wc = pg6({ modal: false, ss: { ...READY, [P]: 'P1', [D]: 'D1', other: 'keep' } });
+		check('866 clear - the four keys from an earlier run go, others stay', runJs(C, wc) && wc.sessionStorage.length === 1 && wc.sessionStorage.getItem('other') === 'keep', true);
+	}
+	{
+		const LP = 'SERVER: the storeroom item holds exactly ONE attachment — the uploaded image';
+		{ const [r, w] = srv6(LP, ans([img()]), READY); check('866 photo server - one image named as uploaded: id stashed', r && w.sessionStorage.getItem(P) === 'P1', true); }
+		{ const [r, w] = srv6(LP, ans([img()]), { [M]: '0' }); check('MUST FAIL: 866 photo server - the premise never held: false, nothing stashed', r === false && w.sessionStorage.getItem(P) === null, true); }
+		check('MUST FAIL: 866 photo server - two attachments', srv6(LP, ans([img(), img('P2')]), READY)[0], false);
+		check('MUST FAIL: 866 photo server - none (the upload never landed)', srv6(LP, ans([]), READY)[0], false);
+		check('MUST FAIL: 866 photo server - another file name', srv6(LP, ans([img('P1', 'Screenshot other.png')]), READY)[0], false);
+		check('MUST FAIL: 866 photo server - named right but not an image', srv6(LP, ans([img('P1', PHOTO, 'application/pdf')]), READY)[0], false);
+		check('MUST FAIL: 866 photo server - the material item gained one', srv6(LP, ans([img()], [{ id: 'X' }]), READY)[0], false);
+		check('MUST FAIL: 866 photo server - no material count recorded', srv6(LP, ans([img()]), { [E]: '1' })[0], false);
+		const LD = 'SERVER: the storeroom item holds exactly ONE attachment — the uploaded PDF';
+		{ const [r, w] = srv6(LD, ans([pdf()]), READY); check('866 doc server - one PDF named as uploaded: id stashed', r && w.sessionStorage.getItem(D) === 'D1', true); }
+		check('MUST FAIL: 866 doc server - an image under the PDF name', srv6(LD, ans([pdf('D1', DOC, 'image/png')]), READY)[0], false);
+		check('MUST FAIL: 866 doc server - application/pdf with another name', srv6(LD, ans([pdf('D1', 'other.pdf')]), READY)[0], false);
+		check('MUST FAIL: 866 doc server - the photo is still there too', srv6(LD, ans([img(), pdf()]), READY)[0], false);
+		check('MUST FAIL: 866 doc server - the premise never held', srv6(LD, ans([pdf()]), { [M]: '0' })[0], false);
+		const GP = 'SERVER: the photo is GONE', GD = 'SERVER: the PDF is GONE', RS = 'RESTED (server)';
+		check('866 photo gone - stashed, storeroom empty, material unchanged', srv6(GP, ans([]), { ...READY, [P]: 'P1' })[0], true);
+		check('MUST FAIL: 866 photo gone - still held', srv6(GP, ans([img()]), { ...READY, [P]: 'P1' })[0], false);
+		check('MUST FAIL: 866 photo gone - nothing stashed (no upload: a vacuous absence)', srv6(GP, ans([]), READY)[0], false);
+		check('MUST FAIL: 866 photo gone - the material item lost one', srv6(GP, ans([], []), { [E]: '1', [M]: '1', [P]: 'P1' })[0], false);
+		check('866 doc gone - stashed, storeroom empty', srv6(GD, ans([]), { ...READY, [D]: 'D1' })[0], true);
+		check('MUST FAIL: 866 doc gone - still held', srv6(GD, ans([pdf()]), { ...READY, [D]: 'D1' })[0], false);
+		check('MUST FAIL: 866 doc gone - only the PHOTO id stashed', srv6(GD, ans([]), { ...READY, [P]: 'P1' })[0], false);
+		check('866 rested - storeroom empty, material at its recorded count', srv6(RS, ans([], []), READY)[0], true);
+		check('MUST FAIL: 866 rested - a leftover on the storeroom item', srv6(RS, ans([pdf()]), READY)[0], false);
+		check('MUST FAIL: 866 rested - no material count recorded (the premise never ran)', srv6(RS, ans([]), {})[0], false);
+	}
+	{
+		const S3 = b6('Switch to the "Photos" segment'), S4 = b6('Switch to the "Docs" segment');
+		const C3 = b6('The "Photos" segment is the CHECKED'), C4 = b6('The "Docs" segment is the CHECKED');
+		{ const w = pg6({ seg: '1', confirms: 1, confirmFirst: true }); check('866 switch - clicks radio 3 in THE item modal (a confirmation modal first in the DOM)', runJs(S3, w) && w.document.querySelector('input[value="3"]').checked, true); }
+		{ const w = pg6({ seg: '3' }); check('866 switch - clicks radio 4', runJs(S4, w) && w.document.querySelector('input[value="4"]').checked, true); }
+		check('MUST FAIL: 866 switch - no item modal (only a confirmation)', runJs(S3, pg6({ modal: false, confirms: 1 })), false);
+		check('866 checked - Photos', runJs(C3, pg6({ seg: '3' })), true);
+		check('MUST FAIL: 866 checked - still Quantity Adjustment', runJs(C3, pg6({ seg: '1' })), false);
+		check('866 checked - Docs', runJs(C4, pg6({ seg: '4' })), true);
+		check('MUST FAIL: 866 checked - Photos when Docs is wanted', runJs(C4, pg6({ seg: '3' })), false);
+	}
+	{
+		const AR = b6('PHOTOS at rest'), DR = b6('DOCS at rest');
+		check('866 at rest - the before and after checks are ONE body each', AR === b6('PHOTOS back at rest') && DR === b6('DOCS back at rest'), true);
+		check('866 photos at rest - no slide, Add Photo', runJs(AR, pg6()), true);
+		check("866 photos at rest - the material item's read-only carousel does not count", runJs(AR, pg6({ roSlides: [{ alt: PHOTO, src: SRC('M1') }] })), true);
+		check('MUST FAIL: 866 photos at rest - a slide in the Storeroom Item section', runJs(AR, pg6({ slides: [{ alt: PHOTO, src: SRC('P1') }] })), false);
+		check('MUST FAIL: 866 photos at rest - Add File offered too', runJs(AR, pg6({ wrongBtn: true })), false);
+		check('MUST FAIL: 866 photos at rest - no section headings (the old single panel)', runJs(AR, pg6({ headings: false })), false);
+		check('MUST FAIL: 866 photos at rest - the Docs view', runJs(AR, pg6({ seg: '4' })), false);
+		check('866 docs at rest - no row, Add File', runJs(DR, pg6({ seg: '4' })), true);
+		check("866 docs at rest - the material item's read-only table does not count", runJs(DR, pg6({ seg: '4', roRows: [{ name: 'spec.pdf', href: '/api/attachment/M1' }] })), true);
+		check('MUST FAIL: 866 docs at rest - a row in the Storeroom Item section', runJs(DR, pg6({ seg: '4', rows: [{ name: DOC, href: '/api/attachment/D1' }] })), false);
+		check('MUST FAIL: 866 docs at rest - the Photos view', runJs(DR, pg6()), false);
+	}
+	{
+		const PP = b6('Reveal the gallery input'), DP = b6('Reveal the Storeroom Item section');
+		{ const w = pg6({ picker: { stale: true }, ss: READY }); const g = w.document.querySelector('input.gallery');
+			check('866 photo reveal - the ONE gallery input (not the camera) tagged and shown; a stale tag cleared', runJs(PP, w) && g.getAttribute('data-dd-upload') === '1' && g.style.display === 'block'
+				&& !w.document.getElementById('stale').hasAttribute('data-dd-upload') && !w.document.querySelector('input.camera').hasAttribute('data-dd-upload'), true); }
+		{ const w = pg6({ picker: {} }); check('MUST FAIL: 866 photo reveal - the premise never held: false, nothing tagged', runJs(PP, w) === false && !w.document.querySelector('[data-dd-upload]'), true); }
+		check('MUST FAIL: 866 photo reveal - two gallery inputs (ambiguous)', runJs(PP, pg6({ picker: { gallery: 2 }, ss: READY })), false);
+		check('MUST FAIL: 866 photo reveal - only the camera input', runJs(PP, pg6({ picker: { gallery: 0 }, ss: READY })), false);
+		{ const w = pg6({ seg: '4', ss: READY }); const i = w.document.querySelector('input[accept="*/*"]');
+			check("866 doc reveal - the section's ONE accept=*/* input tagged", runJs(DP, w) && i.getAttribute('data-dd-upload') === '1', true); }
+		{ const w = pg6({ seg: '4' }); check('MUST FAIL: 866 doc reveal - the premise never held: nothing tagged', runJs(DP, w) === false && !w.document.querySelector('[data-dd-upload]'), true); }
+		check('MUST FAIL: 866 doc reveal - two inputs in the section', runJs(DP, pg6({ seg: '4', fileInputs: 2, ss: READY })), false);
+		{ const w = pg6({ seg: '4', fileInputs: 0, outsideInput: true, ss: READY });
+			check('MUST FAIL: 866 doc reveal - the only */* input is OUTSIDE the section, and it is not tagged', runJs(DP, w) === false && !w.document.querySelector('.outside').hasAttribute('data-dd-upload'), true); }
+	}
+	{
+		const PL = b6('PHOTO LANDED (UI');
+		const one = [{ alt: PHOTO, src: SRC('P1') }];
+		check('866 photo landed - one slide, named, a server URL', runJs(PL, pg6({ slides: one })), true);
+		check('MUST FAIL: 866 photo landed - no slide yet', runJs(PL, pg6()), false);
+		check('MUST FAIL: 866 photo landed - two slides', runJs(PL, pg6({ slides: [...one, { alt: PHOTO, src: SRC('P2') }] })), false);
+		check('MUST FAIL: 866 photo landed - another name', runJs(PL, pg6({ slides: [{ alt: 'Attachment', src: SRC('P1') }] })), false);
+		check('MUST FAIL: 866 photo landed - a blob: preview', runJs(PL, pg6({ slides: [{ alt: PHOTO, src: 'blob:https://dev.mentorapm.com/1' }] })), false);
+		check("MUST FAIL: 866 photo landed - the slide is in the material item's read-only half", runJs(PL, pg6({ roSlides: one })), false);
+		const DL = b6('DOCUMENT LANDED (UI');
+		const row1 = [{ name: DOC, href: '/api/attachment/D1' }];
+		check('866 doc landed - one row, named, linking to an attachment', runJs(DL, pg6({ seg: '4', rows: row1 })), true);
+		check('MUST FAIL: 866 doc landed - no row', runJs(DL, pg6({ seg: '4' })), false);
+		check('MUST FAIL: 866 doc landed - another name', runJs(DL, pg6({ seg: '4', rows: [{ name: 'other.pdf', href: '/api/attachment/D1' }] })), false);
+		check('MUST FAIL: 866 doc landed - no link', runJs(DL, pg6({ seg: '4', rows: [{ name: DOC, href: null }] })), false);
+		check('MUST FAIL: 866 doc landed - the row is in the read-only half', runJs(DL, pg6({ seg: '4', roRows: row1 })), false);
+	}
+	{
+		const GG = b6('GUARD + open the gear: only on the ONE slide'), MS = b6('MENU SET on a storeroom item photo'), CY = b6('GUARD + confirm `Yes`');
+		const SSP = { ...READY, [P]: 'P1' };
+		const one = [{ alt: PHOTO, src: SRC('P1') }];
+		{ const w = pg6({ slides: one, ss: SSP }); check('866 gear - the one slide carrying the stashed id: its gear clicked', runJs(GG, w) && clicks6(w) === 'gear:' + SRC('P1'), true); }
+		{ const w = pg6({ slides: [{ alt: PHOTO, src: SRC('P10') }], ss: SSP }); check('MUST FAIL: 866 gear - the slide is P10, not P1 (an id prefix), nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: [{ alt: PHOTO, src: SRC('P2') }], ss: SSP }); check('MUST FAIL: 866 gear - another attachment, nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: one, ss: READY }); check('MUST FAIL: 866 gear - no id stashed, nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: one, ss: { [M]: '0', [P]: 'P1' } }); check('MUST FAIL: 866 gear - the premise flag is missing, nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: [...one, { alt: PHOTO, src: SRC('P2') }], ss: SSP }); check('MUST FAIL: 866 gear - two slides, nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: [{ alt: 'other.png', src: SRC('P1') }], ss: SSP }); check('MUST FAIL: 866 gear - the right id under another name, nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: one, menus: [['X']], ss: SSP }); check('MUST FAIL: 866 gear - a menu is already open (a click would toggle it), nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ roSlides: one, ss: SSP }); check('MUST FAIL: 866 gear - the id only in the read-only half, nothing clicked', runJs(GG, w) === false && clicks6(w) === '', true); }
+		const MENU4 = ['View in Fullscreen', 'Set as Avatar', 'Rotate Image', 'Delete Photo'];
+		check('866 menu - the four, in order', runJs(MS, pg6({ menus: [MENU4] })), true);
+		check("MUST FAIL: 866 menu - MOB.623's five (an asset's `Get Description`)", runJs(MS, pg6({ menus: [['View in Fullscreen', 'Get Description', 'Set as Avatar', 'Rotate Image', 'Delete Photo']] })), false);
+		check('MUST FAIL: 866 menu - reordered', runJs(MS, pg6({ menus: [[...MENU4].reverse()] })), false);
+		check('MUST FAIL: 866 menu - no dropdown', runJs(MS, pg6()), false);
+		check('MUST FAIL: 866 menu - two dropdowns', runJs(MS, pg6({ menus: [MENU4, MENU4] })), false);
+		{ const w = pg6({ slides: one, confirms: 1, ss: SSP }); check('866 yes - guard holds and the confirmation is open: `Yes` clicked once', runJs(CY, w) && clicks6(w) === 'yes', true); }
+		{ const w = pg6({ slides: one, confirms: 1, confirmFirst: true, ss: SSP }); check('866 yes - the confirmation before the item modal in the DOM: still `Yes`', runJs(CY, w) && clicks6(w) === 'yes', true); }
+		{ const w = pg6({ slides: one, ss: SSP }); check('MUST FAIL: 866 yes - no confirmation open', runJs(CY, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: [{ alt: PHOTO, src: SRC('P2') }], confirms: 1, ss: SSP }); check('MUST FAIL: 866 yes - the slide is another attachment: `Yes` NOT clicked', runJs(CY, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: one, confirms: 1, ss: READY }); check('MUST FAIL: 866 yes - no id stashed: `Yes` NOT clicked', runJs(CY, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ slides: one, confirms: 2, ss: SSP }); check('MUST FAIL: 866 yes - two confirmations: nothing clicked', runJs(CY, w) === false && clicks6(w) === '', true); }
+	}
+	{
+		const TK = b6('GUARD + tick the row'), GT = b6("GUARD + open the table's gear"), DF = b6('GUARD + `Delete File(s)`');
+		const SSD = { ...READY, [D]: 'D1' };
+		const mine = (checked = false) => [{ name: DOC, href: '/api/attachment/D1', checked }];
+		const boxOf = (w) => w.document.querySelector('input[type="checkbox"]');
+		{ const w = pg6({ seg: '4', rows: mine(), ss: SSD }); check('866 tick - our one row: ticked', runJs(TK, w) && boxOf(w).checked, true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), ss: SSD }); check('866 tick - already ticked (a re-poll): stays ticked, no click', runJs(TK, w) && boxOf(w).checked && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: [{ name: DOC, href: '/api/attachment/D2' }], ss: SSD }); check('MUST FAIL: 866 tick - another attachment: false, unticked', runJs(TK, w) === false && !boxOf(w).checked, true); }
+		{ const w = pg6({ seg: '4', rows: mine(), ss: READY }); check('MUST FAIL: 866 tick - no doc id stashed: unticked', runJs(TK, w) === false && !boxOf(w).checked, true); }
+		{ const w = pg6({ seg: '4', rows: [...mine(), { name: 'other.pdf', href: '/api/attachment/D9' }], ss: SSD }); check('MUST FAIL: 866 tick - two rows: none ticked', runJs(TK, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: [{ name: 'other.pdf', href: '/api/attachment/D1' }], ss: SSD }); check('MUST FAIL: 866 tick - the id under another name: unticked', runJs(TK, w) === false && !boxOf(w).checked, true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), ss: SSD }); check('866 table gear - ticked and enabled: clicked', runJs(GT, w) && clicks6(w) === 'menu-gear', true); }
+		{ const w = pg6({ seg: '4', rows: mine(false), ss: SSD }); check('MUST FAIL: 866 table gear - not ticked: not clicked', runJs(GT, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), ss: SSD }); w.document.querySelector('[aria-label="Menu"]').disabled = true; check('MUST FAIL: 866 table gear - disabled: not clicked', runJs(GT, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), menus: [['Delete File(s)']], ss: SSD }); check('MUST FAIL: 866 table gear - its menu is already open: not clicked again', runJs(GT, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: [{ name: DOC, href: '/api/attachment/D2', checked: true }], ss: SSD }); check('MUST FAIL: 866 table gear - the ticked row is another attachment', runJs(GT, w) === false && clicks6(w) === '', true); }
+		const DEL = [['Delete File(s)']];
+		{ const w = pg6({ seg: '4', rows: mine(true), menus: DEL, ss: SSD }); check('866 delete file - our one ticked row: `Delete File(s)` clicked once', runJs(DF, w) && clicks6(w) === 'item:Delete File(s)', true); }
+		{ const w = pg6({ seg: '4', rows: mine(false), menus: DEL, ss: SSD }); check('MUST FAIL: 866 delete file - not ticked: nothing clicked', runJs(DF, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: [{ name: DOC, href: '/api/attachment/D2', checked: true }], menus: DEL, ss: SSD }); check('MUST FAIL: 866 delete file - another attachment ticked: nothing clicked', runJs(DF, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), menus: DEL, ss: READY }); check('MUST FAIL: 866 delete file - no doc id stashed: nothing clicked', runJs(DF, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), menus: [...DEL, ...DEL], ss: SSD }); check('MUST FAIL: 866 delete file - two dropdowns: nothing clicked', runJs(DF, w) === false && clicks6(w) === '', true); }
+		{ const w = pg6({ seg: '4', rows: mine(true), menus: [['View in Fullscreen', 'Set as Avatar', 'Rotate Image', 'Delete Photo']], ss: SSD }); check("MUST FAIL: 866 delete file - the open menu is a photo's: nothing clicked", runJs(DF, w) === false && clicks6(w) === '', true); }
+	}
+	{
+		const CL = b6('CLEANUP: remove this test');
+		const w = pg6({ modal: false, ss: { ...READY, [P]: 'P1', [D]: 'D1', other: 'keep' } });
+		check('866 cleanup - the four keys removed, others kept', runJs(CL, w) && w.sessionStorage.length === 1, true);
+		const CM = b6('Close any modal left over');
+		{ const w2 = pg6({ confirms: 1, picker: {} }); check('866 close - the confirmation and the picker closed first, then the item modal', runJs(CM, w2) && clicks6(w2) === 'confirm-x,picker-x,item-x', true); }
+		{ const w3 = pg6({ modal: false }); check('866 close - nothing open: passes, clicks nothing', runJs(CM, w3) && w3.__clicks.length === 0, true); }
+		const RS = b6('RESTORED: no modal is left open');
+		check('866 restored - no modal', runJs(RS, pg6({ modal: false })), true);
+		check('MUST FAIL: 866 restored - the item modal still open', runJs(RS, pg6()), false);
+	}
+}
+
+/* ===========================================================================================
+ * MOB.363 / MOB.364 / MOB.365 - writes on the Datadog-created work order `20260910-16` (checklist
+ * #58 / #59 / #60). DOM from WorkDetails.tsx (Tabs: role=tab aria-controls -> tabpanel; inactive
+ * panels display:none), WorkStageAttachments.tsx + PhotoCarousel/index.tsx + PhotoMenu.tsx (slide >
+ * img /api/attachment/<id> + gear aria-label=Settings; Menu.Dropdown > Menu.Item > itemSection +
+ * itemLabel), AddPhotoOptions.tsx (useFileDialog: gallery accept=image/* and a camera twin whose
+ * `capture` is a PROPERTY - trap 31), ListFilter (role=option > .custom-option > .option-title;
+ * visibility on offsetParent), AdHocForm.tsx (#formId, button[form=adhoc-form]), ReassignWork.tsx
+ * (#crewform, #crewId, react-switch input#keepAssignment, SubmitButton "SUBMIT").
+ * Server reads are dd_tools.server_read_js against a stubbed fetch.
+ * ========================================================================================= */
+if (!['MOB.363_Work_Attachment_Upload_Delete.json', 'MOB.364_Work_Attach_Form.json', 'MOB.365_Work_Reassign_Stage.json']
+	.every(f => fs.existsSync(path.join(TESTS, f)))) {
+	console.log('\nMOB.363/364/365 - SKIPPED: not built yet');
+} else {
+	const F363 = 'MOB.363_Work_Attachment_Upload_Delete.json', F364 = 'MOB.364_Work_Attach_Form.json', F365 = 'MOB.365_Work_Reassign_Stage.json';
+	const FIX = 'xohY0klBZktB9VBRxc8k4J', TANK = '8khYtoBRVNNs5d9cEt8NdY';
+	const s36 = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : s36(r); } catch (e) { return s36(undefined); } }, catch() { return this; } });
+	const w36 = (html = '', { answer, ss = {} } = {}) => {
+		const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/' + FIX }).window;
+		w.document.body.innerHTML = html;
+		w.__posts = [];
+		w.fetch = (u, o) => { w.__posts.push(JSON.parse(o.body)); return s36({ json: () => s36(answer === undefined ? {} : answer) }); };
+		Object.entries(ss).forEach(([k, v]) => w.sessionStorage.setItem(k, v));
+		return w;
+	};
+	const t36 = (body, w) => { runJs(body, w); return runJs(body, w); };
+	const opt = (t, hid = false) => `<div role="option" data-hid="${hid ? 1 : 0}"><div class="custom-option"><div class="option-title">${t}</div><div class="option-description">d</div></div></div>`;
+	const options = (list) => {
+		const w = w36(list.map(([t, h]) => opt(t, h)).join(''));
+		w.__c = [];
+		w.document.querySelectorAll('[role="option"]').forEach(o => {
+			Object.defineProperty(o, 'offsetParent', { get: () => (o.dataset.hid === '1' ? null : w.document.body) });
+			o.addEventListener('click', () => w.__c.push(o.querySelector('.option-title').textContent + (o.dataset.hid === '1' ? ':hidden' : '')));
+		});
+		return w;
+	};
+	const tabs = (panel, other = '') => '<button role="tab" aria-selected="true" aria-controls="pA">Active</button><button role="tab" aria-selected="false" aria-controls="pB">Other</button>'
+		+ `<div role="tabpanel" id="pA">${panel}</div><div role="tabpanel" id="pB" style="display: none">${other}</div>`;
+
+	console.log('\nMOB.364 - attach a form: premise names, the pick, armed, closed, server +1, card after reload');
+	{
+		const forms = (...names) => ({ data: { workStage: { id: FIX, forms: names.map((name, i) => ({ id: 'F' + i, name })) } } });
+		const P = bodyOf(F364, 'PREMISE (server): read this stage');
+		{ const w = w36('', { answer: forms('📊Datatype', ' ⚡Trigger '), ss: { __dd364_pick: 'stale' } });
+			check('364 premise - names stashed trimmed, a killed run\'s pick cleared', t36(P, w) && w.sessionStorage.getItem('__dd364_before') === '["📊Datatype","⚡Trigger"]' && w.sessionStorage.getItem('__dd364_pick') === null, true); }
+		check('MUST FAIL: 364 premise - another stage answered', t36(P, w36('', { answer: { data: { workStage: { id: 'EYRpYJ9QYdQ1JFF10JtB0Q', forms: [] } } } })), false);
+		check('MUST FAIL: 364 premise - a GraphQL error', t36(P, w36('', { answer: { errors: [{ message: 'x' }] } })), false);
+
+		const K = JSON.stringify(['📊Datatype', '⚡Trigger', '⚡Operating Status']);
+		const pick = bodyOf(F364, 'FIXTURE GUARD + PICK');
+		const pg = (list, ss = { __dd364_before: K }) => { const w = options(list); Object.entries(ss).forEach(([k, v]) => w.sessionStorage.setItem(k, v)); return w; };
+		{ const w = pg([['📊Datatype'], ['🔎 Inspection', true], ['🔧 Repair'], ['📋General Form']]);
+			check('364 pick - skips the held name and the hidden option: 🔧 Repair clicked once and kept', runJs(pick, w) && w.__c.join() === '🔧 Repair' && w.sessionStorage.getItem('__dd364_pick') === '🔧 Repair', true); }
+		{ const w = pg([['📊Datatype'], ['⚡Trigger'], ['🔎 Inspection', true]]);
+			check('MUST FAIL: 364 pick - only held names visible (the picker ran out - trap 10): nothing clicked or kept', runJs(pick, w) === false && w.__c.length === 0 && w.sessionStorage.getItem('__dd364_pick') === null, true); }
+		{ const w = pg([]); check('MUST FAIL: 364 pick - no options at all', runJs(pick, w) === false, true); }
+		{ const w = pg([['🔧 Repair']], {}); check('MUST FAIL: 364 pick - no premise names recorded: nothing clicked', runJs(pick, w) === false && w.__c.length === 0, true); }
+
+		// cleanup (owner 2026-09-15): find this run's form, delete only it (one shot), ids back to the premise's
+		{
+			const fx = (list) => ({ data: { workStage: { id: FIX, forms: list.map(([id, name]) => ({ id, name })) } } });
+			{ const P2 = bodyOf(F364, 'PREMISE (server): read this stage'); const w = w36('', { answer: fx([['F0', 'a'], ['F1', 'b']]), ss: { __dd364_new: 'OLD', __dd364_deleted: '1' } });
+				check('364 premise - ids stashed, a killed run\'s delete licence cleared', t36(P2, w) && w.sessionStorage.getItem('__dd364_before_ids') === '["F0","F1"]' && w.sessionStorage.getItem('__dd364_new') === null && w.sessionStorage.getItem('__dd364_deleted') === null, true); }
+			const IDS = { __dd364_before_ids: JSON.stringify(['F0', 'F1']), __dd364_pick: '🔧 Repair' };
+			const FN = bodyOf(F364, 'CLEANUP (server): find the ONE form');
+			{ const w = w36('', { answer: fx([['F0', 'a'], ['F1', 'b'], ['N9', '🔧 Repair']]), ss: IDS });
+				check('364 find - the one new id named the pick is kept', t36(FN, w) && w.sessionStorage.getItem('__dd364_new') === 'N9', true); }
+			{ const w = w36('', { answer: fx([['F0', 'a'], ['F1', 'b']]), ss: IDS });
+				check('364 find - nothing attached: passes, nothing kept', t36(FN, w) && w.sessionStorage.getItem('__dd364_new') === null, true); }
+			{ const w = w36('', { answer: fx([['F0', 'a'], ['F1', 'b'], ['N9', '🔎 Inspection']]), ss: IDS });
+				check('MUST FAIL: 364 find - the new form is not the pick: nothing kept', t36(FN, w) === false && w.sessionStorage.getItem('__dd364_new') === null, true); }
+			{ const w = w36('', { answer: fx([['F0', 'a'], ['N8', '🔧 Repair'], ['N9', '🔧 Repair']]), ss: IDS });
+				check('MUST FAIL: 364 find - two new forms: nothing kept', t36(FN, w) === false && w.sessionStorage.getItem('__dd364_new') === null, true); }
+			{ const w = w36('', { answer: fx([['N9', '🔧 Repair']]), ss: { __dd364_pick: '🔧 Repair' } });
+				check('MUST FAIL: 364 find - no premise ids (no licence): nothing kept', t36(FN, w) === false && w.sessionStorage.getItem('__dd364_new') === null, true); }
+			const DEL = bodyOf(F364, 'CLEANUP: delete THAT form');
+			{ const w = w36('', { ss: { __dd364_new: 'N9', __dd364_before_ids: JSON.stringify(['F0', 'F1']) } });
+				const ok = runJs(DEL, w);
+				check('364 delete - one POST of deleteWorkStageForm for N9', ok && w.__posts.length === 1 && /deleteWorkStageForm/.test(w.__posts[0].query) && w.__posts[0].variables.id === 'N9', true);
+				check('364 delete - a re-poll sends nothing more', runJs(DEL, w) && w.__posts.length === 1, true); }
+			{ const w = w36('', { ss: { __dd364_before_ids: JSON.stringify(['F0']) } });
+				check('364 delete - no new form kept: passes, sends nothing', runJs(DEL, w) && w.__posts.length === 0, true); }
+			{ const w = w36('', { ss: { __dd364_new: 'F0', __dd364_before_ids: JSON.stringify(['F0', 'F1']) } });
+				check('MUST FAIL: 364 delete - the id was on the stage before this run: nothing sent', runJs(DEL, w) === false && w.__posts.length === 0, true); }
+			{ const w = w36('', { ss: { __dd364_new: 'N9' } });
+				check('MUST FAIL: 364 delete - no premise ids: nothing sent', runJs(DEL, w) === false && w.__posts.length === 0, true); }
+			const G = bodyOf(F364, '⭐ CLEANED (server)');
+			const B = { __dd364_before_ids: JSON.stringify(['F0', 'F1']) };
+			check('364 cleaned - ids exactly the premise\'s (any order)', t36(G, w36('', { answer: fx([['F1', 'b'], ['F0', 'a']]), ss: B })), true);
+			check('MUST FAIL: 364 cleaned - this run\'s form still there', t36(G, w36('', { answer: fx([['F0', 'a'], ['F1', 'b'], ['N9', 'x']]), ss: B })), false);
+			check('MUST FAIL: 364 cleaned - a form the stage held is gone', t36(G, w36('', { answer: fx([['F0', 'a']]), ss: B })), false);
+			check('MUST FAIL: 364 cleaned - no premise ids', t36(G, w36('', { answer: fx([['F0', 'a'], ['F1', 'b']]) })), false);
+		}
+		const holds = bodyOf(F364, 'The picker now holds');
+		const inp = (v) => `<div class="mantine-Modal-content"><input id="formId" value="${v}"></div>`;
+		const R = { __dd364_pick: '🔧 Repair' };
+		check('364 holds - #formId shows the picked name', runJs(holds, w36(inp('🔧 Repair'), { ss: R })), true);
+		check('MUST FAIL: 364 holds - another form selected', runJs(holds, w36(inp('🔎 Inspection'), { ss: R })), false);
+		check('MUST FAIL: 364 holds - nothing selected', runJs(holds, w36(inp(''), { ss: R })), false);
+		check('MUST FAIL: 364 holds - no pick recorded', runJs(holds, w36(inp('🔧 Repair'))), false);
+
+		const armed = bodyOf(F364, 'Submit is ARMED');
+		check('364 armed - button[form=adhoc-form] type=submit', runJs(armed, w36('<form id="adhoc-form"></form><button form="adhoc-form" type="submit">Submit</button>')), true);
+		check('MUST FAIL: 364 armed - type=button (nothing picked yet)', runJs(armed, w36('<button form="adhoc-form" type="button">Submit</button>')), false);
+		check('MUST FAIL: 364 armed - only another form is armed', runJs(armed, w36('<button form="work-collection-form" type="submit">Submit</button>')), false);
+
+		const closed = bodyOf(F364, 'The add-form modal closed');
+		const ADD = '<button><span><svg></svg></span><span>Add</span></button>';
+		check('364 closed - no #adhoc-form, the tab\'s Add is back', runJs(closed, w36(ADD)), true);
+		check('MUST FAIL: 364 closed - the modal form is still mounted', runJs(closed, w36(ADD + '<form id="adhoc-form"></form>')), false);
+		check('MUST FAIL: 364 closed - a blank page (no Add)', runJs(closed, w36('')), false);
+
+		const proof = bodyOf(F364, 'SERVER: exactly ONE more form');
+		const SS = { __dd364_before: K, __dd364_pick: '🔧 Repair' };
+		const pr = (answer, ss = SS) => t36(proof, w36('', { answer, ss }));
+		check('364 server - one more form, the picked one', pr(forms('🔧 Repair', '📊Datatype', '⚡Trigger', '⚡Operating Status')), true);
+		check('MUST FAIL: 364 server - nothing added (the optimistic add was refused)', pr(forms('📊Datatype', '⚡Trigger', '⚡Operating Status')), false);
+		check('MUST FAIL: 364 server - one more, but another template', pr(forms('🔎 Inspection', '📊Datatype', '⚡Trigger', '⚡Operating Status')), false);
+		check('MUST FAIL: 364 server - the pick added twice', pr(forms('🔧 Repair', '🔧 Repair', '📊Datatype', '⚡Trigger', '⚡Operating Status')), false);
+		check('MUST FAIL: 364 server - the pick is a name the stage already held', pr(forms('📊Datatype', '📊Datatype', '⚡Trigger', '⚡Operating Status'), { __dd364_before: K, __dd364_pick: '📊Datatype' }), false);
+		check('MUST FAIL: 364 server - no premise recorded', pr(forms('🔧 Repair'), R), false);
+
+		const card = bodyOf(F364, 'After a RELOAD the Forms tab');
+		const paper = (t) => `<div class="mantine-Paper-root"><div><h1 class="mantine-Title-root">${t}</h1></div><p>desc</p></div>`;
+		check('364 card - exactly one card titled with the pick in the active panel', runJs(card, w36(tabs(paper('🔧 Repair') + paper('📊Datatype')), { ss: R })), true);
+		check('MUST FAIL: 364 card - absent after the reload', runJs(card, w36(tabs(paper('📊Datatype')), { ss: R })), false);
+		check('MUST FAIL: 364 card - two cards with the name', runJs(card, w36(tabs(paper('🔧 Repair') + paper('🔧 Repair')), { ss: R })), false);
+		check('MUST FAIL: 364 card - only in an INACTIVE panel', runJs(card, w36(tabs(paper('📊Datatype'), paper('🔧 Repair')), { ss: R })), false);
+		check('MUST FAIL: 364 card - no pick recorded', runJs(card, w36(tabs(paper('🔧 Repair')))), false);
+
+		const clean = bodyOf(F364, 'Remove this test');
+		const wc = w36('', { ss: { __dd364_before: K, __dd364_pick: 'x', other: 'keep' } });
+		check('364 cleanup - both keys removed, others kept', runJs(clean, wc) && wc.sessionStorage.length === 1 && wc.sessionStorage.getItem('other') === 'keep', true);
+	}
+
+	console.log('\nMOB.365 - reassign and restore: premise stamps, picks, keep toggle, armed, closed, server sets, the net');
+	{
+		const ADMIN = 'l4Jlk4ExMY005JZAF8hclQ', AE = 'thtNo1Nd9th9FRNNoAN5Il';
+		const REST = ['l4Jlk4ExMY005JZAF8hclQ', 'cc5MgMoo1h9VJBZtB4ZNFR', '1ck5xMQ4IMV0BgRx0xsUdk', '5Ylk1wIhslMR8lsg8NAQxA', 'kkBtBwZoBlpcw84F4F9B8s', 'BVM9Bxkpox9BlEYd8sp0NR', 'cQVVNJU5cFEU9RwIhw0Aps', 'kx5sw1dVUFMYFs0UA08Z5M'];
+		const FWD = REST.filter(i => i !== ADMIN).concat(AE), KEPT = REST.concat(AE);
+		const crews = (ids, { x = [[AE, 'Account Executive']], sched = [] } = {}) => ({ data: { a: { edges: ids.map(id => ({ id, name: 'n-' + id })) }, x: { edges: x.map(([id, name]) => ({ id, name })) }, workStage: { id: FIX, scheduleDates: sched } } });
+		const P = bodyOf(F365, 'PREMISE (server): the stage');
+		{ const w = w36('', { answer: crews([...REST].reverse()), ss: { __dd365_net: '1', __dd365_keep: '1' } });
+			check('365 premise - the rest set in any order, target offered, no schedule: stamped rest, a killed run\'s net/keep keys cleared', t36(P, w) && w.sessionStorage.getItem('__dd365_premise') === 'rest' && w.sessionStorage.getItem('__dd365_net') === null && w.sessionStorage.getItem('__dd365_keep') === null, true); }
+		{ const w = w36('', { answer: crews(FWD, { x: [] }) });
+			check('MUST FAIL: 365 premise - a died run left Admin off and the target on: red, stamped leftover for the net', t36(P, w) === false && w.sessionStorage.getItem('__dd365_premise') === 'leftover', true); }
+		{ const w = w36('', { answer: crews(KEPT, { x: [] }) });
+			check('MUST FAIL: 365 premise - the target still on beside Admin: red, stamped leftover', t36(P, w) === false && w.sessionStorage.getItem('__dd365_premise') === 'leftover', true); }
+		{ const w = w36('', { answer: crews(REST.slice(1)) });
+			check('MUST FAIL: 365 premise - a crew missing (a state this test never makes): red and NOT stamped', t36(P, w) === false && w.sessionStorage.getItem('__dd365_premise') === null, true); }
+		check('MUST FAIL: 365 premise - a schedule entry the REMOVE would delete', t36(P, w36('', { answer: crews(REST, { sched: [{ id: 'E1' }] }) })), false);
+		check('MUST FAIL: 365 premise - the picker search does not offer the target\'s id', t36(P, w36('', { answer: crews(REST, { x: [['OTHER', 'Account Executive']] }) })), false);
+
+		const pickAE = bodyOf(F365, 'Pick "Account Executive"'), pickAd = bodyOf(F365, 'Pick "Admin"');
+		{ const w = options([['Account Executive', true], ['Account Executive'], ['Accountant']]); check('365 pick - the VISIBLE Account Executive, not its hidden twin', runJs(pickAE, w) && w.__c.join() === 'Account Executive', true); }
+		{ const w = options([['Administrator'], ['General Administrator'], ['Admin']]); check('365 pick - exactly `Admin`, not Administrator', runJs(pickAd, w) && w.__c.join() === 'Admin', true); }
+		{ const w = options([['Administrator'], ['IT Administrator']]); check('MUST FAIL: 365 pick - no exact `Admin` (still assigned): nothing clicked', runJs(pickAd, w) === false && w.__c.length === 0, true); }
+		{ const w = options([['Account Executive', true]]); check('MUST FAIL: 365 pick - only a hidden option (dropdown closed): nothing clicked', runJs(pickAE, w) === false && w.__c.length === 0, true); }
+		const crewInput = (v) => `<form id="crewform"><input id="crewId" value="${v}"></form>`;
+		const holdsAE = bodyOf(F365, 'The crew field now holds "Account Executive"');
+		check('365 holds - #crewId shows Account Executive', runJs(holdsAE, w36(crewInput('Account Executive'))), true);
+		check('MUST FAIL: 365 holds - still the typed search', runJs(holdsAE, w36(crewInput('Account Exec'))), false);
+		check('MUST FAIL: 365 holds - Accountant', runJs(holdsAE, w36(crewInput('Accountant'))), false);
+		const holdsAd = bodyOf(F365, 'The crew field now holds "Admin"');
+		check('365 holds - #crewId shows Admin', runJs(holdsAd, w36(crewInput('Admin'))), true);
+		check('MUST FAIL: 365 holds - Administrator', runJs(holdsAd, w36(crewInput('Administrator'))), false);
+
+		const sw = (checked) => `<div class="react-switch"><div class="react-switch-bg"></div><input type="checkbox" role="switch" id="keepAssignment"${checked ? ' checked' : ''}></div>`;
+		const off = bodyOf(F365, 'is OFF (the default)');
+		check('365 keep off - unchecked', runJs(off, w36(sw(false))), true);
+		check('MUST FAIL: 365 keep off - checked (the save would skip the REMOVE)', runJs(off, w36(sw(true))), false);
+		check('MUST FAIL: 365 keep off - no switch rendered', runJs(off, w36('')), false);
+		const on = bodyOf(F365, 'Turn "Keep local copy of work?" ON');
+		const swc = (checked, block = false) => { const w = w36(sw(checked)); w.__n = 0; w.document.getElementById('keepAssignment').addEventListener('click', (e) => { w.__n++; if (block) e.preventDefault(); }); return w; };
+		{ const w = swc(false); check('365 keep on - unchecked: clicked ONCE across two polls, now checked', t36(on, w) && w.__n === 1 && w.document.getElementById('keepAssignment').checked, true); }
+		{ const w = swc(true); check('365 keep on - already on: no click', runJs(on, w) && w.__n === 0, true); }
+		{ const w = swc(false, true); check('MUST FAIL: 365 keep on - the click did not take: false, and no second click on the next poll', t36(on, w) === false && w.__n === 1, true); }
+		check('MUST FAIL: 365 keep on - no switch', runJs(on, w36('')), false);
+
+		const armed = bodyOf(F365, 'SUBMIT is ARMED');
+		const form = (type) => `<form id="crewform"><input id="crewId"><button type="${type}">SUBMIT</button></form>`;
+		check('365 armed - the crew form\'s SUBMIT is type=submit', runJs(armed, w36(form('submit'))), true);
+		check('MUST FAIL: 365 armed - type=button (no crew picked yet)', runJs(armed, w36(form('button'))), false);
+		check('MUST FAIL: 365 armed - a SUBMIT outside #crewform', runJs(armed, w36('<form id="adhoc-form"><button type="submit">SUBMIT</button></form>')), false);
+
+		const closed = bodyOf(F365, 'The crew modal closed');
+		const ASSIGN = '<button><span><svg></svg></span><span>Assign Work Stage</span></button>';
+		check('365 closed - no #crewform, Assign Work Stage back', runJs(closed, w36(ASSIGN)), true);
+		check('MUST FAIL: 365 closed - the crew form still open', runJs(closed, w36(ASSIGN + form('submit'))), false);
+		check('MUST FAIL: 365 closed - a blank page', runJs(closed, w36('')), false);
+
+		const S = (frag, ids) => t36(bodyOf(F365, frag), w36('', { answer: crews(ids) }));
+		check('365 saved - Admin off, the target on, the other 7 intact', S('SERVER: SAVED', FWD), true);
+		check('MUST FAIL: 365 saved - the REMOVE never landed (Admin still on)', S('SERVER: SAVED', KEPT), false);
+		check('MUST FAIL: 365 saved - the ADD never landed', S('SERVER: SAVED', REST.filter(i => i !== ADMIN)), false);
+		check('MUST FAIL: 365 saved - another crew went too', S('SERVER: SAVED', FWD.slice(1)), false);
+		check('365 UI restore - Admin back beside the kept target', S('RESTORE (UI, server)', KEPT), true);
+		check('MUST FAIL: 365 UI restore - Admin not back', S('RESTORE (UI, server)', FWD), false);
+		check('MUST FAIL: 365 UI restore - the target already gone (not what the keep path leaves)', S('RESTORE (UI, server)', REST), false);
+		check('365 restored - exactly the rest set', S('RESTORED (server): the stage', REST), true);
+		check('MUST FAIL: 365 restored - the target still on', S('RESTORED (server): the stage', KEPT), false);
+		check('MUST FAIL: 365 restored - Admin still off', S('RESTORED (server): the stage', FWD), false);
+
+		const net = bodyOf(F365, 'NET (always)');
+		{ const w = w36('', { ss: { __dd365_premise: 'rest' } }); runJs(net, w); runJs(net, w); const p = w.__posts;
+			check('365 net - stamped: ONE remove of the TARGET crew + ONE add of Admin on the fixture, not repeated on a re-poll',
+				p.length === 2 && /removeWorkStageFromCrew/.test(p[0].query) && p[0].variables.crew === AE && JSON.stringify(p[0].variables.ids) === JSON.stringify([FIX])
+				&& /addAssignmentToWorkStage/.test(p[1].query) && p[1].variables.data.roleId === ADMIN && p[1].variables.id === FIX, true); }
+		{ const w = w36('', { ss: { __dd365_premise: 'leftover' } }); runJs(net, w); check('365 net - a leftover stamp restores too', w.__posts.length === 2, true); }
+		{ const w = w36(''); runJs(net, w); check('MUST FAIL: 365 net - no premise stamp: any request is a bug', w.__posts.length > 0, false); }
+		{ const w = w36('', { ss: { __dd365_premise: 'rest' } }); runJs(net, w); check('MUST FAIL: 365 net - it never removes Admin', w.__posts.some(p => /removeWorkStageFromCrew/.test(p.query) && p.variables.crew === ADMIN), false); }
+
+		const clean = bodyOf(F365, 'Remove this test');
+		const wc = w36('', { ss: { __dd365_premise: 'rest', __dd365_net: '1', __dd365_keep: '1', other: 'keep' } });
+		check('365 cleanup - the three keys removed, others kept', runJs(clean, wc) && wc.sessionStorage.length === 1 && wc.sessionStorage.getItem('other') === 'keep', true);
+	}
+
+	console.log('\nMOB.363 - stage photo: premise, panel, strict reveal, landed, server stash, guarded gear, menu, gone');
+	{
+		const st = (atts, { copy = false, assets = [[TANK, '⚡ Tank 0000']], assetAtts = ['dt8l'], id = FIX } = {}) => ({ data: {
+			workStage: { id, mobileTemplate: { copyAttachmentToAsset: copy }, assets: assets.map(([i, n]) => ({ assetId: { id: i, name: n } })),
+				attachments: atts.map(([i, t]) => ({ id: i, fileName: 'shot.png', fileType: t || 'image/png' })) },
+			asset: { id: TANK, attachments: assetAtts.map(i => ({ id: i })) } } });
+		const P = bodyOf(F363, 'PREMISE (server): the stage holds NO attachments');
+		{ const w = w36('', { answer: st([]), ss: { __dd363_id: 'STALE' } }); check('363 premise - none, no copy, the one Tank asset; a killed run\'s id cleared', t36(P, w) && w.sessionStorage.getItem('__dd363_id') === null, true); }
+		check('MUST FAIL: 363 premise - a leftover photo from a died run', t36(P, w36('', { answer: st([['OLD']]) })), false);
+		check('MUST FAIL: 363 premise - the template copies photos to the asset', t36(P, w36('', { answer: st([], { copy: true }) })), false);
+		check('MUST FAIL: 363 premise - copyAttachmentToAsset null (not the measured false)', t36(P, w36('', { answer: st([], { copy: null }) })), false);
+		check('MUST FAIL: 363 premise - a second asset', t36(P, w36('', { answer: st([], { assets: [[TANK, '⚡ Tank 0000'], ['oB5B', 'Pump 0102']] }) })), false);
+		check('MUST FAIL: 363 premise - the one asset is Pump 0102', t36(P, w36('', { answer: st([], { assets: [['oB5B', 'Pump 0102']] }) })), false);
+		check('MUST FAIL: 363 premise - another stage answered', t36(P, w36('', { answer: st([], { id: 'EYRpYJ9QYdQ1JFF10JtB0Q' }) })), false);
+
+		const slide = (src) => `<div class="mantine-Carousel-slide"><div><img src="${src}" alt="shot.png"><div><button aria-label="Settings"></button></div></div></div>`;
+		const url = (id) => `/api/attachment/${id}?org=SMCT2&t=1`;
+		const panel = (slides, btns = '<button>Add Photo</button>') => tabs(`<div class="mantine-SegmentedControl-root"></div>${slides}${btns}`);
+		const rest = bodyOf(F363, 'PHOTOS panel at rest');
+		check('363 rest - Add Photo, no Add File, no slides', runJs(rest, w36(panel(''))), true);
+		check('MUST FAIL: 363 rest - a slide already there', runJs(rest, w36(panel(slide(url('OLD'))))), false);
+		check('MUST FAIL: 363 rest - the Docs segment (Add File)', runJs(rest, w36(panel('', '<button>Add File</button>'))), false);
+		check('MUST FAIL: 363 rest - Add Photo only in an inactive panel', runJs(rest, w36(tabs('', '<button>Add Photo</button>'))), false);
+
+		const reveal = bodyOf(F363, 'Reveal the ONE gallery input');
+		const inputs = (w, list) => { list.forEach(([accept, cap]) => { const i = w.document.createElement('input'); i.type = 'file'; i.setAttribute('accept', accept); if (cap) i.capture = cap; w.document.body.appendChild(i); }); return w; };
+		{ const w = inputs(w36('<input type="file" accept="*/*" data-dd-upload="1">'), [['image/*', 'environment'], ['image/*', null]]);
+			const ok = runJs(reveal, w), tagged = [...w.document.querySelectorAll('[data-dd-upload]')];
+			check('363 reveal - ONLY the gallery input is tagged (not the camera twin, whose capture is a property; the stale */* tag cleared)', ok && tagged.length === 1 && tagged[0].getAttribute('accept') === 'image/*' && !tagged[0].capture, true); }
+		check('MUST FAIL: 363 reveal - picker not open (only the camera input)', runJs(reveal, inputs(w36(''), [['image/*', 'environment']])), false);
+		check('MUST FAIL: 363 reveal - two gallery inputs (ambiguous)', runJs(reveal, inputs(w36(''), [['image/*', null], ['image/*', null]])), false);
+		check('MUST FAIL: 363 reveal - only the Docs FileButton (*/*)', runJs(reveal, inputs(w36(''), [['*/*', null]])), false);
+
+		const landed = bodyOf(F363, 'UPLOAD LANDED');
+		check('363 landed - one slide on its server URL', runJs(landed, w36(panel(slide(url('NEW1'))))), true);
+		check('MUST FAIL: 363 landed - still the blob: preview', runJs(landed, w36(panel(slide('blob:https://dev.mentorapm.com/abc')))), false);
+		check('MUST FAIL: 363 landed - no slide', runJs(landed, w36(panel(''))), false);
+		check('MUST FAIL: 363 landed - two slides', runJs(landed, w36(panel(slide(url('A')) + slide(url('B'))))), false);
+
+		const stash = bodyOf(F363, 'SERVER: the stage holds exactly ONE attachment');
+		{ const w = w36('', { answer: st([['NEW1']]) }); check('363 stash - one image, not on the asset: its id kept', t36(stash, w) && w.sessionStorage.getItem('__dd363_id') === 'NEW1', true); }
+		{ const w = w36('', { answer: st([]) }); check('MUST FAIL: 363 stash - none (the upload never reached the server): nothing kept', t36(stash, w) === false && w.sessionStorage.getItem('__dd363_id') === null, true); }
+		check('MUST FAIL: 363 stash - two attachments', t36(stash, w36('', { answer: st([['A'], ['B']]) })), false);
+		check('MUST FAIL: 363 stash - not an image', t36(stash, w36('', { answer: st([['A', 'application/pdf']]) })), false);
+		{ const w = w36('', { answer: st([['NEW1']], { assetAtts: ['dt8l', 'NEW1'] }) }); check('MUST FAIL: 363 stash - the asset holds it too (copied): nothing kept', t36(stash, w) === false && w.sessionStorage.getItem('__dd363_id') === null, true); }
+
+		const guard = bodyOf(F363, 'GUARD + open the gear');
+		const gw = (html, id = 'NEW1') => { const w = w36(html, { ss: id ? { __dd363_id: id } : {} }); w.__g = 0; w.document.querySelectorAll('[aria-label="Settings"]').forEach(g => g.addEventListener('click', () => w.__g++)); return w; };
+		{ const w = gw(panel(slide(url('NEW1')))); check('363 guard - the one slide IS the kept id: its gear clicked once', runJs(guard, w) && w.__g === 1, true); }
+		{ const w = gw(panel(slide(url('OTHER')))); check('MUST FAIL: 363 guard - the slide is another attachment: no gear clicked', runJs(guard, w) === false && w.__g === 0, true); }
+		{ const w = gw(panel(slide(url('NEW1')) + slide(url('OTHER')))); check('MUST FAIL: 363 guard - two slides: no gear clicked', runJs(guard, w) === false && w.__g === 0, true); }
+		{ const w = gw(panel(slide(url('NEW1'))), null); check('MUST FAIL: 363 guard - no id kept: no gear clicked', runJs(guard, w) === false && w.__g === 0, true); }
+		{ const w = gw(tabs('', slide(url('NEW1')))); check('MUST FAIL: 363 guard - the slide only in an inactive panel: no gear clicked', runJs(guard, w) === false && w.__g === 0, true); }
+
+		const menu = bodyOf(F363, 'MENU (stage photo)');
+		const dd = (...items) => `<div class="mantine-Menu-dropdown">${items.map(t => `<button class="mantine-Menu-item"><div class="mantine-Menu-itemSection"><svg></svg></div><div class="mantine-Menu-itemLabel">${t}</div></button>`).join('')}</div>`;
+		check('363 menu - View in Fullscreen · Copy to asset · Delete Photo', runJs(menu, w36(dd('View in Fullscreen', 'Copy to asset', 'Delete Photo'))), true);
+		check('MUST FAIL: 363 menu - no stage items (a stage with no assets)', runJs(menu, w36(dd('View in Fullscreen'))), false);
+		check('MUST FAIL: 363 menu - reordered', runJs(menu, w36(dd('View in Fullscreen', 'Delete Photo', 'Copy to asset'))), false);
+		check('MUST FAIL: 363 menu - two dropdowns open', runJs(menu, w36(dd('View in Fullscreen', 'Copy to asset', 'Delete Photo') + dd('Edit Item'))), false);
+
+		const gone = bodyOf(F363, "SERVER: the stage's attachments are back to NONE");
+		const G = { __dd363_id: 'NEW1' };
+		check('363 gone - no attachments, and the asset never held it', t36(gone, w36('', { answer: st([]), ss: G })), true);
+		check('MUST FAIL: 363 gone - still there', t36(gone, w36('', { answer: st([['NEW1']]), ss: G })), false);
+		check('MUST FAIL: 363 gone - on the asset (a copy survived)', t36(gone, w36('', { answer: st([], { assetAtts: ['NEW1'] }), ss: G })), false);
+		check('MUST FAIL: 363 gone - no id kept (vacuous)', t36(gone, w36('', { answer: st([]) })), false);
+
+		const empty = bodyOf(F363, 'The Photos panel shows no slides again');
+		check('363 empty - no slides, Add Photo', runJs(empty, w36(panel(''))), true);
+		check('MUST FAIL: 363 empty - the slide still shown', runJs(empty, w36(panel(slide(url('NEW1'))))), false);
+		check('MUST FAIL: 363 empty - a blank panel (no Add Photo)', runJs(empty, w36(panel('', ''))), false);
+
+		const clean = bodyOf(F363, "Remove this test's sessionStorage key");
+		const wc = w36('', { ss: { __dd363_id: 'NEW1', other: 'keep' } });
+		check('363 cleanup - the id key removed, others kept', runJs(clean, wc) && wc.sessionStorage.length === 1 && wc.sessionStorage.getItem('other') === 'keep', true);
+	}
+}
+
+/* ===========================================================================================
+ * MOB.352 / MOB.353 - self-restoring writes on the fixture work order (build_work_location_save_test.py,
+ * build_asset_status_write_test.py).
+ * MOB.352: LocationForm.tsx - `#address` TextInput, `#x`/`#y` NumberInputs and a `type="submit"` SUBMIT
+ *   INSIDE `<form id="locationform">` (measured); the detail page's own form sits behind with an
+ *   `#address` of its own and a `Submit` bound by `form="mobile-genInfo"` (trap 3).
+ * MOB.353: AssetStatus.tsx - `Progress: <Badge>` is the Menu target (`aria-haspopup="menu"`,
+ *   `aria-expanded`), items are `.mantine-Menu-item` buttons in `.mantine-Menu-dropdown`; the rows are
+ *   Accordion items in the Assets tab's panel (Assets/index.tsx).
+ * Both: server reads via dd_tools.server_read_js; the BACKSTOPs read first and send the fixed rest
+ *   values only when the server is not at rest.
+ * ========================================================================================= */
+{
+	const F352 = 'MOB.352_Work_Location_Save.json';
+	const F353 = 'MOB.353_Work_Asset_Status_Write.json';
+	const WO = 'EYRpYJ9QYdQ1JFF10JtB0Q';
+	const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return fail(e); } }, catch() { return this; } });
+	const fail = (e) => ({ then() { return this; }, catch(f) { f(e); return sync(undefined); } });
+	const pg = (html, { answers = [{ data: {} }], ss = {} } = {}) => {
+		const w = new JSDOM('<body></body>', { url: `https://dev.mentorapm.com/apm-mobile/work/${WO}` }).window;
+		w.document.body.innerHTML = html;
+		for (const [k, v] of Object.entries(ss)) w.sessionStorage.setItem(k, v);
+		w.__posts = [];
+		w.fetch = (url, opts) => {
+			w.__posts.push({ url, opts, body: JSON.parse(opts.body) });
+			const a = answers[Math.min(w.__posts.length, answers.length) - 1];
+			return a instanceof Error ? fail(a) : sync({ json: () => sync(a) });
+		};
+		return w;
+	};
+	const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+
+	// ---- MOB.352 ----------------------------------------------------------------------------
+	const RA = '230 North Alexander Street, New Orleans, LA 70119', RX = '-90.1025785', RY = '29.9782827';
+	const MA = 'DD MOB.352 LOCATION SAVE', MX = '-90.0812', MY = '29.9511';
+	const loc = ({ address = RA, x = RX, y = RY, submit = 'submit', form = true, tabs = true } = {}) =>
+		(tabs ? '<button role="tab" data-active="true">General Info</button>' : '')
+		+ '<form id="mobile-genInfo"><input id="address" value="GENINFO ADDRESS"><input id="x" value="1"></form><button type="button" form="mobile-genInfo">Submit</button>'
+		+ (form ? `<section class="mantine-Modal-content"><form id="locationform"><label for="address">Address</label>`
+			+ `<input id="address" class="mantine-TextInput-input" value="${address}"><input id="x" class="mantine-NumberInput-input" value="${x}">`
+			+ `<input id="y" class="mantine-NumberInput-input" value="${y}"><button type="${submit}">SUBMIT</button></form></section>` : '');
+	const L = {
+		prefill: bodyOf(F352, 'PREFILLED with the rest values'),
+		holdsMark: bodyOf(F352, 'now holds the marker values'),
+		holdsRest: bodyOf(F352, 'now holds the rest values'),
+		clearA: bodyOf(F352, "Clear the form's Address"),
+		clearX: bodyOf(F352, "Clear the form's X"),
+		clearY: bodyOf(F352, "Clear the form's Y"),
+		armed: bodyOf(F352, 'Submit is ARMED'),
+		closed: bodyOf(F352, 'location form is GONE'),
+		premise: bodyOf(F352, 'PREMISE (server)'),
+		mark: bodyOf(F352, 'SERVER: the stage now holds'),
+		restored: bodyOf(F352, 'RESTORED (server)'),
+		atRest: bodyOf(F352, 'AT REST (server)'),
+		backstop: bodyOf(F352, 'BACKSTOP'),
+	};
+	const ws = (o = {}) => ({ data: { workStage: { id: WO, status: 'Ready', address: RA, x: Number(RX), y: Number(RY), ...o } } });
+	console.log('\nMOB.352_Work_Location_Save - the form scoped to #locationform, the server reads and the backstop');
+	check('352 prefill - the form holds the rest values', runJs(L.prefill, pg(loc())), true);
+	check('MUST FAIL: 352 prefill - another address', runJs(L.prefill, pg(loc({ address: MA }))), false);
+	check('MUST FAIL: 352 prefill - x differs', runJs(L.prefill, pg(loc({ x: MX }))), false);
+	check('MUST FAIL: 352 prefill - y empty (Number("") is 0, must not pass)', runJs(L.prefill, pg(loc({ y: '' }))), false);
+	check('MUST FAIL: 352 prefill - the form is not open', runJs(L.prefill, pg(loc({ form: false }))), false);
+	check('352 holds marker - after typing', runJs(L.holdsMark, pg(loc({ address: MA, x: MX, y: MY }))), true);
+	check('MUST FAIL: 352 holds marker - x still at rest (the type did not land)', runJs(L.holdsMark, pg(loc({ address: MA, y: MY }))), false);
+	check('352 holds rest - after the restore typing', runJs(L.holdsRest, pg(loc())), true);
+	check('MUST FAIL: 352 holds rest - the marker address remains', runJs(L.holdsRest, pg(loc({ address: MA }))), false);
+	for (const [fid, body] of [['address', L.clearA], ['x', L.clearX], ['y', L.clearY]]) {
+		const w = pg(loc());
+		const el = w.document.getElementById('locationform').querySelector('#' + fid);
+		let events = 0; el.addEventListener('input', () => events++);
+		const behind = w.document.getElementById('mobile-genInfo').querySelector('#address').value;
+		check(`352 clear ${fid} - the FORM's #${fid} is emptied with one input event; the page's own #address untouched`,
+			runJs(body, w) && el.value === '' && events === 1 && w.document.getElementById('mobile-genInfo').querySelector('#address').value === behind, true);
+	}
+	check('MUST FAIL: 352 clear x - the location form is not open (only the page\'s #x exists)', runJs(L.clearX, pg(loc({ form: false }))), false);
+	check('352 armed - SUBMIT type="submit" inside #locationform', runJs(L.armed, pg(loc())), true);
+	check('MUST FAIL: 352 armed - SUBMIT is type="button" (invalid form)', runJs(L.armed, pg(loc({ submit: 'button' }))), false);
+	check('MUST FAIL: 352 armed - only the page\'s own Submit (form closed)', runJs(L.armed, pg(loc({ form: false }))), false);
+	check('352 closed - no #locationform, tabs alive', runJs(L.closed, pg(loc({ form: false }))), true);
+	check('MUST FAIL: 352 closed - the form is still open', runJs(L.closed, pg(loc())), false);
+	check('MUST FAIL: 352 closed - a blank page (no tabs)', runJs(L.closed, pg(loc({ form: false, tabs: false }))), false);
+	check('352 premise - rest values and Ready', twice(L.premise, pg('', { answers: [ws()] })), true);
+	check('MUST FAIL: 352 premise - status not Ready', twice(L.premise, pg('', { answers: [ws({ status: 'InProgress' })] })), false);
+	check('MUST FAIL: 352 premise - a leftover marker address', twice(L.premise, pg('', { answers: [ws({ address: MA })] })), false);
+	check('MUST FAIL: 352 premise - x null', twice(L.premise, pg('', { answers: [ws({ x: null })] })), false);
+	check('352 mark - the server holds the marker', twice(L.mark, pg('', { answers: [ws({ address: MA, x: Number(MX), y: Number(MY) })] })), true);
+	check('MUST FAIL: 352 mark - still at rest (the save never landed)', twice(L.mark, pg('', { answers: [ws()] })), false);
+	check('MUST FAIL: 352 mark - address saved, y not', twice(L.mark, pg('', { answers: [ws({ address: MA, x: Number(MX) })] })), false);
+	check('352 restored - rest values', twice(L.restored, pg('', { answers: [ws()] })), true);
+	check('MUST FAIL: 352 restored - still the marker', twice(L.restored, pg('', { answers: [ws({ address: MA, x: Number(MX), y: Number(MY) })] })), false);
+	check('352 at rest - rest values and Ready', twice(L.atRest, pg('', { answers: [ws()] })), true);
+	check('MUST FAIL: 352 at rest - status changed', twice(L.atRest, pg('', { answers: [ws({ status: 'Complete' })] })), false);
+	check('MUST FAIL: 352 at rest - GraphQL errors', twice(L.atRest, pg('', { answers: [{ errors: [{ message: 'nope' }] }] })), false);
+	{
+		const w = pg('', { answers: [ws()] });
+		const first = runJs(L.backstop, w), second = runJs(L.backstop, w);
+		check('352 backstop - at rest: asks once, sends NO mutation, then true', first === false && second === true && w.__posts.length === 1
+			&& /workStage/.test(w.__posts[0].body.query) && w.__posts[0].body.variables.id === WO && !w.sessionStorage.getItem('__dd352_net:sent'), true);
+	}
+	{
+		const w = pg('', { answers: [ws({ address: MA, x: Number(MX), y: Number(MY) }), { data: { updateWorkStage: { id: WO } } }] });
+		runJs(L.backstop, w); const done = runJs(L.backstop, w); runJs(L.backstop, w);
+		const m = (w.__posts[1] || {}).body || {};
+		check('352 backstop - at the marker: ONE updateWorkStage with the fixed rest values, then true, never repeated',
+			done === true && w.__posts.length === 2 && /updateWorkStage\(/.test(m.query) && m.variables.id === WO
+			&& m.variables.data.address === RA && m.variables.data.x === Number(RX) && m.variables.data.y === Number(RY), true);
+		check('MUST FAIL: 352 backstop - at rest it must not write (a write is the failure this case catches)',
+			(() => { const v = pg('', { answers: [ws()] }); twice(L.backstop, v); return v.__posts.length !== 1; })(), false);
+	}
+	{
+		const w = pg('', { answers: [{ data: { workStage: null } }, { data: {} }] });
+		twice(L.backstop, w);
+		check('352 backstop - the read came back empty: it still sends the rest values', w.__posts.length === 2 && /updateWorkStage\(/.test(w.__posts[1].body.query), true);
+	}
+
+	// ---- MOB.353 ----------------------------------------------------------------------------
+	const COMMENT = 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.';
+	const LINK = 'AE09h8JhBBhMtd1wIs98lQ';
+	const assets = ({ rows = [['Pump 0102', 'Active', 'false']], active = 'Assets', menu = null } = {}) =>
+		`<button role="tab" aria-selected="${active === 'General Info'}"${active === 'General Info' ? ' data-active="true"' : ''} aria-controls="pg">General Info</button>`
+		+ `<button role="tab" aria-selected="${active === 'Assets'}"${active === 'Assets' ? ' data-active="true"' : ''} aria-controls="pa">Assets</button>`
+		+ '<div role="tabpanel" id="pg"></div><div role="tabpanel" id="pa">'
+		+ rows.map(([name, badge, exp]) => `<div class="mantine-Accordion-item"><span class="mantine-Accordion-control"><span class="mantine-Text-root">${name}</span>`
+			+ `<span class="mantine-Text-root" aria-haspopup="menu" aria-expanded="${exp}">Progress: <div class="mantine-Badge-root"><span class="mantine-Badge-label">${badge}</span></div></span></span></div>`).join('')
+		+ '</div>'
+		+ (menu ? `<div class="mantine-Menu-dropdown">${menu.map(t => `<button class="mantine-Menu-item"><div class="mantine-Menu-itemSection"></div><div class="mantine-Menu-itemLabel">${t}</div></button>`).join('')}</div>` : '');
+	const FROM_ACTIVE = ['Mark as No Status', 'Mark as Completed', 'Mark as Not Completed', 'Mark as Canceled'];
+	const FROM_COMPLETED = ['Mark as No Status', 'Mark as Active', 'Mark as Not Completed', 'Mark as Canceled'];
+	const S = {
+		rowActive: bodyOf(F353, 'with the badge `Active`'),
+		rowCompleted: bodyOf(F353, 'with the badge `Completed`'),
+		guardWrite: bodyOf(F353, 'the badge reads `Active`) and offers'),
+		guardRestore: bodyOf(F353, 'the badge reads `Completed`) and offers'),
+		cacheCompleted: bodyOf(F353, 'badge now reads `Completed`'),
+		premise: bodyOf(F353, 'PREMISE (server)'),
+		completed: bodyOf(F353, 'is now `Completed`'),
+		restored: bodyOf(F353, 'RESTORED (server)'),
+		atRest: bodyOf(F353, 'AT REST (server)'),
+		backstop: bodyOf(F353, 'BACKSTOP'),
+	};
+	const link = (o = {}, stage = 'Ready', extra = []) => ({ data: { workStage: { id: WO, status: stage, assets: [
+		{ id: LINK, status: 'Active', sequence: 1, comment: COMMENT, asset: { id: 'oB5BUN1Es1Jctw8FVYwYBh', name: 'Pump 0102' }, ...o }, ...extra] } } });
+	console.log('\nMOB.353_Work_Asset_Status_Write - the one row, the guard before a no-confirm write, the server reads and the backstop');
+	check('353 row - one Pump 0102 row, badge Active, Assets active', runJs(S.rowActive, pg(assets())), true);
+	check('MUST FAIL: 353 row - badge Completed', runJs(S.rowActive, pg(assets({ rows: [['Pump 0102', 'Completed', 'false']] }))), false);
+	check('MUST FAIL: 353 row - a second asset row (a leftover link)', runJs(S.rowActive, pg(assets({ rows: [['Bypass Valve 0001', 'Active', 'false'], ['Pump 0102', 'Active', 'false']] }))), false);
+	check('MUST FAIL: 353 row - the one row is another asset', runJs(S.rowActive, pg(assets({ rows: [['Bypass Valve 0001', 'Active', 'false']] }))), false);
+	check('MUST FAIL: 353 row - the Assets tab is not the active one', runJs(S.rowActive, pg(assets({ active: 'General Info' }))), false);
+	check('353 row completed - badge Completed', runJs(S.rowCompleted, pg(assets({ rows: [['Pump 0102', 'Completed', 'false']] }))), true);
+	check('353 cache - badge now Completed', runJs(S.cacheCompleted, pg(assets({ rows: [['Pump 0102', 'Completed', 'false']] }))), true);
+	check('MUST FAIL: 353 cache - badge still Active', runJs(S.cacheCompleted, pg(assets())), false);
+	check('353 guard write - Pump 0102\'s menu open from Active, offers Mark as Completed', runJs(S.guardWrite, pg(assets({ rows: [['Pump 0102', 'Active', 'true']], menu: FROM_ACTIVE }))), true);
+	check('MUST FAIL: 353 guard write - the target is not expanded (the open menu is not this row\'s)', runJs(S.guardWrite, pg(assets({ rows: [['Pump 0102', 'Active', 'false']], menu: FROM_ACTIVE }))), false);
+	check('MUST FAIL: 353 guard write - no menu open', runJs(S.guardWrite, pg(assets({ rows: [['Pump 0102', 'Active', 'true']] }))), false);
+	check('MUST FAIL: 353 guard write - the menu offers Mark as Active (it is a menu from another status)', runJs(S.guardWrite, pg(assets({ rows: [['Pump 0102', 'Active', 'true']], menu: FROM_COMPLETED }))), false);
+	check('MUST FAIL: 353 guard write - two rows', runJs(S.guardWrite, pg(assets({ rows: [['Pump 0102', 'Active', 'true'], ['Bypass Valve 0001', 'Active', 'false']], menu: FROM_ACTIVE }))), false);
+	check('353 guard restore - from Completed, offers Mark as Active', runJs(S.guardRestore, pg(assets({ rows: [['Pump 0102', 'Completed', 'true']], menu: FROM_COMPLETED }))), true);
+	check('MUST FAIL: 353 guard restore - the badge still reads Active', runJs(S.guardRestore, pg(assets({ rows: [['Pump 0102', 'Active', 'true']], menu: FROM_ACTIVE }))), false);
+	check('353 premise - Active, 1, the comment, stage Ready', twice(S.premise, pg('', { answers: [link()] })), true);
+	check('MUST FAIL: 353 premise - a changed comment', twice(S.premise, pg('', { answers: [link({ comment: 'x' })] })), false);
+	check('MUST FAIL: 353 premise - sequence 2', twice(S.premise, pg('', { answers: [link({ sequence: 2 })] })), false);
+	check('MUST FAIL: 353 premise - already Completed (a leftover)', twice(S.premise, pg('', { answers: [link({ status: 'Completed' })] })), false);
+	check('MUST FAIL: 353 premise - the stage is not Ready', twice(S.premise, pg('', { answers: [link({}, 'InProgress')] })), false);
+	check('MUST FAIL: 353 premise - Pump 0102 under ANOTHER link id', twice(S.premise, pg('', { answers: [link({ id: 'OTHER' })] })), false);
+	check('353 completed - the server holds Completed', twice(S.completed, pg('', { answers: [link({ status: 'Completed' })] })), true);
+	check('MUST FAIL: 353 completed - the server still says Active (only the cache moved)', twice(S.completed, pg('', { answers: [link()] })), false);
+	check('353 restored - Active again', twice(S.restored, pg('', { answers: [link()] })), true);
+	check('MUST FAIL: 353 restored - still Completed', twice(S.restored, pg('', { answers: [link({ status: 'Completed' })] })), false);
+	check('353 at rest - Active, 1, the comment, Ready', twice(S.atRest, pg('', { answers: [link()] })), true);
+	check('MUST FAIL: 353 at rest - the comment was nulled', twice(S.atRest, pg('', { answers: [link({ comment: null })] })), false);
+	{
+		const w = pg('', { answers: [link()] });
+		const first = runJs(S.backstop, w), second = runJs(S.backstop, w);
+		check('353 backstop - at rest: one read, NO mutation, then true', first === false && second === true && w.__posts.length === 1 && w.__posts[0].body.variables.id === WO, true);
+	}
+	{
+		const w = pg('', { answers: [link({ status: 'Completed' }), { data: {} }] });
+		runJs(S.backstop, w); const done = runJs(S.backstop, w); runJs(S.backstop, w);
+		const m = (w.__posts[1] || {}).body || {};
+		check('353 backstop - Completed: ONE updateWorkStageAsset(link, status Active), then true, never repeated',
+			done === true && w.__posts.length === 2 && /updateWorkStageAsset\(/.test(m.query) && m.variables.id === LINK
+			&& JSON.stringify(m.variables.data) === '{"status":"Active"}', true);
+	}
+	check('MUST FAIL: 353 backstop - at rest it must not write',
+		(() => { const v = pg('', { answers: [link()] }); twice(S.backstop, v); return v.__posts.length !== 1; })(), false);
+	{
+		const w = pg('', { answers: [new Error('offline'), { data: {} }] });
+		twice(S.backstop, w);
+		check('353 backstop - the read failed: it gives up without writing blind (the final server read stays red)', w.__posts.length === 1 && w.sessionStorage.getItem('__dd353_net') === 'done', true);
+	}
+}
+
+/* ===========================================================================================
+ * MOB.354 / MOB.359 - the fixture work order's Assets tab (build_work_asset_link_test.py,
+ * build_asset_geolocate_submit_test.py).
+ * MOB.354: rows are Accordion items in the Assets panel (Assets/index.tsx) - control (a span) with the
+ *   asset name, AssetGeolocate's ActionIcon (renders only once the Asset schema is cached), the chevron;
+ *   an expanded panel holds WorkCollectionMenu's gear (`aria-label="Menu"`). The picker
+ *   (NewAssetForm.tsx -> AssetLookup) is a Modal with `input[name="asset-search"]`, rows whose control
+ *   (a button) carries the name and a Checkbox input, and a footer `Add N Asset(s)` (measured by probe).
+ * MOB.359: AssetLocationForm (`form#mobile-geolocate`, `input#includeGis`/`#includeAddress` checkboxes,
+ *   Submit outside the form bound by `form=`), the Mapbox/geolocation stubs, the asset server reads.
+ * ========================================================================================= */
+{
+	const WO = 'EYRpYJ9QYdQ1JFF10JtB0Q';
+	const sync = (v) => ({ then(f) { try { const r = f(v); return r && r.then ? r : sync(r); } catch (e) { return fail(e); } }, catch() { return this; } });
+	const fail = (e) => ({ then() { return this; }, catch(f) { f(e); return sync(undefined); } });
+	const pg = (html, { answers = [{ data: {} }], ss = {} } = {}) => {
+		const w = new JSDOM('<body></body>', { url: `https://dev.mentorapm.com/apm-mobile/work/${WO}` }).window;
+		w.document.body.innerHTML = html;
+		for (const [k, v] of Object.entries(ss)) w.sessionStorage.setItem(k, v);
+		w.__posts = [];
+		w.fetch = (url, opts) => {
+			w.__posts.push({ url, opts, body: JSON.parse(opts.body) });
+			const a = answers[Math.min(w.__posts.length, answers.length) - 1];
+			return a instanceof Error ? fail(a) : sync({ json: () => sync(a) });
+		};
+		return w;
+	};
+	const twice = (body, w) => { runJs(body, w); return runJs(body, w); };
+	const safe = (f) => { try { return f(); } catch (e) { return false; } };
+	const RA = '230 North Alexander Street, New Orleans, LA 70119';
+	const COMMENT = 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.';
+	const LINK = 'AE09h8JhBBhMtd1wIs98lQ', PUMP = 'Pump 0102', PUMP_ID = 'oB5BUN1Es1Jctw8FVYwYBh';
+	const BV = 'Bypass Valve 0001', BV_ID = 'wFRo1MMwoAMkdxA4hVpIhB';
+
+	// ---- MOB.354 ----------------------------------------------------------------------------
+	const F354 = 'MOB.354_Work_Asset_Add_Remove.json';
+	const A = {
+		premise: bodyOf(F354, 'PREMISE (server)'), mark: bodyOf(F354, 'PREMISE PASSED'), stash: bodyOf(F354, 'STASH the persisted'),
+		one: bodyOf(F354, 'lists ONE row'), pick0: bodyOf(F354, 'picker lists exactly one'), pick1: bodyOf(F354, 'is CHECKED and the footer'),
+		pickClosed: bodyOf(F354, 'picker closed and the page'), added: bodyOf(F354, 'SERVER: the stage now links'),
+		two: bodyOf(F354, 'now lists Bypass Valve 0001 beside'), schema: bodyOf(F354, 'GATE ('), expanded: bodyOf(F354, 'row expanded'),
+		guard: bodyOf(F354, 'GUARD + open its gear'), gone: bodyOf(F354, 'SERVER: no Bypass Valve 0001 link remains'),
+		onlyPump: bodyOf(F354, 'lists only Pump 0102 again'), restoreQ: bodyOf(F354, 'RESTORE the persisted'),
+		backstop: bodyOf(F354, 'BACKSTOP'), atRest: bodyOf(F354, 'AT REST (server)'),
+	};
+	const woRow = ([name, { geo = true, gears = 0 } = {}]) => `<div class="mantine-Accordion-item"><span class="mantine-Accordion-control"><span class="mantine-Text-root">${name}</span>`
+		+ (geo ? '<span class="mantine-ActionIcon-root"><svg data-icon="location-crosshairs"></svg></span>' : '') + '<span class="mantine-Accordion-chevron"></span></span>'
+		+ `<div class="mantine-Accordion-panel">${'<button aria-label="Menu" class="gear"></button>'.repeat(gears)}</div></div>`;
+	const woAssets = (rows, { active = 'Assets', ss = {} } = {}) => {
+		const w = pg(`<button role="tab" aria-selected="${active === 'General Info'}" aria-controls="pg">General Info</button>`
+			+ `<button role="tab" aria-selected="${active === 'Assets'}"${active === 'Assets' ? ' data-active="true"' : ''} aria-controls="pa">Assets</button>`
+			+ `<div role="tabpanel" id="pg"></div><div role="tabpanel" id="pa">${rows.map(woRow).join('')}</div>`, { ss });
+		w.__g = [];
+		w.document.querySelectorAll('.gear').forEach(g => g.addEventListener('click', () => w.__g.push(g.closest('.mantine-Accordion-item').querySelector('.mantine-Text-root').textContent)));
+		return w;
+	};
+	const picker = ({ rows = [[BV, false]], footer = null, open = true } = {}) => '<button role="tab" data-active="true">Assets</button>'
+		+ (open ? '<section class="mantine-Modal-content"><input name="asset-search">'
+			+ rows.map(([n, c]) => `<div class="mantine-Accordion-item"><button class="mantine-Accordion-control">${n}<input type="checkbox" class="mantine-Checkbox-input"${c ? ' checked' : ''}></button></div>`).join('')
+			+ `<button>Add ${footer === null ? rows.filter(r => r[1]).length : footer} Asset(s)</button></section>` : '');
+	const PL = { id: LINK, status: 'Active', sequence: 1, comment: COMMENT, asset: { id: PUMP_ID, name: PUMP } };
+	const BL = { id: 'NEWLINK', status: 'Active', sequence: null, comment: null, asset: { id: BV_ID, name: BV } };
+	const stage = ({ assets = [PL], cond = ['C1'], fl = ['F1'], ...o } = {}) => ({ data: { workStage: { id: WO, status: 'Ready', address: RA, x: -90.1025785, y: 29.9782827,
+		condition: cond.map(id => ({ id })), failures: fl.map(id => ({ id })), assets, ...o } } });
+	const CF = { __dd354_cf: JSON.stringify([['C1'], ['F1']]) };
+	console.log('\nMOB.354_Work_Asset_Add_Remove - the picker, the proofs, a delete guarded to THIS run\'s link, and the backstop');
+	{
+		const w = pg('', { answers: [stage()] });
+		check('354 premise - only Pump 0102\'s link, at rest; records the condition/failure ids', twice(A.premise, w) && w.sessionStorage.getItem('__dd354_cf') === CF.__dd354_cf, true);
+	}
+	check('MUST FAIL: 354 premise - a leftover Bypass Valve link', twice(A.premise, pg('', { answers: [stage({ assets: [PL, BL] })] })), false);
+	check('MUST FAIL: 354 premise - Pump 0102\'s link not at rest', twice(A.premise, pg('', { answers: [stage({ assets: [{ ...PL, status: 'Completed' }] })] })), false);
+	check('MUST FAIL: 354 premise - the stage address moved', twice(A.premise, pg('', { answers: [stage({ address: 'DD MOB.352 LOCATION SAVE' })] })), false);
+	{ const w = pg(''); check('354 mark - sets the premise key', runJs(A.mark, w) && w.sessionStorage.getItem('__dd354_premise') === '1', true); }
+	{
+		const w = pg('');
+		runJs(A.stash, w); w.sessionStorage.setItem('asset_lookup_query', '"Bypass Valve 0001"'); runJs(A.stash, w);
+		check('354 stash+restore - no query before: the picker\'s query is REMOVED again', runJs(A.restoreQ, w) && w.sessionStorage.getItem('asset_lookup_query') === null && w.sessionStorage.getItem('__dd354_prevQuery') === null, true);
+	}
+	{
+		const w = pg('', { ss: { asset_lookup_query: '"Pump"' } });
+		runJs(A.stash, w); w.sessionStorage.setItem('asset_lookup_query', '"Bypass Valve 0001"');
+		check('354 stash+restore - a prior query is put back exactly', runJs(A.restoreQ, w) && w.sessionStorage.getItem('asset_lookup_query') === '"Pump"', true);
+	}
+	{
+		const w = pg('', { ss: { asset_lookup_query: '"Pump"' } });
+		check('354 restore - never stashed: leaves the query alone', runJs(A.restoreQ, w) && w.sessionStorage.getItem('asset_lookup_query') === '"Pump"', true);
+		check('MUST FAIL: 354 stash - a second stash must not overwrite the first (it would stash the picker\'s own query)',
+			(() => { const v = pg('', { ss: { asset_lookup_query: '"Pump"' } }); runJs(A.stash, v); v.sessionStorage.setItem('asset_lookup_query', '"X"'); runJs(A.stash, v); return JSON.parse(v.sessionStorage.getItem('__dd354_prevQuery')) !== 'null' && JSON.parse(v.sessionStorage.getItem('__dd354_prevQuery')) !== '"Pump"'; })(), false);
+	}
+	check('354 one - one Pump row, no Bypass Valve', runJs(A.one, woAssets([[PUMP]])), true);
+	check('MUST FAIL: 354 one - a leftover Bypass Valve row', runJs(A.one, woAssets([[BV], [PUMP]])), false);
+	check('MUST FAIL: 354 one - the Assets tab is not active', runJs(A.one, woAssets([[PUMP]], { active: 'General Info' })), false);
+	check('354 picker - one Bypass Valve row, unchecked, Add 0', runJs(A.pick0, pg(picker())), true);
+	check('MUST FAIL: 354 picker - the search found nothing', runJs(A.pick0, pg(picker({ rows: [] }))), false);
+	check('MUST FAIL: 354 picker - two Bypass Valve rows', runJs(A.pick0, pg(picker({ rows: [[BV, false], [BV, false]] }))), false);
+	check('MUST FAIL: 354 picker - already checked', runJs(A.pick0, pg(picker({ rows: [[BV, true]] }))), false);
+	check('MUST FAIL: 354 picker - the modal is not open', runJs(A.pick0, pg(picker({ open: false }))), false);
+	{
+		const loaded = bodyOf(F354, 'picker finished its first load');
+		const withOverlay = picker().replace('<input name="asset-search">', '<input name="asset-search"><div class="mantine-LoadingOverlay-root"><div class="mantine-LoadingOverlay-overlay"></div></div>');
+		check('354 loaded - rows rendered, no overlay', runJs(loaded, pg(picker())), true);
+		check('354 loaded - `No Results` rendered, no overlay', runJs(loaded, pg(picker({ rows: [] }).replace('<button>Add', '<h1>No Results</h1><button>Add'))), true);
+		check('MUST FAIL: 354 loaded - the LoadingOverlay still covers the picker (local replay 1\'s forced click)', runJs(loaded, pg(withOverlay)), false);
+		check('MUST FAIL: 354 loaded - no rows and no `No Results` yet', runJs(loaded, pg(picker({ rows: [] }))), false);
+		check('MUST FAIL: 354 loaded - the picker is not open', runJs(loaded, pg(picker({ open: false }))), false);
+	}
+	check('354 checked - checked and Add 1', runJs(A.pick1, pg(picker({ rows: [[BV, true]] }))), true);
+	check('MUST FAIL: 354 checked - the click did not land', runJs(A.pick1, pg(picker())), false);
+	check('MUST FAIL: 354 checked - checked but the footer still counts 0 (the pick is not in state)', runJs(A.pick1, pg(picker({ rows: [[BV, true]], footer: 0 }))), false);
+	check('354 picker closed - no search box, tabs alive', runJs(A.pickClosed, pg(picker({ open: false }))), true);
+	check('MUST FAIL: 354 picker closed - still open', runJs(A.pickClosed, pg(picker())), false);
+	check('354 added - Bypass Valve linked beside an untouched Pump link, location unchanged', twice(A.added, pg('', { answers: [stage({ assets: [PL, BL] })] })), true);
+	check('MUST FAIL: 354 added - the server never linked it', twice(A.added, pg('', { answers: [stage()] })), false);
+	check('MUST FAIL: 354 added - the stage took the asset\'s location (x changed)', twice(A.added, pg('', { answers: [stage({ assets: [PL, BL], x: null })] })), false);
+	check('MUST FAIL: 354 added - Pump\'s link changed', twice(A.added, pg('', { answers: [stage({ assets: [{ ...PL, sequence: null }, BL] })] })), false);
+	check('354 two rows - Pump and Bypass Valve', runJs(A.two, woAssets([[BV], [PUMP]])), true);
+	check('MUST FAIL: 354 two rows - only Pump (the list never refreshed)', runJs(A.two, woAssets([[PUMP]])), false);
+	check('354 schema gate - both rows render the geolocate control', runJs(A.schema, woAssets([[BV], [PUMP]])), true);
+	check('MUST FAIL: 354 schema gate - no geolocate controls (the Asset schema is not cached: expanding would crash)', runJs(A.schema, woAssets([[BV, { geo: false }], [PUMP, { geo: false }]])), false);
+	check('354 expanded - the Bypass Valve panel holds one gear', runJs(A.expanded, woAssets([[BV, { gears: 1 }], [PUMP]])), true);
+	check('MUST FAIL: 354 expanded - not expanded (no gear)', runJs(A.expanded, woAssets([[BV], [PUMP, { gears: 1 }]])), false);
+	{
+		const w = woAssets([[BV, { gears: 1 }], [PUMP, { gears: 1 }]], { ss: { __dd354_premise: '1' } });
+		check('354 guard - clicks exactly ONE gear, the Bypass Valve row\'s', runJs(A.guard, w) && w.__g.join() === BV, true);
+	}
+	for (const [label, rows, ss] of [
+		['the premise never passed', [[BV, { gears: 1 }], [PUMP]], {}],
+		['only the Pump row (the add failed)', [[PUMP, { gears: 1 }]], { __dd354_premise: '1' }],
+		['three rows', [[BV, { gears: 1 }], [PUMP], ['Tank 0000']], { __dd354_premise: '1' }],
+		['two Bypass Valve rows', [[BV, { gears: 1 }], [BV, { gears: 1 }]], { __dd354_premise: '1' }],
+		['the Bypass Valve row is not expanded', [[BV], [PUMP, { gears: 1 }]], { __dd354_premise: '1' }],
+		['two gears in its panel', [[BV, { gears: 2 }], [PUMP]], { __dd354_premise: '1' }],
+		['a row named for BOTH assets', [[`${BV} ${PUMP}`, { gears: 1 }], [PUMP]], { __dd354_premise: '1' }],
+	]) {
+		const w = woAssets(rows, { ss });
+		check(`MUST FAIL: 354 guard - ${label}, and NO gear is clicked`, runJs(A.guard, w) === false && w.__g.length === 0, true);
+	}
+	check('354 gone - only Pump\'s link, same condition/failure ids', twice(A.gone, pg('', { answers: [stage()], ss: CF })), true);
+	check('MUST FAIL: 354 gone - the server still links Bypass Valve (the cache said gone)', twice(A.gone, pg('', { answers: [stage({ assets: [PL, BL] })], ss: CF })), false);
+	check('MUST FAIL: 354 gone - Pump\'s link went too', twice(A.gone, pg('', { answers: [stage({ assets: [] })], ss: CF })), false);
+	check('MUST FAIL: 354 gone - the fixture\'s condition was deleted', twice(A.gone, pg('', { answers: [stage({ cond: [] })], ss: CF })), false);
+	check('MUST FAIL: 354 gone - no recorded ids (vacuous)', twice(A.gone, pg('', { answers: [stage()] })), false);
+	check('354 at rest - the same proof, always', twice(A.atRest, pg('', { answers: [stage()], ss: CF })), true);
+	check('MUST FAIL: 354 at rest - a leftover link', twice(A.atRest, pg('', { answers: [stage({ assets: [PL, BL] })], ss: CF })), false);
+	check('354 only Pump - one row', runJs(A.onlyPump, woAssets([[PUMP]])), true);
+	check('MUST FAIL: 354 only Pump - Bypass Valve still listed', runJs(A.onlyPump, woAssets([[BV], [PUMP]])), false);
+	{
+		const w = pg('', { answers: [stage({ assets: [PL, BL] })] });
+		check('354 backstop - no premise mark: true at once, NOTHING asked or sent', runJs(A.backstop, w) === true && w.__posts.length === 0, true);
+	}
+	{
+		const w = pg('', { answers: [stage()], ss: { __dd354_premise: '1' } });
+		const first = runJs(A.backstop, w), second = runJs(A.backstop, w);
+		check('354 backstop - at rest: one read, no removal', first === false && second === true && w.__posts.length === 1, true);
+	}
+	{
+		const w = pg('', { answers: [stage({ assets: [PL, BL] }), { data: { removeWorkStageAssetLinks: 1 } }], ss: { __dd354_premise: '1' } });
+		runJs(A.backstop, w); const done = runJs(A.backstop, w); runJs(A.backstop, w);
+		const m = (w.__posts[1] || {}).body || {};
+		check('354 backstop - a leftover link: ONE removal of THAT link id only, parent the fixture, never repeated',
+			done === true && w.__posts.length === 2 && /removeWorkStageAssetLinks\(/.test(m.query) && JSON.stringify(m.variables.ids) === '["NEWLINK"]' && m.variables.parentId === WO, true);
+	}
+	for (const [label, assets] of [
+		['two Bypass Valve links', [PL, BL, { ...BL, id: 'NEWLINK2' }]],
+		['the only Bypass Valve link carries Pump\'s link id', [{ ...BL, id: LINK }]],
+	]) {
+		const w = pg('', { answers: [stage({ assets })], ss: { __dd354_premise: '1' } });
+		twice(A.backstop, w);
+		check(`354 backstop - ${label}: sends nothing`, w.__posts.length === 1, true);
+	}
+
+	// ---- MOB.359 ----------------------------------------------------------------------------
+	const F359 = 'MOB.359_Work_Asset_Geolocate_Submit.json';
+	const G = {
+		premise: bodyOf(F359, 'PREMISE (server)'), warmClosed: bodyOf(F359, 'SCHEMA WARM: the picker closed'),
+		installW: bodyOf(F359, 'geocode answers the written address'), installR: bodyOf(F359, 'geocode answers the rest address'),
+		holdsW: bodyOf(F359, 'stubbed written address'), holdsR: bodyOf(F359, 'stubbed rest address'),
+		gisOff: bodyOf(F359, 'Untick `Include GIS`'), armed: bodyOf(F359, 'Submit is ARMED'), closed: bodyOf(F359, 'location form is GONE'),
+		written: bodyOf(F359, 'SERVER: Pump 0102 now holds'), restored: bodyOf(F359, 'RESTORED (server)'),
+		removeStubs: bodyOf(F359, 'both stubs removed'), backstop: bodyOf(F359, 'BACKSTOP'), atRest: bodyOf(F359, 'AT REST (server)'),
+	};
+	const REST_V = ['230 North Alexander Street', 'New Orleans', 'LA', 'US', '70119'];
+	const WRITE_V = ['359 DD MOB Test Street', 'Metairie', 'LA', 'US', '70001'];
+	const geoForm = (vals, { gis = true, adr = true, submit = 'submit', form = true } = {}) => '<button role="tab" data-active="true">Assets</button>'
+		+ (form ? `<form id="mobile-geolocate">${vals.map(v => `<input value="${v}">`).join('')}`
+			+ `<input type="checkbox" id="includeGis"${gis ? ' checked' : ''}><input type="checkbox" id="includeAddress"${adr ? ' checked' : ''}></form>`
+			+ `<button form="mobile-geolocate" type="${submit}">Submit</button>` : '');
+	const assetA = (o = {}) => ({ data: { asset: { id: PUMP_ID, name: PUMP, address: '230 North Alexander Street', city: 'New Orleans', postalCode: '70119',
+		latitude: 29.9782827, longitude: -90.1025785, state: { id: 'LA' }, countryCode: { id: 'US' }, ...o } } });
+	const WR = { address: '359 DD MOB Test Street', city: 'Metairie', postalCode: '70001' };
+	console.log('\nMOB.359_Work_Asset_Geolocate_Submit - stubs, the form, GIS off, address-only server proofs and the backstop');
+	{
+		const w = pg('');
+		let origCalls = 0; const origFetch = () => { origCalls++; return 'ORIG'; }; w.fetch = origFetch;
+		const origGeo = () => {};
+		Object.defineProperty(w.navigator, 'geolocation', { value: { getCurrentPosition: origGeo }, configurable: true });
+		const ok = runJs(G.installW, w);
+		let pos = null; w.navigator.geolocation.getCurrentPosition(p => { pos = p; });
+		const pass = w.fetch('/graphql', {});
+		const mb = w.fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/-90.1025785,29.9782827.json?access_token=x');
+		check('359 install - written features; the position is Pump 0102\'s own; /graphql passes through; Mapbox is stubbed',
+			ok === true && w.__dd359Features[0].address === '359' && pos && pos.coords.latitude === 29.9782827 && pos.coords.longitude === -90.1025785
+			&& pass === 'ORIG' && origCalls === 1 && !!mb && typeof mb.then === 'function', true);
+		pending.push(Promise.resolve(mb).then(r => r.json()).then(j => check('359 install - the Mapbox answer maps to Metairie / US-LA / 70001',
+			j.features[0].text === 'DD MOB Test Street' && j.features[1].text === 'Metairie' && j.features[2].properties.short_code === 'US-LA' && j.features[4].text === '70001', true))
+			.catch(() => check('359 install - the Mapbox answer maps to Metairie / US-LA / 70001', false, true)));
+		check('359 install rest - swaps the features and keeps the ORIGINAL fetch (no stub of a stub)', runJs(G.installR, w) && w.__dd359Features[0].address === '230' && w.__ddOrigFetch === origFetch, true);
+		check('359 remove stubs - fetch and geolocation are the originals again', runJs(G.removeStubs, w) && w.fetch === origFetch && w.navigator.geolocation.getCurrentPosition === origGeo, true);
+		check('MUST FAIL: 359 install - no geolocation object (a throw is a red step)', safe(() => runJs(G.installW, pg(''))), false);
+	}
+	check('359 warm closed - no picker, tabs alive', runJs(G.warmClosed, pg('<button role="tab">Assets</button>')), true);
+	check('MUST FAIL: 359 warm closed - the picker is still open', runJs(G.warmClosed, pg('<button role="tab">Assets</button><input name="asset-search">')), false);
+	check('359 holds written', runJs(G.holdsW, pg(geoForm(WRITE_V))), true);
+	check('MUST FAIL: 359 holds written - MOB.358\'s Chicago stub', runJs(G.holdsW, pg(geoForm(['1600 Main Street', 'Chicago', 'IL', 'US', '60601']))), false);
+	check('MUST FAIL: 359 holds written - the rest address (the stub swap did not happen)', runJs(G.holdsW, pg(geoForm(REST_V))), false);
+	check('MUST FAIL: 359 holds written - no form', runJs(G.holdsW, pg(geoForm(WRITE_V, { form: false }))), false);
+	check('359 holds rest', runJs(G.holdsR, pg(geoForm(REST_V))), true);
+	check('MUST FAIL: 359 holds rest - city missing', runJs(G.holdsR, pg(geoForm(['230 North Alexander Street', 'LA', 'US', '70119']))), false);
+	{ const w = pg(geoForm(WRITE_V)); check('359 GIS off - GIS on -> clicked off; Address stays on', runJs(G.gisOff, w) && !w.document.getElementById('includeGis').checked, true); }
+	check('359 GIS off - already off (a non-GIS type): not toggled back on', (() => { const w = pg(geoForm(WRITE_V, { gis: false })); return runJs(G.gisOff, w) && !w.document.getElementById('includeGis').checked; })(), true);
+	check('MUST FAIL: 359 GIS off - Include Address is off (the submit would write nothing)', runJs(G.gisOff, pg(geoForm(WRITE_V, { adr: false }))), false);
+	{
+		const w = pg(geoForm(WRITE_V));
+		w.document.getElementById('includeGis').addEventListener('click', e => e.preventDefault());
+		check('MUST FAIL: 359 GIS off - the click did not take (GIS still on)', runJs(G.gisOff, w), false);
+	}
+	check('MUST FAIL: 359 GIS off - the field ids changed', runJs(G.gisOff, pg(geoForm(WRITE_V).replace('id="includeGis"', 'id="gis"'))), false);
+	check('359 armed - submit, GIS off, Address on', runJs(G.armed, pg(geoForm(WRITE_V, { gis: false }))), true);
+	check('MUST FAIL: 359 armed - Submit is type="button"', runJs(G.armed, pg(geoForm(WRITE_V, { gis: false, submit: 'button' }))), false);
+	check('MUST FAIL: 359 armed - GIS still on', runJs(G.armed, pg(geoForm(WRITE_V))), false);
+	check('359 closed - form gone, tabs alive', runJs(G.closed, pg(geoForm([], { form: false }))), true);
+	check('MUST FAIL: 359 closed - form still open', runJs(G.closed, pg(geoForm(WRITE_V))), false);
+	check('359 premise - rest fields and coordinates', twice(G.premise, pg('', { answers: [assetA()] })), true);
+	check('MUST FAIL: 359 premise - a leftover written address', twice(G.premise, pg('', { answers: [assetA(WR)] })), false);
+	check('MUST FAIL: 359 premise - latitude moved', twice(G.premise, pg('', { answers: [assetA({ latitude: 29.95 })] })), false);
+	check('MUST FAIL: 359 premise - longitude null', twice(G.premise, pg('', { answers: [assetA({ longitude: null })] })), false);
+	check('MUST FAIL: 359 premise - state IL', twice(G.premise, pg('', { answers: [assetA({ state: { id: 'IL' } })] })), false);
+	check('359 written - address/city/postal written, coordinates unchanged', twice(G.written, pg('', { answers: [assetA(WR)] })), true);
+	check('MUST FAIL: 359 written - still at rest (only the optimistic UI moved)', twice(G.written, pg('', { answers: [assetA()] })), false);
+	check('MUST FAIL: 359 written - GIS was written too (latitude moved)', twice(G.written, pg('', { answers: [assetA({ ...WR, latitude: 29.9511 })] })), false);
+	check('MUST FAIL: 359 written - city not written', twice(G.written, pg('', { answers: [assetA({ ...WR, city: 'New Orleans' })] })), false);
+	check('359 restored - rest', twice(G.restored, pg('', { answers: [assetA()] })), true);
+	check('MUST FAIL: 359 restored - still written', twice(G.restored, pg('', { answers: [assetA(WR)] })), false);
+	check('359 at rest', twice(G.atRest, pg('', { answers: [assetA()] })), true);
+	check('MUST FAIL: 359 at rest - country cleared', twice(G.atRest, pg('', { answers: [assetA({ countryCode: null })] })), false);
+	{
+		const w = pg('', { answers: [assetA()] });
+		const first = runJs(G.backstop, w), second = runJs(G.backstop, w);
+		check('359 backstop - at rest: one read, no write', first === false && second === true && w.__posts.length === 1 && w.__posts[0].body.variables.id === PUMP_ID, true);
+	}
+	{
+		const w = pg('', { answers: [assetA(WR), { data: {} }] });
+		runJs(G.backstop, w); const done = runJs(G.backstop, w); runJs(G.backstop, w);
+		const m = (w.__posts[1] || {}).body || {};
+		check('359 backstop - written: ONE updateAsset with exactly the rest address fields (no coordinates), never repeated',
+			done === true && w.__posts.length === 2 && /updateAsset\(/.test(m.query) && m.variables.id === PUMP_ID
+			&& JSON.stringify(m.variables.data) === JSON.stringify({ address: '230 North Alexander Street', city: 'New Orleans', postalCode: '70119', state: 'LA', countryCode: 'US' }), true);
+	}
+	{
+		const w = pg('', { answers: [assetA({ latitude: 29.95 })] });
+		twice(G.backstop, w);
+		check('359 backstop - only the coordinates drifted: it never writes coordinates (the final read stays red)', w.__posts.length === 1, true);
+	}
 }
 
 Promise.all(pending).then(() => {

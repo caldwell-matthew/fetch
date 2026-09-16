@@ -1,0 +1,976 @@
+{
+    "test_name": "MOB.361_Work_Note_Edit_Delete",
+    "details": {
+        "name": "MOB.361_Work_Note_Edit_Delete",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.361` **Edit a job note, then delete it \u2014 each write proved on the server.**\n- Adds its own note (`DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}`), proved over `/graphql` (exactly one, new).\n- `Edit Item` \u2192 the tiptap editor prefilled \u2192 replaced with `DD SYNTHETIC MOBILE 361 EDITED \u2026` \u2192\n  `UPDATE_WORKSTAGE_JOB_NOTE`, proved over `/graphql` on that note's id.\n- `Delete Item` \u2192 Yes \u2192 `REMOVE_JOB_NOTE_FROM_WORKSTAGE`, proved over `/graphql`: no marker note, and\n  the note ids are exactly those before the run.\n- \ud83d\uded1 **Owner-authorised delete** (trap 2), this run's note only: guarded in the gear-click step by a\n  server premise (no marker note before the run) and exactly one marker card. The delete leg is\n  `always`, so a red run still removes its own note.\n- \ud83d\uded1 SELF-CLEANING \u2014 the fixture ends with exactly the notes it started with.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Notes",
+            "CRUD",
+            "self-cleaning",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                },
+                {
+                    "name": "RUNID",
+                    "type": "text",
+                    "pattern": "{{ numeric(8) }}",
+                    "example": "48120735"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work to warm the lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the work list and lookup prefetch",
+                "noScreenshot": false,
+                "params": {
+                    "value": 20
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Clear this test's sessionStorage keys \u2014 only THIS run's premise may license the delete",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd361_before');\nsessionStorage.removeItem('__dd361_id');\nreturn sessionStorage.getItem('__dd361_before') === null;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (add)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Notes tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Notes\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Notes tab rendered its `Add` button",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the note cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): no job note carries `DD SYNTHETIC MOBILE 361` \u2014 so the one found after the add is THIS run's; store the note ids the server holds (the delete's licence and the cleanup's baseline)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd361_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ns = data.workStage.jobNotes; const P = 'DD SYNTHETIC MOBILE 361';\n  const mine = ns.filter(n => (n.desc || '').indexOf(P) !== -1);\n  const before = JSON.parse(sessionStorage.getItem('__dd361_before') || 'null');\n  if (mine.length !== 0) return false;\n  sessionStorage.setItem('__dd361_before', JSON.stringify(ns.map(n => n.id).sort()));\n  return true; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { jobNotes { id desc } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd361_server', '__dd361_server:inflight', '__dd361_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the add form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The note form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-collection-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the rich text editor",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//div[@contenteditable=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Type the run's marker note",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//div[@contenteditable=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `button[form=\"work-collection-form\"]` is `type=\"submit\"` (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[form=\"work-collection-form\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the new note",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"work-collection-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the add reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: exactly ONE note carries `DD SYNTHETIC MOBILE 361 NOTE <8 digits>`, and it is new \u2014 store its id",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd361_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ns = data.workStage.jobNotes; const P = 'DD SYNTHETIC MOBILE 361';\n  const mine = ns.filter(n => (n.desc || '').indexOf(P) !== -1);\n  const before = JSON.parse(sessionStorage.getItem('__dd361_before') || 'null');\n  if (!Array.isArray(before) || mine.length !== 1 || ns.length !== before.length + 1) return false;\n  if (before.indexOf(mine[0].id) !== -1) return false;\n  if (!/DD SYNTHETIC MOBILE 361 NOTE \\d{8}/.test(mine[0].desc)) return false;\n  sessionStorage.setItem('__dd361_id', mine[0].id);\n  return true; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { jobNotes { id desc } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd361_server', '__dd361_server:inflight', '__dd361_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (reload: edit its note)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Notes tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Notes\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Notes tab rendered its `Add` button",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the note cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the gear of the ONE card carrying `DD SYNTHETIC MOBILE 361` (the premise proved none pre-dated this run)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst panel = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!panel) return false;\nconst has = el => (el.textContent || '').replace(/\\s+/g, ' ').indexOf('DD SYNTHETIC MOBILE 361') !== -1;\nconst papers = [...panel.querySelectorAll('.mantine-Paper-root')];\nconst mine = papers.filter(c => has(c) && !papers.some(o => o !== c && c.contains(o) && has(o)));\nif (!sessionStorage.getItem('__dd361_before') || mine.length !== 1) return false;\nconst g = mine[0].querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Edit Item`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Item\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The note edit form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-collection-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The editor opened PREFILLED with this run's note (`DD SYNTHETIC MOBILE 361 NOTE`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')];\nconst eds = m.flatMap(x => [...x.querySelectorAll('[contenteditable=\"true\"]')]);\nreturn eds.length === 1 && (eds[0].textContent || '').indexOf('DD SYNTHETIC MOBILE 361 NOTE') !== -1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the rich text editor",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//div[@contenteditable=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select all of the note text",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Replace it with the EDITED marker",
+                "noScreenshot": false,
+                "params": {
+                    "value": "DD SYNTHETIC MOBILE 361 EDITED {{ RUNID }}",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//div[@contenteditable=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The editor now reads `DD SYNTHETIC MOBILE 361 EDITED \u2026` and no longer `DD SYNTHETIC MOBILE 361 NOTE`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')];\nconst eds = m.flatMap(x => [...x.querySelectorAll('[contenteditable=\"true\"]')]);\nconst t = eds.length === 1 ? (eds[0].textContent || '') : '';\nreturn t.indexOf('DD SYNTHETIC MOBILE 361 EDITED') === 0 && t.indexOf('DD SYNTHETIC MOBILE 361 NOTE') === -1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `button[form=\"work-collection-form\"]` is `type=\"submit\"` (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[form=\"work-collection-form\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the edit",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"work-collection-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the update reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the run's note (its stored id) now holds `DD SYNTHETIC MOBILE 361 EDITED <8 digits>` \u2014 `UPDATE_WORKSTAGE_JOB_NOTE` saved (the modal proves nothing: optimistic)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd361_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ns = data.workStage.jobNotes; const P = 'DD SYNTHETIC MOBILE 361';\n  const mine = ns.filter(n => (n.desc || '').indexOf(P) !== -1);\n  const before = JSON.parse(sessionStorage.getItem('__dd361_before') || 'null');\n  const id = sessionStorage.getItem('__dd361_id');\n  if (!Array.isArray(before) || !id || mine.length !== 1 || mine[0].id !== id || ns.length !== before.length + 1) return false;\n  return /DD SYNTHETIC MOBILE 361 EDITED \\d{8}/.test(mine[0].desc) && mine[0].desc.indexOf('DD SYNTHETIC MOBILE 361 NOTE') === -1; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { jobNotes { id desc } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd361_server', '__dd361_server:inflight', '__dd361_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (reload: delete its note)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Notes tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Notes\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Notes tab rendered its `Add` button",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the note cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + open its gear: only if THIS run's premise passed (`__dd361_before` set: no `DD SYNTHETIC MOBILE 361` note pre-dated the run) and exactly ONE card carries the prefix",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst panel = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')].find(x => x.style.display !== 'none');\nif (!panel) return false;\nconst has = el => (el.textContent || '').replace(/\\s+/g, ' ').indexOf('DD SYNTHETIC MOBILE 361') !== -1;\nconst papers = [...panel.querySelectorAll('.mantine-Paper-root')];\nconst mine = papers.filter(c => has(c) && !papers.some(o => o !== c && c.contains(o) && has(o)));\nif (!sessionStorage.getItem('__dd361_before') || mine.length !== 1) return false;\nconst g = mine[0].querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Delete Item` \u2014 on THIS card (its own record id)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Delete Item\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the confirmation open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Confirm: \"Yes\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Are you sure you want to delete this record?\")]]//button[normalize-space(.)=\"Yes\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the remove mutation",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: no note carries `DD SYNTHETIC MOBILE 361`, and the note ids are EXACTLY those before the run \u2014 deleted, and nothing else touched (`REMOVE_JOB_NOTE_FROM_WORKSTAGE`; a reload would show the cache's word)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd361_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ns = data.workStage.jobNotes; const P = 'DD SYNTHETIC MOBILE 361';\n  const mine = ns.filter(n => (n.desc || '').indexOf(P) !== -1);\n  const before = JSON.parse(sessionStorage.getItem('__dd361_before') || 'null');\n  if (!Array.isArray(before) || mine.length !== 0) return false;\n  const now = ns.map(n => n.id).sort();\n  return now.length === before.length && now.every((x, i) => x === before[i]); })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { jobNotes { id desc } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd361_server', '__dd361_server:inflight', '__dd361_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove this test's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd361_before');\nsessionStorage.removeItem('__dd361_id');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

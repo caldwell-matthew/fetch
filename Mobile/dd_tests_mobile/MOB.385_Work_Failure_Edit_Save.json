@@ -1,0 +1,856 @@
+{
+    "test_name": "MOB.385_Work_Failure_Edit_Save",
+    "details": {
+        "name": "MOB.385_Work_Failure_Edit_Save",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.385` **A failure's `Edit Item` saves \u2014 proved on the server, then restored.**\n- The fixture's permanent failure (`Pump 0102 \u00b7 BELT (R-L1) \u00b7 MISSED \u00b7 TIME`): the form\n  opens prefilled, Repair Type **MISSED \u2192 REPAIR** on the FIRST `Edit Item` after the page\n  loads (`UPDATE_WORKSTAGE_FAILURE`), proved by a `/graphql` read of that failure id, then\n  **REPAIR \u2192 MISSED** and proved again (`always`).\n- REPAIR, not ADJUST: `MOB.391` owns the ADJUST key (bugs \u00a740's unique key).\n- \ud83d\uded1 **Red whenever bugs \u00a742's race is lost:** that first Submit does nothing (the form's schema is\n  built before `GET_SCHEMA` loads). The save proof is soft, so the restore still runs.\n- The restore opens and closes `Edit Item` once first, so it saves with \u00a742 open or fixed.\n- \ud83d\uded1 SELF-RESTORING \u2014 one field, restored to a fixed value.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Failures",
+            "Edit",
+            "self-restoring",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (premise)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Failure tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Failure\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the failure cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE: exactly one `Pump 0102 \u00b7 BELT (R-L1) \u00b7 MISSED \u00b7 TIME` card on screen",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst orig = cards.filter(c => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Root Cause'] === 'TIME' && ['MISSED', 'REPAIR'].indexOf(c.row['Repair Type']) !== -1);\nreturn orig.length === 1 && orig[0].row['Repair Type'] === 'MISSED';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): the fixture's one failure is BELT (R-L1) \u00b7 MISSED \u00b7 TIME \u2014 the fixed restore value",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd385_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.failures.length === 1 && ((f) => f.id === 'YxYAgs5xtV5pQJFopUw5xN' && !!f.assetId && f.assetId.name === 'Pump 0102' && !f.componentTypeId && !!f.failureTypeId && f.failureTypeId.name === 'BELT (R-L1)' && !!f.rootCauseTypeId && f.rootCauseTypeId.name === 'TIME' && !f.discoveryCodeId && !!f.repairTypeId && f.repairTypeId.name === 'MISSED')(data.workStage.failures[0])); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { failures { id assetId { name } componentTypeId { id } failureTypeId { name } repairTypeId { name } rootCauseTypeId { name } discoveryCodeId { id } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd385_server', '__dd385_server:inflight', '__dd385_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the `Pump 0102 \u00b7 BELT (R-L1) \u00b7 TIME` failure card's gear \u2014 exactly one such card reading MISSED",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst orig = cards.filter(c => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Root Cause'] === 'TIME' && ['MISSED', 'REPAIR'].indexOf(c.row['Repair Type']) !== -1);\nif (orig.length !== 1 || orig[0].row['Repair Type'] !== 'MISSED') return false;\nconst g = orig[0].el.querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Edit Item`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Item\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the edit form mount (it loads the WorkStageFailure schema)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The failure form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-failure-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form opened PREFILLED from this card: `#failureTypeId` BELT (R-L1), `#repairTypeId` MISSED, `#rootCauseTypeId` TIME",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = id => { const el = document.getElementById(id); return el ? (el.value || '').trim() : null; };\nreturn v('failureTypeId') === 'BELT (R-L1)' && v('repairTypeId') === 'MISSED' && v('rootCauseTypeId') === 'TIME';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the Repair Type lookup (`#repairTypeId`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"repairTypeId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the repair type options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick REPAIR \u2014 the one VISIBLE option titled exactly \"REPAIR\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const vis = [...document.querySelectorAll('[role=\"option\"]')].filter(o => {\n  const t = o.querySelector('[class*=\"option-title\"]');\n  return t && (t.textContent || '').trim() === 'REPAIR' && o.offsetParent !== null;\n});\nif (vis.length !== 1) return false;\nvis[0].click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form now holds Repair Type REPAIR",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.getElementById('repairTypeId');\nreturn !!el && (el.value || '').trim() === 'REPAIR';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Failure Type and Root Cause are still BELT (R-L1) / TIME (no cascade cleared them)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = id => { const el = document.getElementById(id); return el ? (el.value || '').trim() : null; };\nreturn v('failureTypeId') === 'BELT (R-L1)' && v('rootCauseTypeId') === 'TIME';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `button[form=\"work-failure-form\"]` is `type=\"submit\"` (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[form=\"work-failure-form\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the edit",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"work-failure-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the update reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the FIRST `Edit Item` after the page loads SAVED \u2014 the same failure now holds Repair Type REPAIR (bugs \u00a742: red until fixed; the modal proves nothing here)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd385_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.failures.length === 1 && ((f) => f.id === 'YxYAgs5xtV5pQJFopUw5xN' && !!f.assetId && f.assetId.name === 'Pump 0102' && !f.componentTypeId && !!f.failureTypeId && f.failureTypeId.name === 'BELT (R-L1)' && !!f.rootCauseTypeId && f.rootCauseTypeId.name === 'TIME' && !f.discoveryCodeId && !!f.repairTypeId && f.repairTypeId.name === 'REPAIR')(data.workStage.failures[0])); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { failures { id assetId { name } componentTypeId { id } failureTypeId { name } repairTypeId { name } rootCauseTypeId { name } discoveryCodeId { id } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd385_server', '__dd385_server:inflight', '__dd385_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order (restore)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Failure tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Failure\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the failure cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the `Pump 0102 \u00b7 BELT (R-L1) \u00b7 TIME` failure card's gear \u2014 exactly one such card",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst orig = cards.filter(c => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Root Cause'] === 'TIME' && ['MISSED', 'REPAIR'].indexOf(c.row['Repair Type']) !== -1);\nif (orig.length !== 1) return false;\nconst g = orig[0].el.querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Edit Item`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Item\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the edit form mount (it loads the WorkStageFailure schema)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The failure form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-failure-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close it unsaved \u2014 `GET_SCHEMA` is now cached, so the NEXT form builds the full schema (bugs \u00a742)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-close \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The failure form is closed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.getElementById('work-failure-form');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the `Pump 0102 \u00b7 BELT (R-L1) \u00b7 TIME` failure card's gear \u2014 exactly one such card",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const norm = t => (t || '').replace(/\\s+/g, ' ').trim();\nconst cards = [...document.querySelectorAll('table')]\n  .filter(t => /Failure Type/.test(t.textContent || ''))\n  .map(t => { const c = t.closest('[class*=\"mantine-Paper-root\"]'); if (!c) return null;\n    const grp = c.parentElement && c.parentElement.closest('[class*=\"mantine-Paper-root\"]');\n    const a = grp && grp.querySelector('[class*=\"mantine-Text-root\"]');\n    const row = {}; [...t.querySelectorAll('tr')].forEach(tr => { const td = [...tr.children].map(x => norm(x.textContent)); if (td.length >= 2) row[td[0]] = td[1]; });\n    return { el: c, asset: a ? norm(a.textContent) : '', row }; }).filter(Boolean);\nconst orig = cards.filter(c => c.asset === 'Pump 0102' && c.row['Failure Type'] === 'BELT (R-L1)'\n  && c.row['Root Cause'] === 'TIME' && ['MISSED', 'REPAIR'].indexOf(c.row['Repair Type']) !== -1);\nif (orig.length !== 1) return false;\nconst g = orig[0].el.querySelector('[aria-label=\"Menu\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Edit Item`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Item\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the edit form mount (it loads the WorkStageFailure schema)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The failure form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//form[@id=\"work-failure-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the Repair Type lookup (`#repairTypeId`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"repairTypeId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the repair type options",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Pick MISSED \u2014 the one VISIBLE option titled exactly \"MISSED\"",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const vis = [...document.querySelectorAll('[role=\"option\"]')].filter(o => {\n  const t = o.querySelector('[class*=\"option-title\"]');\n  return t && (t.textContent || '').trim() === 'MISSED' && o.offsetParent !== null;\n});\nif (vis.length !== 1) return false;\nvis[0].click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form now holds Repair Type MISSED",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const el = document.getElementById('repairTypeId');\nreturn !!el && (el.value || '').trim() === 'MISSED';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Failure Type and Root Cause are still BELT (R-L1) / TIME (no cascade cleared them)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const v = id => { const el = document.getElementById(id); return el ? (el.value || '').trim() : null; };\nreturn v('failureTypeId') === 'BELT (R-L1)' && v('rootCauseTypeId') === 'TIME';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `button[form=\"work-failure-form\"]` is `type=\"submit\"` (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[form=\"work-failure-form\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the edit",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"work-failure-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the update reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 RESTORED (server): the failure is back to BELT (R-L1) \u00b7 MISSED \u00b7 TIME",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd385_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.failures.length === 1 && ((f) => f.id === 'YxYAgs5xtV5pQJFopUw5xN' && !!f.assetId && f.assetId.name === 'Pump 0102' && !f.componentTypeId && !!f.failureTypeId && f.failureTypeId.name === 'BELT (R-L1)' && !!f.rootCauseTypeId && f.rootCauseTypeId.name === 'TIME' && !f.discoveryCodeId && !!f.repairTypeId && f.repairTypeId.name === 'MISSED')(data.workStage.failures[0])); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { failures { id assetId { name } componentTypeId { id } failureTypeId { name } repairTypeId { name } rootCauseTypeId { name } discoveryCodeId { id } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd385_server', '__dd385_server:inflight', '__dd385_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

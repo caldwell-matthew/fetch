@@ -4,13 +4,14 @@
         "name": "MOB.345_Work_Sort_Persist",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.345` The work list's sort choice is applied, **persisted**, and really reorders\nthe rows (T2.1). *(The test name understates it \u2014 kept because renaming would orphan its\nDatadog `public_id`.)*\n- **SELF-RESTORING, and it has to be.** The choice lives in\n  `sessionStorage['mobile-WorkStage-sort']` and Datadog reuses one browser session across a suite, so\n  a run ending on a non-default sort would change what every later work-order subtest\n  sees. Restore leg is `alwaysExecute` (trap 16c).\n- **It proves ORDERING too, without reading the sort column.** No column here is both\n  sortable and visible \u2014 the options are `Status`/`Priority`/`Created At`/`Target Due\n  Date` and a row shows `_assets`/`address`/name/desc \u2014 but the sort column never has\n  to be read. `applySortValue` makes `DESC = reverse(sortBy(list))`, so **descending\n  must be the exact reverse of ascending**, whatever the rows are called. Nothing is\n  hardcoded, unlike `MOB.580` which names two assets.\n- **Datadog cannot pass a value between steps**, so the capture step stashes the order\n  in a test-owned `sessionStorage` key as a side effect; a cleanup step deletes it.\n  That key is scratch space, not app state.\n- \u26a0\ufe0f **Virtuoso virtualises the list.** If it outgrows one screen, ASC and DESC would\n  render different subsets \u2014 so the comparison checks same-length and same-membership\n  BEFORE checking reversal, making that failure mode self-identifying rather than\n  looking like a sort bug.\n- The capture requires **>=2 rows**; fewer makes any ordering claim vacuous (trap 5).\n- **The assertion is JS against sessionStorage** (trap 16), not against the control. A\n  matching \"the input displays the label\" check was written and **failed while the\n  storage check beside it passed** \u2014 so Mantine's `Select` does not hold the human\n  label as its input value (most likely the option id). It was removed rather than\n  guessed at: the storage key is the app's contract, the DOM shape is Mantine's.\n- Restores to `Created At \u25bc`, which is the component's own default\n  (`setOrderBy(formatSortValue(createdAt, 'DESC'))`). \u26a0\ufe0f It restores the *value*, not\n  the absence of the key \u2014 a first-ever run starts with no key at all, and this leaves\n  one set to the default. That is deliberate: it is the state every later subtest\n  expects, and it is what the component would have written itself.",
+        "message": "`MOB.345` The work list's sort choice is applied, **persisted**, and really reorders\nthe rows (T2.1). *(The test name understates it \u2014 kept because renaming would orphan its\nDatadog `public_id`.)*\n- **SELF-RESTORING, and it has to be.** The choice lives in\n  `sessionStorage['mobile-WorkStage-sort']` and Datadog reuses one browser session across a suite, so\n  a run ending on a non-default sort would change what every later work-order subtest\n  sees. Restore leg is `alwaysExecute` (trap 16c).\n- **It proves ORDERING too, without reading the sort column.** No column here is both\n  sortable and visible \u2014 the options are `Status`/`Priority`/`Created At`/`Target Due\n  Date` and a row shows `_assets`/`address`/name/desc \u2014 but the sort column never has\n  to be read. `applySortValue` makes `DESC = reverse(sortBy(list))`, so **descending\n  must be the exact reverse of ascending**, whatever the rows are called. Nothing is\n  hardcoded, unlike `MOB.580` which names two assets.\n- **Datadog cannot pass a value between steps**, so the capture step stashes the order\n  in a test-owned `sessionStorage` key as a side effect; a cleanup step deletes it.\n  That key is scratch space, not app state.\n- \u26a0\ufe0f **Virtuoso virtualises the list, and the filtered list no longer fits one screen.**\n  Two captures taken at the TOP of each order are two disjoint windows with nothing in\n  common (measured 2026-09-15: ascending held `20260910-1/2/3-001`, descending held\n  `20260913-1-001, 20260911-1-001, 20260910-6-001`). So the ascending capture is taken\n  at the top and the descending one **after scrolling to the end** \u2014 under\n  `DESC = reverse(ASC)` those are the same rows, and the overlap exists at any list\n  length. A DIAG step reports the overlap separately, so \"nothing to compare\" never\n  looks like a sort bug.\n- The capture requires **>=2 rows**; fewer makes any ordering claim vacuous (trap 5).\n- **The assertion is JS against sessionStorage** (trap 16), not against the control. A\n  matching \"the input displays the label\" check was written and **failed while the\n  storage check beside it passed** \u2014 so Mantine's `Select` does not hold the human\n  label as its input value (most likely the option id). It was removed rather than\n  guessed at: the storage key is the app's contract, the DOM shape is Mantine's.\n- Restores to `Created At \u25bc`, which is the component's own default\n  (`setOrderBy(formatSortValue(createdAt, 'DESC'))`). \u26a0\ufe0f It restores the *value*, not\n  the absence of the key \u2014 a first-ever run starts with no key at all, and this leaves\n  one set to the default. That is deliberate: it is the state every later subtest\n  expects, and it is what the component would have written itself.",
         "tags": [
             "Mobile",
             "env:dev",
             "Work Order",
             "Search",
-            "read-only"
+            "read-only",
+            "module:work-orders"
         ],
         "locations": [
             "gcp:us-west2"
@@ -330,7 +331,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Narrow the list to \"permit\" \u2014 the reversal invariant needs a FULLY rendered list",
+                "name": "Narrow the list to \"permit\" \u2014 fewer rows, readable failures",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -366,10 +367,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "NARROWED: between 2 and 15 rows render, and each is distinct",
+                "name": "NARROWED: at least 2 rows render and each is DISTINCT (a duplicate identity would let the proof pass on nothing)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst o = ORDER();\nif (o.length < 2 || o.length > 15) return false;\nreturn new Set(o).size === o.length;"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst o = ORDER();\nif (o.length < 2) return false;\nreturn new Set(o).size === o.length;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -536,10 +537,35 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "Scroll the work list back to the top",
+                "noScreenshot": false,
+                "params": {
+                    "code": "for (const e of document.querySelectorAll('div')) {\n  if (e.scrollHeight > e.clientHeight + 4) e.scrollTop = 0;\n}\nif (document.scrollingElement) document.scrollingElement.scrollTop = 0;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Virtuoso re-render the head of the list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "CAPTURE: record the ascending row order (needs >=2 rows to mean anything)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst o = ORDER();\n// <2 rows makes any ordering claim vacuous (trap 5), so fail loudly instead.\nif (o.length < 2) return false;\nsessionStorage.setItem('__dd345_asc', JSON.stringify(o));\nreturn true;"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst o = ORDER();\n// <2 rows makes any ordering claim vacuous (trap 5), so fail loudly instead.\nif (o.length < 2) return false;\nsessionStorage.setItem('__dd345_asc', JSON.stringify(o));\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -702,14 +728,89 @@
                 "type": "wait"
             },
             {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Scroll to the last rendered row (pass 1 of 3) \u2014 Virtuoso mounts the next slice each time",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst rows = [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nif (!rows.length) return false;\nrows[rows.length - 1].scrollIntoView({block: 'end'});\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Virtuoso mount the next slice",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Scroll to the last rendered row (pass 2 of 3) \u2014 Virtuoso mounts the next slice each time",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst rows = [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nif (!rows.length) return false;\nrows[rows.length - 1].scrollIntoView({block: 'end'});\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Virtuoso mount the next slice",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Scroll to the last rendered row (pass 3 of 3) \u2014 Virtuoso mounts the next slice each time",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst rows = [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'));\nif (!rows.length) return false;\nrows[rows.length - 1].scrollIntoView({block: 'end'});\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Virtuoso mount the next slice",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
                 "allowFailure": true,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "DIAG: ASC and DESC rendered the SAME NUMBER of rows",
+                "name": "DIAG: ASC and DESC rendered the SAME NUMBER of rows (they need not \u2014 the descending capture is taken at the END of the list)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn desc.length === asc.length;"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn desc.length === asc.length;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 15
@@ -719,10 +820,10 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": false,
-                "name": "DIAG: ASC and DESC rendered the SAME SET of rows",
+                "name": "DIAG: the two captures OVERLAP by at least 2 rows \u2014 if this is the only ERR, the windows were disjoint and the proof had nothing to compare",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn [...asc].sort().join('\\u0000') === [...desc].sort().join('\\u0000');"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nconst inDesc = new Set(desc);\nreturn asc.filter(r => inDesc.has(r)).length >= 2;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 15
@@ -735,7 +836,7 @@
                 "name": "DIAG: the rendered order actually CHANGED between ASC and DESC",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn desc.join('\\u0000') !== asc.join('\\u0000');"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nreturn desc.join('\\u0000') !== asc.join('\\u0000');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 15
@@ -761,7 +862,7 @@
                 "name": "PROOF: every row rendered in BOTH orders comes out exactly reversed",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nconst inDesc = new Set(desc), inAsc = new Set(asc);\nconst ascCommon = asc.filter(r => inDesc.has(r));\nconst descCommon = desc.filter(r => inAsc.has(r));\n// <2 rows in common proves nothing - and means the narrowing stopped working.\nif (ascCommon.length < 2) return false;\nreturn descCommon.join('\\u0000') === [...ascCommon].reverse().join('\\u0000');"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst raw = sessionStorage.getItem('__dd345_asc');\nif (!raw) return false;\nlet asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\nconst desc = ORDER();\nconst inDesc = new Set(desc), inAsc = new Set(asc);\nconst ascCommon = asc.filter(r => inDesc.has(r));\nconst descCommon = desc.filter(r => inAsc.has(r));\n// <2 rows in common proves nothing - and means the narrowing stopped working.\nif (ascCommon.length < 2) return false;\nreturn descCommon.join('\\u0000') === [...ascCommon].reverse().join('\\u0000');"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -778,6 +879,31 @@
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "Scroll the work list back to the top",
+                "noScreenshot": false,
+                "params": {
+                    "code": "for (const e of document.querySelectorAll('div')) {\n  if (e.scrollHeight > e.clientHeight + 4) e.scrollTop = 0;\n}\nif (document.scrollingElement) document.scrollingElement.scrollTop = 0;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let Virtuoso re-render the head of the list",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
             },
             {
                 "allowFailure": true,

@@ -25,13 +25,25 @@ spends runs and waits for the owner's go-ahead — state the cost when asking.
 | 3 | Static checks | `preflight.py` — or one at a time: the bench (a must-fail case for every new JS step, trap 27), `check_literals.py`, `check_drift.py` | 0 |
 | 4 | Replay locally | `local_run.py <test>` until it passes, or is red only where designed (a `soft` bug proof). Before explaining a red, open its screenshot in `Mobile/local_runs/<test>/` | 0 |
 | 5 | Confirm on Datadog | `verify.py <test>` — pushes only that test and the scratch harness, then runs it | 2 (3 when red) |
-| 6 | Wire | add the child to its suite's builder → `wire_suite.py` → `dd_tools.py push <suite>`. A suite holding `PENDING-WIRE-UP` makes every push fail, and `verify.py` refuses to run after a failed push | 0 |
+| 6 | Wire | add the child's id to its suite in `suite_plan.py` → `build_module_suites.py` (`DD_FORCE=1`) → `wire_suite.py` → `dd_tools.py push <suite>`. A suite holding `PENDING-WIRE-UP` makes every push fail, and `verify.py` refuses to run after a failed push | 0 |
 
 - **A local pass is a pre-check, not a verdict.** Datadog's browser, location and timing differ;
   only step 5 goes into the checklist's 📊 RUN STATUS. A mutating replay writes what a Datadog run
   writes — `preflight.py` before and after.
-- **What a replay cannot show:** `uploadFiles` (skipped, the run marked INCOMPLETE — trap 12). A
-  click Playwright refuses as not actionable is retried forced and flagged, because Datadog clicks it —
+- **Uploads replay with a stand-in file** — Datadog's bytes stay in its storage (trap 12), so `uploadFiles`
+  sets a same-named file from `Mobile/local_fixtures/` (no such directory today, so in practice always
+  the fallback) or a generated PNG/PDF, and really uploads it — *provided the step that opens the
+  picker is itself replayable* (see the `userLocator` warning below).
+  Replays take `local_runs/.replay.lock`, so two never run against the fixtures at once. ⚠️ That lock
+  is why `local_timing` reads a suite's time from `local_run`'s own clock, not the subprocess wall.
+- 🛑 **A STEP WITH NO `userLocator` CANNOT REPLAY AT ALL, AND THE TEST MAY STILL GO GREEN.**
+  `local_run` needs an xpath; a recorded-element step has none and fails with `no xpath locator on
+  this step`. `MOB.600`'s `Open the photo picker ("Add Asset Photo")` is exactly that, so a local
+  MOB.600 attaches NO photo — and collecting without a photo persists, so its bugs §34 server proof
+  **passes locally while the bug is live**. Measured 2026-09-15: local red at the picker with a green
+  server proof; Datadog green at the picker with a red server proof. ➡️ Only Datadog exercises §34.
+  Before trusting any local green, check the run for `no xpath locator` errors earlier in the test.
+- **What a replay cannot show:** a click Playwright refuses as not actionable is retried forced and flagged, because Datadog clicks it —
   but a forced click on an element still animating can land without effect (`MOB.951`'s Forms tab at
   320px stayed on General Info). Read a flagged forced click before trusting the steps after it.
 - **`--continue`** runs past a red step (Datadog stops there) — to see every red, or to time a suite.
@@ -45,14 +57,16 @@ spends runs and waits for the owner's go-ahead — state the cost when asking.
 
 | Fixture | Id | Used by | Must stay |
 |---|---|---|---|
-| Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.134, MOB.310–395 | crew `Admin`, status **`Ready`** (`MOB.320` restores it `always`; outside In Progress/On Hold/Ready it leaves the crew's list — bugs §25). `desc` owned by MOB.395, ends every run `DATADOG FIXTURE`. Holds ONE permanent condition (`Pump 0102 · Structural · Mounting/Support`, 1/2/3 — `MOB.386` edits Condition Left and restores 2) and ONE failure (`MISSED`) — each the unique key's slot (bugs §40). Its first form's first integer field is empty at rest (`MOB.134` writes `134` and clears it) |
+| Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.134, MOB.310–399, MOB.911/912, MOB.951 | crew `Admin`, status **`Ready`** (`MOB.320` restores it `always`; outside In Progress/On Hold/Ready it leaves the crew's list — bugs §25). `desc` owned by MOB.395, ends every run `DATADOG FIXTURE`. **No `project` — it must stay that way.** General Info resubmits every field, so referencing a project makes the server reject *any* save on this form, and every project on dev has a null account (bugs §46); the reference to `Project One` was cleared 2026-09-15 so MOB.395 can run. Holds ONE permanent condition (`Pump 0102 · Structural · Mounting/Support`, 1/2/3 — `MOB.386` edits Condition Left and restores 2) and ONE failure (`MISSED`) — each the unique key's slot (bugs §40). Its first form's first integer field is empty at rest (`MOB.134` writes `134` and clears it). Address/x/y owned by `MOB.352` (rest `230 North Alexander Street, New Orleans, LA 70119` · -90.1025785 · 29.9782827); its one asset link (`Pump 0102`, `Active`, sequence 1) owned by `MOB.353`; `MOB.354` adds and removes a `Bypass Valve 0001` link |
 | Work order | `RcdI0xcpc8NBV8VoRNNBYM` | MOB.302 | holds the photo `MOB.302` links to `Bypass Valve 0001` |
+| Work order | `xohY0klBZktB9VBRxc8k4J` (`20260910-16`, created by `MOB.396`) | MOB.363, MOB.364, MOB.365 | `Ready`; exactly 8 crews including `Admin`; no schedule entries; no attachments; one asset, `⚡ Tank 0000`; template `All Tabs` with `copyAttachmentToAsset` off. 3 forms at rest — `MOB.364` attaches one and deletes it |
 | Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–590, 536, 537, 913 | crew `Admin`, `IN_PROGRESS`, exactly **2 assets** — `⚡ Tank 0000` (tag `0000`; the symbol is part of the stored name) and `A/C Motor 0002` (no tag) — neither verified. `reset_av_fixture.py --check` asserts it for 0 runs; match names by **containment** (trap 29) |
-| Asset | `Pump 0102` | MOB.387, 389–391, 700, 710 | attached to the work order; `desc` owned by MOB.710, ends `DATADOG FIXTURE`. 🛑 **Never touch its attachments** (owner) |
-| Asset | `Bypass Valve 0001` (`wFRo1MMwoAMkdxA4hVpIhB`) | MOB.302 | no photos at rest — `MOB.302` links one and unlinks it |
+| Asset | `Pump 0102` | MOB.387, 389–391, 700, 710 | attached to the work order; `desc` owned by MOB.710, ends `DATADOG FIXTURE`. 🛑 **Never touch its attachments** (owner). Address, city and postal code owned by `MOB.359` (restored `always`; lat/long never written) |
+| Asset | `Bypass Valve 0001` (`wFRo1MMwoAMkdxA4hVpIhB`) | MOB.302, MOB.354 | no photos at rest — `MOB.302` links one and unlinks it; no location, and never left linked to a work order (`MOB.354`) |
 | Asset | `⚡ Building 0000` | MOB.721, MOB.914 | zero event readings |
 | Asset | `⚡ Tank 0000` (the mobile job's asset) | MOB.546, MOB.914 | at least one photo with a gear — `MOB.914`'s fixture guard |
 | Asset type | `Actuator Tools` | MOB.600 | exists |
+| Datadog test | `MOB.PDF_Upload_Recording` (`nz9-uj4-5jd`) | MOB.628, MOB.866 | 🛑 **never delete** — its one recorded `uploadFiles` step stores the PDF they upload (`dd_tools.RECORDED_PDF`, trap 12). Paused, no local JSON (`preflight.py sync` ignores it) |
 | Storeroom / item | `Central Storeroom` · `000-000-000 Adamantium` | MOB.850/860/870 | visible to `Admin`, `canAdjust` on |
 
 Session role must be exactly **`Admin`** — the Datadog env also has `Admin (0000)`/`(0100)`
@@ -88,20 +102,22 @@ login-bearing test asserts the role right after login.
 - **`write` refuses to overwrite existing JSON without `DD_FORCE=1`** — the JSON is the source of
   truth for anything hand-authored (trap 12).
 - **Scheduling: manual today; weekly Datadog runs are the owner's late-game plan, once no more
-  tests are being made** (checklist #37); suite runtimes are measured locally first (#31). All tests are `paused`, and `push` omits `status`, so enabling a schedule needs a
+  tests are being made** (checklist #37); every suite's runtime is measured locally (`local_runs/timing/summary.md`). All tests are `paused`, and `push` omits `status`, so enabling a schedule needs a
   deliberate push change — suites only, staggered (trap 1).
 
 ## Tooling
 
 | Command | Purpose |
 |---|---|
-| `preflight.py` | ⭐ every 0-run check in one command — wiring, local↔Datadog by content, drift, literals, bench, the docs' own consistency (`docs`), and the fixtures (AV job at rest, work order `Ready`, MOB.302's photo/asset, no MOB.390/391 leftovers). Run before any suite. Skips `drift` while a run is in flight |
+| `preflight.py` | ⭐ every 0-run check in one command — wiring, local↔Datadog by content, drift, literals, bench, the docs' own consistency (`docs`), and the fixtures (AV job at rest, work order `Ready` **and carrying no `project`** — bugs §46, MOB.302's photo/asset, no MOB.390/391 leftovers). Run before any suite. Skips `drift` while a run is in flight |
 | `local_run.py <test>` | ⭐ **replay a test locally in Playwright — 0 Datadog runs** (the loop, step 4). The same step JSON with Datadog's rules — polling to each timeout, "Multiple elements found", `optional`/`soft`/`always` — globals read from the API, MOB.000's login prefixed, the test's own device (tablet 768×1020, phone 320×550). Headless by default; a failure saves its screenshot and error to `Mobile/local_runs/<test>/`. `--headed` to watch in a Chromium window · `--continue` past a red step · `--trace` for a replayable timeline (`python -m playwright show-trace`) · `--max-timeout` to iterate fast · `--device large_phone` (430×932, **local only** — no Datadog device) · `LOCAL_RUN_TESTS=<dir>` to replay a sandbox build. `--live` rewrites `local_runs/live.png` each step, but VS Code's image tab does not reload it — watch with `--headed`. Avoid `--slow-mo`: a forced click on a moving element misses |
-| `local_timing.py [suite …]` | every suite locally, one at a time (`--continue`), into `local_runs/timing/summary.md` — runtimes for the weekly schedule (checklist #37). Local seconds are an estimate; compare with its `DATADOG_LAST` |
+| `local_timing.py [suite …]` | every suite locally, one at a time (`--continue`), into `local_runs/timing/summary.md` — runtimes for the weekly schedule (checklist #37). A suite's time comes from `local_run`'s own post-lock clock, because the subprocess wall also counts waiting for `.replay.lock` (measured 2026-09-15: MOB.981 walled 423s for a 313s run). `summary.md` is rebuilt from every stored log, so timing a few suites tops the file up instead of replacing it. `DATADOG_LAST` is empty — the module suites have not run on Datadog, so every "last Datadog" cell reads `—`. |
 | `verify.py <test>` | confirm ONE test on Datadog (the loop, step 5) through the `MOB.999_Verify_Scratch` harness — 2 runs (3 when red: Datadog retries once). Pushes only that test and the scratch harness |
 | `dd_tools.py push <test …>` | push ONLY the tests being edited (owner rule) — refuses without names; `--all` is a deliberate full sync. Exits non-zero on failure — chain with `&&` |
 | `dd_tools.py pull <name>` | fetch a test back after a Datadog-UI edit |
 | `dd_tools.py run <suite>` · `report <suite> [n]` | trigger + poll — refuses a named test whose steps differ from Datadog (`--push` pushes the named tests first) · per-step results with run age |
+| `suite_plan.py` | ⭐ **the one place suite membership is kept** — the 24 module suites (MOB.953–975, MOB.980, MOB.981). 🛑 The retiring `MOB.983`–`MOB.998` are the exception: `build_suites.py`, `build_verify_suite.py`, `build_workdetail_suite.py` and five leaf builders still hold their own child lists. **Do not run them** — each resets its suite's wired ids to `PENDING-WIRE-UP`. They go when those suites are retired, each child's run order, the standalone and held leaves. `assert_complete()` fails if a leaf is in no suite or in two. `dd_tools.test()` tags every test `module:<slug>` from it |
+| `build_module_suites.py` | writes the module suites from `suite_plan.py` (login once, then the children in order) |
 | `wire_suite.py` | fill in `subtestPublicId` once children exist. Re-run after any suite rebuild |
 | `check_drift.py` | where a generator and its JSON disagree, changing nothing; names what a rebuild would LOSE. Run before any `DD_FORCE=1` |
 | `sweep_strings.py` | the rendered-string sweep: every JSX text child in `client/mobile` that no test's params contain — the source of new OPEN WORK rows. Catches TypeScript fragments too; every hit needs a read |
@@ -142,7 +158,8 @@ login-bearing test asserts the role right after login.
 the mutating tests share one fixture, so two devices race (caught when a phone session walked the
 work order while the tablet asserted its status). It hides itself: for runs one device died at
 login and the suite looked clean. `set_device.py` enforces it. **The one exception:**
-`MOB.984_Phone_Suite` (`_Phone_` tests) — ONE device each (`chrome.mobile_small`), READ-ONLY, run
+`MOB.975_Phone_Suite` (`_Phone_` tests; the retiring `MOB.984_Phone_Suite` too) — ONE device each
+(`chrome.mobile_small`), READ-ONLY, run
 on its own, never alongside a mutating tablet suite.
 
 **2 · Never write a delete step unless the owner names the flow.** A delete code path existing
@@ -151,6 +168,20 @@ on its own, never alongside a mutating tablet suite.
   fixture lacks; the premise proves it absent first; the guard shares a step with the gear click;
   a reload proves the original untouched).
 - `MOB.302` — `Delete Photo` on `Bypass Valve 0001`'s Photos tab, never `Pump 0102`.
+- `MOB.361` — `Delete Item` on the job note it added this run (owner 2026-09-15). The premise
+  asserts over `/graphql` that no note carries `DD SYNTHETIC MOBILE 361`, and stashes the ids the
+  server held, so only this run's note can be the target.
+- `MOB.363` — `Delete Photo` on the photo it just uploaded to work order `20260910-16` (owner
+  2026-09-15). Asserts the menu set first and clicks `Delete Photo`, **never** `Copy to asset`.
+- `MOB.364` — `deleteWorkStageForm` over `/graphql`, because mobile has no remove for an attached
+  form (owner 2026-09-15). One shot; it refuses any id the stage already held before this run.
+- `MOB.627` — `Delete Photo` on its own upload only (owner 2026-09-15); the guard requires the
+  last carousel slide to BE our photo. ⚠️ Its created org tag is permanent — mobile cannot delete
+  one, so that is residue, not a delete.
+- `MOB.628` — `Delete File(s)` on its own PDF (owner 2026-09-15). `deleteFiles` removes EVERY
+  selected row, so the guard is that the only checked row is ours.
+- `MOB.866` — both deletes are on the storeroom item's own uploads (owner 2026-09-15); the server
+  step proves the item holds exactly one attachment and stashes its id for the guard.
 
 Read the server before trusting a delete: `Copy to asset` *links* the same attachment, and
 `destroy` deletes the S3 file when exactly one reference is left. `MOB.302`'s guard (same step as
@@ -286,12 +317,17 @@ earlier failure and the test still fails.
 (Control — runners are Linux; `local_run.py` sends ⌘ on macOS) → type. And re-typing the value a field already holds leaves
 `isDirty` false, so the submit does nothing (trap 8) — use `{{ RUNID }}` for a value that differs. On Datadog, `pressKey Delete` after a select-all did NOT clear a
 Mantine `NumberInput` (`MOB.134`; the local replay did): clear through the native value setter and an `input` event.
+⭐ **`{{ RUNID }}` IS PER-TEST, INCLUDING LOCALLY.** Datadog gives every subtest its own local variables,
+and since 2026-09-15 `local_run` does too. Before that it merged all of a suite's children into one dict
+keyed by NAME, so `MOB.710`'s `{{ numeric(8) }}` was handed to `MOB.722`, whose input guard wants `722`
+plus FIVE digits — MOB.980 read `72252970672` and went red locally while passing on Datadog. Two tests
+may share the NAME `RUNID` with different patterns; they no longer share the value.
 
 **18 · A component can branch on VIEWPORT WIDTH.** `FormDetails.tsx` renders the desktop form
 (`#apm-dv-tabpanel`) at `screen.availWidth >= 750` and `#senor-work-form` below; `chrome.tablet`
 always takes the desktop branch. Grep a component for `availWidth`, `innerWidth`, `useMediaQuery`,
 `visibleFrom`/`hiddenFrom` before writing locators, and write against the tablet branch. A
-phone-only branch goes in `MOB.984_Phone_Suite` (trap 1's exception).
+phone-only branch goes in `MOB.975_Phone_Suite` (trap 1's exception).
 
 **19 · A generator and its JSON can disagree indefinitely.** `write` will not overwrite without
 `DD_FORCE=1`, so a builder fix may never reach the test — a dropped suite child cannot fail, so the

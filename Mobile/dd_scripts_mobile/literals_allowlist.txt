@@ -92,3 +92,39 @@ This is a note - DD SYNTHETIC MOBILE
 # MOB.721: its zero-readings fixture asset (stored as `⚡ Building 0000`, DB data).
 Building 0000
 EYRpYJ9QYdQ1JFF10JtB0Q
+# MOB.361: the marker note it types, edits and deletes (test data, not app text).
+DD SYNTHETIC MOBILE 361
+DD SYNTHETIC MOBILE 361 NOTE
+DD SYNTHETIC MOBILE 361 EDITED
+# MOB.385: the fixture work order's one permanent failure (its id, read over the API).
+YxYAgs5xtV5pQJFopUw5xN
+# MOB.866: the fixture storeroom item's and material item's ids (000-000-000 Adamantium, read over the API 2026-09-15).
+4lZMQZsNNdJ95hoYhd4gYt
+pJodNZlMY8Aw08g9hZE8NE
+# MOB.363/364/365: their shared work stage `20260910-16` and, for MOB.363, its asset ⚡ Tank 0000 (ids read over the API 2026-09-15).
+xohY0klBZktB9VBRxc8k4J
+8khYtoBRVNNs5d9cEt8NdY
+# MOB.365: the stage's 8 crews at rest and its target crew `Account Executive` (role ids, read over the API 2026-09-15).
+l4Jlk4ExMY005JZAF8hclQ
+cc5MgMoo1h9VJBZtB4ZNFR
+1ck5xMQ4IMV0BgRx0xsUdk
+5Ylk1wIhslMR8lsg8NAQxA
+kkBtBwZoBlpcw84F4F9B8s
+BVM9Bxkpox9BlEYd8sp0NR
+cQVVNJU5cFEU9RwIhw0Aps
+kx5sw1dVUFMYFs0UA08Z5M
+thtNo1Nd9th9FRNNoAN5Il
+# MOB.352: the fixture work order's rest address, which it writes back (DB data, read over the API 2026-09-15).
+230 North Alexander Street, New Orleans, LA 70119
+# MOB.353: the fixture's `Pump 0102` work-stage-asset link id (DB data, read over the API 2026-09-15).
+AE09h8JhBBhMtd1wIs98lQ
+# MOB.354/359: `Pump 0102`'s and `Bypass Valve 0001`'s asset ids (DB data, read over the API 2026-09-15),
+# and MOB.354's test-owned stash of the persisted Asset Lookup query.
+oB5BUN1Es1Jctw8FVYwYBh
+wFRo1MMwoAMkdxA4hVpIhB
+__dd354_prevQuery
+# MOB.359: Pump 0102's rest address fields (DB data) and the marker city its Mapbox stub answers (test data).
+230 North Alexander Street
+North Alexander Street
+New Orleans
+Metairie

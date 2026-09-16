@@ -15,10 +15,11 @@ WHY THIS EXISTS — trap 19, made detectable instead of discoverable.
   only checks a form closed, which trap 6 says proves nothing there.
 
 HOW IT WORKS
-  Copies the JSON aside, runs every generator with DD_FORCE=1 into the real directory, diffs,
-  then RESTORES the originals. Nothing is left changed even if it fails part-way.
-
-  ⚠️ It cannot run safely while something else is writing to dd_tests_mobile/. Run it alone.
+  Copies the JSON into a temp folder and runs every generator with DD_FORCE=1 and
+  DD_TESTS_DIR=<that folder>, then diffs the temp folder against the real JSON. The real
+  dd_tests_mobile/ is never written — so it is safe beside other builds and replays. (It used to
+  build into the real folder and restore a backup; two overlapping runs restored each other's
+  overwritten files and reset five suites' subtest ids to PENDING-WIRE-UP, 2026-09-15.)
 
 USAGE
     ./.venv/bin/python Mobile/dd_scripts_mobile/check_drift.py
@@ -50,22 +51,23 @@ def children(path):
 
 
 def main():
-    backup = tempfile.mkdtemp(prefix="dd_drift_")
+    scratch = tempfile.mkdtemp(prefix="dd_drift_")
     for f in glob.glob(os.path.join(TESTS, "*.json")):
-        shutil.copy(f, backup)
+        shutil.copy(f, scratch)
+    before_real = {f: os.path.getmtime(f) for f in glob.glob(os.path.join(TESTS, "*.json"))}
 
     findings, errors = [], []
     try:
         for gen in sorted(glob.glob(os.path.join(HERE, "build_*.py"))):
-            r = subprocess.run([PY, gen], env={**os.environ, "DD_FORCE": "1"},
+            r = subprocess.run([PY, gen], env={**os.environ, "DD_FORCE": "1", "DD_TESTS_DIR": scratch},
                                capture_output=True, text=True)
             if r.returncode:
                 tail = (r.stderr.strip().splitlines() or ["?"])[-1]
                 errors.append((os.path.basename(gen), tail[:100]))
 
-        for b in sorted(glob.glob(os.path.join(backup, "*.json"))):
+        for b in sorted(glob.glob(os.path.join(TESTS, "*.json"))):
             name = os.path.basename(b)
-            now = os.path.join(TESTS, name)
+            now = os.path.join(scratch, name)
             if not os.path.exists(now):
                 findings.append((name, "generator would DELETE this file", [], []))
                 continue
@@ -78,17 +80,17 @@ def main():
             findings.append((name, f"{len(before)} -> {len(after)} steps", lost, kid_loss))
 
         # a generator that CREATES a file the repo deliberately archived
-        for now in sorted(glob.glob(os.path.join(TESTS, "*.json"))):
-            if not os.path.exists(os.path.join(backup, os.path.basename(now))):
+        for now in sorted(glob.glob(os.path.join(scratch, "*.json"))):
+            if not os.path.exists(os.path.join(TESTS, os.path.basename(now))):
                 findings.append((os.path.basename(now),
                                  "generator CREATED this file — archived test being resurrected?",
                                  [], []))
     finally:
-        for f in glob.glob(os.path.join(TESTS, "*.json")):
-            os.remove(f)
-        for f in glob.glob(os.path.join(backup, "*.json")):
-            shutil.copy(f, TESTS)
-        shutil.rmtree(backup, ignore_errors=True)
+        shutil.rmtree(scratch, ignore_errors=True)
+    touched = [os.path.basename(f) for f, m in before_real.items() if os.path.exists(f) and os.path.getmtime(f) != m]
+    if touched:
+        errors.append(("dd_tests_mobile/ changed during the check (another build, or a generator ignoring DD_TESTS_DIR)",
+                       ", ".join(touched[:5])))
 
     if errors:
         print("GENERATORS THAT FAILED TO RUN:")

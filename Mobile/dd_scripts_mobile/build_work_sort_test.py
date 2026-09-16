@@ -102,11 +102,22 @@ def stored_is(label, name, always=False):
 
 STASH = "__dd345_asc"   # test-owned scratch key, deleted by the cleanup step
 
-# Row identity. `_workSequence` and `name` are the first things WorkListItem renders, but a
-# row's whole textContent is the most stable key available and needs no schema knowledge.
-ROWS_JS = ("const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n"
+# ROW IDENTITY IS THE TWO HEADINGS, NOT THE WHOLE ROW.
+#
+# Every `permit` row on dev renders the SAME name, assets, address and description - they
+# differ only in `_workSequence` (measured 2026-09-15 from the MOB.953 trace: the rows read
+# `20260910-1-001`, `20260910-2-001`, ... all of them `Inspection (No Permit)` / `Valve Group`
+# / `228 North Alexander Street`). Keying on the whole textContent therefore carries four
+# lines of identical boilerplate, plus the `Show more` spoiler toggle, to distinguish nothing.
+#
+# `_workSequence` and the name are the Paper's first two children (WorkListItem.tsx:53-91),
+# above every display field. They identify a row exactly and the string stays short enough to
+# read in a failure. `narrow_the_list` asserts they are distinct, so a collision fails loudly
+# instead of proving nothing.
+ROWS_JS = ("const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\n"
+           "const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n"
            "  .filter(e => (e.textContent || '').includes('Description:'))\n"
-           "  .map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());\n")
+           "  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\n")
 
 
 SEARCH_BOX = '//input[@placeholder="Find Workstage(s)"]'
@@ -116,33 +127,35 @@ NARROW = "permit"          # 4 matching work orders on dev, each with a distinct
 def narrow_the_list():
     """Filter the list down to a handful of rows BEFORE proving an order. Not optional.
 
-    🛑 THE REVERSAL INVARIANT DOES NOT SURVIVE VIRTUALISATION, and this list outgrew the
-    screen. The crew had 57 work orders on 2026-09-10 (counted through the API, 0 runs) and
-    `AssignedWork` renders through Virtuoso, so ASC and DESC show two different WINDOWS of the
-    list - not one order and its reverse. That is what the DIAG steps reported when `MOB.986`
-    went red here: same-count FALSE, same-set FALSE. `MOB.535` learned this on the job list in
-    August; the work list has now grown into it. The list also grows every run (`MOB.300`,
-    `MOB.396` and `MOB.122` each create one), so this only gets worse.
+    🛑 THE REVERSAL INVARIANT DOES NOT SURVIVE VIRTUALISATION. `AssignedWork` renders through
+    `Virtuoso` (AssignedWork.tsx:23), so the DOM holds a WINDOW of the list, not the list. Two
+    captures taken at the top of two different orders are then two different slices.
 
-    ⭐ Filtering fixes it at the root: `WorkOrders/index.tsx:172-187` SORTS first and FILTERS
-    second, so a filtered subset is still in sort order - but it is small enough to render
-    whole, which makes "DESC is the exact reverse of ASC" true again.
+    ⭐ Filtering shrinks what has to fit: `WorkOrders/index.tsx:168-187` SORTS first and FILTERS
+    second, so a filtered subset is still in sort order. `permit` matched 4 stages when this
+    was written.
 
-    `permit` matches 4 stages, each with its own `_workSequence` (rendered by
-    `WorkListItem.tsx:56-59`), so the rows are distinguishable in the captured text. The count
-    guard fails loudly if that ever stops being true rather than silently proving nothing.
+    ⚠️ IT NO LONGER FITS, AND NARROWING ALONE CANNOT KEEP UP. Measured 2026-09-15 from the
+    MOB.953 trace: ascending rendered `20260910-1-001, -2-001, -3-001` and descending rendered
+    `20260913-1-001, 20260911-1-001, 20260910-6-001` - two DISJOINT slices of the same filtered
+    list, with nothing in common to compare. The ring read `Ready (213)`. The `permit` matches
+    are dev fixture data that keeps being added to, so any count this docstring quotes expires.
+
+    So the narrowing stays (it keeps the test fast and the failures readable) but it is no
+    longer load-bearing: `scroll_to_end` makes the proof work at any list length - see
+    `assert_reversed`. This guard is now only about the rows being DISTINGUISHABLE.
     """
     return [
         step("click", "Focus the work list search box",
              {"element": xpath_el(WORK_URL, SEARCH_BOX)}, timeout=30),
-        step("typeText", f'Narrow the list to "{NARROW}" — the reversal invariant needs a '
-                         f'FULLY rendered list',
+        step("typeText", f'Narrow the list to "{NARROW}" — fewer rows, readable failures',
              {"element": xpath_el(WORK_URL, SEARCH_BOX), "value": NARROW}),
         step("wait", "Let the 300ms debounce fire and the list re-render", {"value": 4}),
-        jsassert("NARROWED: between 2 and 15 rows render, and each is distinct",
+        jsassert("NARROWED: at least 2 rows render and each is DISTINCT "
+                 "(a duplicate identity would let the proof pass on nothing)",
                  ROWS_JS +
                  "const o = ORDER();\n"
-                 "if (o.length < 2 || o.length > 15) return false;\n"
+                 "if (o.length < 2) return false;\n"
                  "return new Set(o).size === o.length;", timeout=30),
     ]
 
@@ -156,6 +169,52 @@ def widen_the_list():
                                                    "value": ""}, always=True, optional=True),
         step("wait", "Let the full list come back", {"value": 4}, always=True),
     ]
+
+
+def scroll_to_top(always=False):
+    """Put the virtual window back at index 0, so a capture means "the first rows"."""
+    return [
+        jsassert("Scroll the work list back to the top",
+                 # AssignedWork gives Virtuoso a `customScrollParent` (AssignedWork.tsx:20-24),
+                 # so the scroller is an ordinary div, not Virtuoso's own - hence every
+                 # scrollable div, rather than one known element.
+                 "for (const e of document.querySelectorAll('div')) {\n"
+                 "  if (e.scrollHeight > e.clientHeight + 4) e.scrollTop = 0;\n"
+                 "}\n"
+                 "if (document.scrollingElement) document.scrollingElement.scrollTop = 0;\n"
+                 "return true;", always=always, optional=always, timeout=30),
+        step("wait", "Let Virtuoso re-render the head of the list", {"value": 3},
+             always=always),
+    ]
+
+
+def scroll_to_end():
+    """Drag the virtual window to the LAST rows of the filtered list.
+
+    ⭐ THIS IS WHAT MAKES THE PROOF WORK ON A LIST THAT DOES NOT FIT. Under
+    `DESC = reverse(sortBy(list))` the rows at the END of the descending list are the rows at
+    the START of the ascending one, reversed - so the ascending capture (taken at the top) and
+    a descending capture taken at the BOTTOM overlap by construction, however long the list
+    is. Comparing two tops does not: measured 2026-09-15, they were disjoint.
+
+    Virtuoso only mounts what is near the viewport, so one `scrollIntoView` on the last mounted
+    row reveals the next slice, not the end. Three passes walk it down; a short list that
+    already fits is simply unmoved, which is the same test.
+    """
+    out = []
+    for i in range(1, 4):
+        out += [
+            jsassert(f"Scroll to the last rendered row (pass {i} of 3) — Virtuoso mounts the "
+                     "next slice each time",
+                     ROWS_JS +
+                     "const rows = [...document.querySelectorAll('.mantine-Paper-root')]\n"
+                     "  .filter(e => (e.textContent || '').includes('Description:'));\n"
+                     "if (!rows.length) return false;\n"
+                     "rows[rows.length - 1].scrollIntoView({block: 'end'});\n"
+                     "return true;", timeout=30),
+            step("wait", "Let Virtuoso mount the next slice", {"value": 3}),
+        ]
+    return out
 
 
 def capture_order():
@@ -186,12 +245,14 @@ def diagnose_order():
               "let asc; try { asc = JSON.parse(raw); } catch (e) { return false; }\n"
               "const desc = ORDER();\n")
     return [
-        jsassert("DIAG: ASC and DESC rendered the SAME NUMBER of rows",
+        jsassert("DIAG: ASC and DESC rendered the SAME NUMBER of rows (they need not — the "
+                 "descending capture is taken at the END of the list)",
                  common + "return desc.length === asc.length;",
                  optional=True, always=True, timeout=15),
-        jsassert("DIAG: ASC and DESC rendered the SAME SET of rows",
-                 common + "return [...asc].sort().join('\\u0000') === "
-                 "[...desc].sort().join('\\u0000');",
+        jsassert("DIAG: the two captures OVERLAP by at least 2 rows — if this is the only "
+                 "ERR, the windows were disjoint and the proof had nothing to compare",
+                 common + "const inDesc = new Set(desc);\n"
+                 "return asc.filter(r => inDesc.has(r)).length >= 2;",
                  optional=True, always=True, timeout=15),
         jsassert("DIAG: the rendered order actually CHANGED between ASC and DESC",
                  common + "return desc.join('\\u0000') !== asc.join('\\u0000');",
@@ -220,9 +281,14 @@ def assert_reversed():
     order. Rows that arrived or left in between are simply not evidence either way, and are
     excluded rather than being allowed to fail the test.
 
-    🛑 It still cannot pass vacuously: fewer than 2 rows in common and it returns false, which
-    is also the signal that `narrow_the_list` stopped biting and Virtuoso is windowing two
-    disjoint slices.
+    🛑 It still cannot pass vacuously: fewer than 2 rows in common and it returns false.
+
+    ⭐ AND THAT IS WHY THE DESCENDING CAPTURE IS TAKEN AT THE END OF THE LIST. Comparing two
+    TOPS gave 0 rows in common on 2026-09-15 - ascending held `20260910-1/2/3-001`, descending
+    held `20260913-1-001, 20260911-1-001, 20260910-6-001`, two disjoint Virtuoso windows of a
+    filtered list that has outgrown the screen. `scroll_to_end` puts the descending window over
+    the rows the ascending capture holds, so the overlap exists by construction at any list
+    length, and a list short enough to fit is simply unmoved.
     """
     return jsassert(
         "PROOF: every row rendered in BOTH orders comes out exactly reversed",
@@ -267,10 +333,14 @@ write(test(
     "- **Datadog cannot pass a value between steps**, so the capture step stashes the order\n"
     "  in a test-owned `sessionStorage` key as a side effect; a cleanup step deletes it.\n"
     "  That key is scratch space, not app state.\n"
-    "- ⚠️ **Virtuoso virtualises the list.** If it outgrows one screen, ASC and DESC would\n"
-    "  render different subsets — so the comparison checks same-length and same-membership\n"
-    "  BEFORE checking reversal, making that failure mode self-identifying rather than\n"
-    "  looking like a sort bug.\n"
+    "- ⚠️ **Virtuoso virtualises the list, and the filtered list no longer fits one screen.**\n"
+    "  Two captures taken at the TOP of each order are two disjoint windows with nothing in\n"
+    "  common (measured 2026-09-15: ascending held `20260910-1/2/3-001`, descending held\n"
+    "  `20260913-1-001, 20260911-1-001, 20260910-6-001`). So the ascending capture is taken\n"
+    "  at the top and the descending one **after scrolling to the end** — under\n"
+    "  `DESC = reverse(ASC)` those are the same rows, and the overlap exists at any list\n"
+    "  length. A DIAG step reports the overlap separately, so \"nothing to compare\" never\n"
+    "  looks like a sort bug.\n"
     "- The capture requires **>=2 rows**; fewer makes any ordering claim vacuous (trap 5).\n"
     "- **The assertion is JS against sessionStorage** (trap 16), not against the control. A\n"
     "  matching \"the input displays the label\" check was written and **failed while the\n"
@@ -299,19 +369,21 @@ write(test(
         stored_is(PICK, f'PROOF: the choice persisted to sessionStorage["{KEY}"]'),
         step("pressKey", "Close the sort modal", {"value": "Escape"}),
         step("wait", "Let the modal close", {"value": 2}),
+    ] + scroll_to_top() + [
         capture_order(),
     ] + choose(RESTORE, always=True) + [
         stored_is(RESTORE, f'RESTORED: sessionStorage holds the default "{RESTORE}"',
                   always=True),
         step("pressKey", "Close the sort modal", {"value": "Escape"}, always=True),
         step("wait", "Let the modal close and the list re-sort", {"value": 3}, always=True),
-    ] + diagnose_order() + [
+    ] + scroll_to_end() + diagnose_order() + [
         assert_reversed(),
         jsassert("CLEANUP: drop the test-owned scratch key",
                  f"sessionStorage.removeItem('{STASH}');\n"
                  f"return sessionStorage.getItem('{STASH}') === null;",
                  always=True, timeout=30),
-    ] + widen_the_list() + work_view_ensure("Scheduled", always=True, assert_state=False),
+    ] + scroll_to_top(always=True) + widen_the_list() \
+        + work_view_ensure("Scheduled", always=True, assert_state=False),
     ["Mobile", "env:dev", "Work Order", "Search", "read-only"],
 ))
 

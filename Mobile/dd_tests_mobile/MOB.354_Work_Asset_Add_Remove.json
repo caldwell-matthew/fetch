@@ -1,0 +1,888 @@
+{
+    "test_name": "MOB.354_Work_Asset_Add_Remove",
+    "details": {
+        "name": "MOB.354_Work_Asset_Add_Remove",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.354` **Add an existing asset from the Assets tab, prove it, remove THAT link** \u2014 `Bypass Valve 0001` on the\nfixture work order (`MOBILE_WORK_ADD_ASSET`, then `REMOVE_WORK_STAGE_ASSET_LINKS`).\n- The picker closes on click and the remove edits the cache before a fire-and-forget mutation, so\n  both ends are proved over `/graphql` (trap 6).\n- \ud83d\uded1 Owner-sanctioned delete (2026-09-15) of this run's link only: the premise proves `Pump 0102` is the\n  only link; the guard shares a step with the gear click; the server then holds Pump's link (same\n  id/status/sequence/comment), the same condition/failure ids and the rest address/x/y.\n- `always`: the persisted `asset_lookup_query` is put back; a backstop removes a leftover `Bypass Valve 0001` link\n  by its id (only on a run whose premise passed); the last read requires the fixture at rest.\n- \ud83d\udc1e Bug evidence: expanding an asset row before the Asset schema is cached crashes the page\n  (`AssetLookupDetails/index.tsx:43`); the expand is gated on the rows' geolocate controls.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Orders",
+            "self-cleaning",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Assets\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Assets\" is now the active tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"][@data-active=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): the stage links ONLY Pump 0102 (its link at rest), no Bypass Valve 0001; rest address/x/y, `Ready` \u2014 and record its condition/failure ids",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd354_links\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => (w => !!w && w.status === 'Ready' && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(w) && (w => { const p = (w.assets || []).filter(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return p.length === 1 && !!p[0].asset && p[0].asset.id === 'oB5BUN1Es1Jctw8FVYwYBh' && p[0].status === 'Active' && p[0].sequence === 1 && p[0].comment === 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.'; })(w) && w.assets.length === 1 && (w => (w.assets || []).filter(a => a && a.asset && a.asset.id === 'wFRo1MMwoAMkdxA4hVpIhB'))(w).length === 0\n  && (sessionStorage.setItem('__dd354_cf', (w => JSON.stringify([(w.condition || []).map(c => c.id).sort(), (w.failures || []).map(f => f.id).sort()]))(w)), true))(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y condition { id } failures { id } assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd354_links', '__dd354_links:inflight', '__dd354_links:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE PASSED \u2014 mark this run (the backstop acts only on a run that proved Bypass Valve 0001 absent first)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.setItem('__dd354_premise', '1');\nreturn sessionStorage.getItem('__dd354_premise') === '1';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "STASH the persisted Asset Lookup query \u2014 the picker's search writes `asset_lookup_query`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (sessionStorage.getItem('__dd354_prevQuery') === null)\n  sessionStorage.setItem('__dd354_prevQuery', JSON.stringify(sessionStorage.getItem('asset_lookup_query')));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Assets tab lists ONE row \u2014 Pump 0102's \u2014 and no Bypass Valve 0001",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes(n); });\nreturn rows.length === 1 && named('Pump 0102').length === 1 && named('Bypass Valve 0001').length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open `Add Asset`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The add modal offers `Add Existing Asset`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-SegmentedControl-label \")][normalize-space(.)=\"Add Existing Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Choose `Add Existing Asset`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-SegmentedControl-label \")][normalize-space(.)=\"Add Existing Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker's search box mounted (in the modal)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker finished its first load \u2014 no LoadingOverlay over it, and it rendered rows or `No Results`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name=\"asset-search\"]'));\nif (!m) return false;\nif (m.querySelector('.mantine-LoadingOverlay-overlay, .mantine-LoadingOverlay-root')) return false;\nreturn m.querySelectorAll('.mantine-Accordion-item').length > 0 || /No Results/.test(m.textContent || '');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Focus the picker's search box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Select any persisted query first (typeText APPENDS \u2014 trap 17)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "a",
+                    "modifiers": [
+                        "Control"
+                    ]
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Search for Bypass Valve 0001",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Bypass Valve 0001",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "typeText",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the search (Enter)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Enter"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker lists exactly one `Bypass Valve 0001` row, UNCHECKED, and the footer reads `Add 0 Asset(s)`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name=\"asset-search\"]'));\nif (!m) return false;\nconst items = [...m.querySelectorAll('.mantine-Accordion-item')];\nconst bv = items.filter(i => ((i.querySelector('.mantine-Accordion-control') || {}).textContent || '').trim() === 'Bypass Valve 0001');\nconst btn = [...m.querySelectorAll('button')].find(b => /^Add \\d+ Asset\\(s\\)$/.test((b.textContent || '').trim()));\nconst cb = bv.length === 1 ? bv[0].querySelector('input[type=\"checkbox\"]') : null;\nif (!cb || !btn) return false;\nreturn !cb.checked && btn.textContent.trim() === 'Add 0 Asset(s)';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Check Bypass Valve 0001's box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][normalize-space(.)=\"Bypass Valve 0001\"]]//input[@type=\"checkbox\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Bypass Valve 0001 is CHECKED and the footer reads `Add 1 Asset(s)`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name=\"asset-search\"]'));\nif (!m) return false;\nconst items = [...m.querySelectorAll('.mantine-Accordion-item')];\nconst bv = items.filter(i => ((i.querySelector('.mantine-Accordion-control') || {}).textContent || '').trim() === 'Bypass Valve 0001');\nconst btn = [...m.querySelectorAll('button')].find(b => /^Add \\d+ Asset\\(s\\)$/.test((b.textContent || '').trim()));\nconst cb = bv.length === 1 ? bv[0].querySelector('input[type=\"checkbox\"]') : null;\nif (!cb || !btn) return false;\nreturn cb.checked && btn.textContent.trim() === 'Add 1 Asset(s)';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Add 1 Asset(s)`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//button[normalize-space(.)=\"Add 1 Asset(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Asset added to workstage!` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Asset added to workstage!"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker closed and the page is still alive (it closes on click \u2014 not the proof)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!document.querySelectorAll('[role=tab]').length) return false;\nreturn !document.querySelector('input[name=\"asset-search\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the stage now links Bypass Valve 0001 beside Pump 0102 (untouched); address/x/y unchanged \u2014 asked over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd354_links\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => (w => !!w && w.status === 'Ready' && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(w) && (w => { const p = (w.assets || []).filter(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return p.length === 1 && !!p[0].asset && p[0].asset.id === 'oB5BUN1Es1Jctw8FVYwYBh' && p[0].status === 'Active' && p[0].sequence === 1 && p[0].comment === 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.'; })(w) && w.assets.length === 2 && (w => (w.assets || []).filter(a => a && a.asset && a.asset.id === 'wFRo1MMwoAMkdxA4hVpIhB'))(w).length === 1)(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y condition { id } failures { id } assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd354_links', '__dd354_links:inflight', '__dd354_links:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Assets tab now lists Bypass Valve 0001 beside Pump 0102",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes(n); });\nreturn rows.length === 2 && named('Bypass Valve 0001').length === 1 && named('Pump 0102').length === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE (\ud83d\udc1e crash workaround): the Asset schema is cached \u2014 every row renders its geolocate control \u2014 so expanding a row cannot hit the AssetLookupDetails crash",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes(n); });\nreturn rows.length === 2 && rows.every(r => !!r.querySelector('[data-icon=\"location-crosshairs\"]'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Expand Bypass Valve 0001's row by its chevron",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-control \")][contains(normalize-space(.), \"Bypass Valve 0001\")]]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-chevron \")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Bypass Valve 0001's row expanded \u2014 its panel holds exactly one gear, and the page did not crash",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes(n); });\nconst mine = named('Bypass Valve 0001');\nconst panel = mine.length === 1 ? mine[0].querySelector('.mantine-Accordion-panel') : null;\nreturn !!panel && panel.querySelectorAll('[aria-label=\"Menu\"]').length === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + open its gear: only on a run whose premise passed, with exactly two rows, exactly one named Bypass Valve 0001 (not Pump 0102), holding exactly one gear",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes(n); });\nif (sessionStorage.getItem('__dd354_premise') !== '1') return false;\nconst mine = named('Bypass Valve 0001');\nif (rows.length !== 2 || mine.length !== 1) return false;\nif ((mine[0].querySelector('.mantine-Accordion-control').textContent || '').includes('Pump 0102')) return false;\nconst panel = mine[0].querySelector('.mantine-Accordion-panel');\nconst gears = panel ? [...panel.querySelectorAll('[aria-label=\"Menu\"]')] : [];\nif (gears.length !== 1) return false;\ngears[0].click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The gear menu offers `Delete Item`",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Delete Item\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Delete Item` \u2014 on Bypass Valve 0001's link",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Delete Item\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The confirmation opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Are you sure you want to delete this record?"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Confirm: \"Yes\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Are you sure you want to delete this record?\")]]//button[normalize-space(.)=\"Yes\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: no Bypass Valve 0001 link remains; the Pump 0102 link, the condition/failure ids and address/x/y are untouched",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd354_links\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => (w => !!w && w.status === 'Ready' && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(w) && (w => { const p = (w.assets || []).filter(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return p.length === 1 && !!p[0].asset && p[0].asset.id === 'oB5BUN1Es1Jctw8FVYwYBh' && p[0].status === 'Active' && p[0].sequence === 1 && p[0].comment === 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.'; })(w) && w.assets.length === 1 && (w => (w.assets || []).filter(a => a && a.asset && a.asset.id === 'wFRo1MMwoAMkdxA4hVpIhB'))(w).length === 0\n  && sessionStorage.getItem('__dd354_cf') === (w => JSON.stringify([(w.condition || []).map(c => c.id).sort(), (w.failures || []).map(f => f.id).sort()]))(w))(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y condition { id } failures { id } assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd354_links', '__dd354_links:inflight', '__dd354_links:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Assets tab lists only Pump 0102 again",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes(n); });\nreturn rows.length === 1 && named('Pump 0102').length === 1 && named('Bypass Valve 0001').length === 0;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape \u2014 leave no menu or modal open",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORE the persisted Asset Lookup query to what it was before the picker's search",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const raw = sessionStorage.getItem('__dd354_prevQuery');\nif (raw === null) return true;\nconst prev = JSON.parse(raw);\nif (prev === null) sessionStorage.removeItem('asset_lookup_query');\nelse sessionStorage.setItem('asset_lookup_query', prev);\nsessionStorage.removeItem('__dd354_prevQuery');\nreturn sessionStorage.getItem('asset_lookup_query') === prev;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BACKSTOP: on a run whose premise passed, if exactly one Bypass Valve 0001 link remains, remove THAT link id (never Pump 0102's) over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = '__dd354_net';\nif (sessionStorage.getItem('__dd354_premise') !== '1') return true;   // this run never proved it absent: touch nothing\nconst st = sessionStorage.getItem(K);\nif (st === 'done') return true;\nif (st === 'asking') return false;\nsessionStorage.setItem(K, 'asking');\nconst post = body => window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n  headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' }, body: JSON.stringify(body) });\npost({ query: 'query($id: ID!) { workStage(id: $id) { id status address x y condition { id } failures { id } assets { id status sequence comment asset: assetId { id name } } } }', variables: { id: 'EYRpYJ9QYdQ1JFF10JtB0Q' } })\n  .then(r => r.json())\n  .then(j => {\n    const w = j && j.data && j.data.workStage;\n    const ids = w ? (w.assets || []).filter(a => a && a.asset && a.asset.id === 'wFRo1MMwoAMkdxA4hVpIhB' && a.id !== 'AE09h8JhBBhMtd1wIs98lQ').map(a => a.id) : [];\n    if (ids.length !== 1) { sessionStorage.setItem(K, 'done'); return; }\n    sessionStorage.setItem(K + ':sent', ids[0]);\n    return post({ query: 'mutation($ids: [ID!]!, $parentId: ID!) { removeWorkStageAssetLinks(ids: $ids, parentId: $parentId) }', variables: { ids: ids, parentId: 'EYRpYJ9QYdQ1JFF10JtB0Q' } })\n      .then(() => sessionStorage.setItem(K, 'done'));\n  })\n  .catch(() => sessionStorage.setItem(K, 'done'));\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the backstop's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd354_net', '__dd354_net:sent'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 AT REST (server): only Pump 0102's link (at rest), the same condition/failure ids, rest address/x/y, `Ready`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd354_links\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => (w => !!w && w.status === 'Ready' && w.address === '230 North Alexander Street, New Orleans, LA 70119' && Math.abs(Number(w.x) - (-90.1025785)) < 1e-6 && Math.abs(Number(w.y) - (29.9782827)) < 1e-6)(w) && (w => { const p = (w.assets || []).filter(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return p.length === 1 && !!p[0].asset && p[0].asset.id === 'oB5BUN1Es1Jctw8FVYwYBh' && p[0].status === 'Active' && p[0].sequence === 1 && p[0].comment === 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.'; })(w) && w.assets.length === 1 && (w => (w.assets || []).filter(a => a && a.asset && a.asset.id === 'wFRo1MMwoAMkdxA4hVpIhB'))(w).length === 0\n  && sessionStorage.getItem('__dd354_cf') === (w => JSON.stringify([(w.condition || []).map(c => c.id).sort(), (w.failures || []).map(f => f.id).sort()]))(w))(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status address x y condition { id } failures { id } assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd354_links', '__dd354_links:inflight', '__dd354_links:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove this test's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd354_premise', '__dd354_cf'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

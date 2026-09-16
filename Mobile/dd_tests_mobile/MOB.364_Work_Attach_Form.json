@@ -1,0 +1,686 @@
+{
+    "test_name": "MOB.364_Work_Attach_Form",
+    "details": {
+        "name": "MOB.364_Work_Attach_Form",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.364` **Attach a form to a work order \u2014 proved on the server, then deleted.**\n- On its own Datadog-created work order `xohY0klBZktB9VBRxc8k4J` (work `20260910-16`), never the main\n  fixture. **Self-cleaning:** mobile cannot remove a form, so the run deletes the one it attached\n  over `/graphql` (`deleteWorkStageForm`, owner 2026-09-15), `always`, refusing any id the stage\n  held before the run, and proves the stage's form ids are exactly the premise's.\n- The toast fires before the mutation and the modal closes on the optimistic result, so the\n  \u2b50 proof is a `/graphql` read: exactly one more form, and exactly one named the picked\n  template; then a reload shows that card.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Forms",
+            "self-cleaning",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the add-form work order (20260910-16)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): read this stage's forms \u2014 their names are what the picker must hide and the baseline for +1",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd364_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const f = data.workStage.forms;\n  sessionStorage.removeItem('__dd364_pick');   // a killed run's pick must not steer this one\n  ['__dd364_before_ids', '__dd364_new', '__dd364_deleted'].forEach(k => sessionStorage.removeItem(k));   // nor its delete licence\n  if (data.workStage.id !== 'xohY0klBZktB9VBRxc8k4J' || !Array.isArray(f)) return false;\n  sessionStorage.setItem('__dd364_before', JSON.stringify(f.map(x => (x.name || '').trim())));\n  sessionStorage.setItem('__dd364_before_ids', JSON.stringify(f.map(x => x.id)));\n  return true; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id forms { id name } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the Forms tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the add-form modal (\"Add\")",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the modal",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form picker rendered in the modal",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"formId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the picker",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//*[@id=\"formId\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the template options (MOBILE_AD_HOC_FORMS)",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD + PICK: the picker offers a form this stage does not hold (trap 10); click the first VISIBLE one and keep its name",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const before = JSON.parse(sessionStorage.getItem('__dd364_before') || 'null');\nconst pick0 = sessionStorage.getItem('__dd364_pick');\nif (!Array.isArray(before)) return false;\nconst vis = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => o.offsetParent !== null)\n  .map(o => ({ o, t: ((o.querySelector('[class*=\"option-title\"]') || {}).textContent || '').trim() }))\n  .filter(x => x.t && !before.includes(x.t));\nif (!vis.length) return false;\nconst x = pick0 ? vis.find(v => v.t === pick0) : vis[0];   // a re-poll never picks a second one\nif (!x) return false;\nsessionStorage.setItem('__dd364_pick', x.t);\nx.o.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker now holds the picked form's name",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const pick = sessionStorage.getItem('__dd364_pick');\nconst el = document.getElementById('formId');\nreturn !!pick && !!el && (el.value || '').trim() === pick;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit is ARMED \u2014 `button[form=\"adhoc-form\"]` is `type=\"submit\"` (trap 8)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const b = document.querySelector('button[form=\"adhoc-form\"]');\nreturn !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit \u2014 attach the form",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"adhoc-form\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let CREATE_WORKSTAGE_FORM reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Form added` toast (optional: it fires BEFORE the mutation \u2014 trap 7)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Form added"
+                },
+                "type": "assertPageContains"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The add-form modal closed and the Forms tab's `Add` is back on screen (UI only: it closes on the optimistic result \u2014 trap 6)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (document.getElementById('adhoc-form')) return false;\nreturn [...document.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SENTINEL (optional): before any reload, the Forms tab shows the new card (what the add wrote to the page's cache)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst pick = sessionStorage.getItem('__dd364_pick');\nif (!pick) return false;\nreturn [...p.querySelectorAll('[class*=\"mantine-Title-root\"]')]\n  .filter(t => (t.textContent || '').trim() === pick).length === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: exactly ONE more form than at the premise, and exactly one named what this run picked \u2014 asked over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd364_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const f = data.workStage.forms.map(x => (x.name || '').trim());\n  const before = JSON.parse(sessionStorage.getItem('__dd364_before') || 'null'), pick = sessionStorage.getItem('__dd364_pick');\n  if (!Array.isArray(before) || !pick || before.includes(pick)) return false;\n  return f.length === before.length + 1 && f.filter(n => n === pick).length === 1; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id forms { id name } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the add-form work order (reload: the persisted cache holds no refused optimistic add)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Reopen the Forms tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the form cards render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "SENTINEL (optional): after the reload, WITHOUT a resync, the Forms tab shows the new card \u2014 locally it did not: the page drew the cached work order and sent no read (trace 2026-09-15)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst pick = sessionStorage.getItem('__dd364_pick');\nif (!pick) return false;\nreturn [...p.querySelectorAll('[class*=\"mantine-Title-root\"]')]\n  .filter(t => (t.textContent || '').trim() === pick).length === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Press the page's \u27f3 resync (`ResyncButton` beside `Data synced on` \u2192 refetch)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//p[starts-with(normalize-space(.), \"Data synced on\")]/following-sibling::button[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the refetch land",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 After a RELOAD the Forms tab shows exactly one card titled with the picked form (after the page's \u27f3 resync)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst pick = sessionStorage.getItem('__dd364_pick');\nif (!pick) return false;\nreturn [...p.querySelectorAll('[class*=\"mantine-Title-root\"]')]\n  .filter(t => (t.textContent || '').trim() === pick).length === 1;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP (server): find the ONE form this run attached \u2014 an id new since the premise, named the pick",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd364_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const f = data.workStage.forms;\n  const ids = JSON.parse(sessionStorage.getItem('__dd364_before_ids') || 'null'), pick = sessionStorage.getItem('__dd364_pick');\n  if (data.workStage.id !== 'xohY0klBZktB9VBRxc8k4J' || !Array.isArray(f) || !Array.isArray(ids)) return false;\n  const fresh = f.filter(x => !ids.includes(x.id));\n  if (fresh.length === 0) return true;   // nothing attached: nothing to delete\n  if (fresh.length !== 1 || !pick || (fresh[0].name || '').trim() !== pick) return false;\n  sessionStorage.setItem('__dd364_new', fresh[0].id);\n  return true; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id forms { id name } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "CLEANUP: delete THAT form over /graphql (`deleteWorkStageForm` \u2014 mobile has no remove; owner 2026-09-15). One shot; refuses an id the stage held before this run",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const id = sessionStorage.getItem('__dd364_new');\nconst ids = JSON.parse(sessionStorage.getItem('__dd364_before_ids') || 'null');\nif (!id || sessionStorage.getItem('__dd364_deleted')) return true;   // nothing of this run's to delete, or already sent\nif (!Array.isArray(ids) || ids.includes(id)) return false;   // never a form the stage held before this run\nsessionStorage.setItem('__dd364_deleted', '1');\nwindow.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n  headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n  body: JSON.stringify({ query: 'mutation($id: ID!) { deleteWorkStageForm(id: $id) }', variables: { id } }) });\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the delete reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CLEANED (server): the stage's form ids are exactly the premise's",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd364_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const f = data.workStage.forms;\n  const ids = JSON.parse(sessionStorage.getItem('__dd364_before_ids') || 'null');\n  if (!Array.isArray(f) || !Array.isArray(ids)) return false;\n  const now = f.map(x => x.id).sort(), was = ids.slice().sort();\n  return now.length === was.length && now.every((v, i) => v === was[i]); })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id forms { id name } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove this test's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "[\"__dd364_before\", \"__dd364_pick\", \"__dd364_before_ids\", \"__dd364_new\", \"__dd364_deleted\"].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

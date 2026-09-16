@@ -1,0 +1,636 @@
+{
+    "test_name": "MOB.353_Work_Asset_Status_Write",
+    "details": {
+        "name": "MOB.353_Work_Asset_Status_Write",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.353` **`Mark as \u2026` on a work-order asset writes** (`UPDATE_WORK_STAGE_ASSET`) \u2014 proved over\n`/graphql`, then restored to the FIXED rest status.\n- `MOB.347` asserts the menu and never clicks. This marks `Pump 0102`'s link `Completed` and asks the\n  server \u2014 `applyStatus` writes the cache BEFORE the mutation, so the badge is not the proof (trap 6).\n- A guard in its own step checks the open menu is the one row's (`Pump 0102`, badge at the expected\n  status) right before the click, which writes with no confirm.\n- Restore, all `alwaysExecute`: `Mark as Active` proved over /graphql; a backstop sends\n  `updateWorkStageAsset(status: Active)` only if the server is not at rest; the last read\n  requires `Active`, sequence 1, the comment untouched and the stage `Ready`.\n- Never expands the asset row (bug evidence in MOB.354: expanding on a cold Asset-schema cache crashes).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Orders",
+            "self-restoring",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the fixture work order",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the detail data arrived (tab strip)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tab\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Assets\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\"Assets\" is now the active tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Assets\"][@data-active=\"true\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "FIXTURE GUARD: an asset row shows \"Progress:\" \u2014 showAssetStatus is ON",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Text-root \")][starts-with(normalize-space(.), \"Progress:\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): Pump 0102's link is `Active`, sequence 1, the fixed comment; the stage is `Ready`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd353_link\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.status === 'Ready' && (d => { const w = d && d.workStage; const l = w && (w.assets || []).find(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return !!l && l.asset && l.asset.name === 'Pump 0102' && l.status === 'Active' && l.sequence === 1 && l.comment === 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.'; })(data)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape any open menu first",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Assets tab shows ONE row \u2014 Pump 0102's \u2014 with the badge `Active`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('Pump 0102'); });\nconst target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup=\"menu\"]') : null;\nconst badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;\nreturn rows.length === 1 && !!target && (badge || '').trim() === 'Active';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open Pump 0102's status menu (the `Progress:` badge \u2014 its wrapper stops propagation, so the row never expands)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Text-root \")][starts-with(normalize-space(.), \"Progress:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD: the open menu is Pump 0102's (its target is expanded, the badge reads `Active`) and offers `Mark as Completed` \u2014 the next click writes with no confirm",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('Pump 0102'); });\nconst target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup=\"menu\"]') : null;\nconst badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;\nif (rows.length !== 1 || !target || (badge || '').trim() !== 'Active') return false;\nif (target.getAttribute('aria-expanded') !== 'true') return false;\nconst items = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Menu-item')]\n  .map(i => (i.textContent || '').trim());\nreturn items.includes('Mark as Completed') && !items.includes('Mark as Active');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Mark as Completed` (writes immediately)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Mark as Completed\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Fields updated` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Fields updated"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The badge now reads `Completed` (the CACHE write \u2014 not the proof)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('Pump 0102'); });\nconst target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup=\"menu\"]') : null;\nconst badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;\nreturn rows.length === 1 && !!target && (badge || '').trim() === 'Completed';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: Pump 0102's link is now `Completed` \u2014 asked over /graphql, not read from the cache",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd353_link\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((d => { const w = d && d.workStage; const l = w && (w.assets || []).find(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return !!l && l.asset && l.asset.name === 'Pump 0102' && l.status === 'Completed'; })(data)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape any open menu first",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let it close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Assets tab shows ONE row \u2014 Pump 0102's \u2014 with the badge `Completed`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('Pump 0102'); });\nconst target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup=\"menu\"]') : null;\nconst badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;\nreturn rows.length === 1 && !!target && (badge || '').trim() === 'Completed';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open Pump 0102's status menu (the `Progress:` badge \u2014 its wrapper stops propagation, so the row never expands)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Text-root \")][starts-with(normalize-space(.), \"Progress:\")])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD: the open menu is Pump 0102's (its target is expanded, the badge reads `Completed`) and offers `Mark as Active` \u2014 the next click writes with no confirm",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('Pump 0102'); });\nconst target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup=\"menu\"]') : null;\nconst badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;\nif (rows.length !== 1 || !target || (badge || '').trim() !== 'Completed') return false;\nif (target.getAttribute('aria-expanded') !== 'true') return false;\nconst items = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Menu-item')]\n  .map(i => (i.textContent || '').trim());\nreturn items.includes('Mark as Active') && !items.includes('Mark as Completed');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Mark as Active` (writes immediately)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Mark as Active\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": true,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": false,
+                "name": "The `Fields updated` toast (optional: transient)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Fields updated"
+                },
+                "type": "assertPageContains",
+                "timeout": 10
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The badge now reads `Active` (the CACHE write \u2014 not the proof)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;\nconst p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nconst mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-control');\n  return c && (c.textContent || '').includes('Pump 0102'); });\nconst target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup=\"menu\"]') : null;\nconst badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;\nreturn rows.length === 1 && !!target && (badge || '').trim() === 'Active';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 RESTORED (server): the UI wrote `Active` back",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd353_link\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((d => { const w = d && d.workStage; const l = w && (w.assets || []).find(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return !!l && l.asset && l.asset.name === 'Pump 0102' && l.status === 'Active'; })(data)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Escape \u2014 leave no menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BACKSTOP: if the link is not `Active`, send `updateWorkStageAsset` with the FIXED rest status (reads first; sends nothing when the UI restore landed)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = '__dd353_net';\nconst st = sessionStorage.getItem(K);\nif (st === 'done') return true;\nif (st === 'asking') return false;\nsessionStorage.setItem(K, 'asking');\nconst post = body => window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n  headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' }, body: JSON.stringify(body) });\npost({ query: 'query($id: ID!) { workStage(id: $id) { id status assets { id status sequence comment asset: assetId { id name } } } }', variables: { id: 'EYRpYJ9QYdQ1JFF10JtB0Q' } })\n  .then(r => r.json())\n  .then(j => {\n    if ((d => { const w = d && d.workStage; const l = w && (w.assets || []).find(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return !!l && l.asset && l.asset.name === 'Pump 0102' && l.status === 'Active'; })(j && j.data)) { sessionStorage.setItem(K, 'done'); return; }\n    sessionStorage.setItem(K + ':sent', '1');\n    return post({ query: 'mutation($id: ID!, $data: JSON!) { updateWorkStageAsset(id: $id, data: $data) { id } }', variables: { id: 'AE09h8JhBBhMtd1wIs98lQ', data: { status: 'Active' } } })\n      .then(() => sessionStorage.setItem(K, 'done'));\n  })\n  .catch(() => sessionStorage.setItem(K, 'done'));\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the backstop's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd353_net', '__dd353_net:sent'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 AT REST (server): Pump 0102's link is `Active`, sequence 1, comment untouched; the stage still `Ready`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd353_link\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.workStage.status === 'Ready' && (d => { const w = d && d.workStage; const l = w && (w.assets || []).find(a => a && a.id === 'AE09h8JhBBhMtd1wIs98lQ');\n  return !!l && l.asset && l.asset.name === 'Pump 0102' && l.status === 'Active' && l.sequence === 1 && l.comment === 'Chemical dosing pump, model PDM 2000, plastic housing with digital control panel, horizontal mount.'; })(data)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { id status assets { id status sequence comment asset: assetId { id name } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

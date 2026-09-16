@@ -1,0 +1,543 @@
+{
+    "test_name": "MOB.363_Work_Attachment_Upload_Delete",
+    "details": {
+        "name": "MOB.363_Work_Attachment_Upload_Delete",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.363` **Upload one photo to a work order's Attachments tab, prove it, delete THAT photo.**\n- On its own Datadog-created work order `xohY0klBZktB9VBRxc8k4J` (work `20260910-16`, one asset \u26a1 Tank 0000,\n  template copies nothing to the asset).\n- Premise over `/graphql`: the stage holds NO attachments. After the upload the server holds exactly\n  one image \u2014 this run's id, kept \u2014 and the asset does not.\n- \ud83d\uded1 **Owner-authorised delete** (trap 2, 2026-09-15): the gear is clicked only in the step that\n  proves the one slide IS that id; `Delete Photo` \u2192 `Yes`.\n- \u2b50 `/graphql`: the stage's attachments back to none. Self-cleaning.",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Work Order",
+            "Attachments",
+            "Photos",
+            "self-cleaning",
+            "module:work-orders"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to /work \u2014 warm the work lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the lookup prefetch run",
+                "noScreenshot": false,
+                "params": {
+                    "value": 30
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the attachment work order (20260910-16)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the detail view begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 2
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Test work order detail rendered",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Status:"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): the stage holds NO attachments (so the one after the upload is this run's), its template does not copy photos to the asset, and its one asset is \u26a1 Tank 0000",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd363_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const w = data.workStage;\n  sessionStorage.removeItem('__dd363_id');   // a killed run's id must never reach the guard\n  return w.id === 'xohY0klBZktB9VBRxc8k4J' && w.attachments.length === 0\n    && w.mobileTemplate.copyAttachmentToAsset === false\n    && w.assets.length === 1 && w.assets[0].assetId.id === '8khYtoBRVNNs5d9cEt8NdY'; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!, $a: ID!) { workStage(id: $id) { id mobileTemplate { copyAttachmentToAsset } assets { assetId { id name } } attachments { id fileName fileType } } asset(id: $a) { id attachments { id } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\", \"a\": \"8khYtoBRVNNs5d9cEt8NdY\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the \"Attachments\" tab",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Attachments\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the Photos segment render",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PHOTOS panel at rest: `Add Photo`, no `Add File`, and no slides",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn slides.length === 0 && labels.includes('Add Photo') && !labels.includes('Add File');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the picker (\"Add Photo\")",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add Photo\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker opened",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Select Photo Source"
+                },
+                "type": "assertPageContains",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Reveal the ONE gallery input (`accept=\"image/*\"`, no `capture`) \u2014 fails closed otherwise",
+                "noScreenshot": false,
+                "params": {
+                    "code": "document.querySelectorAll('[data-dd-upload]').forEach(n => n.removeAttribute('data-dd-upload'));\nconst hits = [...document.querySelectorAll('input[type=\"file\"]')]\n  .filter(i => i.getAttribute('accept') === 'image/*' && !i.capture && !i.getAttribute('capture'));\nif (hits.length !== 1) return false;   // 0 = picker not open, >1 = ambiguous (trap 3)\nconst el = hits[0];\nif (!el) return false;\nel.setAttribute('data-dd-upload', '1');\nObject.assign(el.style, {\n  display: 'block', opacity: '1', position: 'fixed',\n  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'\n});\nreturn true;\n"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Upload ONE photo to the work order's Photos",
+                "noScreenshot": false,
+                "params": {
+                    "files": [
+                        {
+                            "name": "Screenshot 2024-12-11 at 3.23.46\u202fPM.png",
+                            "size": 25762,
+                            "bucketKey": "browser-upload-file-step/4ty-vhq-3aa/2026-08-11T01:17:31.314568_2a1bff34-f062-4bb4-a6bf-9c9c3551f896.json"
+                        }
+                    ],
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@data-dd-upload=\"1\"]"
+                                }
+                            ],
+                            "failTestOnCannotLocate": true
+                        },
+                        "multiLocator": {
+                            "ab": "/*[local-name()=\"html\"][1]/*[local-name()=\"body\"][1]/*[local-name()=\"input\"][3]",
+                            "at": "",
+                            "cl": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]",
+                            "co": "",
+                            "ro": "//*[local-name()=\"input\"][3]",
+                            "clt": "/*[local-name()=\"html\"]/*[local-name()=\"body\"]/*[local-name()=\"input\"][3]"
+                        },
+                        "targetOuterHTML": "<input type=\"file\" accept=\"image/*\" multiple=\"\" style=\"display: block; opacity: 1; position: fixed; top: 0px; left: 0px; width: 240px; height: 40px; z-index: 99999;\" data-dd-upload=\"1\">"
+                    },
+                    "withClick": false
+                },
+                "type": "uploadFiles"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The picker closed itself once the file arrived (`onDialogChange`)",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Select Photo Source"
+                },
+                "type": "assertPageLacks",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 UPLOAD LANDED: exactly one slide, its <img src> the server's `/api/attachment/<id>` URL (not the `blob:` preview)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nif (slides.length !== 1) return false;\nconst img = slides[0].querySelector('img');\nconst src = img ? (img.getAttribute('src') || '') : '';\nreturn !src.startsWith('blob:') && !!idOf(img);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 90
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the stage holds exactly ONE attachment, an image \u2014 this run's (keep its id); and \u26a1 Tank 0000 does NOT hold it (no copy to the asset)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd363_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const at = data.workStage.attachments;\n  if (at.length !== 1 || !/^image\\//.test(at[0].fileType || '')) return false;\n  if (data.asset.attachments.some(x => x.id === at[0].id)) return false;   // copied to the asset\n  sessionStorage.setItem('__dd363_id', at[0].id);\n  return true; })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!, $a: ID!) { workStage(id: $id) { id mobileTemplate { copyAttachmentToAsset } assets { assetId { id name } } attachments { id fileName fileType } } asset(id: $a) { id attachments { id } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\", \"a\": \"8khYtoBRVNNs5d9cEt8NdY\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\ud83d\uded1 GUARD + open the gear: only if the panel shows exactly one slide and its image IS the attachment the server just named",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nconst idOf = img => ((img && img.getAttribute('src') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;\nconst id = sessionStorage.getItem('__dd363_id');\nif (!id || slides.length !== 1 || idOf(slides[0].querySelector('img')) !== id) return false;\nconst g = slides[0].querySelector('[aria-label=\"Settings\"]');\nif (!g) return false;\ng.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the menu open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MENU (stage photo): exactly View in Fullscreen \u00b7 Copy to asset \u00b7 Delete Photo \u2014 in that order",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const dds = [...document.querySelectorAll('.mantine-Menu-dropdown')];\nif (dds.length !== 1) return false;\nconst got = [...dds[0].querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());\nreturn JSON.stringify(got) === JSON.stringify([\"View in Fullscreen\", \"Copy to asset\", \"Delete Photo\"]);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Delete Photo` (NEVER `Copy to asset`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Delete Photo\"])[1]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the confirmation open",
+                "noScreenshot": false,
+                "params": {
+                    "value": 1
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Confirm: \"Yes\"",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][.//*[contains(normalize-space(.), \"Are you sure you want to delete this image?\")]]//button[normalize-space(.)=\"Yes\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for REMOVE_ATTACHMENT",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: the stage's attachments are back to NONE (its rest set), and \u26a1 Tank 0000 never held the photo \u2014 asked over /graphql",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd363_server\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const at = data.workStage.attachments;\n  const id = sessionStorage.getItem('__dd363_id');\n  return !!id && at.length === 0 && !data.asset.attachments.some(x => x.id === id); })()); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!, $a: ID!) { workStage(id: $id) { id mobileTemplate { copyAttachmentToAsset } assets { assetId { id name } } attachments { id fileName fileType } } asset(id: $a) { id attachments { id } } }\", variables: {\"id\": \"xohY0klBZktB9VBRxc8k4J\", \"a\": \"8khYtoBRVNNs5d9cEt8NdY\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The Photos panel shows no slides again, and `Add Photo`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const tabEl = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nconst byId = tabEl && tabEl.getAttribute('aria-controls')\n  ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;\nconst p = byId || [...document.querySelectorAll('[role=\"tabpanel\"]')]\n  .find(x => x.style.display !== 'none');\nif (!p) return false;\nconst slides = [...p.querySelectorAll('[class*=\"mantine-Carousel-slide\"]')];\nconst labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());\nreturn slides.length === 0 && labels.includes('Add Photo');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove this test's sessionStorage key",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd363_id');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            }
+        ]
+    }
+}

@@ -17,7 +17,8 @@ MOBILE = os.path.dirname(SCRIPTS)                      # Mobile
 REPO = os.path.dirname(MOBILE)                         # repo root (fetch/)
 # NB: Mobile/dd_tests_mobile - the mobile suite's JSON. Named to avoid colliding with
 # the repo-root ./dd_tests/ (fetch.py's MAIN_DIR), which .gitignore matches unanchored.
-TESTS = os.path.join(MOBILE, "dd_tests_mobile")
+# DD_TESTS_DIR: build into another folder (check_drift.py uses a temp copy, never the real JSON)
+TESTS = os.environ.get("DD_TESTS_DIR") or os.path.join(MOBILE, "dd_tests_mobile")
 HERE = TESTS                                           # back-compat alias for build_* scripts
 BASE = "https://dev.mentorapm.com/apm-mobile"
 BODY_KEYS = ("name", "config", "message", "options", "type", "locations", "steps", "tags")
@@ -392,6 +393,13 @@ def reveal_file_button(scope=None):
             "const el = hits[0];\n")
 
 
+# The one recorded PDF (trap 12): the owner recorded it 2026-09-15 in `MOB.PDF_Upload_Recording`
+# (nz9-uj4-5jd, paused). 🛑 NEVER DELETE that test - its stored file is what this entry uploads. Used by
+# MOB.628 and MOB.866; copy the dict (dict(RECORDED_PDF)) before renaming it.
+RECORDED_PDF = {"name": "TestPDF.pdf", "size": 39477,
+                "bucketKey": "browser-upload-file-step/nz9-uj4-5jd/2026-09-15T22:54:54.654720_d54e6a33-a655-44bc-b380-50b45e597e4d.json"}
+
+
 def upload_steps(url, picker=REVEAL_GALLERY_INPUT, reveal_name=None, upload_name=None,
                  source="MOB.600_Collector_Create_Asset.json"):
     """[reveal, uploadFiles] - reveals a hidden file input and drops a real file on it.
@@ -697,11 +705,19 @@ def test(name, message, steps, tags, extra_globals=(), local_vars=()):
     """Envelope matching what fetch() writes: config keys snake_case (the SDK maps them
     to configVariables/setCookie), step keys camelCase. config.variables is the list the
     runner actually binds {{ NAME }} from - config_variables alone is not enough."""
+    tags = list(tags)
+    try:                                   # `module:<slug>` from suite_plan.py, the one module map
+        from suite_plan import module_tag
+        mt = module_tag(name)
+        if mt and mt not in tags:
+            tags.append(mt)
+    except ImportError:
+        pass
     return {
         "test_name": name,
         "details": {
             "name": name, "type": "browser", "status": "paused", "message": message,
-            "tags": list(tags), "locations": ["gcp:us-west2"],
+            "tags": tags, "locations": ["gcp:us-west2"],
             "config": {
                 "assertions": [],
                 "config_variables": gvar("MOBDEV", *extra_globals) + list(local_vars),
@@ -750,6 +766,20 @@ def write(t, force=None):
     if os.path.exists(path) and not force:
         print(f"SKIP  {t['test_name']} - already exists (set DD_FORCE=1 to overwrite)")
         return None
+    if os.path.exists(path):
+        try:
+            old_steps = json.load(open(path))["details"]["steps"]
+        except Exception:
+            old_steps = []
+        wired = [st for st in old_steps if st.get("type") == "playSubTest"
+                 and (st.get("params") or {}).get("subtestPublicId") not in (None, "PENDING-WIRE-UP")]
+        pending = [st for st in t["details"]["steps"] if st.get("type") == "playSubTest"
+                   and (st.get("params") or {}).get("subtestPublicId") == "PENDING-WIRE-UP"]
+        if wired and pending and os.environ.get("DD_FORCE_WIRED") != "1":
+            print(f"REFUSED {t['test_name']} - it is WIRED on Datadog and this rebuild would reset "
+                  f"{len(wired)} child id(s) to PENDING-WIRE-UP. Re-wire with wire_suite.py, or set "
+                  "DD_FORCE_WIRED=1 if you meant it.")
+            return None
     with open(path, "w") as f:
         f.write(json.dumps(t, indent=4))
     print(f"WROTE {t['test_name']}")
