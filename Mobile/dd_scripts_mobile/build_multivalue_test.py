@@ -43,7 +43,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
-                      open_filters_drawer)
+                      open_filters_drawer, pick_option)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 TAG = "Pump"
@@ -76,19 +76,9 @@ steps = [
     *open_filters_drawer(LOOKUP_URL),
 
     # ---- single-value baseline ----------------------------------------------------------------
-    step("click", "Open the Field select",
-         {"element": xpath_el(LOOKUP_URL, '//*[@id="fieldId"]')}, timeout=30),
-    step("wait", "Wait for Field options", {"value": 2}),
-    step("click", 'Pick Field = "Name"',
-         {"element": xpath_el(LOOKUP_URL, '//*[@role="option"][normalize-space(.)="Name"]')},
-         timeout=30),
-    step("click", "Open the Operator select",
-         {"element": xpath_el(LOOKUP_URL, '//*[@id="operator"]')}, timeout=30),
-    step("wait", "Wait for Operator options", {"value": 2}),
-    step("click", 'Pick Operator = "contains" (the SINGLE-value branch)',
-         {"element": xpath_el(LOOKUP_URL,
-                              '//*[@role="option"][normalize-space(.)="contains"]')},
-         timeout=30),
+    *pick_option(LOOKUP_URL, "fieldId", "Field", "Name"),
+    *pick_option(LOOKUP_URL, "operator", "Operator", "contains",
+                 pick_name='Pick Operator = "contains" (the SINGLE-value branch)'),
     step("wait", "Let the value input render", {"value": 2}),
     jsassert("BASELINE: the single-value `#value` input is what renders for `contains`",
              "const v = document.getElementById('value');\n"
@@ -97,13 +87,9 @@ steps = [
              "return !!v && !tags;", timeout=30),
 
     # ---- swap to the multi-value branch --------------------------------------------------------
-    step("click", "Open the Operator select again",
-         {"element": xpath_el(LOOKUP_URL, '//*[@id="operator"]')}, timeout=30),
-    step("wait", "Wait for Operator options", {"value": 2}),
-    step("click", 'Pick Operator = "includes" (the MULTI-value branch)',
-         {"element": xpath_el(LOOKUP_URL,
-                              '//*[@role="option"][normalize-space(.)="includes"]')},
-         timeout=30),
+    *pick_option(LOOKUP_URL, "operator", "Operator", "includes",
+                 open_name="Open the Operator select again",
+                 pick_name='Pick Operator = "includes" (the MULTI-value branch)'),
     step("wait", "Let the value input swap", {"value": 2}),
     step("assertElementPresent", "The `TagsInput` rendered",
          {"element": xpath_el(LOOKUP_URL, TAGS_INPUT)}, timeout=30),

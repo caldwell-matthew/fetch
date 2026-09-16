@@ -216,9 +216,22 @@
                 "name": "Wait for Field options",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 1
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the Field option \"Failure Curve\" is VISIBLE (re-opens the select if the click was lost)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const want = \"Failure Curve\";\nconst vis = e => { if (!e || !e.isConnected) return false;\n  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n  for (let n = e; n && n !== document.body; n = n.parentElement) {\n    const cs = getComputedStyle(n);\n    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n  return true; };\nconst opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => (o.textContent || '').replace(/\\s+/g, ' ').trim() === want);\nif (opts.some(vis)) return true;\nconst now = Date.now();\nif (!window.__ddPickAt || now - window.__ddPickAt > 2500) {\n  window.__ddPickAt = now;\n  const input = document.getElementById(\"fieldId\");\n  if (input) input.click();\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -276,9 +289,22 @@
                 "name": "Wait for Operator options",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 1
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the Operator option \"includes\" is VISIBLE (re-opens the select if the click was lost)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const want = \"includes\";\nconst vis = e => { if (!e || !e.isConnected) return false;\n  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n  for (let n = e; n && n !== document.body; n = n.parentElement) {\n    const cs = getComputedStyle(n);\n    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n  return true; };\nconst opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => (o.textContent || '').replace(/\\s+/g, ' ').trim() === want);\nif (opts.some(vis)) return true;\nconst now = Date.now();\nif (!window.__ddPickAt || now - window.__ddPickAt > 2500) {\n  window.__ddPickAt = now;\n  const input = document.getElementById(\"operator\");\n  if (input) input.click();\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -743,9 +769,22 @@
                 "name": "Wait for Field options",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 1
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the Field option \"Asset Type\" is VISIBLE (re-opens the select if the click was lost)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const want = \"Asset Type\";\nconst vis = e => { if (!e || !e.isConnected) return false;\n  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n  for (let n = e; n && n !== document.body; n = n.parentElement) {\n    const cs = getComputedStyle(n);\n    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n  return true; };\nconst opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => (o.textContent || '').replace(/\\s+/g, ' ').trim() === want);\nif (opts.some(vis)) return true;\nconst now = Date.now();\nif (!window.__ddPickAt || now - window.__ddPickAt > 2500) {\n  window.__ddPickAt = now;\n  const input = document.getElementById(\"fieldId\");\n  if (input) input.click();\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,
@@ -803,9 +842,22 @@
                 "name": "Wait for Operator options",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "value": 1
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "GATE: the Operator option \"includes\" is VISIBLE (re-opens the select if the click was lost)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const want = \"includes\";\nconst vis = e => { if (!e || !e.isConnected) return false;\n  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n  for (let n = e; n && n !== document.body; n = n.parentElement) {\n    const cs = getComputedStyle(n);\n    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n  return true; };\nconst opts = [...document.querySelectorAll('[role=\"option\"]')]\n  .filter(o => (o.textContent || '').replace(/\\s+/g, ' ').trim() === want);\nif (opts.some(vis)) return true;\nconst now = Date.now();\nif (!window.__ddPickAt || now - window.__ddPickAt > 2500) {\n  window.__ddPickAt = now;\n  const input = document.getElementById(\"operator\");\n  if (input) input.click();\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

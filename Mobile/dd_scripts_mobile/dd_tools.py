@@ -367,6 +367,57 @@ def open_filters_drawer(url, label="Open the Filters drawer"):
     ]
 
 
+def option_visible_js(select_id, value):
+    """True once a Mantine Select's option `value` is VISIBLE; re-opens the select if not.
+
+    🛑 A FIXED WAIT AFTER OPENING A SELECT IS NOT A GATE. Measured on Datadog 2026-09-16:
+    `MOB.800` clicked `#fieldId`, waited 2s, then failed `Pick Field = "Name"` with "Element
+    located but it's invisible" - the option was in the DOM but the dropdown was not open, the
+    same swallowed-click failure `open_filters_drawer` already guards against. It passes
+    locally and passed in `MOB.996`; it failed under load (the retry ran beside five suites).
+
+    Re-clicks at most every 2.5s (`window.__ddPickAt`) so a dropdown that is still animating
+    open is not toggled shut again by the poll.
+    """
+    return (
+        "const want = " + json.dumps(value) + ";\n"
+        "const vis = e => { if (!e || !e.isConnected) return false;\n"
+        "  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n"
+        "  for (let n = e; n && n !== document.body; n = n.parentElement) {\n"
+        "    const cs = getComputedStyle(n);\n"
+        "    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n"
+        "  return true; };\n"
+        "const opts = [...document.querySelectorAll('[role=\"option\"]')]\n"
+        "  .filter(o => (o.textContent || '').replace(/\\s+/g, ' ').trim() === want);\n"
+        "if (opts.some(vis)) return true;\n"
+        "const now = Date.now();\n"
+        "if (!window.__ddPickAt || now - window.__ddPickAt > 2500) {\n"
+        "  window.__ddPickAt = now;\n"
+        "  const input = document.getElementById(" + json.dumps(select_id) + ");\n"
+        "  if (input) input.click();\n"
+        "}\n"
+        "return false;")
+
+
+def pick_option(url, select_id, label, value, open_timeout=30, open_name=None, pick_name=None):
+    """Mantine Select: open it, GATE on the option being visible, then pick by EXACT text.
+
+    Exact, not contains: several Asset field labels share a word, and Datadog errors on multiple
+    matches rather than choosing (trap 3). ONE copy - five builders hand-wrote this sequence
+    without the gate.
+    """
+    return [
+        step("click", open_name or f"Open the {label} select",
+             {"element": xpath_el(url, f'//*[@id="{select_id}"]')}, timeout=open_timeout),
+        step("wait", f"Wait for {label} options", {"value": 1}),
+        jsassert(f'GATE: the {label} option "{value}" is VISIBLE (re-opens the select if the click was lost)',
+                 option_visible_js(select_id, value), timeout=30),
+        step("click", pick_name or f'Pick {label} = "{value}"',
+             {"element": xpath_el(url, f'//*[@role="option"][normalize-space(.)="{value}"]')},
+             timeout=30),
+    ]
+
+
 REVEAL_GALLERY_INPUT = (
     "const inputs = [...document.querySelectorAll('input[type=\"file\"]')];\n"
     "const el = inputs.find(i => !i.capture);\n")

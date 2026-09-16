@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**139 leaf tests · 40 suites · 4930 steps · 254 subtest slots** — counted from the test JSON.
+**139 leaf tests · 40 suites · 4945 steps · 254 subtest slots** — counted from the test JSON.
 5 leaves are in no suite, by design.
 Every local test matches Datadog (`preflight.py sync`).
 

@@ -44,7 +44,7 @@ import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, HERE, step, xpath_el, go, test, write,  # noqa: E402
-                      open_filters_drawer)
+                      open_filters_drawer, pick_option)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -72,14 +72,8 @@ def result_row(text):
 def pick(select_id, label, value):
     """Mantine Select: open, then pick by EXACT option text (trap 3 - several field labels
     share words, and Datadog errors on multiple matches rather than choosing)."""
-    return [
-        step("click", f"Open the {label} select",
-             {"element": xpath_el(LOOKUP_URL, f'//*[@id="{select_id}"]')}),
-        step("wait", f"Wait for the {label} options", {"value": 2}),
-        step("click", f'Pick "{value}"',
-             {"element": xpath_el(LOOKUP_URL,
-                                  f'//*[@role="option"][normalize-space(.)="{value}"]')}),
-    ]
+    # The visibility gate lives in `dd_tools.pick_option` - ONE copy (MOB.969, 2026-09-16).
+    return pick_option(LOOKUP_URL, select_id, label, value, pick_name=f'Pick "{value}"')
 
 
 write(test(

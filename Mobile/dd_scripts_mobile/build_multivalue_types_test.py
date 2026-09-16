@@ -35,7 +35,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
-                      open_filters_drawer)
+                      open_filters_drawer, pick_option)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ENUM_FIELD, ENUM_VALUE = "Failure Curve", "flat"
@@ -73,18 +73,9 @@ def pill_js(field):
 
 def pick_field_and_includes(field):
     return [
-        step("click", "Open the Field select", {"element": xpath_el(LOOKUP_URL, '//*[@id="fieldId"]')},
-             timeout=30),
-        step("wait", "Wait for Field options", {"value": 2}),
-        step("click", f'Pick Field = "{field}"',
-             {"element": xpath_el(LOOKUP_URL, f'//*[@role="option"][normalize-space(.)="{field}"]')},
-             timeout=30),
-        step("click", "Open the Operator select", {"element": xpath_el(LOOKUP_URL, '//*[@id="operator"]')},
-             timeout=30),
-        step("wait", "Wait for Operator options", {"value": 2}),
-        step("click", 'Pick Operator = "includes" (the MULTI-value branch)',
-             {"element": xpath_el(LOOKUP_URL, '//*[@role="option"][normalize-space(.)="includes"]')},
-             timeout=30),
+        *pick_option(LOOKUP_URL, "fieldId", "Field", field),
+        *pick_option(LOOKUP_URL, "operator", "Operator", "includes",
+                     pick_name='Pick Operator = "includes" (the MULTI-value branch)'),
         step("wait", "Let the value input swap", {"value": 2}),
         jsassert(f"{field.upper()}: a MultiSelect rendered — not the TagsInput, not `#value`",
                  f"return !!document.querySelector('input[placeholder=\"{VALUES_PLACEHOLDER}\"]')\n"

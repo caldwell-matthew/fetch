@@ -142,6 +142,7 @@ login-bearing test asserts the role right after login.
 | `work_list_gate(wait, require_row)` | readiness where `loadedAll` matters (the map toggle). Its LOADEDALL checks cannot poll (trap 21) — prefer `require_row=True` |
 | `work_view_ensure(to)` | switch Scheduled ↔ List only if the item is present (it exists only for a `SCHEDULED` role); persists across a suite — restore `always` |
 | `open_filters_drawer()` | the Filters drawer with the re-click gate; gate on `Add Filter`, never the trigger |
+| `pick_option(url, select_id, label, value)` | a Mantine Select option: open, GATE on the option being VISIBLE (re-opens the select if the click was lost), then pick by exact text. Never click an option after a fixed wait — `MOB.800` failed exactly that way on Datadog under load (2026-09-16) |
 | `upload_steps(url, picker=…)` | `[reveal, uploadFiles]`, reading the one working `uploadFiles` step out of `MOB.600`'s JSON (trap 12) |
 | `reveal_file_button(scope=…)` | a Mantine `FileButton`'s hidden input; fails closed on an ambiguous match — always pass `scope` |
 | `stash_record_count` / `prove_record_count` | count the innermost cards in the active panel containing every needle, reload, require exactly +1 — sound for `optimisticResponse` adds (bugs §40), not for writes made straight into the cache (trap 6) |
@@ -161,6 +162,7 @@ login and the suite looked clean. `set_device.py` enforces it. **The one excepti
 `MOB.975_Phone_Suite` (`_Phone_` tests; the retiring `MOB.984_Phone_Suite` too) — ONE device each
 (`chrome.mobile_small`), READ-ONLY, run
 on its own, never alongside a mutating tablet suite.
+⭐ **Suites side by side.** The on-demand concurrency cap is **10** (`GET/POST /api/v2/synthetics/settings/on_demand_concurrency_cap`; raised from 1 on 2026-09-16 — it does not change billed runs). Only READ-ONLY suites run together; writing suites run one at a time and never beside a read-only one (they read the fixtures the writers change); `MOB.973` runs alone. Ten logins at once made the app shell mount past the old 60s gate — `MOB.000`'s `Test authenticated mobile shell rendered` is 120s for that reason; do not shorten it.
 
 **2 · Never write a delete step unless the owner names the flow.** A delete code path existing
 (e.g. the gear in `ui/Menu.tsx`) does not make it supported. **The named flows — only these:**

@@ -51,7 +51,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 
 | | |
 |---|---|
-| Tests | **139 leaf tests · 40 suites** · 4930 steps · 254 subtest slots (+ `MOB.999_Verify_Scratch`, a harness) |
+| Tests | **139 leaf tests · 40 suites** · 4945 steps · 254 subtest slots (+ `MOB.999_Verify_Scratch`, a harness) |
 | Local ↔ remote | every local test matches Datadog by content — `preflight.py sync` compares step names and subtest ids (it prints the first 5). `MOB.711` is archived locally only |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suites `MOB.975_Phone_Suite` and `MOB.984_Phone_Suite` (the old one, live until the new suites' first pass), all on `chrome.mobile_small` (trap 1) |
 | Rows | 168 `[x]` · 14 `[~]` · 4 `[ ]` · 35 `[-]` — 221 rows. Counts describe *this file*, not the app |
@@ -110,12 +110,20 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 
 *"Passed when last run" on Datadog — runs are manual. Re-run a suite when its area changes.*
 
-**The 24 module suites (`MOB.953`–`MOB.975`, `MOB.980`, `MOB.981`): ⏳ on Datadog, wired, NEVER RUN there**
-(created and pushed 2026-09-15). Nothing below them is Datadog evidence for the new structure — every one
-of their children has its own result, but no module suite has run as a suite. Their measured LOCAL times
-are the `local` column of the suite table above. The old suites below stay live until the new ones' first
-Datadog pass. 🛑 `MOB.967` will be red there while bugs §34 is open (`MOB.600`, re-confirmed on Datadog
-2026-09-15, 2 runs).
+**The 24 module suites (`MOB.953`–`MOB.975`, `MOB.980`, `MOB.981`) — first Datadog pass, staged:**
+
+| stage | suites | result |
+|---|---|---|
+| 1 · read-only, run 10 at once | `954` `981` `955` `961` `962` `964` `966` `968` `969` `975` | ✅ **10/10**, current build, 2026-09-16 — 1.4–1.6× local time (`954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 322s · `975` 129s) |
+| 2 · writes, one at a time | `953` `956` `957` `958` `959` `960` `963` `965` `967` `970` `971` `972` `980` | ⏳ not yet run |
+| run alone | `973` | ⏳ not yet run |
+
+- `954`, `964`, `975` passed on Datadog's automatic retry. Their first attempts, and `969`'s, failed at the
+  LOGIN check with 10 logins in flight — fixed by the 120s login gate (test_authoring, `MOB.000`). `969`'s
+  retry then failed at `MOB.800`'s field pick (an unopened dropdown under load) — fixed by `pick_option`;
+  `969` ✅ on re-run, alone.
+- The old suites below stay live until stage 2 passes. 🛑 `MOB.967` will be red while bugs §34 is open
+  (`MOB.600`, re-confirmed on Datadog 2026-09-15).
 
 | suite | status |
 |---|---|

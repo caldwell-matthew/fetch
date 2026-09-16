@@ -42,7 +42,7 @@ import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
-                      open_filters_drawer)
+                      open_filters_drawer, pick_option)
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -77,16 +77,8 @@ def pick(select_id, label, value):
     ("Name", "System", ...), and a substring match would hit more than one - Datadog errors
     on multiple matches rather than choosing (trap 3).
     """
-    return [
-        step("click", f"Open the {label} select",
-             {"element": xpath_el(LOOKUP_URL, f'//*[@id="{select_id}"]')}, timeout=30),
-        step("wait", f"Wait for {label} options", {"value": 2}),
-        # Every Mantine menu/option click polls — the lesson MOB.974 run 1 paid for.
-        step("click", f'Pick {label} = "{value}"',
-             {"element": xpath_el(
-                 LOOKUP_URL, f'//*[@role="option"][normalize-space(.)="{value}"]')},
-             timeout=30),
-    ]
+    # The visibility gate lives in `dd_tools.pick_option` - ONE copy (MOB.969, 2026-09-16).
+    return pick_option(LOOKUP_URL, select_id, label, value)
 
 
 write(test(
