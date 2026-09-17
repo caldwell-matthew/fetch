@@ -18,9 +18,12 @@ TWO INVARIANTS, NEITHER OF WHICH HARDCODES FIXTURE STATE
      the assertion requires at least one match so it cannot pass vacuously on an empty list
      (trap 5) - the failure mode that has cost this project more runs than any other.
 
-  2. THE BADGE FILTERS. Clicking `In Progress: n` keeps the fixture job (which is
-     IN_PROGRESS); clicking `Completed: n` must HIDE it. The negative leg is the one that
-     proves the badge filters rather than merely highlighting itself.
+  2. THE BADGE FILTERS. Clicking `Ready: n` keeps the fixture job (which rests READY);
+     clicking `Completed: n` must HIDE it. The negative leg is the one that proves the badge
+     filters rather than merely highlighting itself.
+
+     The fixture rests READY because `VerificationCheckbox` recomputes the job status from the
+     verified count, and it rests with 0 of 2 verified (`cleanup_spec.md` §4).
 
   Deliberately NOT asserted: that a legend count equals the number of rendered cards. Job
   cards are `<Paper>` elements with no distinguishing class or test id, so any count would be
@@ -76,7 +79,7 @@ write(test(
     "  with its `Z%`, where `Z = Math.round(X/Y*100)` and `Y = 0` gives `0` (the component\n"
     "  ends in `|| 0` to swallow the NaN). Checked across every card in one pass, and it\n"
     "  requires at least one match so it cannot pass vacuously on an empty list (trap 5).\n"
-    "- **Invariant 2 — the badge actually filters.** `In Progress` keeps the fixture job;\n"
+    "- **Invariant 2 — the badge actually filters.** `Ready` keeps the fixture job;\n"
     "  `Completed` must hide it. The negative leg is the proof — a badge that only\n"
     "  highlighted itself would satisfy the positive one.\n"
     "- Not asserted: legend count vs. number of rendered cards. Job cards are `<Paper>` with\n"
@@ -98,8 +101,8 @@ write(test(
              {"value": FIXTURE}),
 
         # -------- the ring's legend
-        step("assertElementPresent", "The status ring's legend renders an In Progress count",
-             {"element": xpath_el(JOBS_URL, legend("In Progress"))}),
+        step("assertElementPresent", "The status ring's legend renders a Ready count",
+             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
         step("assertElementPresent", "The status ring's legend renders a Completed count",
              {"element": xpath_el(JOBS_URL, legend("Completed"))}),
 
@@ -108,18 +111,18 @@ write(test(
                  PCT_MATCHES_COUNTS),
 
         # -------- invariant 2: the badge filters the list
-        step("click", "Select the In Progress status badge",
-             {"element": xpath_el(JOBS_URL, legend("In Progress"))}),
+        step("click", "Select the Ready status badge",
+             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
         step("wait", "Wait for the list to re-filter", {"value": 3}),
         step("assertPageContains",
-             f'"{FIXTURE}" is IN_PROGRESS, so it survives the In Progress badge',
+             f'"{FIXTURE}" rests READY, so it survives the Ready badge',
              {"value": FIXTURE}),
         # Re-check the arithmetic on the filtered list too - a filter that re-renders cards
         # is exactly where a stale percentage would show up.
         jsassert("The % labels still match after filtering", PCT_MATCHES_COUNTS),
 
-        step("click", "Deselect the In Progress badge (it toggles)",
-             {"element": xpath_el(JOBS_URL, legend("In Progress"))}),
+        step("click", "Deselect the Ready badge (it toggles)",
+             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
         step("wait", "Wait for the list to restore", {"value": 3}),
 
         step("click", "Select the Completed status badge",

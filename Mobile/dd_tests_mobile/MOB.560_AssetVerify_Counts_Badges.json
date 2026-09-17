@@ -4,7 +4,7 @@
         "name": "MOB.560_AssetVerify_Counts_Badges",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.560` Job-list counts, status badges, and the ring chart's numeric labels.\n- READ-ONLY. Selecting a status badge is component state (`selectedStatus`); nothing is\n  written and nothing persists.\n- **Asserts the numeric label, never the SVG.** The ring is a Mantine `RingProgress` \u2014\n  arcs and colours are not text. Its legend (`Ready: n`, `In Progress: n`, \u2026) is.\n- **Invariant 1 \u2014 arithmetic.** Every job card's `X out of Y Assets Verified` must agree\n  with its `Z%`, where `Z = Math.round(X/Y*100)` and `Y = 0` gives `0` (the component\n  ends in `|| 0` to swallow the NaN). Checked across every card in one pass, and it\n  requires at least one match so it cannot pass vacuously on an empty list (trap 5).\n- **Invariant 2 \u2014 the badge actually filters.** `In Progress` keeps the fixture job;\n  `Completed` must hide it. The negative leg is the proof \u2014 a badge that only\n  highlighted itself would satisfy the positive one.\n- Not asserted: legend count vs. number of rendered cards. Job cards are `<Paper>` with\n  no distinguishing class or test id, so counting them would mean guessing a selector,\n  and a wrong selector yields a confident wrong answer instead of an error.",
+        "message": "`MOB.560` Job-list counts, status badges, and the ring chart's numeric labels.\n- READ-ONLY. Selecting a status badge is component state (`selectedStatus`); nothing is\n  written and nothing persists.\n- **Asserts the numeric label, never the SVG.** The ring is a Mantine `RingProgress` \u2014\n  arcs and colours are not text. Its legend (`Ready: n`, `In Progress: n`, \u2026) is.\n- **Invariant 1 \u2014 arithmetic.** Every job card's `X out of Y Assets Verified` must agree\n  with its `Z%`, where `Z = Math.round(X/Y*100)` and `Y = 0` gives `0` (the component\n  ends in `|| 0` to swallow the NaN). Checked across every card in one pass, and it\n  requires at least one match so it cannot pass vacuously on an empty list (trap 5).\n- **Invariant 2 \u2014 the badge actually filters.** `Ready` keeps the fixture job;\n  `Completed` must hide it. The negative leg is the proof \u2014 a badge that only\n  highlighted itself would satisfy the positive one.\n- Not asserted: legend count vs. number of rendered cards. Job cards are `<Paper>` with\n  no distinguishing class or test id, so counting them would mean guessing a selector,\n  and a wrong selector yields a confident wrong answer instead of an error.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -172,7 +172,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The status ring's legend renders an In Progress count",
+                "name": "The status ring's legend renders a Ready count",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -182,7 +182,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
                                 }
                             ]
                         }
@@ -230,7 +230,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Select the In Progress status badge",
+                "name": "Select the Ready status badge",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -240,7 +240,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
                                 }
                             ]
                         }
@@ -265,7 +265,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\"DATADOG MOBILE JOB\" is IN_PROGRESS, so it survives the In Progress badge",
+                "name": "\"DATADOG MOBILE JOB\" rests READY, so it survives the Ready badge",
                 "noScreenshot": false,
                 "params": {
                     "value": "DATADOG MOBILE JOB"
@@ -289,7 +289,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Deselect the In Progress badge (it toggles)",
+                "name": "Deselect the Ready badge (it toggles)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -299,7 +299,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
                                 }
                             ]
                         }

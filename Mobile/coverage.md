@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**139 leaf tests · 24 suites · 4723 steps · 134 subtest slots** — counted from the test JSON.
+**139 leaf tests · 24 suites · 4735 steps · 134 subtest slots** — counted from the test JSON.
 5 leaves are in no suite, by design.
 Every local test matches Datadog (`preflight.py sync`).
 
@@ -241,10 +241,13 @@ search (the create button is an exclusive-or with an exact match) · `MOB.551` t
 ⭐ `MOB.510` verifies, proves the asset **moved tabs**, un-verifies · `MOB.590` the same crossing from the other side ·
 ⭐ `MOB.913` **the offline queue**: a verify made offline is held (pending 1, still 1 after 6s), listed in `Pending
 Transactions` (still open, it refreshes to `No logs found.` once drained), drained on reconnect and on the server after a
-reload, and replayed from IndexedDB after a reload while held · `MOB.536` the job status menu — IN PROGRESS → CANCELED
-(the canceled alert) → IN PROGRESS, proved after a reload; last, because a failed restore can drop the job from the list.
-🛑 Nothing verifies the job's last asset: that flips the job `COMPLETED`, which mobile cannot walk back (bugs §10) — the
-reset decision in `cleanup_spec.md` §4.
+reload, and replayed from IndexedDB after a reload while held · `MOB.536` the job status menu — READY → CANCELED
+(the canceled alert) → IN PROGRESS → READY, proved after a reload; last, because a failed restore can drop the job from
+the list. The menu cannot offer READY, so its last leg is a verify/unverify round trip, and the whole test reads the
+status back from the MENU's exits: three items means READY, two means IN PROGRESS.
+🛑 Nothing verifies the job's last asset — that would flip the job `COMPLETED` and falsify the resting premise every
+other AV test starts from. It is no longer a one-way door (unverifying recomputes the status back down), so a verify-all
+test is buildable; see the checklist.
 
 #### `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` — 3 children · read-only · Datadog 263s
 **The full-page asset, read.**

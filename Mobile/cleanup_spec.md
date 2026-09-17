@@ -48,7 +48,7 @@ them and added more — recount over `/graphql` or with a dry run before any pru
 
 | state | moved by | reset |
 |---|---|---|
-| Mobile job status → `COMPLETED` when its last asset is verified (bugs §10) | a verify-all test (not built) | `reset_av_fixture.py` — §4 |
+| Mobile job status → `COMPLETED` when its last asset is verified | a verify-all test (not built) | the test itself: unverifying recomputes the status back down · `reset_av_fixture.py` (§4) is the backstop |
 | `000-000-000 Adamantium` quantity, +1 per run | `MOB.870` (`970`) | decrement by runs since last tidy. `MOB.860`'s `+1`/`-1` self-restores; do not make `MOB.870` two-way |
 
 **Nothing to do:** asset verified flags (they self-revert); `self-restoring` and `read-only`
@@ -73,27 +73,34 @@ tests; the photo tests `MOB.620`/`621`/`622`/`626`/`301` (local reducer, never s
 `--check` asserts only · dry run plans · `--apply` acts.
 
 **Invariants it restores and then reads back** (exit non-zero otherwise):
-- job `status = IN_PROGRESS`
+- job `status = READY` — **not an independent choice**: `VerificationCheckbox` recomputes the
+  status from the verified count (0 → `READY`, all → `COMPLETED`, between → `IN_PROGRESS`), so
+  with 0 of 2 verified the app itself settles on `READY`. Served since build 92; before that the
+  status only moved forward and the fixture rested `IN_PROGRESS`
 - exactly **2** `MobileJobAsset` rows — `⚡ Tank 0000` and `A/C Motor 0002` — both
   `verified = false`
 - no other asset linked; no `DD SYNTHETIC` asset left by a job test
 
-**What it unlocks** — five tests blocked because mobile cannot walk the job back (bugs §10):
+**What it unlocks.** The recompute made the first two of these testable without the reset — a
+verify-all can be undone by unverifying, which walks the status back down — so for those the reset
+is the backstop for a run that dies half way, not the precondition. The rest still need it,
+because nothing in the app unlinks or deletes an asset:
 
 | test | writes | put back by |
 |---|---|---|
-| verify all → job `COMPLETED` (`/asset-verify/:jobId`) | both `verified = true`, status `COMPLETED` | `updateMobileJobAsset(…, {verified:false})` ×2 · `updateMobileJob(…, {status: IN_PROGRESS})` |
+| verify all → job `COMPLETED` (`/asset-verify/:jobId`) | both `verified = true`, status `COMPLETED` | the test itself: unverify ×2 recomputes to `READY` · reset is the backstop |
 | verify status update on the job list | same act, list-side assertion | same |
 | add a NEW asset to the job | `Asset` + `MobileJobAsset` (+ attachment) | `deleteMobileJobAssets` · `deleteAssets` |
 | add an EXISTING asset (`Pump 0102`) | a `MobileJobAsset` link | `deleteMobileJobAssets` |
 | Add Work from Asset Lookup / AV detail | a work order | `deleteWorkOrders` — blocked by §41 |
 
 They go in `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` as the **last** children (verifying the second asset flips the
-job), and a `MOB.963` run becomes **run → reset**. A forgotten reset fails the next run at its first fixture
-guard. The reset is idempotent.
+job), and the two add-asset tests make a `MOB.963` run **run → reset**. A forgotten reset fails the
+next run at its first fixture guard. The reset is idempotent.
 
-**Open owner decisions:** accept the run → reset chore for `MOB.963`; accept Add Work's residue
-until §41 is fixed. Then build: the two verify tests → the two add-asset tests → Add Work.
+**Open owner decisions:** accept the run → reset chore for the add-asset tests; accept Add Work's
+residue until §41 is fixed. Then build: the two verify tests (no reset chore — they undo
+themselves) → the two add-asset tests → Add Work.
 
 ## 5 · Session over plain HTTP
 

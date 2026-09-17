@@ -1,16 +1,20 @@
 """Put the Asset Verification fixture job back the way the tests assume it — 0 Datadog runs.
 
 WHY THIS EXISTS
-  `cleanup_spec.md` §4 is the design. Five tests are blocked only because
-  mobile cannot walk the fixture back: bugs §10 — `VerificationCheckbox.tsx` recomputes the
-  job's status on the client and only ever moves it FORWARD (`READY → IN_PROGRESS →
-  COMPLETED`). Verifying the last asset flips the job to `COMPLETED` and nothing in the mobile
-  app can reverse it, so `MOB.500`/`510`/`530`/`560` would fail at their fixture guards on the
-  next run. Everything the reset needs is an ordinary GraphQL mutation the `Admin` role already
-  has, so this runs locally and bills nothing.
+  `cleanup_spec.md` §4 is the design: one command that puts the fixture job back, for 0 Datadog
+  runs, whatever a half-finished run left behind.
 
-  ⭐ THE POINT IS TO UNBLOCK, NOT TO TIDY. Once a run can be undone, "verify every asset and
-  watch the job flip to COMPLETED" becomes testable — with the reset as the step after the run.
+  `VerificationCheckbox.tsx` now RECOMPUTES the job status from the verified count — 0 verified
+  is `READY`, all verified is `COMPLETED`, anything between is `IN_PROGRESS` — so the mobile app
+  itself can walk a job back, and the fixture's rest state follows from its assets rather than
+  being set independently. (Until build 92 the status only moved FORWARD, which is what the old
+  verifying the last asset flipped a job to `COMPLETED` for good.)
+
+  ⭐ SO WHAT STILL NEEDS THIS. A run that dies between verify and unverify, or after `MOB.536`
+  marks the job CANCELED, leaves a state no later run walks out of on its own — every AV test
+  starts from the resting premise and fails at its fixture guard instead. And nothing in the app
+  removes a `DD SYNTHETIC` asset a collector test linked. Everything here is an ordinary GraphQL
+  mutation the `Admin` role already has, so it runs locally and bills nothing.
 
 THE SESSION IS PLAIN HTTP — NO HEADLESS BROWSER (`cleanup_spec.md` §5)
 
@@ -68,7 +72,9 @@ ENVIRONMENT = "development"
 # The fixture, and the shape it has to be left in (cleanup_spec.md §4).
 JOB_ID = "Z0EVwQcdJZhMURcBFkp0E0"
 JOB_NAME = "DATADOG MOBILE JOB"
-WANT_STATUS = "IN_PROGRESS"
+# 0 of 2 assets verified, so the status the client recomputes at rest is READY. Change one and
+# the other has to change with it — `preflight.py av` asserts both.
+WANT_STATUS = "READY"
 WANT_ASSETS = {"Tank 0000", "A/C Motor 0002"}
 # Assets the collector tests create. Only these are ever deleted, and only when a job link
 # points at one — the script never deletes an asset it did not find attached to the fixture.

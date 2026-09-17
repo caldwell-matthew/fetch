@@ -4,7 +4,7 @@
         "name": "MOB.510_AssetVerify_Verify_Unverify",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.510` Verify one asset, prove it moved tabs, then put it back.\n- SELF-RESTORING: verifies exactly ONE of the two assets and unverifies the same one,\n  so `Z0EVwQcdJZhMURcBFkp0E0` ends every run exactly as it started.\n- Deliberately does NOT verify both. Verifying every asset would flip the job to\n  COMPLETED, and `VerificationCheckbox` can never move a status back - unverifying\n  afterwards would leave a COMPLETED job holding unverified assets (bugs \u00a710).\n- The unverify click targets the Verified tab, where exactly one row exists, so the\n  locator is unambiguous without needing to know the asset's name.\n- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n  mutation is sent and is never awaited (bugs \u00a711).",
+        "message": "`MOB.510` Verify one asset, prove it moved tabs and moved the JOB, then put it back.\n- SELF-RESTORING: verifies exactly ONE of the two assets and unverifies the same one,\n  so `Z0EVwQcdJZhMURcBFkp0E0` ends every run exactly as it started.\n- \u2b50 **The job status is asked of the server three times**, because `VerificationCheckbox`\n  recomputes it from the verified count: `READY` at rest \u2192 `IN_PROGRESS` with one of two\n  verified \u2192 `READY` again. This is the only test that proves that recompute, and the\n  cache would happily agree with itself (trap 6).\n- Deliberately does NOT verify both \u2014 that would flip the job to `COMPLETED` and\n  falsify the resting premise every other AV test starts from.\n- The unverify click targets the Verified tab, where exactly one row exists, so the\n  locator is unambiguous without needing to know the asset's name.\n- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n  mutation is sent and is never awaited (bugs \u00a711).",
         "tags": [
             "Mobile",
             "env:dev",
@@ -292,6 +292,32 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "PREMISE (server): 0 of 2 verified, so the job is `READY`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd510_job\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.mobileJob.status === 'READY' && data.mobileJob.assets.filter(a => a.verified).length === 0); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query DD510Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }\", variables: {\"id\": \"Z0EVwQcdJZhMURcBFkp0E0\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd510_job', '__dd510_job:inflight', '__dd510_job:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Verify the first asset",
                 "noScreenshot": false,
                 "params": {
@@ -333,6 +359,32 @@
                     "value": "1 out of 2 Assets Verified"
                 },
                 "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: one of two verified moved the JOB to `IN_PROGRESS` \u2014 asked over /graphql, not read from the cache",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd510_job\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.mobileJob.status === 'IN_PROGRESS' && data.mobileJob.assets.filter(a => a.verified).length === 1); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query DD510Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }\", variables: {\"id\": \"Z0EVwQcdJZhMURcBFkp0E0\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd510_job', '__dd510_job:inflight', '__dd510_job:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             },
             {
                 "allowFailure": false,
@@ -474,6 +526,32 @@
                     "value": "0 out of 2 Assets Verified"
                 },
                 "type": "assertPageContains"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 RESTORED (server): back to 0 verified, so the job recomputed to `READY` \u2014 the status walks BACKWARD, which is what the forward-only version could not do",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd510_job\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.mobileJob.status === 'READY' && data.mobileJob.assets.filter(a => a.verified).length === 0); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query DD510Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }\", variables: {\"id\": \"Z0EVwQcdJZhMURcBFkp0E0\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd510_job', '__dd510_job:inflight', '__dd510_job:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             }
         ]
     }

@@ -1,13 +1,20 @@
 """Build MOB.536 (job status menu) and MOB.537 (asset header Tag ID).
 
 MOB.536 - `JobStatusIcon` (`AssetVerification/JobStatusIcon.tsx`), the dot beside the job's title
-  Its Menu offers `Mark as IN PROGRESS` / `COMPLETED` / `CANCELED` (never the current one, never
-  READY) and sends `UPDATE_MOBILE_JOB_STATUS` with an optimisticResponse. `Job.tsx` renders
+  Its Menu renders one item per status EXCEPT the current one, and only ever for IN_PROGRESS,
+  COMPLETED and CANCELED - `StatusMenuItem` is never asked to draw READY or CREATED. So the item
+  COUNT reads the current status back: three exits means READY, two means one of the others. Each
+  pick sends `UPDATE_MOBILE_JOB_STATUS` with an optimisticResponse. `Job.tsx` renders
   `This verification job has been canceled.` while the status is CANCELED (sweep: in no test).
-  Round trip IN_PROGRESS -> CANCELED -> IN_PROGRESS through the same menu; COMPLETED is never
-  clicked. The mid-state is read in-page only - a CANCELED job may leave the crew's list, and the
-  job route is `cache-only` (reached only from the list) - so the SERVER proof is the reload at the
-  end: the job is back, IN_PROGRESS, no canceled alert. Restore is `always`, and
+
+  Round trip READY -> CANCELED -> IN_PROGRESS -> READY; COMPLETED is never clicked.
+  🛑 THE LAST LEG IS NOT THE MENU. The menu cannot offer READY, so the way back to the fixture's
+  rest state is `VerificationCheckbox`'s recompute: verify an asset, unverify it, and 0-of-2
+  verified sets the job READY. That leg is also the cheapest proof that the recompute runs at all.
+
+  The mid-states are read in-page only - a CANCELED job may leave the crew's list, and the job
+  route is `cache-only` (reached only from the list) - so the SERVER proof is the reload at the
+  end: the job is back, READY (three exits), no canceled alert. Restore is `always`, and
   `reset_av_fixture.py --apply` is the 0-run fallback.
 
 MOB.537 - the full-page asset detail's header (`AssetVerification/AssetDetails.tsx:165-186`)
@@ -62,36 +69,81 @@ def status_pick(label, always=False):
     ]
 
 
-# The menu never offers the CURRENT status (`JobStatusIcon`), so exactly COMPLETED + CANCELED means
-# IN PROGRESS: READY adds IN PROGRESS, COMPLETED and CANCELED each swap one. No alert alone can say that.
-EXITS_JS = ("const items = [...document.querySelectorAll('.mantine-Menu-item')]\n"
+# The menu never offers the CURRENT status, and never offers READY or CREATED at all
+# (`JobStatusIcon` renders `StatusMenuItem` for IN_PROGRESS/COMPLETED/CANCELED only). So the exits
+# NAME the current status: all three means READY; COMPLETED + CANCELED means IN PROGRESS. No alert
+# alone can say that, and this needs no status text on the page.
+def exits_js(*wanted):
+    want = "[" + ", ".join(f"'Mark as {w}'" for w in wanted) + "]"
+    return ("const items = [...document.querySelectorAll('.mantine-Menu-item')]\n"
             "  .map(i => (i.textContent || '').trim()).filter(x => x.indexOf('Mark as') === 0);\n"
-            "return items.length === 2 && items.includes('Mark as COMPLETED') && items.includes('Mark as CANCELED');")
+            f"const want = {want};\n"
+            "return items.length === want.length && want.every(w => items.includes(w));")
 
 
-def in_progress_by_menu(label, always=False):
+IN_PROGRESS_EXITS = exits_js("COMPLETED", "CANCELED")
+READY_EXITS = exits_js("IN PROGRESS", "COMPLETED", "CANCELED")
+
+
+def status_by_menu(label, status, exits, always=False):
     return [
         jsassert("Open the job's status menu to read its exits", OPEN_STATUS_JS, always=always, timeout=30),
         step("wait", "Let the menu open", {"value": 1}, always=always),
-        jsassert(f"⭐ {label}: the menu offers exactly IN PROGRESS's exits — `Mark as COMPLETED` and "
-                 "`Mark as CANCELED`", EXITS_JS, always=always, timeout=20),
+        jsassert(f"⭐ {label}: the menu offers exactly {status}'s exits", exits,
+                 always=always, timeout=20),
         step("pressKey", "Close the menu (Escape — nothing picked)", {"value": "Escape"}, always=True),
         step("wait", "Let it close", {"value": 1}, always=True),
     ]
 
 
+def in_progress_by_menu(label, always=False):
+    return status_by_menu(f"{label} (`Mark as COMPLETED` + `Mark as CANCELED`)", "IN PROGRESS",
+                          IN_PROGRESS_EXITS, always=always)
+
+
+def ready_by_menu(label, always=False):
+    return status_by_menu(f"{label} (all three exits — the menu cannot offer the current status, "
+                          "and never offers READY)", "READY", READY_EXITS, always=always)
+
+
+# ---- back to READY: the menu cannot do it, the checkbox can ----------------------------------
+# `VerificationCheckbox.update()` recomputes the job status from the verified count, so verifying
+# an asset and unverifying it leaves 0 of 2 verified => READY. Idempotent: run it from READY and
+# it lands on READY again. The filter is forced to All first, because it persists in
+# sessionStorage across the suite's subtests and the Verified tab would not list an unverified row.
+ASSET = "Tank 0000"
+ASSET_ROW = ('//*[contains(concat(" ", normalize-space(@class), " "),'
+             f' " mantine-Accordion-item ")][contains(., "{ASSET}")]')
+ASSET_CHECKBOX = f'{ASSET_ROW}//input[@type="checkbox"]'
+ALL_FILTER_JS = ("const lbl = [...document.querySelectorAll('label')]\n"
+                 "  .find(l => (l.textContent || '').trim() === 'All');\n"
+                 "if (lbl) lbl.click();\nreturn true;")
+
+
+def to_ready_by_checkbox(always=False):
+    return [
+        jsassert("Put the asset filter on All (it persists across subtests)", ALL_FILTER_JS,
+                 always=always, timeout=20),
+        step("wait", "Let the list re-render", {"value": 2}, always=always),
+        step("click", f"BACK TO READY: verify {ASSET}",
+             {"element": xpath_el(JOB_URL, ASSET_CHECKBOX)}, always=always, timeout=30),
+        step("wait", "Wait for the verify mutation", {"value": 4}, always=always),
+        step("click", f"BACK TO READY: unverify {ASSET} — 0 of 2 verified recomputes the job to READY",
+             {"element": xpath_el(JOB_URL, ASSET_CHECKBOX)}, always=always, timeout=30),
+        step("wait", "Wait for the unverify mutation and the status it recomputes", {"value": 5},
+             always=always),
+    ]
+
+
 # ---------------------------------------------------------------------------------- MOB.536
 m536 = av_job_gate(JOB_ID) + [
-    jsassert("PREMISE: the job is not canceled (no alert) — at rest IN_PROGRESS",
+    jsassert("PREMISE: the job is not canceled (no alert) — at rest READY",
              TEXT + f"return !t.includes('{CANCELED_ALERT}');", timeout=30),
     jsassert("Open the job's status menu (the dot beside its title)", OPEN_STATUS_JS, timeout=30),
     step("wait", "Let the menu open", {"value": 1}),
-    jsassert("MENU: exactly IN PROGRESS's two exits — `Mark as COMPLETED`, `Mark as CANCELED` (never "
-             "READY, never the current status)",
-             "const items = [...document.querySelectorAll('.mantine-Menu-item')]\n"
-             "  .map(i => (i.textContent || '').trim()).filter(x => x.indexOf('Mark as') === 0);\n"
-             "return items.length === 2 && items.includes('Mark as COMPLETED') && items.includes('Mark as CANCELED');",
-             timeout=20),
+    jsassert("MENU: exactly READY's three exits — `Mark as IN PROGRESS`, `Mark as COMPLETED`, "
+             "`Mark as CANCELED` (never the current status, and READY is never an item)",
+             READY_EXITS, timeout=20),
     step("click", "Mark as CANCELED", {"element": xpath_el(JOB_URL, menu_item("Mark as CANCELED"))}, timeout=30),
     step("wait", "Let the status change render", {"value": 3}),
     jsassert(f"⭐ CANCELED: `{CANCELED_ALERT}` is shown (`Job.tsx`)",
@@ -100,7 +152,7 @@ m536 = av_job_gate(JOB_ID) + [
     jsassert("BACK IN PROGRESS: the canceled alert is gone",
              TEXT + f"return !t.includes('{CANCELED_ALERT}');", timeout=30),
 ] + in_progress_by_menu("BACK IN PROGRESS") + [
-    # ---- restore, `always`: if the alert is still up, mark IN PROGRESS again ----------------
+    # ---- restore, `always`: if the alert is still up, mark IN PROGRESS first ----------------
     jsassert("RESTORE: if the job still reads canceled, open its status menu",
              TEXT + f"if (!t.includes('{CANCELED_ALERT}')) return true;\n" + OPEN_STATUS_JS,
              always=True, timeout=20),
@@ -109,18 +161,23 @@ m536 = av_job_gate(JOB_ID) + [
              "  .find(i => (i.textContent || '').trim() === 'Mark as IN PROGRESS');\n"
              "if (it) it.click();\nreturn true;", always=True, timeout=15),
     step("wait", "Let the status reach the server", {"value": 4}, always=True),
-] + [dict(s, alwaysExecute=True) for s in av_job_gate(JOB_ID)] + [
+    # ---- and then back to the fixture's rest state, which only the checkbox can reach -------
+] + to_ready_by_checkbox(always=True) + [dict(s, alwaysExecute=True) for s in av_job_gate(JOB_ID)] + [
     jsassert("After a reload: the job is in the crew's list again, with no canceled alert",
              TEXT + f"return t.includes('DATADOG MOBILE JOB') && !t.includes('{CANCELED_ALERT}');",
              always=True, timeout=30),
-] + in_progress_by_menu("SERVER (after a reload — UPDATE_MOBILE_JOB_STATUS is optimistic, so the reload is server-acknowledged)", always=True)
+] + ready_by_menu("SERVER (after a reload — UPDATE_MOBILE_JOB_STATUS is optimistic, so the reload is "
+                  "server-acknowledged, and READY means the recompute landed)", always=True)
 
 write(test(
     "MOB.536_AssetVerify_Job_Status_Menu",
-    "`MOB.536` **The job status menu — IN PROGRESS → CANCELED → IN PROGRESS.**\n"
-    "- The dot beside the job title offers exactly `Mark as COMPLETED` / `Mark as CANCELED` from\n"
-    f"  IN PROGRESS. CANCELED shows `{CANCELED_ALERT}`; IN PROGRESS removes it.\n"
-    "- The mid-state is read in-page (a canceled job may leave the crew's list); the server proof\n"
+    "`MOB.536` **The job status menu — READY → CANCELED → IN PROGRESS → READY.**\n"
+    "- The dot beside the job title renders one item per status except the current one, and\n"
+    "  never for READY or CREATED — so the exits NAME the status: three means READY, and\n"
+    f"  `COMPLETED` + `CANCELED` means IN PROGRESS. CANCELED shows `{CANCELED_ALERT}`.\n"
+    "- 🛑 The last leg is NOT the menu, which cannot offer READY: it verifies and unverifies an\n"
+    "  asset, and `VerificationCheckbox` recomputes 0-of-2-verified back to READY.\n"
+    "- The mid-states are read in-page (a canceled job may leave the crew's list); the server proof\n"
     "  is the reload at the end. COMPLETED is never clicked.\n"
     "- 🛑 Self-restoring (`always`); `reset_av_fixture.py --apply` is the 0-run fallback.",
     m536,

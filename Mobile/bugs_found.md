@@ -23,7 +23,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 10 | Mobile job status only moves forward | Runtime | 🔧 fixed on `origin/development` (`154e7627c8`, PR #4175) — not yet confirmed served; delete once it is and the AV fixture is moved (checklist #72) |
 | 11 | Verification toast fires before the mutation | Source | ❌ `VerificationCheckbox.tsx:24` |
 | 12 | Asset detail route implements 6 of 15 template section types | Source | ❌ latent |
 | 13 | Escape discards the whole new-asset form | Runtime | ❌ `AssetCollector/index.tsx:264` guards click-outside only |
@@ -51,34 +50,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:76-88` looks the new tag up in the pre-create list |
 | 45 | Expanding an asset row on a work order's Assets tab can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema; `AssetLookupDetails/index.tsx:43` maps it unguarded |
 | 46 | A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated` | Runtime | ❌ `GeneralInfo.tsx:61,77-85`; `InsertForm/utils/index.ts:150-161` copies every `allowUpdate` field, dirty or not |
-
----
-
-## §10 · Mobile job status only moves forward
-
-`AssetVerification/VerificationCheckbox.tsx:41-46`
-
-```js
-if (status === 'CANCELED' || status === 'CREATED') return;
-if (assetsVerified === assets?.length && status !== 'COMPLETED') newStatus = 'COMPLETED';
-if (assetsVerified && status === 'READY') newStatus = 'IN_PROGRESS';
-```
-
-The same `update` runs for verify and unverify, and no branch produces `READY` or reverses
-`COMPLETED`:
-
-| action | status after |
-|---|---|
-| verify first asset (from `READY`) | `IN_PROGRESS` |
-| verify last asset | `COMPLETED` |
-| unverify one / all | **still `COMPLETED`** |
-
-**Impact:** a job reads `COMPLETED` while assets are unverified, and a mis-tap never returns a job
-to `READY`. The status is the field that reports upward. (`assetsVerified` itself is correct — an
-`@client` field recomputed on every read.)
-**Tests:** the AV fixture is `IN_PROGRESS` with two assets and tests verify/unverify exactly one,
-so neither branch fires. Verify-all needs `reset_av_fixture.py` (`cleanup_spec.md` §4).
-**Fix:** recompute symmetrically — 0 → `READY`, partial → `IN_PROGRESS`, all → `COMPLETED`.
 
 ## §11 · Verification toast fires before the mutation
 

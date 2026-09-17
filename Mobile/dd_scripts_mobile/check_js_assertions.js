@@ -2269,7 +2269,11 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
  * ========================================================================================= */
 {
 	const F6 = 'MOB.536_AssetVerify_Job_Status_Menu.json', F7 = 'MOB.537_AssetVerify_Header_Tag.json';
-	const menuExact = bodyOf(F6, 'MENU: exactly IN PROGRESS');
+	// The exits NAME the status: three items means READY (the menu never draws the current status,
+	// and never draws READY at all), COMPLETED + CANCELED means IN PROGRESS.
+	const menuReady = bodyOf(F6, "MENU: exactly READY's three exits");
+	const menuInProgress = bodyOf(F6, "the menu offers exactly IN PROGRESS's exits");
+	const filterAll = bodyOf(F6, 'Put the asset filter on All');
 	const restoreOpen = bodyOf(F6, 'RESTORE: if the job still reads canceled');
 	const none = bodyOf(F7, '`Tag ID: None`');
 	const base = bodyOf(F7, '`Tag ID: 0000` — Tank 0000');
@@ -2281,9 +2285,21 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
 		+ `<div class="mantine-Group-root"><p class="mantine-Text-root"><strong>Desc: </strong>x</p><button type="button" class="desc"></button></div>`;
 	const job = (canceled) => `<div class="mantine-Flex-root"><div class="mantine-Indicator-root dot"></div><h3 class="mantine-Title-root">DATADOG MOBILE JOB</h3></div>` + (canceled ? '<div>This verification job has been canceled.</div>' : '');
 	console.log('\nMOB.536 / MOB.537 - the AV header');
-	check('menu - exactly COMPLETED + CANCELED', runJs(menuExact, pg(items(['Mark as COMPLETED', 'Mark as CANCELED']))), true);
-	check('MUST FAIL: menu - READY offered too', runJs(menuExact, pg(items(['Mark as READY', 'Mark as COMPLETED', 'Mark as CANCELED']))), false);
-	check('MUST FAIL: menu - the current status offered (IN PROGRESS)', runJs(menuExact, pg(items(['Mark as IN PROGRESS', 'Mark as CANCELED']))), false);
+	const READY_ITEMS = ['Mark as IN PROGRESS', 'Mark as COMPLETED', 'Mark as CANCELED'];
+	check('READY - all three exits', runJs(menuReady, pg(items(READY_ITEMS))), true);
+	check('MUST FAIL: READY - only two exits (the job is IN PROGRESS)', runJs(menuReady, pg(items(['Mark as COMPLETED', 'Mark as CANCELED']))), false);
+	check('MUST FAIL: READY - a fourth item appears', runJs(menuReady, pg(items(READY_ITEMS.concat(['Mark as READY'])))), false);
+	check('MUST FAIL: READY - three items, but the wrong ones', runJs(menuReady, pg(items(['Mark as READY', 'Mark as COMPLETED', 'Mark as CANCELED']))), false);
+	check('IN PROGRESS - exactly COMPLETED + CANCELED', runJs(menuInProgress, pg(items(['Mark as COMPLETED', 'Mark as CANCELED']))), true);
+	check('MUST FAIL: IN PROGRESS - the READY menu (three exits)', runJs(menuInProgress, pg(items(READY_ITEMS))), false);
+	check('MUST FAIL: IN PROGRESS - the current status offered', runJs(menuInProgress, pg(items(['Mark as IN PROGRESS', 'Mark as CANCELED']))), false);
+	{
+		// The restore leg needs the All filter: the Verified tab would not list an unverified row.
+		const w = pg('<label><input type="radio"><span>All</span></label><label><input type="radio"><span>Verified</span></label>');
+		let hit = null; w.document.querySelectorAll('label').forEach(l => l.addEventListener('click', () => { hit = l.textContent.trim(); }));
+		check('filter - clicks All, not Verified', runJs(filterAll, w) && hit === 'All', true);
+	}
+	check('filter - no filter on the page: true, no throw', runJs(filterAll, pg('<div></div>')), true);
 	{
 		const w = pg(job(false)); let n = 0; w.document.querySelector('.dot').addEventListener('click', () => n++);
 		check('restore - not canceled: the menu is NOT opened', runJs(restoreOpen, w) && n === 0, true);

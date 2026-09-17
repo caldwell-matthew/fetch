@@ -1,22 +1,27 @@
 """Build the Asset Verification core: read a job, then verify/unverify one asset.
 
-FIXTURE  Z0EVwQcdJZhMURcBFkp0E0 - crew Admin, status IN_PROGRESS, exactly 2 assets,
+FIXTURE  Z0EVwQcdJZhMURcBFkp0E0 - crew Admin, status READY, exactly 2 assets,
          neither verified at rest.
 
 WHY THAT EXACT SHAPE MATTERS - it is what makes these tests repeatable.
-  VerificationCheckbox's update() runs on BOTH verify and unverify, and can only move the
-  job status FORWARD (bugs §10):
+  VerificationCheckbox's update() runs on BOTH verify and unverify and RECOMPUTES the job
+  status from the verified count (served in build 92, confirmed in the deployed bundle
+  2026-09-17, in `154e7627c8` / PR #4175):
 
-      if (assetsVerified === assets.length && status !== 'COMPLETED') -> COMPLETED
-      if (assetsVerified && status === 'READY')                       -> IN_PROGRESS
+      0 verified                 -> READY
+      every asset verified       -> COMPLETED
+      anything in between        -> IN_PROGRESS
+      CANCELED / CREATED         -> left alone
 
-  Nothing produces READY; nothing reverses COMPLETED. So verifying every asset would
-  complete the fixture permanently, and no later run could put it back.
+  So the status is a FUNCTION OF THE COUNT, and the fixture's rest state follows from "0 of
+  2 verified": READY. Verify one asset and the job reads IN_PROGRESS; unverify it and the
+  job is READY again - which is what makes MOB.510 restore the status as well as the flag.
 
-  With 2 assets, already IN_PROGRESS, verifying exactly ONE makes both branches
-  unreachable: 1 === 2 is false, and status === 'READY' is false. The run therefore
-  mutates nothing but the single asset flag it restores.
-  => Do not verify both assets here, and do not point these at a READY job.
+  ⚠️ It used to move only FORWARD, so the fixture rested IN_PROGRESS and verifying both
+  assets was a one-way door to COMPLETED. That door swings both ways now, but these tests
+  still verify exactly ONE asset: a job left COMPLETED would falsify the resting premise
+  every other AV test starts from until something reset it.
+  => Do not verify both assets here.
 
 THE JOB DETAIL PAGE IS cache-only
   Job.tsx queries MOBILE_JOB_DETAILS with fetchPolicy:'cache-only' and bails out with
@@ -39,13 +44,21 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, step, xpath_el, go, test, write, av_job_gate,  # noqa: E402
-                      av_list_gate, jsassert)
+                      av_list_gate, jsassert, server_assert)
 
 FIXTURE_ID = "Z0EVwQcdJZhMURcBFkp0E0"
 FIXTURE_NAME = "DATADOG MOBILE JOB"
 JOBS_URL = BASE + "/asset-verify"
 JOB_URL = f"{JOBS_URL}/{FIXTURE_ID}"
 TAGS = ["Mobile", "env:dev", "Asset Verification"]
+
+# The job's own status, read from the server, with the flags the client recomputes it from -
+# so one read says both what the status is and whether it agrees with the data.
+# 🛑 NOT `assetsVerified`: that field exists on the type but the SERVER returns null for it
+# (measured 2026-09-17) - it is filled in client-side off the job list. Count the links.
+JOB_STATUS_Q = ("query DD510Job($id: ID!) "
+                "{ mobileJob(id: $id) { id status assets { id verified } } }")
+VERIFIED_COUNT = "data.mobileJob.assets.filter(a => a.verified).length"
 
 TOTAL = 2
 BASELINE = f"0 out of {TOTAL} Assets Verified"
@@ -135,12 +148,15 @@ write(test(
 # ---------------------------------------------------------------- verify / unverify
 write(test(
     "MOB.510_AssetVerify_Verify_Unverify",
-    "`MOB.510` Verify one asset, prove it moved tabs, then put it back.\n"
+    "`MOB.510` Verify one asset, prove it moved tabs and moved the JOB, then put it back.\n"
     "- SELF-RESTORING: verifies exactly ONE of the two assets and unverifies the same one,\n"
     f"  so `{FIXTURE_ID}` ends every run exactly as it started.\n"
-    "- Deliberately does NOT verify both. Verifying every asset would flip the job to\n"
-    "  COMPLETED, and `VerificationCheckbox` can never move a status back - unverifying\n"
-    "  afterwards would leave a COMPLETED job holding unverified assets (bugs §10).\n"
+    "- ⭐ **The job status is asked of the server three times**, because `VerificationCheckbox`\n"
+    "  recomputes it from the verified count: `READY` at rest → `IN_PROGRESS` with one of two\n"
+    "  verified → `READY` again. This is the only test that proves that recompute, and the\n"
+    "  cache would happily agree with itself (trap 6).\n"
+    "- Deliberately does NOT verify both — that would flip the job to `COMPLETED` and\n"
+    "  falsify the resting premise every other AV test starts from.\n"
     "- The unverify click targets the Verified tab, where exactly one row exists, so the\n"
     "  locator is unambiguous without needing to know the asset's name.\n"
     "- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n"
@@ -148,6 +164,10 @@ write(test(
     open_job() + set_filter("All") + [
         step("assertPageContains", f'FIXTURE GUARD: job is at rest ("{BASELINE}")',
              {"value": BASELINE}),
+    ] + server_assert(
+        "PREMISE (server): 0 of 2 verified, so the job is `READY`",
+        "__dd510_job", JOB_STATUS_Q, {"id": FIXTURE_ID},
+        f"data.mobileJob.status === 'READY' && {VERIFIED_COUNT} === 0") + [
         # Either asset will do - the test never depends on WHICH one, only that the same
         # one is put back, which the Verified tab guarantees.
         step("click", "Verify the first asset",
@@ -155,7 +175,11 @@ write(test(
         step("wait", "Wait for the verify mutation", {"value": 3}),
         step("assertPageContains", f'Test the counter incremented ("{ONE_DONE}")',
              {"value": ONE_DONE}),
-    ] + set_filter("Verified") + [
+    ] + server_assert(
+        "⭐ SERVER: one of two verified moved the JOB to `IN_PROGRESS` — asked over /graphql, "
+        "not read from the cache",
+        "__dd510_job", JOB_STATUS_Q, {"id": FIXTURE_ID},
+        f"data.mobileJob.status === 'IN_PROGRESS' && {VERIFIED_COUNT} === 1") + set_filter("Verified") + [
         step("assertPageLacks", "Test the verified asset now appears on the Verified tab",
              {"value": EMPTY}),
         # Exactly one row here, so a bare checkbox locator is unique - this is what lets the
@@ -167,7 +191,12 @@ write(test(
     ] + set_filter("All") + [
         step("assertPageContains", f'RESTORED: job is back at rest ("{BASELINE}")',
              {"value": BASELINE}),
-    ],
+    ] + server_assert(
+        "⭐ RESTORED (server): back to 0 verified, so the job recomputed to `READY` — the "
+        "status walks BACKWARD, which is what the forward-only version could not do",
+        "__dd510_job", JOB_STATUS_Q, {"id": FIXTURE_ID},
+        f"data.mobileJob.status === 'READY' && {VERIFIED_COUNT} === 0",
+        always=True),
     TAGS + ["CRUD"],
 ))
 
@@ -285,8 +314,8 @@ print("wrote MOB.500 (job read), MOB.510 (verify/unverify), MOB.520 (asset tabs)
 #   JobStatusSummary renders one <li> per status with the text "In Progress: 3". Clicking
 #   toggles (`setSelectedStatus(c => c === status ? '' : status)`), so every click here is
 #   paired with a second click that restores the unfiltered list.
-#   The fixture job is IN_PROGRESS, so selecting READY must HIDE it - that negative is the
-#   assertion that proves the filter filters.
+#   The fixture job rests READY, so selecting IN PROGRESS must HIDE it - that negative is
+#   the assertion that proves the filter filters.
 #
 # SORT: OPENS ONLY, DELIBERATELY
 #   Two reasons not to select an option. (1) The labels are built from the schema as
@@ -320,8 +349,9 @@ write(test(
     "- This is the **SB** block built where it can be proven: the fixture job is a known\n"
     "  record, so a non-matching search asserts it DISAPPEARS. MOB.340 can only prove the\n"
     "  work-list search box accepts text - no work order there is known-stable.\n"
-    "- The status filter is proven the same way: the fixture is `IN_PROGRESS`, so selecting\n"
-    "  `Ready` must hide it. Every filter click is paired with a second click to untoggle.\n"
+    "- The status filter is proven the same way: the fixture rests `READY`, so selecting\n"
+    "  `In Progress` must hide it. Every filter click is paired with a second click to\n"
+    "  untoggle.\n"
     "- Sort is opened and dismissed but NOT applied: its labels are schema-derived, proving\n"
     "  an order needs two known records, and a selection would persist in sessionStorage\n"
     "  into later subtests.",
@@ -334,22 +364,22 @@ write(test(
              {"value": FIXTURE_NAME}),
 
         # -------- status filter
-        step("click", 'Filter by "Ready"',
-             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
-        step("wait", "Wait for the list to re-filter", {"value": 2}),
-        step("assertPageLacks", "PROOF: an IN_PROGRESS job is hidden by the Ready filter",
-             {"value": FIXTURE_NAME}),
-        step("click", 'Untoggle "Ready"',
-             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
-        step("wait", "Wait for the list to restore", {"value": 2}),
-        step("assertPageContains", "The fixture job is back", {"value": FIXTURE_NAME}),
         step("click", 'Filter by "In Progress"',
              {"element": xpath_el(JOBS_URL, legend("In Progress"))}),
         step("wait", "Wait for the list to re-filter", {"value": 2}),
-        step("assertPageContains", "PROOF: the In Progress filter keeps the fixture job",
+        step("assertPageLacks", "PROOF: a READY job is hidden by the In Progress filter",
              {"value": FIXTURE_NAME}),
         step("click", 'Untoggle "In Progress"',
              {"element": xpath_el(JOBS_URL, legend("In Progress"))}),
+        step("wait", "Wait for the list to restore", {"value": 2}),
+        step("assertPageContains", "The fixture job is back", {"value": FIXTURE_NAME}),
+        step("click", 'Filter by "Ready"',
+             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
+        step("wait", "Wait for the list to re-filter", {"value": 2}),
+        step("assertPageContains", "PROOF: the Ready filter keeps the fixture job",
+             {"value": FIXTURE_NAME}),
+        step("click", 'Untoggle "Ready"',
+             {"element": xpath_el(JOBS_URL, legend("Ready"))}),
         step("wait", "Wait for the list to restore", {"value": 2}),
 
         # -------- search

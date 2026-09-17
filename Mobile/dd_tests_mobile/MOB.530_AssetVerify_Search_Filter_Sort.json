@@ -4,7 +4,7 @@
         "name": "MOB.530_AssetVerify_Search_Filter_Sort",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.530` Search, status filter and sort on the mobile job list.\n- READ-ONLY. Nothing here mutates, so the suite stays self-restoring.\n- This is the **SB** block built where it can be proven: the fixture job is a known\n  record, so a non-matching search asserts it DISAPPEARS. MOB.340 can only prove the\n  work-list search box accepts text - no work order there is known-stable.\n- The status filter is proven the same way: the fixture is `IN_PROGRESS`, so selecting\n  `Ready` must hide it. Every filter click is paired with a second click to untoggle.\n- Sort is opened and dismissed but NOT applied: its labels are schema-derived, proving\n  an order needs two known records, and a selection would persist in sessionStorage\n  into later subtests.",
+        "message": "`MOB.530` Search, status filter and sort on the mobile job list.\n- READ-ONLY. Nothing here mutates, so the suite stays self-restoring.\n- This is the **SB** block built where it can be proven: the fixture job is a known\n  record, so a non-matching search asserts it DISAPPEARS. MOB.340 can only prove the\n  work-list search box accepts text - no work order there is known-stable.\n- The status filter is proven the same way: the fixture rests `READY`, so selecting\n  `In Progress` must hide it. Every filter click is paired with a second click to\n  untoggle.\n- Sort is opened and dismissed but NOT applied: its labels are schema-derived, proving\n  an order needs two known records, and a selection would persist in sessionStorage\n  into later subtests.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -198,7 +198,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Filter by \"Ready\"",
+                "name": "Filter by \"In Progress\"",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -208,7 +208,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
                                 }
                             ]
                         }
@@ -233,7 +233,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF: an IN_PROGRESS job is hidden by the Ready filter",
+                "name": "PROOF: a READY job is hidden by the In Progress filter",
                 "noScreenshot": false,
                 "params": {
                     "value": "DATADOG MOBILE JOB"
@@ -245,7 +245,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Untoggle \"Ready\"",
+                "name": "Untoggle \"In Progress\"",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -255,7 +255,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
                                 }
                             ]
                         }
@@ -292,7 +292,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Filter by \"In Progress\"",
+                "name": "Filter by \"Ready\"",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -302,7 +302,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
                                 }
                             ]
                         }
@@ -327,7 +327,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF: the In Progress filter keeps the fixture job",
+                "name": "PROOF: the Ready filter keeps the fixture job",
                 "noScreenshot": false,
                 "params": {
                     "value": "DATADOG MOBILE JOB"
@@ -339,7 +339,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Untoggle \"In Progress\"",
+                "name": "Untoggle \"Ready\"",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -349,7 +349,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//li[contains(normalize-space(.), \"In Progress:\")]"
+                                    "value": "//li[contains(normalize-space(.), \"Ready:\")]"
                                 }
                             ]
                         }
