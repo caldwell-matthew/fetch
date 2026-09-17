@@ -38,7 +38,7 @@ STAGE_URL = f"{BASE}/work/{FIXTURE_ID}"
 STATUS_TARGET = '//span[contains(normalize-space(.), "Status:")]'
 TAGS = ["Mobile", "env:dev", "Work Order", "CRUD"]
 
-# The status-notes branch was REMOVED, confirmed empirically from a MOB.991 run:
+# The status-notes branch was REMOVED, confirmed empirically from a Datadog run:
 #   - every "Fill status notes" step failed with
 #     `No element found using locator: //*[@id="statusNotes"]`
 #     => this fixture's work template does NOT set requireStatusNotes; the modal never opens.

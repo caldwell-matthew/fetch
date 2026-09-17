@@ -7,11 +7,12 @@ WHAT SHIPPED WITHOUT A TEST
   and, offline, `OFFLINE_FEATURE_MESSAGE` instead of fetching. An ActionIcon flips the view
   between the Mantine `Timeline` and a recharts `LineChart`. Nothing had opened it anywhere.
 
-THE FIXTURE IS `MOB.550`'S RESIDUE, AND THAT IS WHY THIS LIVES IN `MOB.987`
+THE FIXTURE IS `MOB.550`'S RESIDUE
   The history icon renders only beside a reading type that HAS a previous entry
   (`FormField.tsx`: `{previousEntry && ... {historyIcon}}`). `MOB.550` writes readings to
   `Tank 0000` in the fixture job every run and the server keeps them, so on the AV job's
-  accordion `Tank 0000` -> `Readings` always has at least one icon. Run after `MOB.550`.
+  accordion `Tank 0000` -> `Readings` always has at least one icon once `MOB.550` (`MOB.965`) has
+  run. This test is in the read-only `MOB.962`.
   The icon is `faHistory`, whose canonical FontAwesome name is `clock-rotate-left` (trap 14).
 
   ⚠️ This is the ACCORDION's `AssetLookupDetails` -> `AssetLookup/.../EventReadings.tsx`, the
@@ -32,7 +33,7 @@ WHAT IS ASSERTED, AND WHY NONE OF IT CAN GO VACUOUS
     dropdown must show `OFFLINE_FEATURE_MESSAGE`; dispatch `online` and it must be gone. Both
     halves asserted, restore leg `alwaysExecute`.
   The popover is closed on the way out by clicking its icon again (`onClick={() => setOpened(o
-  => !o)}`) and the row collapsed, so `MOB.987`'s session ends where it started.
+  => !o)}`) and the row collapsed, so `MOB.962`'s session ends where it started.
 
 READ-ONLY. The history query is a read; toggling the view and going offline write nothing.
 """
@@ -147,7 +148,7 @@ write(test(
     "`MOB.551` **The reading-history popover: its fetch states, the timeline/chart toggle, and "
     "the offline branch.**\n"
     "- READ-ONLY. Fixture is `MOB.550`'s residue on `Tank 0000` — the history icon renders only\n"
-    "  beside a reading type with a previous entry, so this runs after `MOB.550` in `MOB.987`.\n"
+    "  beside a reading type with a previous entry - the readings earlier `MOB.550` runs left.\n"
     "- ⭐ **RESOLVED is an exclusive-or**: `No readings recorded.` or >= 1 timeline item, polled\n"
     "  past `Loading history...`, which satisfies neither.\n"
     "- ⭐ **Timeline vs chart is a biconditional** on the two containers, flipped and flipped back.\n"

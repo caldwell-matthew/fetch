@@ -112,19 +112,5 @@ write(test(
     ["Mobile", "env:dev", "Map", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.990
-suite_path = os.path.join(HERE, "MOB.990_Smoke_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.121_Map_Controls"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.990_Smoke_Suite")
-    print("REMINDER: add it to build_suites.py's MOB.990 list (trap 12)")
 
 print("wrote MOB.121 (map controls)")

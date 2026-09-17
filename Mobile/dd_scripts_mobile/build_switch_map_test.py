@@ -207,6 +207,6 @@ write(test(
     ["Mobile", "env:dev", "Map", "read-only"],
 ))
 
-# Suite membership lives in build_suites.py's MOB.990 list (trap 19), not here: wiring a child
+# Suite membership lives in suite_plan.py (MOB.971, trap 19), not here: wiring a child
 # before it exists in Datadog stamps PENDING-WIRE-UP and the suite push 400s.
 print("wrote MOB.123 (map Switch Map picker)")

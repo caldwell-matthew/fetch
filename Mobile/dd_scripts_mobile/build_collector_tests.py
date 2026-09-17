@@ -160,62 +160,13 @@ if not _skip600:
                                     '(//*[contains(concat(" ", normalize-space(@class), " "), '
                                     f'" mantine-Accordion-item ")])[1][contains(., "{ASSET_NAME}")]')},
                # `soft`, NOT optional: MOB.600 stays RED while §34 is open - but a critical
-               # non-allowFailure red here ABORTS MOB.994 and its later children (MOB.610,
-               # 623, 624, 625) report red without ever running (the MOB.346 lesson).
+               # non-allowFailure red here ABORTS MOB.967 and its later children (MOB.623,
+               # 627, 628) report red without ever running (the MOB.346 lesson).
                timeout=30, soft=True),
       ],
       TAGS + ["CRUD"],
       local_vars=[localvar("RUNID", "{{ numeric(8) }}", "12345678")],
   ))
 
-# ---------------------------------------------------------------- suite
-# MOB.600 carries no login steps of its own, so it can only run as a subtest. A suite (over
-# giving it its own login) keeps the login flow and the "role is exactly Admin" guard in one
-# place - MOB.000 - and leaves room for more collector subtests without duplicating them.
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 
-write(test(
-    "MOB.994_Collector_Suite",
-    "Asset Collector.\n"
-    "- Logs in once, then chains its subtests in the same browser session.\n"
-    "- MUTATES dev and does NOT self-restore: every run collects a permanent asset named\n"
-    f"  `{ASSET_NAME}`. Mobile is delete-free, so cleanup is a desktop job. Unlike\n"
-    "  MOB.993, this suite cannot be left on a schedule without the asset count growing.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    # ⚠️ COMPLETE, IN RUN ORDER — trap 19. MOB.610 was wired into the JSON by
-    # build_search_sweep_tests.py and was missing here; a DD_FORCE rebuild would have dropped
-    # it silently and the suite would still have reported PASS.
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   # MOB.620 runs FIRST: it asserts the `Add Asset Photo` branch, which only
-                   # holds while the form has no attachments, and it must meet a form MOB.600
-                   # has not already driven.
-                   # MOB.621 follows MOB.620: both open a FRESH new-asset form, and both
-                   # depend on `attachments.length === 0` at the start. Neither submits, so
-                   # neither disturbs MOB.600.
-                   # MOB.622 follows MOB.621 for the same reason — it too opens a fresh form
-                   # and depends on starting at zero attachments, because its whole subject is
-                   # the ONE-photo state disagreeing with the TWO-photo state. It uploads
-                   # twice and submits nothing, so it also leaves MOB.600 an untouched form.
-                   # MOB.623 runs LAST: it drives the newest `DD SYNTHETIC MOBILE` asset that
-                   # has a photo, which is the one MOB.600 just created. It rotates that photo
-                   # 4x90° (self-restoring) and leaves the row collapsed.
-                   for c in ["MOB.620_Collector_Photo_Picker",
-                             "MOB.621_Collector_Photo_Add",
-                             "MOB.622_Collector_Photo_Carousel",
-                             # the capture menus; a photo in the reducer, the form discarded
-                             "MOB.626_Collector_Capture_Options",
-                             "MOB.600_Collector_Create_Asset",
-                             "MOB.610_Collector_Search",
-                             "MOB.623_Collector_Saved_Photo_Menu",
-                             # MOB.624 needs the photo MOB.623 just added (badge >= 1).
-                             "MOB.624_Collector_Row_Avatar_Modal",
-                             # read-only; restores the AV job-sort key it leaks (§38)
-                             "MOB.625_Collector_List_Sort"]],
-    ["Mobile", "env:dev", "Asset Collector", "suite"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
-
-print("wrote MOB.600 (collect asset), MOB.994 (suite)")
+print("wrote MOB.600 (collect asset)")

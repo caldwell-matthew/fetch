@@ -13,7 +13,7 @@ WHY THIS EXISTS, AND WHY IT COULD NOT BE BUILT BEFORE
 
 🔁 VERSION 2 - THE EXACT-REVERSAL INVARIANT DOES NOT SURVIVE VIRTUALISATION.
   Version 1 copied `MOB.345`'s shape: capture the rendered order under ASC, then assert DESC is
-  its exact `reverse()`. It FAILED on its first run (2026-08-23, MOB.996), and its own
+  its exact `reverse()`. It FAILED on its first run (2026-08-23), and its own
   diagnostics attributed it in a single run - exactly what they were added for:
 
       DIAG: ASC and DESC rendered the SAME NUMBER of rows   -> FALSE
@@ -53,7 +53,7 @@ MATCH LODASH'S COMPARISON, NOT `localeCompare`
   Selecting a sort writes `sessionStorage['mobile-MobileJob-sort']`, and a Datadog suite shares
   ONE browser session - so a leaked sort silently changes what every later subtest sees.
   `MOB.810` ends leaving `Created At ▼` set (it asserts persistence and never clears it); this
-  test removes the key on the way out with `alwaysExecute`. It is wired LAST in `MOB.996` for
+  test removes the key on the way out with `alwaysExecute`. It is wired LAST in `MOB.961` for
   the same reason.
 
 READ-ONLY: selects sort options and reads row order. Nothing is created, edited or verified.
@@ -179,7 +179,7 @@ steps = av_list_gate() + [
 
     # ---- RESTORE ----------------------------------------------------------------------------
     # alwaysExecute: a run that dies mid-way must not leave the session sorted, because every
-    # later subtest in MOB.996 shares this browser session. Removing the key returns the list
+    # later subtest in a suite shares this browser session. Removing the key returns the list
     # to its default ordering rather than to some other explicit sort.
     jsassert("RESTORE: clear the persisted sort",
              f"sessionStorage.removeItem('{SORT_KEY}');\n"
@@ -210,8 +210,8 @@ write(test(
     "- **Cannot go vacuous**: guards require ≥2 rendered rows **and** ≥2 distinct names —\n"
     "  monotonicity is trivially true both ways for a list of identical names (trap 5).\n"
     "- 🛑 **Self-restoring, `alwaysExecute` — and unlike `MOB.810` it really does clear\n"
-    "  `mobile-MobileJob-sort`.** Wired **last** in `MOB.996` so a leaked sort cannot reach\n"
-    "  `MOB.810`, which deliberately leaves one set.\n"
+    "  `mobile-MobileJob-sort`.** Wired **last** in `MOB.961`, after `MOB.810` (which leaves a\n"
+    "  sort set): it picks its own sort and clears it, so the suite ends unsorted.\n"
     "- 🛑 **READ-ONLY**.",
     steps,
     tags=["Mobile", "env:dev", "Asset Verification", "Sort", "read-only"],

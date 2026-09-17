@@ -9,7 +9,7 @@ MOB.580 CLOSES THE SB BLOCK'S LAST GAP: NOTHING PROVED SORTING SORTS
   Proving an order needs at least two records on screen, which is what Q7 supplied.
 
 🛑 VERSION 2 - THAT HARDCODED PAIR WAS A BUG, AND IT COST A SUITE.
-  `MOB.993` went red on 2026-09-09 and again on 2026-09-10 with all three proofs false, and it
+  Its suite went red on 2026-09-09 and again on 2026-09-10 with all three proofs false, and it
   was blamed on the app: bugs §36, "the sort pick leaves the list unmoved". It was the test.
   ⭐ **The fixture asset has been renamed `⚡ Tank 0000`** - the lightning bolt is part of the
   stored name - and `searchSort` orders by `localeCompare`, which collates that symbol BEFORE
@@ -121,7 +121,7 @@ def stored_sort(sort_id, label):
 
     `SortDropdown.tsx:84-91` writes `sessionStorage['mobile-Asset-sort']` and calls
     `props.onChange` in the SAME branch, and closes the modal either way. So the modal
-    shutting is NOT evidence the sort was taken, and on 2026-09-09 `MOB.993` failed with
+    shutting is NOT evidence the sort was taken, and on 2026-09-09 its suite failed with
     exactly that shape: every click green, modal closed, list unmoved. This step splits the
     two halves of that failure:
 
@@ -177,7 +177,7 @@ write(test(
     "- Leaves the Asset sort set in `sessionStorage`. Harmless: every test that clicks an\n"
     "  asset now targets it **by name**, not by position.\n"
     "- The three proofs are `soft`: a red one still fails THIS test, but it no longer aborts\n"
-    "  the run — on 2026-09-09 the ascending proof took `MOB.993`'s other 7 children down with\n"
+    "  the run — on 2026-09-09 the ascending proof took its suite's other 7 children down with\n"
     "  it, and none of them had run.\n"
     "- Each proof is preceded by an `optional` **DIAG** reading `mobile-Asset-sort`, which\n"
     "  separates *the app never took the selection* from *the app took it and did not\n"
@@ -251,22 +251,5 @@ write(test(
     TAGS + ["CRUD"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.993
-suite_path = os.path.join(HERE, "MOB.993_AssetVerify_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-added = []
-for child in ["MOB.580_AssetVerify_Sort_Ordering", "MOB.590_AssetVerify_Unverified_Tab"]:
-    if child not in [s.get("name") for s in steps]:
-        steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                      "isCritical": True, "name": child, "noScreenshot": False,
-                      "type": "playSubTest",
-                      "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-        added.append(child)
-if added:
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print("added to MOB.993:", ", ".join(added))
-    print("REMINDER: add both to CHILDREN in build_verify_suite.py (trap 12)")
 
 print("wrote MOB.580 (sort ordering), MOB.590 (unverified tab)")

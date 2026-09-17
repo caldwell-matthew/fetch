@@ -72,7 +72,7 @@ steps = [
                               ' "Asset Lookup")]')}, timeout=30),
 
     # 🛑 was a bare click + assertElementPresent, and the swallowed first click killed
-    # `MOB.996` here on 2026-09-10 two subtests after the healed `MOB.800` sailed past it.
+    # its suite here on 2026-09-10 two subtests after the healed `MOB.800` sailed past it.
     *open_filters_drawer(LOOKUP_URL),
 
     # ---- single-value baseline ----------------------------------------------------------------

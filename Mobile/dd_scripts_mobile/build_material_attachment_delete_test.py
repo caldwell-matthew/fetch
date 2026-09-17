@@ -70,7 +70,7 @@ import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
-                      server_assert, upload_steps, RECORDED_PDF)
+                      server_assert, upload_steps, RECORDED_PDF, material_list_ready)
 
 NAME = "MOB.866_MaterialLookup_Item_Attachment_Delete"
 MATERIAL_URL = BASE + "/material-lookup"
@@ -240,12 +240,7 @@ steps += [
     # `index.tsx`: `<Loading visible={loading && !previousData} />` covers the page until the first
     # material query answers, and `N matches` renders exactly when `data.results` exists. Replay 1 clicked
     # the dropdown through that overlay (forced) and the option never became visible.
-    jsassert("READY: the material list has loaded — an `N matches` line shows and no loading overlay covers "
-             "the page",
-             "const overlay = document.querySelectorAll('.mantine-LoadingOverlay-overlay').length > 0;\n"
-             "const counted = [...document.querySelectorAll('p, div, span')]\n"
-             "  .some(e => e.children.length === 0 && /^\\d[\\d,]* matches$/.test((e.textContent || '').trim()));\n"
-             "return counted && !overlay;", timeout=60),
+    *material_list_ready(),
     step("click", "Open the storeroom dropdown",
          {"element": xpath_el(MATERIAL_URL, STOREROOM_SELECT)}, timeout=30),
     step("wait", "Wait for storeroom options", {"value": 2}),

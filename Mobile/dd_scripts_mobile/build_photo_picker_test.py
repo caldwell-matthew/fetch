@@ -44,8 +44,8 @@ WHY THE COLLECTOR FORM AND NOT THE WORK INSERT FORM
   `canAddPhotos={assetPerms}` is on for the Admin role.
 
 🛑 STRICTLY READ-ONLY. The form is opened and escaped; nothing is typed and nothing is
-  submitted, so unlike `MOB.600` this leaves no asset behind. It is wired into `MOB.994` before
-  `MOB.600` so it runs against a genuinely empty form (attachments.length === 0), which is what
+  submitted, so unlike `MOB.600` this leaves no asset behind. It runs in the read-only `MOB.966`,
+  apart from `MOB.600` (`MOB.967`), so it meets a genuinely empty form (attachments.length === 0), which is what
   the `Add Asset Photo` branch depends on.
 """
 import os, sys

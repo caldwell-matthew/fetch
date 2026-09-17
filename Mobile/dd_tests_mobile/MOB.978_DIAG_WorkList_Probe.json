@@ -263,7 +263,8 @@
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "assertElementPresent",
+                "timeout": 120
             },
             {
                 "allowFailure": false,

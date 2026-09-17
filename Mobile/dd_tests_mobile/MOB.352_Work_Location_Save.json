@@ -273,6 +273,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "No toast is covering the page (a Datadog click would land on it)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst vis = e => { const r = e.getBoundingClientRect();\n  if (r.width === 0 || r.height === 0) return false;\n  const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'; };\nreturn ![...document.querySelectorAll('.Toastify__toast')].some(vis);\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the MapLink menu (the write)",
                 "noScreenshot": false,
                 "params": {
@@ -297,24 +310,13 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The menu offers \"Edit Location\"",
+                "name": "The menu offers \"Edit Location\" (re-opens the MapLink menu if the click was lost)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Location\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const want = \"Edit Location\";\nconst vis = e => { if (!e || !e.isConnected) return false;\n  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n  for (let n = e; n && n !== document.body; n = n.parentElement) {\n    const cs = getComputedStyle(n);\n    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n  return true; };\nconst items = [...document.querySelectorAll('.mantine-Menu-item')]\n  .filter(i => (i.textContent || '').replace(/\\s+/g, ' ').trim() === want);\nconst key = '__dd_menu_' + want;\nif (items.some(vis)) { delete window[key]; return true; }\nconst now = Date.now();\n// first poll only starts the clock - a menu still animating open must not be clicked shut\nif (!window[key]) { window[key] = now; return false; }\nif (now - window[key] > 2500) {\n  window[key] = now;\n  const t = document.evaluate(\"(//button[.//*[@data-icon=\\\"globe\\\" or contains(concat(\\\" \\\", normalize-space(@class), \\\" \\\"), \\\" fa-globe \\\")]])[1]\", document, null,\n    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n  if (t) t.click();\n}\nreturn false;"
                 },
-                "type": "assertElementPresent",
-                "timeout": 30
+                "type": "assertFromJavascript",
+                "timeout": 45
             },
             {
                 "allowFailure": false,
@@ -646,6 +648,19 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "No toast is covering the page (a Datadog click would land on it)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "\nconst vis = e => { const r = e.getBoundingClientRect();\n  if (r.width === 0 || r.height === 0) return false;\n  const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'; };\nreturn ![...document.querySelectorAll('.Toastify__toast')].some(vis);\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the MapLink menu (the restore)",
                 "noScreenshot": false,
                 "params": {
@@ -670,24 +685,13 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The menu offers \"Edit Location\"",
+                "name": "The menu offers \"Edit Location\" (re-opens the MapLink menu if the click was lost)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Menu-item \")][normalize-space(.)=\"Edit Location\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const want = \"Edit Location\";\nconst vis = e => { if (!e || !e.isConnected) return false;\n  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n  for (let n = e; n && n !== document.body; n = n.parentElement) {\n    const cs = getComputedStyle(n);\n    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n  return true; };\nconst items = [...document.querySelectorAll('.mantine-Menu-item')]\n  .filter(i => (i.textContent || '').replace(/\\s+/g, ' ').trim() === want);\nconst key = '__dd_menu_' + want;\nif (items.some(vis)) { delete window[key]; return true; }\nconst now = Date.now();\n// first poll only starts the clock - a menu still animating open must not be clicked shut\nif (!window[key]) { window[key] = now; return false; }\nif (now - window[key] > 2500) {\n  window[key] = now;\n  const t = document.evaluate(\"(//button[.//*[@data-icon=\\\"globe\\\" or contains(concat(\\\" \\\", normalize-space(@class), \\\" \\\"), \\\" fa-globe \\\")]])[1]\", document, null,\n    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n  if (t) t.click();\n}\nreturn false;"
                 },
-                "type": "assertElementPresent",
-                "timeout": 30
+                "type": "assertFromJavascript",
+                "timeout": 45
             },
             {
                 "allowFailure": false,

@@ -461,6 +461,19 @@
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "RE-TAG (restore): the stored field's input gets `data-dd134` again \u2014 the save re-rendered it",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const id = sessionStorage.getItem('__dd134_field');\nconst el = id ? document.getElementById(id) : null;\nif (!el || el.offsetParent === null) return false;\nel.setAttribute('data-dd134', 'target');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Focus the tagged integer field (restore)",
                 "noScreenshot": false,
                 "params": {

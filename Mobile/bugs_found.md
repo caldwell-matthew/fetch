@@ -10,7 +10,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | **Source** | read in the code; mechanism clear, not observed failing |
 
 **Rules for this file**
-- Every status was read against the served code, `origin/development@4da480a68f`. Re-read a row
+- Every status was read against `origin/development@9d80ad499c`. Re-read a row
   before acting on it once the sync line in `testing_checklist.md` has moved on.
 - **🔧 fix pending** = a PR is open; delete the entry once it merges and the served code has it.
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
@@ -23,7 +23,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 10 | Mobile job status only moves forward | Runtime | ❌ `VerificationCheckbox.tsx:44` never reverses `COMPLETED` |
+| 10 | Mobile job status only moves forward | Runtime | 🔧 fixed on `origin/development` (`154e7627c8`, PR #4175) — not yet confirmed served; delete once it is and the AV fixture is moved (checklist #72) |
 | 11 | Verification toast fires before the mutation | Source | ❌ `VerificationCheckbox.tsx:24` |
 | 12 | Asset detail route implements 6 of 15 template section types | Source | ❌ latent |
 | 13 | Escape discards the whole new-asset form | Runtime | ❌ `AssetCollector/index.tsx:264` guards click-outside only |
@@ -46,7 +46,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 39 | A record-field `includes` filter is saved with no value | Runtime + API + Source | ❌ `MOB.807` sentinels it |
 | 40 | **A rejected add or edit looks saved** — the server's refusal is swallowed | API + Source | 🛑 `addToCollection` / `updateCollectionRecord` |
 | 41 | **A work order whose workflow copied stage certifications or event readings cannot be deleted** | Runtime + Source | ❌ `delete/index.ts:55-79` omits `workstagecertification` and `workstageeventreading`; `tedious` hides the FK reason |
-| 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | 🛑 `MOB.385`, `MOB.386`, `MOB.390`, `MOB.391` are red until fixed |
+| 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — and **no test reproduces it now** (the suites wait for `/work`'s prefetch, which loads the schema first) |
 | 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:76-88` looks the new tag up in the pre-create list |
 | 45 | Expanding an asset row on a work order's Assets tab can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema; `AssetLookupDetails/index.tsx:43` maps it unguarded |
@@ -302,7 +302,7 @@ that browser branch.
 **Fix.** Give `createAsset.ts` `uploadPhoto.ts`'s branch: tus-upload via `context.uploads` when
 `!window.ReactNativeWebView`; reserve `thumbnails` for the shell.
 **Tests.** `MOB.600` ends with a `network-only` Asset Lookup search for its own name — red until
-fixed. It is `soft`, so `MOB.967`'s later children still run. **Never make it `optional`.**
+fixed. It is `soft`, so `MOB.967`'s later children still run. **Never make it `optional`.** `MOB.967` is held out of the Datadog passes while this is open — it would spend 5 runs a pass re-confirming it.
 🛑 **A LOCAL REPLAY CANNOT EXERCISE THIS, AND PASSES.** `local_run.py` cannot resolve the
 `Open the photo picker ("Add Asset Photo")` step — it is a recorded-element click with no
 `userLocator`, so there is no xpath to follow — and the `uploadFiles` step that follows never
@@ -472,14 +472,20 @@ signature. Local replays usually win the race (both had passed locally); Datadog
 **User-visible effect.** Open a work order, add a condition or a failure — or a condition or failure card's gear →
 `Edit Item` — and Submit:
 nothing happens, however often it is tapped, until the form is closed and reopened.
+**What avoids it.** `/work`'s prefetch loads `WorkStageCondition` and `WorkStageFailure` among its schemas
+(`WorkOrders/utils/prefetchData.ts:26-36`). A form opened after that prefetch finishes has its schema from the
+cache and saves on the first Submit; the race needs the form to open first — a deep link, or leaving `/work`
+early. Measured on Datadog 2026-09-16: `MOB.390`/`391`/`385`/`386` all passed once their suites waited for the
+prefetch (`work_list_gate`), on the same app code that failed them before.
 **Not measured:** whether a returning user's persisted Apollo cache already holds `GET_SCHEMA` at first
 mount.
 **Both forms:** `Conditions/Form.tsx:88` and `Failures/Form.tsx:57` build their forms the same way — both confirmed above.
 **Fix:** pass `withDynamicSchema: true` from both forms, or render the form body only once `GET_SCHEMA`
 has resolved, so `useCustomForm` first runs with the fields.
-**Tests:** `MOB.386` and `MOB.385` assert the first open's save (`soft` — red until fixed); its restore opens and
-closes `Edit Item` once first, so it restores either way. `MOB.390`/`391` assert the first add (`soft` from
-the modal-closed check on — red until fixed); their cleanup checks still prove nothing was left.
+**Tests:** 🛑 **None reproduces this now.** `MOB.386`/`385` (first `Edit Item` save) and `MOB.390`/`391` (first
+add) keep their `soft` sentinels, but inside `MOB.956`/`MOB.957` they open the forms after `/work`'s prefetch, so
+they pass while the bug stands. A test for §42 must open the fixture work order WITHOUT warming `/work` first and
+assert the first Submit — not built (owner, 2026-09-16: later).
 
 ## §43 · An offline menu item's "requires an internet connection" message flashes and vanishes with the menu
 

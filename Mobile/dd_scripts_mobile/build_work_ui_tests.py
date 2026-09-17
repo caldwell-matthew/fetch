@@ -31,7 +31,7 @@ MOB.340 - search and sort
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, work_list_gate  # noqa: E402
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
 STAGE_URL = f"{BASE}/work/{FIXTURE_ID}"
@@ -91,14 +91,9 @@ write(test(
     "  located by its faSortAlt icon class rather than by position.\n"
     "- Read-only.",
     [
-        go(WORK_URL, "/work"),
-        step("assertElementContent", 'Test page title "Work Orders"',
-             {"check": "contains", "value": "Work Orders",
-              "element": xpath_el(WORK_URL,
-                  '//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]')}),
-        # Appendix F: 10s -> 3s. The search box appearing IS the readiness signal, so the
-        # click polls for it (timeout=30) rather than the test sleeping for a fixed 10s.
-        step("wait", "Let the work list begin rendering", {"value": 3}),
+        # dd_tools.work_list_gate: wait out the per-stage downloads first - a step taken while
+        # they run can time out on Datadog (MOB.953, 2026-09-16).
+        *work_list_gate(require_row=False),
         # --- search ---
         step("click", "Focus the search box", {"element": xpath_el(WORK_URL, SEARCH)},
              timeout=30),

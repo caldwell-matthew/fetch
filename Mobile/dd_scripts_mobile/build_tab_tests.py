@@ -35,7 +35,7 @@ import os, sys
 import re
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert, server_assert,  # noqa: E402
+from dd_tools import (BASE, work_list_gate, step, xpath_el, go, test, write, jsassert, server_assert,  # noqa: E402
                       stash_record_count, prove_record_count)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
@@ -78,13 +78,19 @@ def tab(label):
     return f'//*[@role="tab"][contains(normalize-space(.), "{label}")]'
 
 
-def open_fixture():
+def open_fixture(gate=False):
     """/work first warms the cache-only lookups (prefetchWorkData runs off the crew's own
     work list); the wait after the second navigation avoids asserting into a lagging
     detail view."""
     return [
-        go(WORK_URL, "/work to warm the lookup cache"),
-        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        # (opt-in: gate=True) 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups this test types into are cache-only on the detail
+        # page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left /work after
+        # the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option never appeared.
+        # `work_list_gate` polls LOADEDALL 3/3 (up to 180s) - the prefetch runs before those downloads.
+        *(work_list_gate(require_row=False) if gate else [
+            go(WORK_URL, "/work to warm the lookup cache"),
+            step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        ]),
         go(STAGE_URL, "the fixture work order"),
         # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
         # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
@@ -303,7 +309,7 @@ def add_prove_delete(what, tab_label, cards_js, key_desc, orig_desc, values_js, 
     # form's zod schema was built before GET_SCHEMA loaded. From the modal-closed check on, every proof
     # and the cleanup are `soft`: the test goes red, the run continues, and a suite's later children still
     # run (the MOB.346 lesson). The cleanup checks still prove nothing was left behind.
-    return open_fixture() + [
+    return open_fixture(gate=True) + [
         step("click", f"Open the {tab_label} tab", {"element": xpath_el(STAGE_URL, tab(tab_label))}),
         step("wait", f"Let the {tab_label} cards render", {"value": 2}),
         jsassert(f"PREMISE: no {what} with the run's key ({key_desc}) exists — so the one found "
@@ -418,7 +424,7 @@ write(test(
     "  WorkStageJobNote schema but Notes.tsx prefills them through defaultValues, so the\n"
     "  form arrives already valid for those two.\n"
     f"- MUTATES: adds a permanent note to {FIXTURE_ID} on every run.",
-    open_fixture() + [
+    open_fixture(gate=True) + [
         step("click", "Open the Notes tab", {"element": xpath_el(STAGE_URL, tab("Notes"))}),
         step("wait", "Let the note cards render", {"value": 2}),
         # SERVER PROOF (bugs §40): count the notes carrying OUR text, reload after, require +1.
@@ -442,7 +448,7 @@ write(test(
 #   It used to add the `Inspection` form for real. AdHocForm's picker hides forms already
 #   attached (`!currentForms.has(name)`), so it passed exactly ONCE and then failed on every
 #   later run at "Pick Inspection" - trap 10, the test eating its own fixture. That kept the
-#   whole 13-child MOB.991 suite permanently red, which is worse than a missing test: a suite
+#   whole 13-child suite it sat in permanently red, which is worse than a missing test: a suite
 #   nobody expects to be green stops being read, and the other 12 results go unnoticed.
 #
 #   The repo owner chose the repeatable variant 2026-08-13: open the modal, prove the picker
@@ -454,7 +460,7 @@ write(test(
     "`MOB.393` The **add-form** modal opens and offers its picker.\n"
     "- **READ-ONLY BY DESIGN — do not make it submit again.** It used to add the `Inspection`\n"
     "  form for real, and AdHocForm hides forms already attached, so it passed once and then\n"
-    "  failed forever at *Pick Inspection* (trap 10), keeping all of `MOB.991` red.\n"
+    "  failed forever at *Pick Inspection* (trap 10), keeping its whole suite red.\n"
     "- What it proves: the Forms tab opens, the add modal opens, and the form picker renders\n"
     "  with options. What it does NOT prove: that adding one persists.\n"
     "- The fill-out flow — which is the valuable half — is covered by **MOB.134**, using the\n"

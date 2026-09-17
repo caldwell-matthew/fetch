@@ -27,7 +27,7 @@ THE MATCH COUNT
 
 READ-ONLY. Sorting refetches; it writes nothing and persists nothing (`inputText` and the sort
 live in React state, so a reload resets both). The sort is put back on `Material Item` on the
-way out anyway, with `alwaysExecute`, so `MOB.998`'s later children see the default order.
+way out anyway, with `alwaysExecute`, so `MOB.970`'s later children see the default order.
 """
 import os, sys
 

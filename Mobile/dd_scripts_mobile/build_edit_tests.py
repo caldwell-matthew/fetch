@@ -1,4 +1,4 @@
-"""Build the "edit an existing field" tests - MOB.395, MOB.710 and MOB.989_FieldEdit_Suite.
+"""Build the "edit an existing field" tests - MOB.395/388 (MOB.957), MOB.545 (MOB.965), MOB.710 (MOB.980).
 
 THE PLAN SAID SEVEN TESTS. THERE ARE NOT SEVEN SURFACES.
   "Asset data tabs x5 + collector edit fields + WO General Info" counted SCREENS. Reading the
@@ -72,7 +72,7 @@ PROOF IS A RELOAD, NOT A TOAST AND NOT A CLOSED MODAL
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, localvar, jsassert,
+from dd_tools import (BASE, work_list_gate, HERE, step, xpath_el, go, test, write, localvar, jsassert,
                       av_job_gate)  # noqa: E402
 
 WORK_URL = BASE + "/work"
@@ -122,8 +122,11 @@ def desc_value_js(op, value):
 
 def open_work_geninfo():
     return [
-        go(WORK_URL, "/work to warm the lookup cache"),
-        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        # 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups this test types into are cache-only on the detail
+        # page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left /work after
+        # the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option never appeared.
+        # `work_list_gate` polls LOADEDALL 3/3 (up to 180s) - the prefetch runs before those downloads.
+        *work_list_gate(require_row=False),
         go(WORK_DETAIL, "the fixture work order"),
         # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
         # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
@@ -464,8 +467,11 @@ def wo_attrib_value_js(op, value):
 
 def open_work_attributes():
     return [
-        go(WORK_URL, "/work to warm the lookup cache"),
-        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        # 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups this test types into are cache-only on the detail
+        # page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left /work after
+        # the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option never appeared.
+        # `work_list_gate` polls LOADEDALL 3/3 (up to 180s) - the prefetch runs before those downloads.
+        *work_list_gate(require_row=False),
         go(WORK_DETAIL, "the fixture work order"),
         step("wait", "Let the detail view begin rendering", {"value": 2}),
         step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
@@ -521,36 +527,6 @@ write(test(
     local_vars=(RUNID,),
 ))
 
-# ---------------------------------------------------------------- suite
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-# Keep COMPLETE - a child missing here is silently dropped on the next DD_FORCE rebuild and
-# the suite then passes with the test absent (trap 12).
-CHILDREN = ["MOB.395_Work_GenInfo_Edit", "MOB.710_AssetLookup_Field_Edit",
-            "MOB.545_AssetVerify_Attribute_Edit", "MOB.388_Work_Attribute_Edit",
-            # MOB.386: red whenever its first `Edit Item` loses bugs §42's race (`soft`, so MOB.134 still runs)
-            "MOB.386_Work_Condition_Edit_Save", "MOB.134_Work_Form_Fill"]
-
-write(test(
-    "MOB.989_FieldEdit_Suite",
-    "Editing existing records — the write path every module has and none of the read-only\n"
-    "suites cover.\n"
-    "- Every child MUTATES but is **self-restoring**: the field edits write a run-unique marker and\n"
-    f"  restore `{BASELINE}`; `MOB.386` edits a condition score and restores 2; `MOB.134` fills a work\n"
-    "  form's integer field and clears it.\n"
-    "- 🛑 `MOB.386` goes red whenever its first `Edit Item` loses bugs §42's race — `soft`, so the\n"
-    "  children after it still run.\n"
-    "- Kept OUT of `MOB.995_AssetLookup_Suite` on purpose — that suite is documented as\n"
-    "  read-only and safe to schedule, and quietly adding a mutating child to it would make\n"
-    "  that promise false.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in CHILDREN],
-    ["Mobile", "env:dev", "field-edit", "suite"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
 
 print("wrote MOB.395 (WO General Info edit), MOB.545 (asset attribute edit), "
-      "MOB.710 (Asset Lookup field edit), MOB.989 (suite)")
+      "MOB.710 (Asset Lookup field edit)")

@@ -8,14 +8,14 @@ location and timing differ, and a local pass does not update any RUN STATUS.
 USAGE (from dd_scripts_mobile/, with the repo venv)
     ../../.venv/bin/python local_run.py MOB.721                  # headless, tablet, login prepended
     ../../.venv/bin/python local_run.py MOB.721 --headed         # watch it
-    ../../.venv/bin/python local_run.py MOB.984 --device mobile_small
+    ../../.venv/bin/python local_run.py MOB.975 --device mobile_small
     ../../.venv/bin/python local_run.py MOB.320 --max-timeout 20 # cap step timeouts while iterating
     ../../.venv/bin/python local_run.py MOB.721 --headed --slow-mo 400   # WATCH it, slowed down
     ../../.venv/bin/python local_run.py MOB.721 --trace          # then replay the timeline:
     ../../.venv/bin/python -m playwright show-trace ../local_runs/<test>/trace.zip
     ../../.venv/bin/python local_run.py MOB.721 --live           # headless, and Mobile/local_runs/live.png
                                                                  # rewritten every step (VS Code's image tab does not reload it - watch with --headed)
-    ../../.venv/bin/python local_run.py MOB.984 --device large_phone   # 430x932, LOCAL ONLY (see DEVICES)
+    ../../.venv/bin/python local_run.py MOB.975 --device large_phone   # 430x932, LOCAL ONLY (see DEVICES)
 
 WHAT IT REPLAYS, WITH DATADOG'S RULES
     goToUrl · wait · click · typeText · pressKey · assertPageContains · assertPageLacks ·
@@ -351,7 +351,6 @@ class Run:
     def __init__(self, page, variables, max_timeout, shots, keep_going=False):
         self.page, self.variables, self.max_timeout, self.shots = page, variables, max_timeout, shots
         self.keep_going = keep_going      # --continue: TIMING ONLY - a red step does not stop the rest
-        self.sub_locals = {}              # per-subtest local variables, see `steps`
         self.incomplete = False
         self.forced = 0
         self.n = 0
@@ -374,26 +373,15 @@ class Run:
             try:
                 if step["type"] == "playSubTest":
                     print(f"{pad}##   {name}")
-                    # A SUBTEST'S LOCAL VARIABLES ARE ITS OWN, exactly as on Datadog.
-                    # `collect_variables` flattens every child's locals into one dict keyed by
-                    # NAME, and most tests call theirs `RUNID` - so the winner's pattern was
-                    # imposed on all of them. Measured 2026-09-15: MOB.980 went red because
-                    # MOB.710's `{{ numeric(8) }}` reached MOB.722, whose input guard wants
-                    # `722` + FIVE digits; it read `72252970672`. The same test is green on
-                    # Datadog, which scopes locals per subtest. So does this now.
-                    detail = find_test(name)
-                    if name not in self.sub_locals:
-                        self.sub_locals[name] = {
-                            v["name"]: local_value(v)
-                            for v in (detail.get("config") or {}).get("variables", [])
-                            if v.get("type") == "text"}
-                    outer = self.variables
-                    self.variables = {**outer, **self.sub_locals[name]}
-                    try:
-                        if not self.steps(detail["steps"], depth + 1):
-                            error = "Sub-test failed"
-                    finally:
-                        self.variables = outer
+                    # SUBTESTS SHARE LOCAL VARIABLES BY NAME, AS ON DATADOG. `collect_variables`
+                    # merges every child's locals into one dict and the FIRST definition wins -
+                    # which is what Datadog did on 2026-09-16: inside MOB.980, MOB.722's own
+                    # `RUNID` (`numeric(5)`) received MOB.710's 8 digits and its guard went red.
+                    # (This runner briefly gave each subtest its own locals, on the wrong belief
+                    # that Datadog does; that made local runs pass where Datadog fails.) Give a
+                    # local variable a name no sibling uses - `preflight.py locals` checks.
+                    if not self.steps(find_test(name)["steps"], depth + 1):
+                        error = "Sub-test failed"
                 else:
                     forced = []
                     run_step(self.page, step, self.variables, timeout, forced)

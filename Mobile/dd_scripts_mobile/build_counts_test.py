@@ -27,7 +27,7 @@ TWO INVARIANTS, NEITHER OF WHICH HARDCODES FIXTURE STATE
   guessing at a selector - and a miscounted selector produces a confident wrong answer rather
   than an error. The arithmetic invariant covers the same ground without that risk.
 
-WHY IT IS SAFE IN MOB.993
+WHY IT IS SAFE IN MOB.961 (READ-ONLY)
   Read-only: it selects and deselects a status filter, which is component state
   (`selectedStatus`), not persisted anywhere. Nothing is written.
 """
@@ -140,18 +140,5 @@ write(test(
     ["Mobile", "env:dev", "Asset Verification", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.993
-suite_path = os.path.join(HERE, "MOB.993_AssetVerify_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.560_AssetVerify_Counts_Badges"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.993")
 
 print("wrote MOB.560 (counts, badges, ring labels)")

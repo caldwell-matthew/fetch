@@ -178,7 +178,8 @@
                 "params": {
                     "value": "workstages downloaded"
                 },
-                "type": "assertPageLacks"
+                "type": "assertPageLacks",
+                "timeout": 180
             },
             {
                 "allowFailure": false,

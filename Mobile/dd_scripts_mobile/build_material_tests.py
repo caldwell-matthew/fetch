@@ -1,4 +1,4 @@
-"""Build MOB.998_MaterialLookup_Suite - the last wholly-untested module.
+"""Build the Material Lookup tests MOB.850 and MOB.860 (suite MOB.970).
 
 WHAT THIS SCREEN ACTUALLY DOES - the inherited checklist was wrong about it
   The inherited list named six things. Only three exist here:
@@ -34,7 +34,7 @@ PERMISSIONS
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, HERE, step, xpath_el, go, test, write  # noqa: E402
+from dd_tools import BASE, HERE, step, xpath_el, go, test, write, material_list_ready  # noqa: E402
 
 MATERIAL_URL = BASE + "/material-lookup"
 STOREROOM = "Central Storeroom"
@@ -59,7 +59,9 @@ def option(text):
 
 
 def pick_storeroom():
-    return [
+    # Gate on the list, not a fixed wait: the dropdown sits under a loading overlay until the
+    # first material query answers (dd_tools.material_list_ready).
+    return material_list_ready() + [
         step("click", "Open the storeroom dropdown",
              {"element": xpath_el(MATERIAL_URL, STOREROOM_SELECT)}),
         step("wait", "Wait for storeroom options", {"value": 2}),
@@ -156,30 +158,5 @@ write(test(
     TAGS + ["CRUD"],
 ))
 
-# ---------------------------------------------------------------- suite
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-# Keep COMPLETE - a child missing from this list is silently dropped on the next DD_FORCE
-# rebuild, and the suite then passes with the test absent (trap 12).
-# MOB.855 (sort) and MOB.865 (item modal) are read-only and run AFTER the two mutating tests, so
-# a failure in either cannot abort the +1/-1 pair or the stocking leg mid-way. Both put the
-# screen back as found (default sort restored; modal closed).
-CHILDREN = ["MOB.850_MaterialLookup_Read", "MOB.860_MaterialLookup_Cycle_Count",
-            "MOB.870_MaterialLookup_Stocking", "MOB.855_MaterialLookup_Column_Sort",
-            "MOB.865_MaterialLookup_Item_Attachments"]
 
-write(test(
-    "MOB.998_MaterialLookup_Suite",
-    "Material Lookup — storeroom, search and cycle count.\n"
-    "- MOB.860 mutates stock but is **self-restoring**: +1 then -1 nets to zero.\n"
-    "- Transfers and Reorder notifications are NOT in the app; see the checklist.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in CHILDREN],
-    ["Mobile", "env:dev", "Material Lookup", "suite"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
-
-print("wrote MOB.850 (read), MOB.860 (cycle count), MOB.998 (suite)")
+print("wrote MOB.850 (read), MOB.860 (cycle count)")

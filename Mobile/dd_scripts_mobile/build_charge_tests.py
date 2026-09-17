@@ -36,7 +36,7 @@ only reversed, which ADDS rows (cleanup_spec.md §2) - accepted debt, 4 per run.
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, step, xpath_el, go, test, write,  # noqa: E402
+from dd_tools import (BASE, work_list_gate, step, xpath_el, go, test, write,  # noqa: E402
                       stash_record_count, prove_record_count)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
@@ -103,8 +103,11 @@ def warm_cache_and_open():
     """Visit /work so prefetchWorkData populates the cache-only lookups, then open the
     fixture. Both steps are required - see the module docstring."""
     return [
-        go(WORK_URL, "/work to warm the lookup cache"),
-        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        # 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups this test types into are cache-only on the detail
+        # page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left /work after
+        # the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option never appeared.
+        # `work_list_gate` polls LOADEDALL 3/3 (up to 180s) - the prefetch runs before those downloads.
+        *work_list_gate(require_row=False),
         go(STAGE_URL, "the fixture work order"),
         # Settle before asserting: coming off the heavy /work load, the detail view can lag.
         # Observed failing with `Page does not contain "Status:"` while MOB.310 - which

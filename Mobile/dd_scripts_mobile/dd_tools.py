@@ -1,8 +1,8 @@
 """Shared helpers for building, pushing, and running the MOB.* mobile suite.
 
 Run from the repo root with the venv python, e.g.:
-    ./.venv/bin/python Mobile/dd_scripts/dd_tools.py push MOB.914 MOB.995   # push ONLY the tests being edited (--all: a deliberate full sync)
-    ./.venv/bin/python Mobile/dd_scripts/dd_tools.py run MOB.990_Smoke_Suite
+    ./.venv/bin/python Mobile/dd_scripts_mobile/dd_tools.py push MOB.914 MOB.968   # push ONLY the tests being edited (--all: a deliberate full sync)
+    ./.venv/bin/python Mobile/dd_scripts_mobile/dd_tools.py run MOB.972_AppShell_Suite
 """
 import os, sys, json, glob, time, certifi
 from dotenv import dotenv_values
@@ -334,7 +334,7 @@ def server_assert(name, key, query, variables, predicate, soft=False, always=Fal
 # THE ASSET LOOKUP FILTERS DRAWER - one self-healing gate, shared by every test that opens it.
 # ---------------------------------------------------------------------------------------------
 # 🛑 THE FIRST CLICK GETS SWALLOWED. Measured three times: 2026-08-23, 2026-09-09 and again on
-# 2026-09-10, when `MOB.800` (healed) sailed through inside `MOB.996` and `MOB.806` (not healed)
+# 2026-09-10, when `MOB.800` (healed) sailed through inside a suite run and `MOB.806` (not healed)
 # died on the same drawer two subtests later, taking the rest of the suite with it. The trigger
 # is `onClick={() => setFilterOpen(true)}` and the drawer is `opened={filterOpen}`
 # (`StructuredQuery/index.tsx:267,279`) - **idempotent**, so re-clicking an already-open drawer
@@ -344,7 +344,7 @@ def server_assert(name, key, query, variables, predicate, soft=False, always=Fal
 # drawer is open or shut, so asserting on it passes with the drawer closed (trap 5).
 #
 # ⭐ ONE COPY. Four tests opened this drawer with four hand-written gates and only one of them
-# had the fix - which is precisely how `MOB.996` stayed red after `MOB.800` was repaired.
+# had the fix - which is precisely how its suite stayed red after `MOB.800` was repaired.
 FILTER_BTN = ('//button[contains(concat(" ", normalize-space(@class), " "),'
               ' " asset-lookup-filter-button ")]')
 DRAWER_OPEN_JS = """
@@ -374,10 +374,10 @@ def option_visible_js(select_id, value):
     `MOB.800` clicked `#fieldId`, waited 2s, then failed `Pick Field = "Name"` with "Element
     located but it's invisible" - the option was in the DOM but the dropdown was not open, the
     same swallowed-click failure `open_filters_drawer` already guards against. It passes
-    locally and passed in `MOB.996`; it failed under load (the retry ran beside five suites).
+    locally and passed in its suite; it failed under load (the retry ran beside five suites).
 
-    Re-clicks at most every 2.5s (`window.__ddPickAt`) so a dropdown that is still animating
-    open is not toggled shut again by the poll.
+    Re-clicks only if the option is STILL hidden 2.5s after the gate's first poll, and every 2.5s
+    after that - a dropdown still animating open is never clicked shut by the poll.
     """
     return (
         "const want = " + json.dumps(value) + ";\n"
@@ -389,12 +389,85 @@ def option_visible_js(select_id, value):
         "  return true; };\n"
         "const opts = [...document.querySelectorAll('[role=\"option\"]')]\n"
         "  .filter(o => (o.textContent || '').replace(/\\s+/g, ' ').trim() === want);\n"
-        "if (opts.some(vis)) return true;\n"
+        "const key = '__dd_pick_' + " + json.dumps(select_id) + " + '_' + want;\n"
+        "if (opts.some(vis)) { delete window[key]; return true; }\n"
         "const now = Date.now();\n"
-        "if (!window.__ddPickAt || now - window.__ddPickAt > 2500) {\n"
-        "  window.__ddPickAt = now;\n"
+        "// first poll only starts the clock - a dropdown still animating open must not be clicked shut\n"
+        "if (!window[key]) { window[key] = now; return false; }\n"
+        "if (now - window[key] > 2500) {\n"
+        "  window[key] = now;\n"
         "  const input = document.getElementById(" + json.dumps(select_id) + ");\n"
         "  if (input) input.click();\n"
+        "}\n"
+        "return false;")
+
+
+def material_list_ready():
+    """Gate: Material Lookup's list has loaded - an `N matches` line shows and no loading overlay covers it.
+
+    `material-lookup/index.tsx` renders `<Loading visible={loading && !previousData} />` over the page until
+    the first material query answers, and `N matches` exactly when `data.results` exists. A click on the
+    storeroom dropdown before that lands on `mantine-LoadingOverlay-overlay`: a local `MOB.866` replay saw it
+    forced through, and the option never became visible. Written for `MOB.866` (owner 2026-09-15); ONE copy
+    since `MOB.850`/`860`/`865` took it too (2026-09-16) instead of a fixed 6s wait.
+    """
+    return [jsassert(
+        "READY: the material list has loaded — an `N matches` line shows and no loading overlay covers the page",
+        "const overlay = document.querySelectorAll('.mantine-LoadingOverlay-overlay').length > 0;\n"
+        "const counted = [...document.querySelectorAll('p, div, span')]\n"
+        "  .some(e => e.children.length === 0 && /^\\d[\\d,]* matches$/.test((e.textContent || '').trim()));\n"
+        "return counted && !overlay;", timeout=60)]
+
+
+TOASTS_GONE_JS = """
+const vis = e => { const r = e.getBoundingClientRect();
+  if (r.width === 0 || r.height === 0) return false;
+  const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'; };
+return ![...document.querySelectorAll('.Toastify__toast')].some(vis);
+"""
+
+
+def toasts_gone(always=False):
+    """Gate: no react-toastify toast is on screen. Put it before any click after a save.
+
+    🛑 DATADOG CLICKS WHERE THE ELEMENT IS, NOT THE ELEMENT. The toast container is `top-center`
+    and covers the page-title controls. Measured 2026-09-16: after MOB.352's save, `Work stage
+    location has been updated` lay over the MapLink globe; Playwright's local click waited 4s for
+    it to leave, Datadog's landed on the toast and the menu never opened - red twice, same step.
+    Toasts autoClose at 5000ms, so this passes within seconds.
+    """
+    return [jsassert("No toast is covering the page (a Datadog click would land on it)",
+                     TOASTS_GONE_JS, timeout=30, always=always)]
+
+
+def menu_item_visible_js(trigger_xpath, item_text):
+    """True once a Mantine Menu item `item_text` is VISIBLE; re-clicks the trigger if not.
+
+    The Menu counterpart of `option_visible_js`. Measured on Datadog 2026-09-16: MOB.352 opened the
+    MapLink menu for its restore leg, `Edit Location` was not there within 30s, and the very next
+    click on it succeeded - the menu opened late. A presence assertion cannot ask for it again;
+    this does, at most every 2.5s so a menu still opening is not toggled shut.
+    """
+    return (
+        "const want = " + json.dumps(item_text) + ";\n"
+        "const vis = e => { if (!e || !e.isConnected) return false;\n"
+        "  const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;\n"
+        "  for (let n = e; n && n !== document.body; n = n.parentElement) {\n"
+        "    const cs = getComputedStyle(n);\n"
+        "    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false; }\n"
+        "  return true; };\n"
+        "const items = [...document.querySelectorAll('.mantine-Menu-item')]\n"
+        "  .filter(i => (i.textContent || '').replace(/\\s+/g, ' ').trim() === want);\n"
+        "const key = '__dd_menu_' + want;\n"
+        "if (items.some(vis)) { delete window[key]; return true; }\n"
+        "const now = Date.now();\n"
+        "// first poll only starts the clock - a menu still animating open must not be clicked shut\n"
+        "if (!window[key]) { window[key] = now; return false; }\n"
+        "if (now - window[key] > 2500) {\n"
+        "  window[key] = now;\n"
+        "  const t = document.evaluate(" + json.dumps(trigger_xpath) + ", document, null,\n"
+        "    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n"
+        "  if (t) t.click();\n"
         "}\n"
         "return false;")
 
@@ -634,8 +707,13 @@ def work_list_gate(wait=20, require_row=True):
              {"value": "Retrieving assigned work"}),
         step("assertPageLacks", "LOADEDALL 2/3: paging through workstages finished",
              {"value": "workstages found"}),
+        # 🛑 180s, NOT THE 60s DEFAULT. Measured 2026-09-16 (local probe, cold session): the
+        # per-stage detail downloads ran 86s - 304 /graphql requests, ~17 every 5s - because the
+        # list holds every residue work order (bugs §41 blocks pruning), and it grows each pass.
+        # Datadog runs ~1.5x slower. A step taken while they run timed out on Datadog: MOB.953's
+        # MOB.301 could not click the + button inside 30s, twice (first attempt and retry).
         step("assertPageLacks", "LOADEDALL 3/3: the per-stage detail downloads finished",
-             {"value": "workstages downloaded"}),
+             {"value": "workstages downloaded"}, timeout=180),
     ] + ([
         step("assertElementPresent", "WORK ROW GUARD: at least one work order rendered",
              {"element": xpath_el(WORK_URL, WORK_ROW + "[1]")}, timeout=60),
@@ -661,7 +739,7 @@ def work_view_ensure(to, always=False, assert_state=True):
     page at all.**
 
     ⭐ THAT IS WHY THIS ENSURES RATHER THAN TOGGLES. The old version clicked the item and
-    demanded it exist; when the role went back to `ASSIGNED` it took `MOB.986` red at
+    demanded it exist; when the role went back to `ASSIGNED` it took its suite red at
     `MOB.345` - the last of eleven children, after the other ten had passed. The clicks are
     `optional` now and the REQUIREMENT is asserted separately: what `MOB.345` actually needs
     is *to be in the list view*, and under `ASSIGNED` it already is. A `SCHEDULED` role still
@@ -732,7 +810,7 @@ def work_cache_warm(wait=30):
     loading starts, so its only meaning comes from the blind wait in front of it. That was
     fine while the crew's work list was empty. It is not fine now the list has stages: the
     per-stage downloads outran a 20s settle, then outran 45s, and the gate failed in MOB.134,
-    MOB.346 and MOB.990 alike. Raising the number again is guessing, not gating.
+    MOB.346 and its suite alike. Raising the number again is guessing, not gating.
 
     So this asserts only what it can assert POSITIVELY (the page mounted) and otherwise just
     waits. A test that needs real readiness should gate on ITS OWN positive signal - see
@@ -809,7 +887,7 @@ def write(t, force=None):
     So re-running a build script out of habit silently reverts working, verified state -
     which is exactly what happened once already. Opt in explicitly to overwrite:
 
-        DD_FORCE=1 ./.venv/bin/python Mobile/dd_scripts/<build script>.py
+        DD_FORCE=1 ./.venv/bin/python Mobile/dd_scripts_mobile/<build script>.py
     """
     path = os.path.join(HERE, t["test_name"] + ".json")
     if force is None:
@@ -871,7 +949,7 @@ def push(*names, all_tests=False):
     steps behind while the local JSON looked right. Always chain with && , never ; .
     """
     if not names and not all_tests:
-        print("push: name the tests you are editing (dd_tools.py push MOB.914 MOB.995_AssetLookup_Suite), "
+        print("push: name the tests you are editing (dd_tools.py push MOB.914 MOB.968_AssetLookup_1_Rows_Tabs_Suite), "
               "or pass --all for a deliberate full sync")
         return 2
     failed = []
@@ -957,7 +1035,7 @@ def run(*names, timeout=2400, push_first=False):
               "   result would be about code you no longer have. Fix the push first; if it is\n"
               "   `PENDING-WIRE-UP`, run wire_suite.py and push again.")
         return 1
-    # MOB.991 is ~150 steps across 9 subtests x 2 devices, plus queueing behind other
+    # A long suite ran ~150 steps across 9 subtests x 2 devices, plus queueing behind other
     # triggers. 1200s reported 'timed out' on runs that later passed - which reads like a
     # failure but is only the poller giving up.
     with ApiClient(_conf()) as c:

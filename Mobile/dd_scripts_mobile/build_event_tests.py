@@ -60,7 +60,7 @@ THE PROOF THAT DOES WORK: THE NEXT RUN'S COLD CACHE
 
 RESIDUE - ACCEPTED BY THE REPO OWNER
   CREATE_EVENT creates a record and mobile is delete-free, so every run leaves one event
-  reading per leg on the fixture asset. Same standing trade-off as MOB.600 and MOB.991.
+  reading per leg on the fixture asset. Same standing trade-off as MOB.600 and the MOB.956 charges.
 
 TWO SMALL TRAPS THIS SCREEN ADDS
   1. `isValid={filledInputs >= 1}` and `filledInputs` is only recomputed in the form's
@@ -158,7 +158,7 @@ write(test(
     "MOB.550_AssetVerify_Event_Readings",
     "`MOB.550` Capture event readings (meter readings) on an asset.\n"
     "- ⚠️ **LEAVES RESIDUE**: `CREATE_EVENT` creates a record per leg and mobile is\n"
-    "  delete-free. Same accepted trade-off as MOB.600 / MOB.991.\n"
+    "  delete-free. Same accepted trade-off as MOB.600 / MOB.300.\n"
     "- **Every UI signal on this screen is fake.** `onSubmit` fires `client.mutate` without\n"
     "  awaiting it, then unconditionally shows the toast and hand-writes the reading into the\n"
     "  Apollo cache with `writeQuery`. Toast, counter and rendered value all appear even if\n"
@@ -210,35 +210,5 @@ write(test(
     ["Mobile", "env:dev", "CRUD", "Asset Verification", "residue"],
 ))
 
-# ---------------------------------------------------------------- suite
-# DELIBERATELY NOT ADDED TO MOB.993_AssetVerify_Suite. That suite is documented as
-# self-restoring - "ends every run exactly as it started" - and this test creates an
-# undeletable Event per leg. Dropping a residue-leaving child into it would quietly make that
-# promise false, which is the same mistake avoided when MOB.710 was kept out of the read-only
-# MOB.995_AssetLookup_Suite. A suite's stated character is a fact other people schedule
-# against; it is not a detail.
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-# MOB.551 runs AFTER MOB.550: the history icon it opens renders only beside a reading type with a
-# previous entry, which MOB.550 has just written (and earlier runs left on the server).
-CHILDREN = ["MOB.550_AssetVerify_Event_Readings",
-            "MOB.551_AssetVerify_Reading_History"]   # keep COMPLETE - trap 12
 
-write(test(
-    "MOB.987_EventReadings_Suite",
-    "Event readings — meter capture on an asset.\n"
-    "- ⚠️ **LEAVES RESIDUE**: one `Event` record per leg, per run, and mobile is delete-free.\n"
-    "- Kept OUT of `MOB.993_AssetVerify_Suite` on purpose: that suite is documented as\n"
-    "  self-restoring, and adding this child would make that promise false.\n"
-    "- **The first ever run FAILS its opening assertion by design** — that assertion proves\n"
-    "  the server returned a reading written by a PREVIOUS run, and on run one there is none.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in CHILDREN],
-    ["Mobile", "env:dev", "Asset Verification", "residue", "suite"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
-
-print("wrote MOB.550 (event readings), MOB.987 (suite)")
+print("wrote MOB.550 (event readings)")

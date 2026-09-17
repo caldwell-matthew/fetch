@@ -4,7 +4,7 @@
         "name": "MOB.951_Phone_Form_Branch",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.951` **PHONE WIDTH \u2014 a work form renders its MOBILE branch.**\n- `FormDetails.tsx` picks the desktop form at `screen.availWidth >= 750` (MOB.355, on tablet)\n  and `#senor-work-form` below it \u2014 where `MobileSignatureField` lives. No tablet run can\n  reach it (trap 1).\n- Its image field renders the mobile `Upload Photo` button \u2014 asserted exactly when the server says the\n  opened form has an image field (never clicked: it opens a file dialog).\n- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. \ud83d\uded1 READ-ONLY.",
+        "message": "`MOB.951` **PHONE WIDTH \u2014 a work form renders its MOBILE branch.**\n- `FormDetails.tsx` picks the desktop form at `screen.availWidth >= 750` (MOB.355, on tablet)\n  and `#senor-work-form` below it \u2014 where `MobileSignatureField` lives. No tablet run can\n  reach it (trap 1).\n- Its image field renders the mobile `Upload Photo` button \u2014 asserted exactly when the server says the\n  opened form has an image field (never clicked: it opens a file dialog).\n- `chrome.mobile_small` ONLY; runs inside `MOB.975_Phone_Suite`. \ud83d\uded1 READ-ONLY.",
         "tags": [
             "Mobile",
             "env:dev",

@@ -25,7 +25,7 @@
                     "type": "global"
                 },
                 {
-                    "name": "RUNID",
+                    "name": "RUNID722",
                     "type": "text",
                     "pattern": "{{ numeric(5) }}",
                     "example": "48120"
@@ -43,7 +43,7 @@
                     "type": "global"
                 },
                 {
-                    "name": "RUNID",
+                    "name": "RUNID722",
                     "type": "text",
                     "pattern": "{{ numeric(5) }}",
                     "example": "48120"
@@ -413,7 +413,7 @@
                 "name": "Enter the reading `722<RUNID>`",
                 "noScreenshot": false,
                 "params": {
-                    "value": "722{{ RUNID }}",
+                    "value": "722{{ RUNID722 }}",
                     "element": {
                         "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
                         "userLocator": {

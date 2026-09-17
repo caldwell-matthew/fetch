@@ -43,7 +43,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert, server_assert,  # noqa: E402
+from dd_tools import (BASE, work_list_gate, step, xpath_el, go, test, write, jsassert, server_assert,  # noqa: E402
                       localvar)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
@@ -126,8 +126,11 @@ def armed(soft=False):
 
 
 steps = [
-    go(WORK_URL, "/work to warm the lookup cache"),
-    step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+    # 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups this test types into are cache-only on the detail
+    # page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left /work after
+    # the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option never appeared.
+    # `work_list_gate` polls LOADEDALL 3/3 (up to 180s) - the prefetch runs before those downloads.
+    *work_list_gate(require_row=False),
     jsassert("Clear this test's sessionStorage keys — only THIS run's premise may license the delete",
              f"sessionStorage.removeItem('{K_BEFORE}');\nsessionStorage.removeItem('{K_ID}');\n"
              f"return sessionStorage.getItem('{K_BEFORE}') === null;", timeout=15),

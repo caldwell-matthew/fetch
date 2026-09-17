@@ -124,7 +124,7 @@ def restore(label):
         dispatch("online", always=True),
         step("wait", "Let the queue drain", {"value": 4}, always=True),
         # EVERY checked box, not the first: the verify's `[1]` and a later render can disagree on row
-        # order, and a miss would leave the fixture dirty for MOB.983's next child (MOB.536).
+        # order, and a miss would leave the fixture dirty for MOB.963's next child (MOB.536).
         jsassert(f"RESTORE ({label}): unverify every checked asset — the fixture's at rest is none",
                  "[...document.querySelectorAll('input[type=\"checkbox\"]')]\n"
                  "  .filter(b => b.checked).forEach(b => b.click());\nreturn true;", always=True, timeout=20),

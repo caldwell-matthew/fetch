@@ -39,12 +39,12 @@ THE AVATAR MODAL IS AN EXCLUSIVE-OR
   opened through the row's action icon - the locator `MOB.860` already proved.
 
 READ-ONLY. Nothing here submits, uploads or adjusts. The modal is closed on the way out with
-`alwaysExecute` so `MOB.998`'s later children start from a clean list.
+`alwaysExecute` so `MOB.970`'s later children start from a clean list.
 """
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, jsassert, material_list_ready  # noqa: E402
 
 MATERIAL_URL = BASE + "/material-lookup"
 STOREROOM = "Central Storeroom"
@@ -118,6 +118,7 @@ steps = [
     step("assertElementContent", 'Test the "Material Lookup" page rendered',
          {"check": "contains", "value": "Material Lookup",
           "element": xpath_el(MATERIAL_URL, PAGE_TITLE)}, timeout=30),
+    *material_list_ready(),
     step("click", "Open the storeroom dropdown",
          {"element": xpath_el(MATERIAL_URL, STOREROOM_SELECT)}, timeout=30),
     step("wait", "Wait for storeroom options", {"value": 2}),

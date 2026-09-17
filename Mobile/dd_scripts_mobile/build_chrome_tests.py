@@ -1,6 +1,6 @@
 """Build the remaining Tier 3 chrome tests: back arrow and module-level resync.
 
-Both READ-ONLY, both added to MOB.992_Menu_Suite.
+Both READ-ONLY, both in MOB.972_AppShell_Suite.
 
 FONTAWESOME ALIASES (trap 14)
   Neither control has an accessible name, so the icon IS the locator - and FA6 renders icons
@@ -139,22 +139,5 @@ write(test(
     TAGS,
 ))
 
-# ---------------------------------------------------------------- wire into MOB.992
-suite_path = os.path.join(HERE, "MOB.992_Menu_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-names = [s.get("name") for s in steps]
-added = []
-for child in ["MOB.450_Global_Back_Arrow", "MOB.460_Global_Module_Resync"]:
-    if child not in names:
-        steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                      "isCritical": True, "name": child, "noScreenshot": False,
-                      "type": "playSubTest",
-                      "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-        added.append(child)
-if added:
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print("added to MOB.992:", ", ".join(added))
 
 print("wrote MOB.450 (back arrow), MOB.460 (module resync)")

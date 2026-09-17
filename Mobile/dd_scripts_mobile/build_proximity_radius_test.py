@@ -13,8 +13,8 @@ WHAT THIS CLOSES
 🛑 WHY THIS IS A SEPARATE TEST, NOT AN EXTENSION OF MOB.730
   `MOB.730` is read-only and asserts the NO-radius state. This one deliberately SETS a radius,
   which writes `sessionStorage['asset_lookup_proximity_radius']`. Merging them would make the
-  no-radius baseline depend on its own cleanup having worked. Kept apart, and wired LAST in
-  `MOB.995` so residue cannot reach `MOB.700`/`MOB.720` even if the restore fails.
+  no-radius baseline depend on its own cleanup having worked. Kept apart, and in `MOB.955`
+  rather than `MOB.968`, so residue cannot reach `MOB.700`/`MOB.720` even if the restore fails.
 
 ⚠️ THREE CONSTRAINTS, ALL MEASURED BY MOB.974 - none is a precaution
   1. THE STUB DOES NOT SURVIVE A NAVIGATION (probe G7, red twice). This test therefore does

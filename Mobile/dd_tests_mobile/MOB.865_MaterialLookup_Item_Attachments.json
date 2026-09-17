@@ -115,6 +115,19 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "READY: the material list has loaded \u2014 an `N matches` line shows and no loading overlay covers the page",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const overlay = document.querySelectorAll('.mantine-LoadingOverlay-overlay').length > 0;\nconst counted = [...document.querySelectorAll('p, div, span')]\n  .some(e => e.children.length === 0 && /^\\d[\\d,]* matches$/.test((e.textContent || '').trim()));\nreturn counted && !overlay;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the storeroom dropdown",
                 "noScreenshot": false,
                 "params": {

@@ -142,19 +142,5 @@ write(test(
     ["Mobile", "env:dev", "Work Order", "Navigation", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.986
-suite_path = os.path.join(HERE, "MOB.986_WorkOrders_Extra_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-existing = [s.get("name") for s in steps]
-for child in ["MOB.343_Work_List_Search_Filter", "MOB.344_Work_List_Row_Navigate"]:
-    if child not in existing:
-        steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                      "isCritical": True, "name": child, "noScreenshot": False,
-                      "type": "playSubTest",
-                      "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-        print(f"added {child} to MOB.986_WorkOrders_Extra_Suite")
-with open(suite_path, "w") as f:
-    f.write(json.dumps(doc, indent=4))
 
 print("wrote MOB.343 (search filters), MOB.344 (row navigates)")

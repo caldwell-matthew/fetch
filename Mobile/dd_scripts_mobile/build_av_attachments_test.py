@@ -159,16 +159,4 @@ write(test(
     ["Mobile", "env:dev", "Asset Verification", "Photos", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.993
-suite_path = os.path.join(HERE, "MOB.993_AssetVerify_Suite.json")
-doc = json.load(open(suite_path))
-steps_ = doc["details"]["steps"]
-CHILD = "MOB.546_AssetVerify_Asset_Attachments"
-if CHILD not in [s.get("name") for s in steps_]:
-    steps_.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                   "isCritical": True, "name": CHILD, "noScreenshot": False,
-                   "type": "playSubTest",
-                   "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    json.dump(doc, open(suite_path, "w"), indent=2)
-    print(f"wired {CHILD} into MOB.993 (run wire_suite.py, then push)")
 print("wrote MOB.546 (AV asset detail attachments tab)")

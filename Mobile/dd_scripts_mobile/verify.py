@@ -3,14 +3,14 @@
 THE PROBLEM THIS SOLVES — and it is a BILLING problem, not a testing one.
 
   ⭐ **A SUBTEST IS BILLED AS ITS OWN RUN.** A suite is not one run; it is `1 + len(children)`.
-  So one full pass of all 13 suites costs **106 billed runs**, and the 1,000-run monthly
-  allowance is ~9 passes.
+  So one full pass of all 24 suites costs **158 billed runs**, and the 1,000-run monthly
+  allowance is ~6 passes.
 
   The dominant consumer is not regression passes - it is VERIFYING A CHANGE. A leaf carries no
   login of its own, so the only way to exercise it has been to run its whole suite:
 
-      change MOB.622  ->  run MOB.994  ->  6 billed runs
-      change MOB.346  ->  run MOB.990  -> 15 billed runs
+      change MOB.622  ->  run MOB.966  ->  9 billed runs
+      change MOB.130  ->  run MOB.972  -> 16 billed runs
 
   Most of that is re-running children that did not change. `MOB.999_Verify_Scratch` is a
   ONE-CHILD suite you re-point at whatever you are checking:

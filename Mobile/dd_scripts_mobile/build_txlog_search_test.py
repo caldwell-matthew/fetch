@@ -12,8 +12,8 @@ WHY THIS EXISTS
 ⚠️ IT MUST RUN AFTER SOMETHING HAS BEEN LOGGED. The page reads `gql_log`, a localforage store
   in the browser, and every Datadog run starts with a fresh profile — so the log is EMPTY
   unless this session has already made a mutation. That is exactly why `MOB.131` performs a
-  verify/unverify before reading the log, and why this test is wired into
-  `MOB.993_AssetVerify_Suite` immediately after it rather than into a read-only suite. A
+  verify/unverify before reading the log, and why this test runs in
+  `MOB.972` immediately after it rather than in a read-only suite. A
   read-only suite would give it an empty table and a vacuous pass (trap 5).
 
 THE PROOF IS THE MATCHED PAIR, NOT A SINGLE SEARCH
@@ -109,7 +109,7 @@ write(test(
     "  nothing had touched the box.\n"
     "- ⚠️ **It must run AFTER something has been logged.** The page reads `gql_log`, a\n"
     "  localforage store, and every Datadog run starts with a fresh profile — so the log is\n"
-    "  empty unless this session already made a mutation. Wired into `MOB.993` right after\n"
+    "  empty unless this session already made a mutation. Runs in `MOB.972` right after\n"
     "  `MOB.131` for exactly that reason; in a read-only suite it would pass vacuously against\n"
     "  an empty table (trap 5). The `LOG GUARD` makes that failure legible as suite order\n"
     "  rather than a code defect.\n"

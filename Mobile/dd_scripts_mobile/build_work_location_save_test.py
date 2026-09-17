@@ -44,7 +44,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, step, xpath_el, go, test, write,  # noqa: E402
-                      jsassert, server_assert, work_cache_warm)
+                      jsassert, server_assert, work_cache_warm, menu_item_visible_js, toasts_gone)
 
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
 WO_URL = f"{BASE}/work/{FIXTURE_ID}"
@@ -133,10 +133,13 @@ def open_form(label, always=False):
         step("wait", "Let it close", {"value": 1}, **a),
         step("assertElementPresent", f"The globe control renders on the title ({label})",
              {"element": xpath_el(WO_URL, GLOBE)}, timeout=60, **a),
+        *toasts_gone(always=always),
         step("click", f"Open the MapLink menu ({label})",
              {"element": xpath_el(WO_URL, f"({GLOBE})[1]")}, timeout=30, **a),
-        step("assertElementPresent", 'The menu offers "Edit Location"',
-             {"element": xpath_el(WO_URL, EDIT_LOCATION)}, timeout=30, **a),
+        # A GATE, not a presence check: it re-opens the menu if the click was lost (Datadog,
+        # 2026-09-16 - the restore leg's menu opened late and this step went red at 30s).
+        jsassert('The menu offers "Edit Location" (re-opens the MapLink menu if the click was lost)',
+                 menu_item_visible_js(f"({GLOBE})[1]", "Edit Location"), timeout=45, **a),
         step("click", 'Open the location form via "Edit Location"',
              {"element": xpath_el(WO_URL, EDIT_LOCATION)}, timeout=30, **a),
         step("assertElementPresent", "The location form mounted",

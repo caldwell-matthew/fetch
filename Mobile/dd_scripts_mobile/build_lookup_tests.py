@@ -1,7 +1,7 @@
 """Build the Asset Lookup tests.
 
-READ-ONLY. Searching and expanding a result mutate nothing, so this suite can run on a
-schedule indefinitely - the same property MOB.993 has and MOB.994 does not.
+READ-ONLY. Searching and expanding a result mutate nothing, so MOB.700 sits in the read-only
+MOB.968 and can run on a schedule indefinitely.
 
 SEARCH IS SUBMITTED BY THE FORM, NOT A BUTTON
   index.tsx wraps the SearchInput in `<form onSubmit={...}>` and there is no search button.
@@ -94,54 +94,5 @@ write(test(
     TAGS,
 ))
 
-# ---------------------------------------------------------------- suite
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 
-write(test(
-    "MOB.995_AssetLookup_Suite",
-    "Asset Lookup - READ-ONLY, safe to schedule.\n"
-    "- Logs in once, then chains its subtests in the same browser session.\n"
-    "- Mutates nothing: no records are created, so unlike MOB.991/MOB.994 this leaves no\n"
-    "  residue on dev.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    # ⚠️ KEEP IN SYNC WITH THE JSON. Regenerating this script on 2026-08-21 silently DROPPED
-    # `MOB.720` from the suite, because it had been wired into MOB.995's JSON directly and
-    # never back-ported here - the same trap 19 (reverse direction) that removed five children
-    # from MOB.986. Nothing warns; the suite just comes out shorter. Before regenerating any
-    # suite, diff its children against the JSON.
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   # 🔁 RE-SYNCED 2026-08-23. This list still lacked `MOB.731`, wired into the
-                   # JSON on 08-21 — the same drift the warning above describes, one release
-                   # after it was written. Full order, and the ORDER IS LOAD-BEARING:
-                   #   740/735 run BEFORE 730/731 because those two own the proximity-radius
-                   #   restore, and nothing should run between the radius being cleared and
-                   #   the end of the suite. 735 also ENDS ON /map — harmless, since every
-                   #   child here starts with its own goToUrl, but it is why it is not last.
-                   #   741 follows 740 because they share a route and a fixture (Pump 0102's
-                   #   work history): back to back, the second runs against a warm cache and a
-                   #   failure in either localises to the same screen. 741 uploads a file but
-                   #   writes NOTHING - the image is filtered client-side - so the suite stays
-                   #   read-only and schedulable.
-                   for c in ["MOB.700_AssetLookup_Search",
-                             # swaps a prototype method and restores it `always`, asserted
-                             "MOB.750_AssetLookup_Tag_Lookup_Menu",
-                             "MOB.720_AssetLookup_Event_Readings",
-                             # the Readings tab's EMPTY state, beside the populated one
-                             "MOB.721_AssetLookup_Readings_Empty",
-                             # offline messages (Readings, Work History, Get Description, Add reading types) -
-                             # read-only; restores `online` and reloads Asset Lookup `always`
-                             "MOB.914_Offline_Feature_Messages",
-                             "MOB.740_AssetLookup_Work_History",
-                             "MOB.741_Work_Attachments_Docs",
-                             "MOB.735_AssetLookup_View_In_Map",
-                             "MOB.730_AssetLookup_Proximity",
-                             "MOB.731_AssetLookup_Proximity_Radius"]],
-    # NB MOB.711 (column-picker search) is deliberately NOT here - un-wired 2026-08-21.
-    ["Mobile", "env:dev", "Asset Lookup", "suite", "read-only"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
-
-print("wrote MOB.700 (asset lookup search), MOB.995 (suite)")
+print("wrote MOB.700 (asset lookup search)")

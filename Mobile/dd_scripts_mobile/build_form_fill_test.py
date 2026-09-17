@@ -146,6 +146,16 @@ steps = (
     + server_assert(f"⭐ SERVER: the field holds {MARK} — asked over /graphql",
                     "__dd134_server", FORMS_Q, {"id": WORK_ID}, HOLDS_MARK)
     + [
+        # 🛑 RE-TAG BEFORE THE RESTORE. The blur save re-renders the form and REPLACES the input, so the tag
+        # the guard set is gone: on Datadog 2026-09-16 the restore's click found no `data-dd134` twice and
+        # only the API safety net put the fixture back. Re-find the SAME field by the id the guard stored -
+        # not "the first input" again - and tag it; a changed form still tags nothing.
+        jsassert(f"RE-TAG (restore): the stored field's input gets `data-{TAG}` again — the save re-rendered it",
+                 f"const id = sessionStorage.getItem('{FIELD_KEY}');\n"
+                 "const el = id ? document.getElementById(id) : null;\n"
+                 "if (!el || el.offsetParent === null) return false;\n"
+                 f"el.setAttribute('data-{TAG}', 'target');\n"
+                 "return true;", timeout=30, always=True),
         step("click", "Focus the tagged integer field (restore)", {"element": xpath_el(WORK_DETAIL, TARGET)},
              timeout=30, always=True),
         jsassert("Clear it as React sees a user's edit — the native value setter and an `input` event (Datadog's "

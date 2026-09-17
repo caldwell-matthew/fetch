@@ -1,10 +1,10 @@
-"""Build MOB.996_Search_Suite - the cross-cutting search / filter / sort controls.
+"""Build the cross-cutting search / filter / sort tests - MOB.800 (MOB.969) and MOB.810 (MOB.961).
 
-WHY THESE LIVE IN THEIR OWN SUITE
+WHY THESE ARE BUILT TOGETHER
   Search, sort and StructuredQuery are not module features; they are shared controls that
   appear on every list screen. Testing them per module would repeat the same work six times
-  (the checklist's SB block says as much). Grouping them here also keeps MOB.993 purely
-  about verification and obviously self-restoring.
+  (the checklist's SB block says as much). Each still runs in the suite for its route
+  (suite_plan.py).
 
   They still cannot be tested in isolation - the controls only exist inside module screens,
   and proving a filter WORKS needs a known-stable record, which is module-specific:
@@ -15,7 +15,7 @@ WHY THESE LIVE IN THEIR OWN SUITE
                                                                               only prove the
                                                                               input accepts text
 
-  So the suite is grouped by CONTROL, and each test navigates to whichever screen has a
+  So this builder is grouped by CONTROL, and each test navigates to whichever screen has a
   provable fixture.
 
 TWO DIFFERENT SYSTEMS - DO NOT CONFLATE THEM
@@ -164,51 +164,8 @@ write(test(
     TAGS + ["StructuredQuery"],
 ))
 
-# ---------------------------------------------------------------- suite
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-# Keep this list COMPLETE. MOB.810 was appended to the suite JSON by hand once, and the
-# next DD_FORCE=1 rebuild silently dropped it — the suite then ran green with the test
-# missing entirely, which is indistinguishable from it passing (trap 5 / trap 12).
-CHILDREN = ["MOB.530_AssetVerify_Search_Filter_Sort",
-            "MOB.800_Search_StructuredQuery",
-            # MOB.805 sits next to MOB.800: same drawer, same screen. It builds its own filter
-            # and clears it, so it neither depends on nor disturbs MOB.800's legs.
-            "MOB.805_Search_Filter_Edit",
-            # MOB.806 follows MOB.805: same drawer, and it never ADDS a filter, so it
-            # cannot disturb the one MOB.805 builds and clears.
-            "MOB.806_Search_MultiValue",
-            # MOB.807 follows MOB.806: the other two MultiValueSelector branches. It adds
-            # two filters and clears each with `always`, so it leaves the drawer as found.
-            "MOB.807_Search_MultiValue_Enum_Record",
-            "MOB.810_Search_Sort_Apply",
-            "MOB.820_Search_Filter_Then_Search",
-            # ⚠️ MOB.535 MUST STAY LAST. It is the only child here that CLEARS
-            # `mobile-MobileJob-sort` on the way out; MOB.810 deliberately leaves a sort set
-            # and asserts it persisted, so clearing it earlier in the chain would break that
-            # test. Last also means a leaked sort from a mid-run failure cannot reach anything.
-            "MOB.535_AssetVerify_Sort_Ordering"]   # keep COMPLETE - trap 12
 
-write(test(
-    "MOB.996_Search_Suite",
-    "Cross-cutting search / filter / sort controls — **READ-ONLY**, safe to schedule.\n"
-    "- Groups the shared controls (the checklist's SB block, plus StructuredQuery) so they\n"
-    "  are tested once rather than repeated per module.\n"
-    "- The tests still navigate into module screens, because that is where the controls live\n"
-    "  and where the known-stable fixtures are: MOB.530 uses the mobile job list, MOB.800\n"
-    "  uses Asset Lookup.\n"
-    "- MOB.530 moved here out of MOB.993, which is now purely the mutating,\n"
-    "  self-restoring verification suite.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in CHILDREN],
-    ["Mobile", "env:dev", "Search", "suite", "read-only"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
-
-print("wrote MOB.800 (structured query), MOB.996 (search suite)")
+print("wrote MOB.800 (structured query)")
 
 
 # ---------------------------------------------------------------- sort, applied

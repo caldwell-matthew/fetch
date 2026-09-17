@@ -72,18 +72,5 @@ write(test(
     ["Mobile", "env:dev", "Offline", "CRUD"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.993
-suite_path = os.path.join(HERE, "MOB.993_AssetVerify_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.131_Transaction_Log_Contents"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.993_AssetVerify_Suite")
 
 print("wrote MOB.131 (transaction log contents)")

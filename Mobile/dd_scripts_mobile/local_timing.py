@@ -1,7 +1,7 @@
 """Time every suite LOCALLY - 0 Datadog runs - to plan the weekly schedule (checklist #37).
 
 Runs `local_run.py <suite> --continue` for each suite ONE AT A TIME (the mutating suites share
-fixtures - trap 1; MOB.997 changes the session crew; MOB.984 is phone-only) and writes
+fixtures - trap 1; MOB.973 changes the session crew; MOB.975 is phone-only) and writes
 `Mobile/local_runs/timing/summary.md`: per suite and per child, local seconds and verdict.
 
 ⚠️ READ THE NUMBERS AS ESTIMATES
@@ -16,7 +16,7 @@ fixtures - trap 1; MOB.997 changes the session crew; MOB.984 is phone-only) and 
 
 USAGE (from dd_scripts_mobile/)
     ../../.venv/bin/python local_timing.py                 # every suite, in order
-    ../../.venv/bin/python local_timing.py MOB.985 MOB.988 # just these
+    ../../.venv/bin/python local_timing.py MOB.954 MOB.981 # just these
 """
 import os
 import re
@@ -31,14 +31,19 @@ from local_run import find_test  # noqa: E402
 OUT = os.path.join(HERE, "..", "local_runs", "timing")
 PY = sys.executable
 
-# Order: read-only first, then the mutating ones, MOB.997 (crew switch) last.
 # the module suites in run order, from suite_plan.py (the one place suite membership is kept)
 from suite_plan import SUITES as _PLAN, suite_name  # noqa: E402
 SUITES = [f"MOB.{sid}" for sid, *_rest in _PLAN]
 
 # Last known Datadog runtimes (testing_checklist.md RUN STATUS / Appendix F) - for calibration only.
-DATADOG_LAST = {}   # the module suites have not run on Datadog yet
-CEILING_NOTE = "MOB.991 hit Datadog's maximum execution time past 1071s (Appendix F)"
+# First full Datadog pass, all on the current build (2026-09-16). MOB.967 held out (bugs §34).
+DATADOG_LAST = {"MOB.953": "634s", "MOB.954": "294s", "MOB.955": "351s", "MOB.956": "623s",
+                "MOB.957": "581s", "MOB.958": "356s", "MOB.959": "682s", "MOB.960": "191s",
+                "MOB.961": "322s", "MOB.962": "429s", "MOB.963": "500s", "MOB.964": "263s",
+                "MOB.965": "438s", "MOB.966": "356s", "MOB.967": "held out", "MOB.968": "324s",
+                "MOB.969": "307s", "MOB.970": "368s", "MOB.971": "156s", "MOB.972": "378s",
+                "MOB.973": "215s", "MOB.975": "129s", "MOB.980": "179s", "MOB.981": "453s"}
+CEILING_NOTE = "Datadog stops a suite past ~1071s (Appendix F); the longest today is MOB.959 at 682s"
 
 LINE = re.compile(r"^(ok|ERR soft|ERR opt|ERR)\s+([\d.]+)s (MOB\.\d+_\S+)")
 TOTAL = re.compile(r"(\d+)s locally")

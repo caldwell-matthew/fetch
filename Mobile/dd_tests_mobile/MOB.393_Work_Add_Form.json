@@ -4,7 +4,7 @@
         "name": "MOB.393_Work_Add_Form",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.393` The **add-form** modal opens and offers its picker.\n- **READ-ONLY BY DESIGN \u2014 do not make it submit again.** It used to add the `Inspection`\n  form for real, and AdHocForm hides forms already attached, so it passed once and then\n  failed forever at *Pick Inspection* (trap 10), keeping all of `MOB.991` red.\n- What it proves: the Forms tab opens, the add modal opens, and the form picker renders\n  with options. What it does NOT prove: that adding one persists.\n- The fill-out flow \u2014 which is the valuable half \u2014 is covered by **MOB.134**, using the\n  `Inspection` form this test attached on its single successful run.",
+        "message": "`MOB.393` The **add-form** modal opens and offers its picker.\n- **READ-ONLY BY DESIGN \u2014 do not make it submit again.** It used to add the `Inspection`\n  form for real, and AdHocForm hides forms already attached, so it passed once and then\n  failed forever at *Pick Inspection* (trap 10), keeping its whole suite red.\n- What it proves: the Forms tab opens, the add modal opens, and the form picker renders\n  with options. What it does NOT prove: that adding one persists.\n- The fill-out flow \u2014 which is the valuable half \u2014 is covered by **MOB.134**, using the\n  `Inspection` form this test attached on its single successful run.",
         "tags": [
             "Mobile",
             "env:dev",

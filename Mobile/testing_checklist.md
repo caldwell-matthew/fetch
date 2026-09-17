@@ -5,7 +5,7 @@
 >
 > **▶ OPEN WORK holds only work not yet done.** When an item's build is finished, delete its row in
 > the same change: its coverage goes to its route row, anything still owed to Datadog to 📊 RUN
-> STATUS's awaiting list, and a leftover gap to a new row. Row numbers are never reused; a deleted
+> STATUS, and a leftover gap to a new row. Row numbers are never reused; a deleted
 > row's citations are reworded. `preflight.py docs` fails on a finished row, a dangling `#N` and a stale count.
 >
 > | information | its one home |
@@ -28,8 +28,8 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree; `git fetch origin development` first |
-| **Last synced** | `4da480a68f` — no `client/mobile` change since `1c3a2e8abe` (last `client/mobile` change `cbabfa40f6`); **no asserted literal moved** (`check_literals` clean) |
-| **Literal scan** | `check_literals.py` clean against this build |
+| **Last synced** | `9d80ad499c` (2026-09-17). Since `4da480a68f`, 15 `client/mobile` commits: **bugs §10 fixed** — job status is recomputed from the verified count (`154e7627c8`, PR #4175; see #72); the startup splash animation removed; a new `role="alert"` startup-error banner in `Layout/Auth.tsx`; Asset Lookup's page `Loading` overlay removed (no test waits on it); tablets sign a form's signature field inside the desktop grid, saved when the pad closes (#73); StructuredQuery's operator effect now also runs on operator change (resets only an operator invalid for the field); lazy-loaded routes added then rolled back; lint/Jest. No asserted literal moved. ⚠️ Deployment to dev.mentorapm.com not confirmed — the page redirects to login, so its bundle name was not readable |
+| **Literal scan** | `check_literals.py` clean against `9d80ad499c` — 2420 literals, 0 MISSING. `sweep_strings.py`: 195 JSX text strings, 133 asserted, 62 in no test |
 
 ```bash
 cd ~/GitHub/MentorAPM/MentorTwo && git fetch origin development
@@ -51,49 +51,48 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 
 | | |
 |---|---|
-| Tests | **139 leaf tests · 40 suites** · 4945 steps · 254 subtest slots (+ `MOB.999_Verify_Scratch`, a harness) |
+| Status | **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
+| Tests | **139 leaf tests · 24 suites** · 4723 steps · 134 subtest slots (+ `MOB.999_Verify_Scratch`, a harness; `MOB.978_DIAG_WorkList_Probe`, a diagnostic; `MOB.PDF_Upload_Recording`, which exists only on Datadog — never delete it) |
 | Local ↔ remote | every local test matches Datadog by content — `preflight.py sync` compares step names and subtest ids (it prints the first 5). `MOB.711` is archived locally only |
-| Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suites `MOB.975_Phone_Suite` and `MOB.984_Phone_Suite` (the old one, live until the new suites' first pass), all on `chrome.mobile_small` (trap 1) |
-| Rows | 168 `[x]` · 14 `[~]` · 4 `[ ]` · 35 `[-]` — 221 rows. Counts describe *this file*, not the app |
+| Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
+| Rows | 172 `[x]` · 10 `[~]` · 4 `[ ]` · 35 `[-]` — 221 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **158 billed runs** — the 24 module suites plus their 134 children; a subtest bills as its own run |
-| Scheduling | Manual today. **Owner's plan: weekly Datadog runs — late game, once no more tests are being made** (▶ OPEN WORK #37) |
+| Scheduling | Manual today. On-demand runs may use 10 at once (concurrency cap raised 1 → 10; it does not change billed runs). **Owner's plan: weekly Datadog runs** (▶ OPEN WORK #37) |
 
 ### Suites — children, and what they leave behind
 
-*The module suites — membership lives only in `dd_scripts_mobile/suite_plan.py`; `build_module_suites.py` writes them. Each is kept well under Datadog's execution ceiling (Appendix F); read-only and writing suites are separate so a schedule can run read-only ones side by side and chain the writing ones.* **On Datadog, wired, not yet run there** (pushed 2026-09-15). `local` is a measured local replay; `est. Datadog` is 1.2–2x that (Appendix F) against the ~1071s ceiling. The old suites `MOB.983`–`MOB.998` are retired after the first Datadog pass of these.
+*The module suites — membership lives only in `dd_scripts_mobile/suite_plan.py`; `build_module_suites.py` writes them. Each is kept well under Datadog's execution ceiling (Appendix F); read-only and writing suites are separate so a schedule can run read-only ones side by side and chain the writing ones.* `local` is a measured local replay; `est. Datadog` is 1.2–2× that (Appendix F); `Datadog` is the first-pass runtime on the current build (2026-09-16), against the ~1071s ceiling — `MOB.959` and `MOB.953` sit closest to it.
 
-| module | suite | children (run order) | class | local | est. Datadog |
-|---|---|---|---|---|---|
-| Work Orders | `MOB.953_WorkOrders_1_List_Suite` | 150 300 301 340 341 343 344 342 345 | writes | 343s | 412–686s |
-| Work Orders | `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` | 310 330 393 394 399 348 349 | read-only | 190s | 228–380s |
-| Work Orders | `MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite` | 357 356 351 398 911 912 | read-only | 313s | 376–626s |
-| Work Orders | `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` | 347 389 387 741 731 358 | read-only | 239s | 287–478s |
-| Work Orders | `MOB.956_WorkOrders_5_Records_Suite` | 350 360 370 380 390 391 392 361 | writes | 380s | 456–760s |
-| Work Orders | `MOB.957_WorkOrders_6_Status_Field_Edits_Suite` | 320 395 388 386 385 | writes | 305s | 366–610s |
-| Work Orders | `MOB.958_WorkOrders_7_Assets_Location_Edits_Suite` | 352 353 354 359 | writes | 215s | 258–430s |
-| Work Orders | `MOB.959_WorkOrders_8_Stage_Writes_Create_Suite` | 396 397 302 363 365 364 | writes | 434s | 521–868s |
-| Work Orders | `MOB.960_WorkOrders_9_Forms_Suite` | 355 134 | writes | 118s | 142–236s |
-| Asset Verify | `MOB.961_AssetVerify_1_Jobs_List_Suite` | 140 530 560 580 810 535 | read-only | 235s | 282–470s |
-| Asset Verify | `MOB.962_AssetVerify_2_Job_Assets_Read_Suite` | 500 520 585 531 547 551 | read-only | 305s | 366–610s |
-| Asset Verify | `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` | 510 590 913 536 | writes | 430s | 516–860s |
-| Asset Verify | `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` | 570 575 546 | read-only | 166s | 199–332s |
-| Asset Verify | `MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite` | 537 545 550 | writes | 340s | 408–680s |
-| Asset Collector | `MOB.966_AssetCollector_1_Capture_Suite` | 160 620 621 622 626 610 624 625 | read-only | 240s | 288–480s |
-| Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s |
-| Asset Lookup | `MOB.968_AssetLookup_1_Rows_Tabs_Suite` | 100 700 750 720 721 914 740 735 730 | read-only | 216s | 259–432s |
-| Asset Lookup | `MOB.969_AssetLookup_2_Filters_Sort_Suite` | 800 805 806 807 820 | read-only | 206s | 247–412s |
-| Asset Lookup | `MOB.980_AssetLookup_3_Edits_Suite` | 710 712 722 | writes | 109s | 131–218s |
-| Material Lookup | `MOB.970_MaterialLookup_Suite` | 110 850 860 870 855 865 866 | writes | 253s | 304–506s |
-| Map | `MOB.971_Map_Suite` | 120 121 123 122 | writes | 107s | 128–214s |
-| App shell | `MOB.972_AppShell_Suite` | 180 900 910 170 171 130 131 132 400 410 420 430 450 460 470 | writes | 236s | 283–472s |
-| Session | `MOB.973_Session_RunAlone_Suite` | 210 220 | writes · **run alone** | 157s | 188–314s |
-| Phone | `MOB.975_Phone_Suite` | 951 952 | read-only · `chrome.mobile_small` | 88s | 106–176s |
+| module | suite | children (run order) | class | local | est. Datadog | Datadog |
+|---|---|---|---|---|---|---|
+| Work Orders | `MOB.953_WorkOrders_1_List_Suite` | 150 300 301 340 341 343 344 342 345 | writes | 443s | 532–886s | 634s |
+| Work Orders | `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` | 310 330 393 394 399 348 349 | read-only | 190s | 228–380s | 294s |
+| Work Orders | `MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite` | 357 356 351 398 911 912 | read-only | 313s | 376–626s | 453s |
+| Work Orders | `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` | 347 389 387 741 731 358 | read-only | 239s | 287–478s | 351s |
+| Work Orders | `MOB.956_WorkOrders_5_Records_Suite` | 350 360 370 380 390 391 392 361 | writes | 462s | 554–924s | 623s |
+| Work Orders | `MOB.957_WorkOrders_6_Status_Field_Edits_Suite` | 320 395 388 386 385 | writes | 377s | 452–754s | 581s |
+| Work Orders | `MOB.958_WorkOrders_7_Assets_Location_Edits_Suite` | 352 353 354 359 | writes | 215s | 258–430s | 356s |
+| Work Orders | `MOB.959_WorkOrders_8_Stage_Writes_Create_Suite` | 396 397 302 363 365 364 | writes | 434s | 521–868s | 682s |
+| Work Orders | `MOB.960_WorkOrders_9_Forms_Suite` | 355 134 | writes | 119s | 143–238s | 191s |
+| Asset Verify | `MOB.961_AssetVerify_1_Jobs_List_Suite` | 140 530 560 580 810 535 | read-only | 235s | 282–470s | 322s |
+| Asset Verify | `MOB.962_AssetVerify_2_Job_Assets_Read_Suite` | 500 520 585 531 547 551 | read-only | 305s | 366–610s | 429s |
+| Asset Verify | `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` | 510 590 913 536 | writes | 430s | 516–860s | 500s |
+| Asset Verify | `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` | 570 575 546 | read-only | 166s | 199–332s | 263s |
+| Asset Verify | `MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite` | 537 545 550 | writes | 340s | 408–680s | 438s |
+| Asset Collector | `MOB.966_AssetCollector_1_Capture_Suite` | 160 620 621 622 626 610 624 625 | read-only | 240s | 288–480s | 356s |
+| Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s | held out — bugs §34 |
+| Asset Lookup | `MOB.968_AssetLookup_1_Rows_Tabs_Suite` | 100 700 750 720 721 914 740 735 730 | read-only | 216s | 259–432s | 324s |
+| Asset Lookup | `MOB.969_AssetLookup_2_Filters_Sort_Suite` | 800 805 806 807 820 | read-only | 185s | 222–370s | 307s |
+| Asset Lookup | `MOB.980_AssetLookup_3_Edits_Suite` | 710 712 722 | writes | 109s | 131–218s | 179s |
+| Material Lookup | `MOB.970_MaterialLookup_Suite` | 110 850 860 870 855 865 866 | writes | 283s | 340–566s | 368s |
+| Map | `MOB.971_Map_Suite` | 120 121 123 122 | writes | 107s | 128–214s | 156s |
+| App shell | `MOB.972_AppShell_Suite` | 180 900 910 170 171 130 131 132 400 410 420 430 450 460 470 | writes | 236s | 283–472s | 378s |
+| Session | `MOB.973_Session_RunAlone_Suite` | 210 220 | writes · **run alone** | 157s | 188–314s | 215s |
+| Phone | `MOB.975_Phone_Suite` | 951 952 | read-only · `chrome.mobile_small` | 88s | 106–176s | 129s |
 
-**In no scheduled suite:** `MOB.000` (the login itself — every suite already runs it first) · `MOB.200` (switches the session's crew; crew-scoped data changes under any suite) · `MOB.346` (blocked: the scheduled view is unreachable for this crew (bugs §25)) · `MOB.440` (logs out, which kills any suite running at the time).
+`MOB.969`'s name says `Sort` though nothing in it sorts (`MOB.810` sorts the MOBILE JOB list, so it is in `MOB.961`); the name stays because `push` matches on NAME.
 
-**Standalone:** `MOB.000_Login` · `MOB.200_Crew_Switch` (mutates) · `MOB.346_Work_Scheduled_View`
-(blocked) · `MOB.440_Logout` (ends the session) · `MOB.978` diagnostic (kept while the work-list
-fixture is in flux).
+**In no scheduled suite:** `MOB.000_Login` (the login itself — every suite already runs it first) · `MOB.200_Crew_Switch` (switches the session's crew; crew-scoped data changes under any suite) · `MOB.346_Work_Scheduled_View` (blocked: the scheduled view is unreachable for this crew, bugs §25) · `MOB.440_Logout` (logs out, which kills any suite running at the time) · `MOB.978` diagnostic (kept while the work-list fixture is in flux).
 
 ### Proving a test — locally, then on Datadog
 
@@ -108,59 +107,43 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 
 ## 📊 RUN STATUS — what is actually proven
 
-*"Passed when last run" on Datadog — runs are manual. Re-run a suite when its area changes.*
+*"Passed when last run" on Datadog — runs are manual. Re-run a suite when its area changes (trap 25).*
 
-**The 24 module suites (`MOB.953`–`MOB.975`, `MOB.980`, `MOB.981`) — first Datadog pass, staged:**
-
-| stage | suites | result |
+| run as | suites · Datadog time | result |
 |---|---|---|
-| 1 · read-only, run 10 at once | `954` `981` `955` `961` `962` `964` `966` `968` `969` `975` | ✅ **10/10**, current build, 2026-09-16 — 1.4–1.6× local time (`954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 322s · `975` 129s) |
-| 2 · writes, one at a time | `953` `956` `957` `958` `959` `960` `963` `965` `967` `970` `971` `972` `980` | ⏳ not yet run |
-| run alone | `973` | ⏳ not yet run |
+| read-only, 10 at once | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
+| writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 500s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
+| alone | `973` 215s | ✅ · current build · 2026-09-16 |
+| held out | `967` | 🛑 not run — its `MOB.600` is red on Datadog while bugs §34 is open (confirmed 2026-09-15). A LOCAL replay of `MOB.600` is a false negative: it cannot drive the photo picker |
 
-- `954`, `964`, `975` passed on Datadog's automatic retry. Their first attempts, and `969`'s, failed at the
-  LOGIN check with 10 logins in flight — fixed by the 120s login gate (test_authoring, `MOB.000`). `969`'s
-  retry then failed at `MOB.800`'s field pick (an unopened dropdown under load) — fixed by `pick_option`;
-  `969` ✅ on re-run, alone.
-- The old suites below stay live until stage 2 passes. 🛑 `MOB.967` will be red while bugs §34 is open
-  (`MOB.600`, re-confirmed on Datadog 2026-09-15).
-
-| suite | status |
-|---|---|
-| `MOB.983_AssetVerify_Extra` | ⏳ never run as a suite · all three ✅ solo on the current build — `MOB.537` (with `Desc:`), `MOB.913` (its drained list refreshes to `No logs found.`), `MOB.536` |
-| `MOB.984_Phone_Suite` | ✅ 2/2 · 150s · current build (`MOB.951`'s Forms gate and `Upload Photo`) · `chrome.mobile_small`, run on its own |
-| `MOB.985_WorkDetail` | ✅ 9/9 last run · now 12 children — `MOB.389`, `MOB.387`, `MOB.912` and `MOB.358`'s offline leg ✅ solo, not yet run in the suite |
-| `MOB.986_WorkOrders_Extra` | 10/11 last run — red only at `MOB.345`. ⚠️ `MOB.345` was REWRITTEN 2026-09-15 (54 → 64 steps: the descending capture is now taken after scrolling to the end of the list) and has **no Datadog result for that version** — the earlier ✅ solo was a different test (trap 25). Local only: ✅ 189s. · `MOB.301` ✅ and `MOB.302` ✅ solo, not yet run in the suite · `MOB.122` ✅ and `MOB.399` ✅ (its empty-state leg) solo on the current build |
-| `MOB.987_EventReadings` | ❌ not run for ≥ 3 weeks · `MOB.551` ✅ solo |
-| `MOB.988_WorkOrders_Records` | ⏳ never run as a suite · `MOB.350`/`360`/`370`/`380` ✅ solo (+1 after a reload) · `MOB.390` 🛑 red on 2 of 3 Datadog runs (the third passed end to end), `MOB.391` 🛑 red on 3 of 3 — each red whenever the first add after a page load loses bugs §42's race |
-| `MOB.989_FieldEdit` | ✅ 3/3 last run · now 6 children — `MOB.388` ✅ solo · `MOB.134` ✅ solo · `MOB.386` 🛑 red on Datadog (bugs §42's race) · none of the three yet run in the suite |
-| `MOB.990_Smoke` | ✅ 13/13 · current build · `MOB.123` ✅ solo, not yet run in the suite · `MOB.121` ✅ solo with its `Layers` heading |
-| `MOB.991_WorkOrders` | ⏳ not run in its 7-child shape (last green was the old 13-child suite — a green that hid bugs §40) · `MOB.392` ✅ solo with its +1 proof · `MOB.320` ✅ solo with the full walk |
-| `MOB.992_Menu` | ✅ 7/7 · `MOB.430` ✅ solo on its current build (the offline description) |
-| `MOB.993_AssetVerify` | ✅ 12/12 · current build · `MOB.546` ✅ and `MOB.547` ✅ solo, not yet run in the suite |
-| `MOB.994_Collector` | 🛑 **red by design** at `MOB.600`'s server proof (bugs §34; `soft`, so later children run) · `MOB.622` ✅ solo with `MentorLens Tags` · `MOB.623`, `624`, `625` ✅ solo · `MOB.626` ✅ solo with its offline leg · none yet run in the suite |
-| `MOB.995_AssetLookup` | ✅ 7/7 last run · now 10 children — `MOB.750`, `MOB.721` and `MOB.914` ✅ solo, not yet run in the suite |
-| `MOB.996_Search` | ✅ 7/7 · current build · `MOB.807` ✅ solo, not yet run in the suite · `MOB.820` ✅ solo with its select-all fix |
-| `MOB.997_Session` | ✅ 2/2 · current build |
-| `MOB.998_MaterialLookup` | ✅ 3/3 · current build · `MOB.855` ✅ and `MOB.865` ✅ solo (its storeroom/material split), not yet run in the suite |
-| `MOB.346_Work_Scheduled_View` | 🛑 cannot pass — see 🟡 BLOCKED |
-
-**Confirmed solo on Datadog 2026-09-15; now wired into their module suites, awaiting their first suite run:** `MOB.361` ✅ · `MOB.385` 🛑 red only at its `soft` save proof (bugs §42) — its restore held, the failure back at `MISSED` over the API · `MOB.352` ✅ · `MOB.353` ✅ · `MOB.354` ✅ · `MOB.359` ✅ · `MOB.712` ✅ · `MOB.722` ✅ · `MOB.627` ✅ (its optional created-tag sentinel red — bugs §44) · `MOB.363` ✅ · `MOB.365` ✅ · `MOB.364` ✅ (both optional card sentinels green) · `MOB.628` ✅ · `MOB.866` ✅ (the owner-recorded PDF uploads on Datadog) · `MOB.710` ✅ (re-verified after its search step learned to clear the box — trap 17)
+- ⚠️ `956` and `957` pass their bugs §42 sentinels NOT because §42 is fixed (its forms are unchanged on `9d80ad499c`): their children wait for `/work`'s prefetch, which loads `WorkStageCondition`/`WorkStageFailure` (`prefetchData.ts:26-36`) before the form opens. §42 still hits a user who opens a work order before that prefetch; no test reproduces it (▶ #71).
+- `MOB.346_Work_Scheduled_View` cannot pass — see 🟡 BLOCKED.
 
 The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in every suite,
 `MOB.000`/`200`/`440`, the diagnostic and the scratch.
 
 ## ▶ OPEN WORK — the only "what's next" section
 
+**Next up — the candidates on the table, in a suggested order (the owner decides):**
+1. **#72** — confirm whether the bugs §10 fix is live on dev; the AV fixture's rest state changes with it.
+2. **#71** a bugs §42 repro test — nothing detects §42 now.
+3. **#69**, then the **#47** / **#50** builds and **#49**'s fixture-field confirmation.
+4. **#73** the new untested UI from the sync.
+5. **#37** the weekly schedule.
+6. Re-verify `MOB.967` once bugs §34 is fixed (🟡 BLOCKED).
+
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
-| **37** | **Weekly schedule on Datadog** (owner) — the late-game item, once no more tests are being made. **158 runs per full pass** (24 module suites + 134 children) ≈ 632/month weekly. Schedule the **24 module suites only** (a child also scheduled bills twice); **stagger** them — the mutating suites share fixtures (trap 1), `MOB.973_Session_RunAlone` must run alone and `MOB.975_Phone` runs on its own device; give each a failure notification. Runtimes are measured — the longest is `MOB.959` at 434s local (~521–868s on Datadog), all clear of the ~1071s ceiling. Consider holding `MOB.967` out until bugs §34 is fixed: 5 runs a pass to re-confirm a filed bug. Needs `dd_tools.push` to send `status` + a weekly `tick_every` for suites (`BODY_KEYS` omits `status`). Residue grows ~4 work orders per pass until bugs §41 | late game |
-| **47** | **A MentorLens tag's description** (`LensTags.tsx:58-72`) — the `?` beside a tag with a description opens it for 3s. The tags come from the org's MentorLens tag data, so first confirm one has a description; read-only, fits `MOB.622`'s tag editor | buildable · read-only |
-| **49** | **The label modal** (`DetailPage/utils/MultiLineLabel.tsx`) — an arrow beside a field label opens its full text; used by General Info, the work form and the record forms. First find which fixture fields pass a label | investigate |
+| **71** | **A bugs §42 repro test** — `Conditions/Form.tsx`, `Failures/Form.tsx` and `hooks/index.ts` are unchanged on `9d80ad499c`, but `MOB.956`/`957`'s children now wait for `/work`'s prefetch, so no test reproduces §42. Deep-link the fixture work order without warming `/work` and open the condition/failure form | deferred by the owner ("look at later") · buildable |
+| **37** | **Weekly schedule on Datadog** (owner). **158 runs per full pass** (24 module suites + 134 children; ~153 without `MOB.967`) ≈ 632/month weekly. Schedule the **24 module suites only** (a child also scheduled bills twice); **stagger** them — the writing suites share fixtures (trap 1), `MOB.973_Session_RunAlone` must run alone and `MOB.975_Phone` runs on its own device; give each a failure notification. Consider holding `MOB.967` out until bugs §34 is fixed: 5 runs a pass to re-confirm a filed bug. Runtimes are measured on Datadog — the longest are `MOB.959` 682s and `MOB.953` 634s, both clear of the ~1071s ceiling. Needs `dd_tools.push` to send `status` + a weekly `tick_every` for suites (`BODY_KEYS` omits `status`). Residue grows ~4 work orders per pass until bugs §41 — and it is not free: every `/work` visit downloads each listed stage's detail (86s locally, measured 2026-09-16), so `MOB.953` creeps toward the ceiling each pass. On-demand runs may use 10 at once (the read-only suites passed that way); whether a SCHEDULE shares that cap is unchecked | late game |
+| **69** | **The fixed 20s `/work` warm-up in 7 more tests** — `MOB.302`, `389`, `393`, `394`, `397`, `398`, `399` still leave `/work` after a blind 20s, before its prefetch may have filled the cache-only lookups; on a cold Datadog session that left `MOB.350`'s `AC Adapter` option absent. All 7 pass in their suites (`954`, `955`, `959`, `981`) on the current build. Switch each to `work_list_gate(require_row=False)`, as `MOB.350`–`395` use, and re-run its suite | buildable · test hardening |
+| **72** | **AV fixture rest state after the bugs §10 fix** — `154e7627c8` recomputes a mobile job's status on every verify toggle: 0 verified → `READY`, all → `COMPLETED`, otherwise `IN_PROGRESS`. The fixture `Z0EVwQcdJZhMURcBFkp0E0` rests at `IN_PROGRESS` with 0 verified, so once the fix is served, `MOB.510`, `MOB.131` and `MOB.963`'s verify→unverify leave it `READY` and `preflight.py av` fails. When it is served: move the rest state to `READY` (`reset_av_fixture.py` `WANT_STATUS` and its forward-only docstring, `cleanup_spec.md` §4), re-check the status expectations in `MOB.510`/`536`/`560`, then delete bugs §10 | blocked · on deploy |
+| **73** | **New UI since the sync, untested** — the tablet signature control inside the desktop form grid (`Forms/FormDetails.tsx` `renderSignature`; saved on close, `SignatureField.tsx`), and the startup-error banner (`Layout/Auth.tsx`, `role="alert"`, six messages passed through `setStartupError`, so `sweep_strings.py` cannot see them) | investigate |
+| **47** | **A MentorLens tag's description** (`LensTags.tsx:58-72`, modal `:89-103`) — the `?` (`aria-label="Show MentorLens tag description"`) beside a tag opens a small MODAL with its `desc` and a close button. All 9 lens tags on dev carry a `desc` (read over `/graphql` 2026-09-16) — e.g. `Lens: Thermography` → "Used in MentorLens for thermographic analysis" — so no fixture is needed; read-only, fits `MOB.622`'s tag editor | buildable · read-only |
+| **49** | **The value modal** (`DetailPage/utils/MultiLineLabel.tsx`) — an arrow icon beside a `multiline` / `richtext` field opens a modal showing the field's full VALUE (not its label), and renders only when the value is non-empty. Used by General Info (`GeneralInfo.tsx:99`), the work form (`ui/Form.tsx:90`), stage forms (`FormDetails.tsx:189`) and the create form's `address`/`desc` (`InsertForm/index.tsx:248,267`). ⚠️ Its `onClick` is on the ICON, not the `ActionIcon`, and the button's `aria-label` is `Settings` — click the icon. Candidate: the fixture's General Info `desc` (`DATADOG FIXTURE`), once its template type is confirmed multiline | investigate · read-only |
 | **50** | **Work History rows' `Assigned to`** (`WorkHistory.tsx:18`) — one label on a screen `MOB.740` already opens | buildable · read-only |
-| **68** | **Storeroom dropdown readiness** — `MOB.850`, `MOB.860` and `MOB.865` click the storeroom dropdown after a fixed 6s wait; a local replay of `MOB.866` saw that click land on the page's `mantine-LoadingOverlay-overlay`. Gate on the `N matches` line with no loading overlay, as `MOB.866` does (owner 2026-09-15) | buildable · test hardening |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@e1db362a53` — 194 strings, 127 asserted; each of the 67 others (some
@@ -172,6 +155,7 @@ still TypeScript the regex caught) is a row above or classified (⚪ / 🔴 / �
 |---|---|---|
 | **`MOB.346_Work_Scheduled_View`** | settled: `mobileDownloadMode` stays `ASSIGNED` so the crew keeps its work orders; a `SCHEDULED` role sees only stages with a `scheduledevent` within ±7 days (bugs §25 rule 4). The scheduled view, `WO_SCHEDULED_SORT` and `ScheduleTimeline` are unreachable. Standalone; restore only when the role changes **and** its work is scheduled | settled |
 | Verify-all → `COMPLETED` · verify status update (job list) · add a NEW / EXISTING asset to the job · Add Work | `reset_av_fixture.py` can put the fixture back for 0 runs (`cleanup_spec.md` §4). The owner accepts the **run → reset** chore and Add Work's residue, then the five tests get built | decision |
+| Re-verify `MOB.967_AssetCollector_2_Saved_Asset_Suite` (5 runs) | bugs §34 fixed — until then its `MOB.600` is red on Datadog; a local replay cannot show it | backend |
 | Pruning work-order residue | bugs §41 — `deleteWorkOrders` rolls back on every test-created work order. `cleanup_residue.py --apply` resumes once fixed | backend |
 | `MOB.357`'s non-zero path | a form template with a **required field**; every card reads `0 of 0` | fixture |
 | `MOB.342` exclusion leg | a second status in the crew's list — read the legend before asking | fixture |
@@ -211,7 +195,7 @@ capture file choosers, the session re-auth clock. Expo/native shell, map canvas 
 queue's link classes in isolation are a **Jest** job, being done outside this suite; the queue end
 to end is `MOB.913`.
 
-### 🔧 MAINTENANCE — eleven standing checks, none costs a run
+### 🔧 MAINTENANCE — twelve standing checks, none costs a run
 
 **Run them all: `python3 dd_scripts_mobile/preflight.py`** (exit 1 = fix before spending runs).
 It skips `drift` while a run is in flight.
@@ -229,8 +213,9 @@ It skips `drift` while a run is in flight.
 | 9 | **the AV fixture** | `reset_av_fixture.py --check` — the job `IN_PROGRESS` with two unverified links, and the assets' exact stored names (trap 29). Before blaming a red AV test on the app |
 | 10 | **the work-order fixture** | `EYRpYJ9QYdQ1JFF10JtB0Q` must be `Ready` — outside In Progress/On Hold/Ready it leaves the crew's list (bugs §25). `MOB.320` restores it `always`; `preflight.py work` reads it. It must also carry **no `project`**, or every General Info save on it is rejected (bugs §46) |
 | 11 | **the docs' own consistency** | `preflight.py docs` — no finished row in ▶ OPEN WORK, no `#N` citing a row that does not exist, the Rows line and the test counts match their sources |
+| 12 | **suite children's local variables** | `preflight.py locals` — no two children of one suite declare a variable of the same NAME differently (on Datadog they share it, first definition wins) |
 
-Checks 1–4 watch the tests; 5, 6 and 8 the app; 9 and 10 the fixtures; 11 the docs themselves.
+Checks 1–4 and 12 watch the tests; 5, 6 and 8 the app; 9 and 10 the fixtures; 11 the docs themselves.
 
 **Other hygiene:**
 - **Tags** are inconsistent — 38 of 139 leaves carry no class tag, and the residue tags vary
@@ -309,7 +294,7 @@ Checks 1–4 watch the tests; 5, 6 and 8 the app; 9 and 10 the fixtures; 11 the 
 # Tier 2 — Every route, and what a user can do there
 
 *The routes are `client/mobile/routing/index.tsx`; a row is an action on that route and names the test that covers
-it (its suite: 📊 RUN STATUS). Rows were placed by where each test actually navigates. The former module sections
+it (its suite: the suite table under Coverage at a glance). Rows were placed by where each test actually navigates. The former module sections
 map here: T2.1 → the three `/work` routes · T2.2 → the three `/asset-verify` routes · T2.3 → `/asset-collector` ·
 T2.4 → `/asset-lookup` · T2.5 → `/material-lookup` · T2.6 → `/map` · T2.7 → `/` · T3.1 → each route's first row ·
 T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/asset-lookup`.*
@@ -389,10 +374,10 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Assets tab and its status controls *(MOB.347)* — `Mark as …` asserted, never clicked
 - [x] Attachments *(MOB.741)*
 - [x] `Copy to asset` *(MOB.302)* · self-cleaning — links the stage photo to `Bypass Valve 0001` (the same attachment id), proves it on Asset Lookup, unlinks it (trap 2, guarded to unlink only), proves the asset back to 0 and the work order's image still loading
-- [~] Add failure *(MOB.391)* · self-cleaning — 🛑 red whenever the first add after a page load loses bugs §42's race (3 of 3 Datadog runs; `soft` from that check on); key `BELT (R-L1) · ADJUST · TIME`; proved after a RELOAD and over `/graphql`, deleted from its own card (trap 2); then the server holds none of the key and the fixture's `MISSED` failure is untouched
-- [~] Add condition score *(MOB.390)* · self-cleaning — 🛑 red whenever the first add after a page load loses bugs §42's race (2 of 3 Datadog runs; `soft` from that check on); key `Pump Body`; proved after a RELOAD and over `/graphql`, deleted from its own card (trap 2); then the server holds none of the key and the fixture's `Mounting/Support` is untouched
+- [x] Add failure *(MOB.391)* · self-cleaning — key `BELT (R-L1) · ADJUST · TIME`; proved after a RELOAD and over `/graphql`, deleted from its own card (trap 2); then the server holds none of the key and the fixture's `MISSED` failure is untouched ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (#71).
+- [x] Add condition score *(MOB.390)* · self-cleaning — key `Pump Body`; proved after a RELOAD and over `/graphql`, deleted from its own card (trap 2); then the server holds none of the key and the fixture's `Mounting/Support` is untouched ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (#71).
 - [x] `Edit Item` opens the form filled from its card *(MOB.387)* — the six inputs hold the card's values; closed unsaved, the card unchanged after a reload; the card also lists `Stress Decision Score:`/`Notes:` and the failure table a `Discovery Code` row
-- [~] `Edit Item` **saves** *(MOB.386)* · self-restoring — 🛑 red whenever the first open after a page load loses bugs §42's race; proved over `/graphql`, restored to 2
+- [x] `Edit Item` **saves** *(MOB.386)* · self-restoring — proved over `/graphql`, restored to 2 ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (#71).
 - [x] Condition and Failure asset lookups ignore case *(MOB.389)* — `ZZZZ-NO-SUCH-ASSET` → `No results found`, `pUMP 0102` → exactly `Pump 0102`
 - [x] Add-form picker *(MOB.393)* — read-only: the modal opens and the picker offers forms; nothing is attached
 - [x] `FormMetrics` *(MOB.357)* — every card reads `0 of 0` until the fixture has a required field
@@ -401,7 +386,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Warranties tab and the warranty alert banner *(MOB.399)*; the empty state `No Warranties Found...` on `MOB.302`'s work order, whose asset has none
 - [~] Assign work stage *(MOB.398)* — opens the crew modal, proves the form, cancels
 - [ ] A field's label opens in a modal — the arrow icon beside it (`DetailPage/utils/MultiLineLabel.tsx`), used by General Info, the work form and the record forms (▶ #49)
-- [~] `Edit Item` on a failure **saves** *(MOB.385)* · self-restoring — Repair Type `MISSED` → `REPAIR` on the first open after a page load, proved over `/graphql` on the failure's id; restored to `MISSED` `always` after a schema-priming open. 🛑 red whenever bugs §42's race is lost (locally 2 of 2)
+- [x] `Edit Item` on a failure **saves** *(MOB.385)* · self-restoring — Repair Type `MISSED` → `REPAIR` on the first open after a page load, proved over `/graphql` on the failure's id; restored to `MISSED` `always` after a schema-priming open. 🛑 red whenever bugs §42's race is lost (locally 2 of 2) ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (#71).
 - [x] Edit a job note *(MOB.361)* · self-cleaning — adds its own `DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}` note, edits it in the tiptap editor, proved over `/graphql` on that note's id
 - [x] Delete a job note *(MOB.361)* · self-cleaning — owner-authorised (trap 2); `always`, guarded by a server premise (no marker note before the run) and exactly one marker card; the server then holds exactly the pre-run note ids
 - [x] Add an existing asset from the Assets tab *(MOB.354)* · self-cleaning — `Bypass Valve 0001` through `Add Existing Asset`, the link proved over `/graphql` beside an untouched `Pump 0102` link, the stage's location unchanged
@@ -649,10 +634,9 @@ standard as a test.
 
 # Appendix F — runtime
 
-**Datadog's maximum test execution time is a hard ceiling.** `MOB.991` ran green at 474s with 13
-children; one more 70-step child took it past the limit. A timeout names no step — compare runtime
-with the last green run before hunting a locator. `MOB.991` was split (its record-adding children
-are `MOB.988`); measure a suite's runtime after adding to it.
+**Datadog's maximum test execution time is a hard ceiling (~1071s).** A suite that ran green at 474s with 13
+children went past it with one more 70-step child. A timeout names no step — compare runtime
+with the last green run before hunting a locator; measure a suite's runtime after adding to it.
 
 **Every step polls until its timeout; an untimed one until Datadog's 60s default.** A positive
 assertion never needs a blind `wait` in front of it — only absence checks do (trap 21).
@@ -660,15 +644,15 @@ assertion never needs a blind `wait` in front of it — only absence checks do (
 Runtime ≈ explicit `wait` seconds + ~1s per step.
 - Replace blind waits with a `timeout` on the next **positive** assertion — except a wait before
   `assertPageLacks`, before `goToUrl`, and `av_list_gate`'s 25s (two absence checks depend on it).
-- Tests that wait 20s on `/work` to warm the lookup cache have no positive readiness signal —
-  leave those waits.
-- `work_list_gate` costs ~23s and warms a per-session cache — gate on the first leg only.
+- The last fixed 20s `/work` warm-ups are being switched to `work_list_gate(require_row=False)` (▶ #69).
+- `work_list_gate` warms a per-session cache — gate on the first leg only. Its `LOADEDALL 3/3` polls up to 180s:
+  every listed stage's detail downloads first (86s locally on a cold session, measured 2026-09-16; it grows with residue, bugs §41).
 - Screenshots are on for every step; keep them on assertions.
-- Independent read-only suites can run in parallel (`dd_tools.run` takes several names); never
-  the mutating ones (trap 1).
+- Independent read-only suites can run in parallel (`dd_tools.run` takes several names; the on-demand cap is 10); never
+  the writing ones (trap 1).
 - A red `verify.py` run bills **3**: Datadog retries the scratch once.
 - Measure locally first: `local_timing.py` times every suite for 0 runs. Local seconds are an
   estimate — compare with the last Datadog runtime before restructuring a suite. All 24 module
   suites are timed (`local_runs/timing/summary.md`, and the `local` column above).
-- The same test takes ~1.2–2× as long on Datadog as locally (short tests show the biggest ratio) —
+- The same test takes ~1.2–2× as long on Datadog as locally — the first pass measured most suites at 1.4–1.6× —
   scale a local suite time up before comparing it with the ceiling.

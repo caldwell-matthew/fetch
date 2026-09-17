@@ -66,8 +66,8 @@ MEASURED, NOT ASSUMED
 🛑 READ-ONLY. It opens no form, types nothing, submits nothing. Safe beside the four write
 tests in a shared session, and it cannot consume fixture data.
 
-⚠️ Belongs in MOB.985_WorkDetail, NOT MOB.991 - that suite is at Datadog's execution-time
-ceiling (Appendix F0, died at 1071s once). New work-order coverage goes to 985/986.
+⚠️ Lives in the read-only MOB.981, apart from the charge writes in MOB.956. Keep every suite well
+under Datadog's execution-time ceiling (Appendix F; a suite died at 1071s once).
 """
 import os, sys
 

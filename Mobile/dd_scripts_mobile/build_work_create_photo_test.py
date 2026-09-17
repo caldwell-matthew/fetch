@@ -31,7 +31,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert, work_list_gate,  # noqa: E402
                       upload_steps)
 
 WORK_URL = BASE + "/work"
@@ -56,11 +56,9 @@ reveal, upload = upload_steps(
     upload_name="Upload a photo — MOB.600's bucketKey, copied (trap 12)")
 
 steps = [
-    go(WORK_URL, "/work"),
-    step("wait", "Let the work list and lookups load", {"value": 10}),
-    step("assertElementContent", 'Test the "Work Orders" page rendered',
-         {"check": "contains", "value": "Work Orders", "element": xpath_el(WORK_URL, PAGE_TITLE)},
-         timeout=30),
+    # Wait out the per-stage downloads before touching the page (dd_tools.work_list_gate):
+    # a fixed 10s left this click racing an 86s+ download, and it timed out on Datadog.
+    *work_list_gate(require_row=False),
     step("click", "Open the create-work-order form (affixed + button)",
          {"element": xpath_el(WORK_URL, AFFIX_PLUS)}, timeout=30),
     step("wait", "Let the form mount", {"value": 3}),

@@ -10,7 +10,8 @@ WHAT SHIPPED WITHOUT A TEST
 
 THE FIXTURE IS `MOB.623`'S RESIDUE
   `MOB.623` uploads one photo per run onto the newest `DD SYNTHETIC MOBILE` asset, so that row's
-  badge is >= 1 and its Photos segment has a carousel. This runs after `MOB.623` in `MOB.994`.
+  badge is >= 1 and its Photos segment has a carousel. It runs in the read-only `MOB.966` on
+  the photo earlier `MOB.623` runs (`MOB.967`) left behind.
 
 ⭐ PHOTOS vs DOCS IS A BICONDITIONAL - `MOB.741`'s shape, on the modal rather than a tab
   Photos: a carousel and `Add Photo` (`asset.update`), NO `Add File`. Docs: `Add File`
@@ -166,8 +167,8 @@ steps = [
 write(test(
     "MOB.624_Collector_Row_Avatar_Modal",
     "`MOB.624` **The row avatar opens the asset's fullscreen attachments modal.**\n"
-    "- READ-ONLY. Fixture is `MOB.623`'s residue (a photo on the newest `DD SYNTHETIC MOBILE`\n"
-    "  asset), so this runs after it in `MOB.994`.\n"
+    "- READ-ONLY. Fixture is the photo earlier `MOB.623` runs left on the newest `DD SYNTHETIC\n"
+    "  MOBILE` asset. `MOB.623` is in `MOB.967`, held out while bugs §34 is open.\n"
     "- Proves the avatar's click opens the modal WITHOUT expanding the accordion\n"
     "  (`stopPropagation`), that the modal names the asset and offers `Done`, and that the\n"
     "  segmented control has exactly values `1`/`2`.\n"

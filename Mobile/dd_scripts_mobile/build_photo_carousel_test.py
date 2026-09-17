@@ -123,7 +123,7 @@ def add_a_photo(n, open_label):
         #    <input> it clicked. Close only once files are back, never while the picker is open."
         # `close()` moved into `onDialogChange`, so the picker now closes when the FILES ARRIVE.
         # Clicking the X therefore finds nothing and the step fails - which is what took
-        # MOB.994 down. Asserting the disappearance instead proves the fixed behaviour and
+        # its suite down. Asserting the disappearance instead proves the fixed behaviour and
         # cannot rot the same way.
         step("assertPageLacks",
              f"⭐ The picker closed ITSELF after photo {n} — `onDialogChange` calls `close()`",

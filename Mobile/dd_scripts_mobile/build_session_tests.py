@@ -1,4 +1,4 @@
-"""Build MOB.997_Session_Suite - T1.3 permissions and crew scoping.
+"""Build MOB.210 and MOB.220 (suite MOB.973_Session_RunAlone_Suite) - T1.3 permissions and crew scoping.
 
 THE ROLE NAMING IS THE FIXTURE
   This org has roles named `Admin <CRUD>` where each digit is a permission flag in
@@ -202,25 +202,5 @@ write(test(
     TAGS + ["CRUD"],
 ))
 
-# ---------------------------------------------------------------- suite
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 
-write(test(
-    "MOB.997_Session_Suite",
-    "Session, permissions and crew scoping (T1.3).\n"
-    "- MUTATES the session crew, but **self-restoring**: every subtest returns to `Admin`\n"
-    "  with a critical step and asserts it.\n"
-    "- ⚠️ Do NOT run concurrently with another suite. Crew is shared session state and every\n"
-    "  other suite asserts the role is exactly `Admin` — the same class of hazard as trap 1.\n"
-    "- If this suite fails midway, check the session crew before rerunning anything else.\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in ["MOB.210_Perms_Menu_Gating", "MOB.220_Crew_Scoping"]],
-    ["Mobile", "env:dev", "Session", "suite"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
-
-print("wrote MOB.210 (menu gating), MOB.220 (crew scoping), MOB.997 (suite)")
+print("wrote MOB.210 (menu gating), MOB.220 (crew scoping)")

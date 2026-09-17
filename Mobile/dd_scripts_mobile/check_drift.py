@@ -7,10 +7,8 @@ WHY THIS EXISTS — trap 19, made detectable instead of discoverable.
   its JSON indefinitely and NOTHING WARNS YOU — until someone runs `DD_FORCE=1` and a suite
   silently loses children while still reporting PASS.
 
-  An audit found six children in that state at once:
-      MOB.990  would have lost MOB.171, MOB.180, MOB.346, MOB.910
-      MOB.992  would have lost MOB.470
-      MOB.994  would have lost MOB.610
+  An audit found six suite children in that state at once: MOB.171, MOB.180, MOB.346,
+  MOB.910, MOB.470 and MOB.610 would have been lost from their suites,
   plus MOB.600, whose generator would have deleted its PROOF OF CREATION — leaving a test that
   only checks a form closed, which trap 6 says proves nothing there.
 

@@ -19,7 +19,7 @@ THE FIXTURE, AND WHY THE TEST SUPPLIES ITS OWN PHOTO
   ➡️ This test therefore uploads ONE photo onto the marker asset itself through the panel's own
   `Add Photo` (`PhotoAttachments.addPhotos` -> `uploadPhoto`), which is coverage of a surface no
   test had, and then drives the menu on that photo. Residue: one photo per run on a throwaway
-  record. Inside `MOB.994` it runs last, on the asset `MOB.600` created a minute earlier.
+  record. Inside `MOB.967` it runs right after `MOB.600`, on the asset that test created a minute earlier.
 
 HOW "THE UPLOAD LANDED" IS KNOWN
   In the browser `UploadLink` tus-uploads the bytes FIRST and only then forwards
@@ -297,7 +297,7 @@ write(test(
     "  residue). It has no saved photo (measured 2026-09-09), so the test adds ONE through the\n"
     "  panel's own `Add Photo` — a surface nothing else covers — and polls for the `blob:`\n"
     "  preview to become a server URL before touching it. **Residue: one photo per run** on a\n"
-    "  throwaway record. In `MOB.994` this runs last, on the asset created a minute earlier.\n"
+    "  throwaway record. In `MOB.967` this runs right after `MOB.600`, on the asset it created.\n"
     "- ⭐ **`Rotate Image` ×4** — a real mutation with a read-back proof: the slide's `<img src>`\n"
     "  must DIFFER from the value recorded before each click and carry a fresh `t=`. Four 90°\n"
     "  turns are 360°, so it is **self-restoring by construction**. (The server swallows a failed\n"

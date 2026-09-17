@@ -1,4 +1,4 @@
-"""Finish T2.1 Work Orders - MOB.396/397/398/399 + MOB.986_WorkOrders_Extra.
+"""Finish T2.1 Work Orders - MOB.394/396/397/398/399 (suites MOB.954, MOB.959, MOB.981).
 
   MOB.394  Permits tab                      READ-ONLY
   MOB.396  Create from a Mobile Job asset   RESIDUE - a real work order per run
@@ -458,53 +458,6 @@ write(test(
     ["Mobile", "env:dev", "Work Order", "read-only"],
 ))
 
-# ---------------------------------------------------------------- suite
-login_steps = json.load(
-    open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-# keep COMPLETE - trap 12
-# ORDER IS LOAD-BEARING - MOB.396 RUNS FIRST, DELIBERATELY.
-# It is the only child that needs the Asset Verification cache, and every other child visits
-# /work first, where `WorkOrders/utils/prefetchData.clearCache` runs. MOB.396 failed at the
-# job's filter control twice while running second; MOB.545 does the identical thing and
-# passes when nothing has visited /work before it. Running it first is the experiment AND,
-# if it works, the fix. Do not reorder this list for tidiness.
-#
-# ⚠️ KEEP THIS LIST IN SYNC WITH THE JSON. On 2026-08-20 regenerating this script SILENTLY
-# DROPPED FIVE CHILDREN - MOB.341/342/343/344/345 - because they had been wired into
-# MOB.986's JSON directly and never back-ported here. Nothing warned; the suite simply came
-# out five subtests shorter, and only a diff against a backup caught it. That is trap 19 in
-# the direction people do not expect: the JSON ahead of the generator, not behind it.
-# Before regenerating ANY suite, diff its children against the JSON:
-#     python3 -c "import json;d=json.load(open('MOB.986_WorkOrders_Extra_Suite.json'))\
-#       ['details'];print([s['name'] for s in d['steps'] if 'subtestPublicId' in (s.get('params') or {})])"
-CHILDREN = ["MOB.396_Work_Create_From_Asset", "MOB.394_Work_Permits",
-            "MOB.397_Work_Assign_Followup", "MOB.398_Work_Assign_Stage_Modal",
-            "MOB.399_Work_Warranties", "MOB.122_Map_Create_Work",
-            # read-only: a photo into the create form, discarded unsent
-            "MOB.301_Work_Create_Photo",
-            # self-cleaning: links a photo to its asset, then unlinks it (owner-sanctioned, trap 2)
-            "MOB.302_Work_Photo_Copy_To_Asset",
-            # the work LIST tests, added to the JSON 2026-08-18 and back-ported here 08-20
-            "MOB.341_Work_Map_Toggle", "MOB.343_Work_List_Search_Filter",
-            "MOB.344_Work_List_Row_Navigate", "MOB.342_Work_Status_Ring",
-            "MOB.345_Work_Sort_Persist"]
-
-write(test(
-    "MOB.986_WorkOrders_Extra_Suite",
-    "Work Order entry points, follow-up work, crew assignment and warranties.\n"
-    "- ⚠️ **LEAVES RESIDUE**: MOB.396 and MOB.397 each create a real work order per run.\n"
-    "  MOB.398 and MOB.399 are read-only. MOB.302 is self-cleaning: it links a work-order photo\n"
-    "  to its asset and unlinks it again (the one owner-sanctioned delete, trap 2).\n"
-    "- Kept separate from `MOB.991_WorkOrders_Suite` so a slow, residue-heavy set can be run\n"
-    "  on its own — and because 991 is at Datadog's execution ceiling (Appendix F0).\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c,
-                        {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in CHILDREN],
-    ["Mobile", "env:dev", "Work Order", "suite"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-))
 
 print("wrote MOB.396 (create from asset), MOB.397 (follow-up work), "
-      "MOB.398 (assign stage modal), MOB.399 (warranties), MOB.986 (suite)")
+      "MOB.398 (assign stage modal), MOB.399 (warranties)")

@@ -196,7 +196,7 @@ steps = (
         # therefore does not render at all, this gate failed - and because it was critical it
         # ABORTED THE WHOLE RUN, so `MOB.171` and `MOB.910` never executed. The suite reported
         # three red children when only one had a real problem, and the other two were hidden.
-        # `MOB.990` had been red for three runs on that basis.
+        # That suite had been red for three runs on that basis.
         #
         # ➡️ The rule this encodes: a gate on a FIXTURE PREMISE must never be critical inside a
         # shared suite. Let this child fail alone and loudly; do not let it decide whether its

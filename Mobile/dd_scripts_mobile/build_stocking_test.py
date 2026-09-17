@@ -14,7 +14,7 @@ ONE-WAY, AND THAT IS ACCEPTED
   Stocking only ADDS. There is no negative quantity to net it back with, so unlike MOB.860
   this test is NOT self-restoring: every run permanently increases the fixture item's stock
   by 1. The repo owner accepted that trade-off explicitly (2026-08-12), same standing
-  decision as MOB.600 / MOB.991 / MOB.987. The amount is kept at 1 to keep the drift slow.
+  decision as MOB.600 / the MOB.956 charges / MOB.550. The amount is kept at 1 to keep the drift slow.
 
 BOTH FIELDS ARE REQUIRED - FILLING ONLY THE OBVIOUS ONE WOULD SILENTLY DO NOTHING
   `stockingFormSchema` marks BOTH `quantity` ("Stocked Quantity") and `unitPrice`
@@ -65,7 +65,7 @@ write(test(
     "`MOB.870` Stock the fixture item through the **Stock Item** tab of the adjust modal.\n"
     "- ⚠️ **LEAVES RESIDUE — NOT self-restoring.** Stocking only adds; there is no negative to\n"
     f"  net it back. Every run raises `{ITEM}`'s quantity by **1**, permanently. Accepted by\n"
-    "  the repo owner 2026-08-12, same standing trade-off as MOB.600 / MOB.991 / MOB.987.\n"
+    "  the repo owner 2026-08-12, same standing trade-off as MOB.600 / MOB.300 / MOB.550.\n"
     "  Kept at 1 so the drift stays slow. **Do not increase the amount.**\n"
     "- Distinct from **MOB.860**: same modal, different tab, different mutation\n"
     "  (`STOCK_STOREROOM_ITEM` vs the quantity adjustment) and different required fields.\n"
@@ -137,20 +137,5 @@ write(test(
     TAGS,
 ))
 
-# ---------------------------------------------------------------- wire into MOB.998
-suite_path = os.path.join(HERE, "MOB.998_MaterialLookup_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.870_MaterialLookup_Stocking"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.998")
-    print("NB: MOB.998 was documented as fully self-restoring - it is NOT any more. "
-          "Update the checklist's Coverage table.")
 
 print("wrote MOB.870 (stocking)")

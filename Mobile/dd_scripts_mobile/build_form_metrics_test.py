@@ -178,7 +178,7 @@ steps = work_cache_warm() + [
     #
     # 🔁 WHAT THIS REPLACED, AND WHY. The first version asserted `some card has required > 0`
     # as a FIXTURE GUARD - to stop a component that had stopped counting from passing with
-    # "0 of 0" everywhere. It went RED on its first run (2026-08-23, MOB.985), and correctly:
+    # "0 of 0" everywhere. It went RED on its first run (2026-08-23), and correctly:
     # the fixture work order's forms declare NO required fields, so every card really is
     # "0 of 0" and the header really is absent. The component was right and the assertion was
     # asking the fixture a question.

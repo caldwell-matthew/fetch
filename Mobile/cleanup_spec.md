@@ -28,29 +28,32 @@ re-checks the never-touch ids before every delete.
 
 ## 2 · What the tests leave, and what can remove it
 
-| residue | created by | marker | removal | state |
+*Counts are dated measurements. The first full Datadog pass (2026-09-16, every suite but the held-out `MOB.967`) ran after
+them and added more — recount over `/graphql` or with a dry run before any prune.*
+
+| residue | created by (suite) | marker | removal | state |
 |---|---|---|---|---|
-| **Work orders** (~4 per full pass) | `MOB.300` · `122` · `396` · `397` | `problemDesc` starts `DD SYNTHETIC MOBILE`, created by the test account | `deleteWorkOrders` → `removeWorkById` (whole work + stages, one transaction; refuses any with charges, schedule entries, conditions or failures) | 🛑 **blocked** — every call rolls back (bugs §41). 196 carry the marker (created 2026-08-05 → 09-10; measured 2026-09-15); newest 10 kept for the work-list tests |
-| **Charges** ×4 on the fixture WO | `MOB.350` equipment `AC Adapter` · `360` labor `Dev Eloper` · `370` material `0000-0000 Diaphragm Pump` · `380` other | qty 1 | `reverseWorkCharge` **adds** a negated counter-transaction — reversal doubles the rows | ⏸️ **excluded** (owner). Accepted debt: +4 per run, permanent — 78 equipment · 52 labor · 45 material · 35 other on the fixture (measured 2026-09-15) |
-| **Note** | `MOB.392` | body `This is a note - DD SYNTHETIC MOBILE` | `deleteWorkStageJobNotes(ids)` | 4 on the fixture (measured 2026-09-15) — a prune keeps the newest 1 |
-| **Asset + attachment** | `MOB.600` (+ `MOB.623` adds photos) | name `DD SYNTHETIC MOBILE <8 digits>`, desc `Created by Datadog Synthetics - safe to delete` | `deleteAssets(ids)` (gated `ASSET UPDATE`) · `removeAttachment` | newest 4 kept (`MOB.623`/`625` select them by prefix) — nothing to prune today. A kept asset can hold `MOB.712`'s System link and `MOB.722`'s readings; not yet checked whether `deleteAssets` refuses one with events. `MOB.627`/`628` add and delete their own photo/PDF and set the avatar on the newest one — nothing left when green |
-| **Event readings** ×2 | `MOB.550` | values `4242`, `1337` on the job's assets — no marker | `deleteEvents(ids)` | reported, never touched — no marker to select by, and `MOB.550` reads the previous run's value as its server proof |
-| **Systems** | `MOB.712` | name `DD SYNTHETIC MOBILE <8 digits>` | `deleteSystems(ids)` (desktop/API — mobile has none); unlink the asset's `systemId` first | 1 per run; the first `DD SYNTHETIC MOBILE` asset in Asset Lookup points at the newest. 6 today (measured 2026-09-15 over `/graphql`; the script does not report this category) today |
-| **Event readings** (Asset Lookup) | `MOB.722` | type `Test 1`, value `722` + 5 digits, on the first `DD SYNTHETIC MOBILE` asset | `deleteEvents(ids)` | 1 per run; selectable by asset marker + `Test 1` + `722…`. Not reported by `cleanup_residue.py` — count it over `/graphql` before a prune |
-| **Org tags** | `MOB.627` | name `DD SYNTHETIC MOBILE <8 digits>`, attached to nothing | `deleteTags(ids)` (API — mobile has none; not scripted) | +1 per run, permanent until pruned. 4 today (measured 2026-09-15 over `/graphql`; the script does not report this category) |
-| Condition / failure | `MOB.390` / `391` | `Pump Body` · `BELT·ADJUST·TIME` | deleted by the test itself (trap 2); a failed run's leftover is pruned by the script | ✅ self-cleaning; `preflight.py mob39x` checks |
-| Photo link on `Bypass Valve 0001` | `MOB.302` | — | unlinked by the test itself (trap 2) | ✅ self-cleaning; `preflight.py mob302` |
+| **Work orders** (~4 per full pass) | `MOB.300` (`953`) · `122` (`971`) · `396` · `397` (`959`) | `problemDesc` starts `DD SYNTHETIC MOBILE`, created by the test account | `deleteWorkOrders` → `removeWorkById` (whole work + stages, one transaction; refuses any with charges, schedule entries, conditions or failures) | 🛑 **blocked** — every call rolls back (bugs §41). 196 carry the marker (created 2026-08-05 → 09-10; measured 2026-09-15); newest 10 kept for the work-list tests |
+| **Charges** ×4 on the fixture WO | `MOB.350` equipment `AC Adapter` · `360` labor `Dev Eloper` · `370` material `0000-0000 Diaphragm Pump` · `380` other (`956`) | qty 1 | `reverseWorkCharge` **adds** a negated counter-transaction — reversal doubles the rows | ⏸️ **excluded** (owner). Accepted debt: +4 per run, permanent — 78 equipment · 52 labor · 45 material · 35 other on the fixture (measured 2026-09-15) |
+| **Note** | `MOB.392` (`956`) | body `This is a note - DD SYNTHETIC MOBILE` | `deleteWorkStageJobNotes(ids)` | 4 on the fixture (measured 2026-09-15) — a prune keeps the newest 1 |
+| **Asset + attachment** | `MOB.600` (+ `MOB.623` adds photos) (`967`, held out while bugs §34 is open) | name `DD SYNTHETIC MOBILE <8 digits>`, desc `Created by Datadog Synthetics - safe to delete` | `deleteAssets(ids)` (gated `ASSET UPDATE`) · `removeAttachment` | newest 4 kept (`MOB.623`/`625` select them by prefix) — nothing to prune today. A kept asset can hold `MOB.712`'s System link and `MOB.722`'s readings; not yet checked whether `deleteAssets` refuses one with events. `MOB.627`/`628` add and delete their own photo/PDF and set the avatar on the newest one — nothing left when green |
+| **Event readings** ×2 | `MOB.550` (`965`) | values `4242`, `1337` on the job's assets — no marker | `deleteEvents(ids)` | reported, never touched — no marker to select by, and `MOB.550` reads the previous run's value as its server proof |
+| **Systems** | `MOB.712` (`980`) | name `DD SYNTHETIC MOBILE <8 digits>` | `deleteSystems(ids)` (desktop/API — mobile has none); unlink the asset's `systemId` first | 1 per run; the first `DD SYNTHETIC MOBILE` asset in Asset Lookup points at the newest. 6 (measured 2026-09-15 over `/graphql`; the script does not report this category) |
+| **Event readings** (Asset Lookup) | `MOB.722` (`980`) | type `Test 1`, value `722` + 5 digits, on the first `DD SYNTHETIC MOBILE` asset | `deleteEvents(ids)` | 1 per run; selectable by asset marker + `Test 1` + `722…`. Not reported by `cleanup_residue.py` — count it over `/graphql` before a prune |
+| **Org tags** | `MOB.627` (`967`) | name `DD SYNTHETIC MOBILE <8 digits>`, attached to nothing | `deleteTags(ids)` (API — mobile has none; not scripted) | +1 per run, permanent until pruned. 4 (measured 2026-09-15 over `/graphql`; the script does not report this category) |
+| Condition / failure | `MOB.390` / `391` (`956`) | `Pump Body` · `BELT·ADJUST·TIME` | deleted by the test itself (trap 2); a failed run's leftover is pruned by the script | ✅ self-cleaning; `preflight.py mob39x` checks |
+| Photo link on `Bypass Valve 0001` | `MOB.302` (`959`) | — | unlinked by the test itself (trap 2) | ✅ self-cleaning; `preflight.py mob302` |
 
 **State that drifts one way** (not deletions):
 
 | state | moved by | reset |
 |---|---|---|
 | Mobile job status → `COMPLETED` when its last asset is verified (bugs §10) | a verify-all test (not built) | `reset_av_fixture.py` — §4 |
-| `000-000-000 Adamantium` quantity, +1 per run | `MOB.870` | decrement by runs since last tidy. `MOB.860`'s `+1`/`-1` self-restores; do not make `MOB.870` two-way |
+| `000-000-000 Adamantium` quantity, +1 per run | `MOB.870` (`970`) | decrement by runs since last tidy. `MOB.860`'s `+1`/`-1` self-restores; do not make `MOB.870` two-way |
 
 **Nothing to do:** asset verified flags (they self-revert); `self-restoring` and `read-only`
 tests; the photo tests `MOB.620`/`621`/`622`/`626`/`301` (local reducer, never submitted);
-`MOB.741` (the Docs filter rejects its image client-side); `MOB.363` (deletes the photo it uploaded to `20260910-16`); `MOB.361` (adds a note, edits it, deletes it — ⚠️ a FAILED run leaves a `DD SYNTHETIC MOBILE 361 NOTE` marker note on the fixture, and the note prune keeps the newest 1, so it can keep MOB.361's leftover and delete MOB.392's); `MOB.628` (deletes its own PDF); `MOB.364` (deletes the form it attached over `/graphql`, owner 2026-09-15); `MOB.866` (deletes its own photo and PDF from the storeroom item; a failed run's leftover makes the next run's premise refuse).
+`MOB.741` (the Docs filter rejects its image client-side); `MOB.363` (deletes the photo it uploaded to `20260910-16`); `MOB.361` (adds a note, edits it, deletes it — ⚠️ a FAILED run leaves a `DD SYNTHETIC MOBILE 361 NOTE` marker note on the fixture, and the note prune keeps the newest 1, so it can keep MOB.361's leftover and delete MOB.392's); `MOB.628` (deletes its own PDF); `MOB.364` (deletes the form it attached over `/graphql`, owner-authorised); `MOB.866` (deletes its own photo and PDF from the storeroom item; a failed run's leftover makes the next run's premise refuse).
 
 ## 3 · `cleanup_residue.py` — built
 

@@ -8,8 +8,6 @@ Suite tags: `Mobile`, `env:dev`, `Suite`, `module:<slug>` (added by `dd_tools.te
 or `class:writes`, plus `run:alone` for Session and `device:phone` for Phone (`set_device.py` pins the
 device from `_Phone_` in the name).
 
-The old suites (MOB.983–MOB.998) are still written by their own builders until they are retired on
-Datadog; nothing here touches them.
 """
 import json
 import os

@@ -8,7 +8,7 @@ WHY
   locator bug or a slow login. Every suite, every DIAG and the verify scratch share that
   prefix, so one crash looks like fourteen unrelated reds.
 
-  `MOB.900` already carries this guard, but only inside `MOB.990` and only on the home
+  `MOB.900` already carries this guard, but only inside `MOB.972` and only on the home
   screen. This puts it where a crash at boot would actually be met.
 
 WHERE IT GOES - BEFORE the shell assertion, not after

@@ -1,4 +1,4 @@
-"""Build the PHONE-WIDTH suite - MOB.951, MOB.952 and MOB.984_Phone_Suite, on `chrome.mobile_small`
+"""Build the PHONE-WIDTH tests - MOB.951 and MOB.952 (suite MOB.975_Phone_Suite), on `chrome.mobile_small`
 only (checklist T1.4, 🔴 HARNESS "the phone-width form branch").
 
 WHY THIS DOES NOT BREAK TRAP 1
@@ -8,7 +8,7 @@ WHY THIS DOES NOT BREAK TRAP 1
   that mutates. `set_device.py` pins every other test to `chrome.tablet` and these to phone.
   Children run in their parent's browser, so the SUITE's device is the one that counts; the
   children carry it too so a standalone run is honest. `verify.py` cannot prove them (its
-  scratch wrapper is tablet) - run the suite: `dd_tools.py run MOB.984_Phone_Suite` (3 runs).
+  scratch wrapper is tablet) - run the suite: `dd_tools.py run MOB.975_Phone_Suite` (3 runs).
 
 ⚠️ FIRST RUN IS A PROBE. When the suite ran both devices, the phone session "kept dying at login".
   The login prefix is shared; if it dies there again, the fault is the prefix at phone width.
@@ -120,7 +120,7 @@ write(on_phone(test(
     "  reach it (trap 1).\n"
     "- Its image field renders the mobile `Upload Photo` button — asserted exactly when the server says the\n"
     "  opened form has an image field (never clicked: it opens a file dialog).\n"
-    "- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. 🛑 READ-ONLY.",
+    "- `chrome.mobile_small` ONLY; runs inside `MOB.975_Phone_Suite`. 🛑 READ-ONLY.",
     m951,
     ["Mobile", "env:dev", "Phone", "Work Order", "Forms", "read-only"],
 )))
@@ -154,25 +154,9 @@ write(on_phone(test(
     "- The affixed `+` and the list's search control are on screen; the burger is on screen.\n"
     "- By design the header crew shortcut `.mobile-crew` is hidden under 450px; the burger's\n"
     "  `Switch Crews` is the phone path (optional check — a design change should not go red).\n"
-    "- `chrome.mobile_small` ONLY; runs inside `MOB.984_Phone_Suite`. 🛑 READ-ONLY.",
+    "- `chrome.mobile_small` ONLY; runs inside `MOB.975_Phone_Suite`. 🛑 READ-ONLY.",
     m952,
     ["Mobile", "env:dev", "Phone", "Work Order", "read-only"],
 )))
 
-# ----------------------------------------------------------------------------------- MOB.984
-import json  # noqa: E402
-HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dd_tests_mobile")
-login_steps = json.load(open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
-write(on_phone(test(
-    "MOB.984_Phone_Suite",
-    "`MOB.984` **The PHONE-WIDTH suite** — `chrome.mobile_small` only, READ-ONLY.\n"
-    "- Logs in once, then chains its subtests in the same browser session.\n"
-    "- Run it ON ITS OWN (trap 1: never alongside a mutating tablet suite).\n"
-    "- subtestPublicId values stay PENDING-WIRE-UP until the children exist on Datadog;\n"
-    "  run wire_suite.py after pushing them.",
-    login_steps + [step("playSubTest", c, {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1})
-                   for c in ("MOB.951_Phone_Form_Branch", "MOB.952_Phone_Header_And_List")],
-    ["Mobile", "env:dev", "Phone", "suite", "read-only"],
-    extra_globals=("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD"),
-)))
-print("wrote MOB.951, MOB.952 and MOB.984_Phone_Suite (chrome.mobile_small)")
+print("wrote MOB.951 and MOB.952 (chrome.mobile_small)")

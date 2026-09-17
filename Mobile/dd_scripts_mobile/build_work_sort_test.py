@@ -362,7 +362,7 @@ write(test(
     # 🛑 Which view a fresh session lands in is the CREW ROLE's business, and it has changed
     # twice: SCHEDULED on 2026-08-20, back to ASSIGNED since (settled - the crew keeps its
     # work orders). Under ASSIGNED the toggle menu item does not render at all, and the old
-    # hard `work_view_toggle` took `MOB.986` red here on 2026-09-10 after its other ten
+    # hard `work_view_toggle` took its suite red here on 2026-09-10 after its other ten
     # children had passed. `work_view_ensure` clicks the item when it exists and asserts the
     # REQUIREMENT - being in the list view - either way.
     work_list_gate() + work_view_ensure("List") + narrow_the_list() + choose(PICK) + [
@@ -387,18 +387,5 @@ write(test(
     ["Mobile", "env:dev", "Work Order", "Search", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.986
-suite_path = os.path.join(HERE, "MOB.986_WorkOrders_Extra_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.345_Work_Sort_Persist"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.986_WorkOrders_Extra_Suite")
 
 print("wrote MOB.345 (work sort persistence)")

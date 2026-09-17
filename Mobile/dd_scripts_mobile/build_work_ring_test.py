@@ -158,18 +158,5 @@ write(test(
     ["Mobile", "env:dev", "Work Order", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.986
-suite_path = os.path.join(HERE, "MOB.986_WorkOrders_Extra_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.342_Work_Status_Ring"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.986_WorkOrders_Extra_Suite")
 
 print("wrote MOB.342 (work status ring, rebuilt)")

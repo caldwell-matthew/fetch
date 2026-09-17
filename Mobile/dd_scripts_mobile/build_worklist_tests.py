@@ -164,22 +164,7 @@ write(test(
 # borderLeft-colour proof in the checklist (T2.1) is still the right design, because a work
 # row never renders its own status as text.
 
-# ---------------------------------------------------------------- wire into MOB.986
-# MOB.986_WorkOrders_Extra is the right home: these are READ-ONLY, and MOB.991 is the
-# mutating suite. Putting them in 991 would tie two harmless checks to a suite that has to
-# be run on a cleanup cadence.
-suite_path = os.path.join(HERE, "MOB.986_WorkOrders_Extra_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-existing = [s.get("name") for s in steps]
-for child in ["MOB.341_Work_Map_Toggle"]:
-    if child not in existing:
-        steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                      "isCritical": True, "name": child, "noScreenshot": False,
-                      "type": "playSubTest",
-                      "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-        print(f"added {child} to MOB.986_WorkOrders_Extra_Suite")
-with open(suite_path, "w") as f:
-    f.write(json.dumps(doc, indent=4))
+# ---------------------------------------------------------------- suite
+# MOB.341 runs in MOB.953 (the `/work` list suite); membership lives in suite_plan.py.
 
 print("wrote MOB.341 (work map toggle); MOB.342 withdrawn - empty crew work list")

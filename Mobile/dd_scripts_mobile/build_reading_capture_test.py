@@ -40,7 +40,7 @@ THE READING TYPE: `Test 1`, ADDED ONLY WHEN THE ASSET LACKS IT
 
 THE VALUE: `722` + FIVE RANDOM DIGITS
   Recognisable in the data (`722xxxxx`) and different every run, so the server predicate can only be
-  satisfied by THIS run's event. `{{ RUNID }}` is interpolated into typed text only; the typed value
+  satisfied by THIS run's event. `{{ RUNID722 }}` is interpolated into typed text only; the typed value
   is read back from the input into `sessionStorage` for the predicate (build_edit_tests.py's rule).
 
 RESIDUE - mobile cannot delete an event
@@ -57,8 +57,12 @@ from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert, localvar,
 LOOKUP_URL = BASE + "/asset-lookup"
 MARKER = "DD SYNTHETIC MOBILE"
 TYPE = "Test 1"
-RUNID = localvar("RUNID", "{{ numeric(5) }}", "48120")
-VALUE = "722{{ RUNID }}"
+# 🛑 NOT `RUNID`. Inside MOB.980 a suite's children share local variables BY NAME on Datadog (first
+# definition wins), and MOB.710/712 declare `RUNID` as `numeric(8)` - so MOB.722 typed `722` + EIGHT
+# digits and its 5-digit guard went red (Datadog, 2026-09-16; it passed solo, where nothing else
+# defines `RUNID`). A name no other test uses cannot collide. `preflight.py locals` enforces it.
+RUNID = localvar("RUNID722", "{{ numeric(5) }}", "48120")
+VALUE = "722{{ RUNID722 }}"
 K_ASSET, K_VALUE, K_SRV = "__dd722_asset", "__dd722_value", "__dd722_server"
 TAG = "data-dd722"
 

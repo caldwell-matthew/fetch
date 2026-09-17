@@ -2,7 +2,7 @@
 
 WHY
   The maintenance checks lived as ten separate commands and habits, and the ones nobody ran were
-  the ones that cost runs: a renamed fixture asset (`⚡ Tank 0000`) took MOB.993 red for three
+  the ones that cost runs: a renamed fixture asset (`⚡ Tank 0000`) took an Asset Verify suite red for three
   runs; the fixture work order sat `Canceled` for two days and fell out of the crew's list; a
   suite was left `PENDING-WIRE-UP` and every push 400'd. Each was readable for free beforehand.
 
@@ -133,6 +133,39 @@ def check_literals():
     return line.startswith("0 MISSING"), line
 
 
+def check_locals():
+    """No two children of one suite may declare a local variable of the same NAME differently.
+
+    🛑 On Datadog a suite's subtests share local variables BY NAME and the first definition wins.
+    Measured 2026-09-16: inside MOB.980, MOB.722's `RUNID` (`numeric(5)`) got MOB.710's 8 digits and
+    its guard went red - the test had passed solo. `local_run` shares them the same way, so a local
+    replay shows it too, but this catches it for 0 runs before either. Same name AND same pattern is
+    allowed (the children then share one value, which none of today's tests mind).
+    """
+    import glob
+    by_name = {}
+    for f in glob.glob(os.path.join(HERE, "..", "dd_tests_mobile", "MOB.*.json")):
+        d = json.load(open(f))["details"]
+        by_name[d["name"]] = d
+    clashes = []
+    for name, d in by_name.items():
+        kids = [s["name"] for s in steps_of(d) if s.get("type") == "playSubTest"]
+        if not kids:
+            continue
+        seen = {}
+        for k in kids:
+            for v in ((by_name.get(k) or {}).get("config") or {}).get("variables", []):
+                if v.get("type") != "text":
+                    continue
+                first = seen.setdefault(v["name"], (k, v.get("pattern")))
+                if first[1] != v.get("pattern"):
+                    clashes.append(f"{name[:8]}: {v['name']} is {first[1]} in {first[0][:8]} but "
+                                   f"{v.get('pattern')} in {k[:8]}")
+    ok = not clashes
+    return ok, ("no suite's children declare a local variable two different ways" if ok
+                else "; ".join(sorted(set(clashes))[:6]))
+
+
 def check_bench():
     code, out = run(["node", "check_js_assertions.js"])
     tail = out.strip().splitlines()[-1] if out.strip() else "no output"
@@ -246,7 +279,7 @@ def check_docs():
 
 
 CHECKS = {"wiring": check_wiring, "sync": check_sync, "drift": check_drift, "literals": check_literals,
-          "bench": check_bench, "av": check_av, "work": check_work, "mob302": check_mob302,
+          "bench": check_bench, "locals": check_locals, "av": check_av, "work": check_work, "mob302": check_mob302,
           "mob39x": check_mob39x, "docs": check_docs}
 
 

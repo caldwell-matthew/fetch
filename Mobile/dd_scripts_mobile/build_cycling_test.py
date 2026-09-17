@@ -116,19 +116,5 @@ write(test(
     ["Mobile", "env:dev", "Asset Verification", "read-only"],
 ))
 
-# ---------------------------------------------------------------- wire into MOB.993
-suite_path = os.path.join(HERE, "MOB.993_AssetVerify_Suite.json")
-doc = json.load(open(suite_path))
-steps = doc["details"]["steps"]
-CHILD = "MOB.570_AssetVerify_Asset_Cycling"
-if CHILD not in [s.get("name") for s in steps]:
-    steps.append({"allowFailure": False, "alwaysExecute": False, "exitIfSucceed": False,
-                  "isCritical": True, "name": CHILD, "noScreenshot": False,
-                  "type": "playSubTest",
-                  "params": {"subtestPublicId": "PENDING-WIRE-UP", "playingTabId": -1}})
-    with open(suite_path, "w") as f:
-        f.write(json.dumps(doc, indent=4))
-    print(f"added {CHILD} to MOB.993")
-    print("REMINDER: add it to CHILDREN in build_verify_suite.py (trap 12)")
 
 print("wrote MOB.570 (asset cycling arrows)")
