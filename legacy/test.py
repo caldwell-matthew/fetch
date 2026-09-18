@@ -10,7 +10,7 @@ from fetch import full_restore
 # from fetch import traversal_edit
 # from fetch import nuke
 
-TESTING_DIR = "./fetch_testing/"
+TESTING_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fetch_testing") + "/"
 TEST_NAME = "TEST_TEST"
 os.makedirs(TESTING_DIR, exist_ok=True)
 

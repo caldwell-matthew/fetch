@@ -19,7 +19,7 @@ SCRIPTS = os.path.dirname(os.path.abspath(__file__))   # Mobile/dd_scripts
 MOBILE = os.path.dirname(SCRIPTS)                      # Mobile
 REPO = os.path.dirname(MOBILE)                         # repo root (fetch/)
 # NB: Mobile/dd_tests_mobile - the mobile suite's JSON. Named to avoid colliding with
-# the repo-root ./dd_tests/ (fetch.py's MAIN_DIR), which .gitignore matches unanchored.
+# legacy/dd_tests/ (legacy/fetch.py's MAIN_DIR), which .gitignore matches unanchored.
 # DD_TESTS_DIR: build into another folder (check_drift.py uses a temp copy, never the real JSON)
 TESTS = os.environ.get("DD_TESTS_DIR") or os.path.join(MOBILE, "dd_tests_mobile")
 HERE = TESTS                                           # back-compat alias for build_* scripts

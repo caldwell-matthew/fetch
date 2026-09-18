@@ -15,14 +15,17 @@ from datadog_api_client.v1.model.synthetics_delete_tests_payload import Syntheti
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Config/Setup (See README for instructions)
 configuration = Configuration(ssl_ca_cert=certifi.where())
-env = dotenv_values(".env")
+# Paths are anchored to this file, not to wherever it is run from: importing it used to create
+# dd_tests/ and dd_tests_backup/ in the current directory. The Datadog keys stay in the repo-root .env.
+LEGACY_DIR = os.path.dirname(os.path.abspath(__file__))
+env = dotenv_values(os.path.join(LEGACY_DIR, "..", ".env"))
 configuration.api_key["apiKeyAuth"] = env.get("DD_API") 
 configuration.api_key["appKeyAuth"] = env.get("DD_APP") 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Directory Setup
-MAIN_DIR = "./dd_tests/"
-BACKUP_DIR = "./dd_tests_backup/"
+MAIN_DIR = os.path.join(LEGACY_DIR, "dd_tests") + "/"
+BACKUP_DIR = os.path.join(LEGACY_DIR, "dd_tests_backup") + "/"
 os.makedirs(MAIN_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
 

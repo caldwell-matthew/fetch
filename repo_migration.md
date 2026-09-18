@@ -1,7 +1,8 @@
 # Repo migration: making this usable by other people
 
-Status: **proposed, not started** (2026-09-17). Start after the weekly Datadog schedule is switched on, not while
-a run or a local timing pass is using the scripts: moving files mid-run breaks it.
+Status: **steps 1–2 done; step 3 half done (2026-09-17); step 4 open.** Do the rest of step 3 after the weekly
+Datadog schedule is switched on, and not while a run or a local timing pass is using the scripts: moving files
+mid-run breaks it.
 
 ## Why
 
@@ -26,7 +27,7 @@ The migration should make those the front door.
 | Two projects in one repo | root: `fetch.py`, `test.py`, `DOCS.md`, `fetch_logo.png` (2024); `Mobile/`: the real project | The README describes only the old tool, so a newcomer starts in the wrong place |
 | Setup depends on one machine's layout | `requirements.txt` lacks Playwright; the bench finds `jsdom` in a sibling `../../MentorTwo/node_modules`; `check_literals.py` and `sweep_strings.py` default to `~/GitHub/MentorAPM/MentorTwo`; everything assumes `.venv` at the root | A fresh clone fails in places the current owner never sees |
 | The safety rules live outside the repo | the owner's standing rules are held in one person's Claude memory files | Another person, or their AI assistant, starts without them |
-| One-off migration scripts beside daily tools | `add_crash_guard.py`, `add_role_guard.py`, `fix_crew_coupling.py`, `harden_login.py`, `patch_collector_upload.py` | The toolset looks larger and riskier than it is |
+| One-off migration scripts beside daily tools | `fix_crew_coupling.py`, `harden_login.py`, `patch_collector_upload.py` (`add_role_guard.py` and `add_crash_guard.py` looked like one-offs but are the maintained way to change the shared login prefix) | The toolset looks larger and riskier than it is |
 | Fixture ids hardcoded | the work-order fixture id in 33 scripts, the AV job id in 18 | Changing a fixture means a hunt through many scripts |
 | Docs written as one maintainer's running record | `Mobile/*.md`: § bug numbers, OPEN WORK `#N` rows, traps | Accurate, but no "start here" and no glossary |
 | Personal ownership | remote is `github.com/caldwell-matthew/fetch`; Datadog keys in a personal `.env` | Others can't be given access cleanly, and keys can't be rotated per person |
@@ -46,30 +47,39 @@ The standing rules to carry into the repo (step 2) are:
 ## Plan
 
 ### 1 · Front door (about 2 hours)
-- [ ] New root `README.md` that says what the repo is now, with a five-minute path: set up, run
+- [x] New root `README.md` that says what the repo is now, with a five-minute path: set up, run
       `preflight.py`, replay one test locally.
-- [ ] Move the original `fetch` tool (`fetch.py`, `test.py`, `DOCS.md`, logo) to `legacy/`, or delete it
-      (owner's decision).
-- [ ] One setup command (`make setup` or `setup.sh`): create the venv, install packages,
-      `playwright install chromium`, install `jsdom` locally.
-- [ ] Complete `requirements.txt` (Playwright) and add a `package.json` for `jsdom`.
-- [ ] Read the MentorTwo checkout path from a setting (an env var, e.g. `MENTORTWO_DIR`) instead of assuming
-      one. Fail with a clear message when it's missing.
+- [x] Move the original `fetch` tool (`fetch.py`, `test.py`, `DOCS.md`, logo, its README) to `legacy/` (owner's
+      decision: keep, as the full-backup tool). Run it from the repo root: `python3 legacy/fetch.py`.
+- [x] One setup command, `./setup.sh`: creates the venv, installs packages, `playwright install chromium`,
+      `npm install` (jsdom), then says what is still missing (`.env`, a MentorTwo checkout). Safe to re-run.
+- [x] Complete `requirements.txt` (Playwright) and add a `package.json` for `jsdom`. The bench now uses the
+      repo's own jsdom before borrowing MentorTwo's.
+- [x] Read the MentorTwo checkout path from a setting, `MENTORTWO_REPO` (which `check_literals.py` already
+      read), in `sweep_strings.py` and the bench too, falling back to the sibling layout. A missing checkout
+      fails with a clear message.
 
 ### 2 · Rules into the repo (about 1 hour)
-- [ ] `CLAUDE.md` at the root: the standing rules above, the six-step loop from `test_authoring.md` (read the
+- [x] `CLAUDE.md` at the root: the standing rules above, the six-step loop from `test_authoring.md` (read the
       component → build → static checks → local replay → `verify.py` → wire), and where each kind of fact
       lives. AI assistants read this file automatically, so the rules apply to everyone's sessions, not one.
-- [ ] `CONTRIBUTING.md`: "adding a test in six steps", with one worked example, plus a glossary (fixture,
-      suite, leaf, wire, verify, soft/optional/always, residue, trap).
+- [x] `CONTRIBUTING.md`: the loop walked through with a real example (`MOB.331`), the commands and what each
+      costs, and a glossary (fixture, suite, leaf, wire, verify, soft/optional/always, residue, trap, slot).
 
 ### 3 · Tidy (about half a day)
-- [ ] Move the one-off migration scripts to `Mobile/dd_scripts_mobile/_archive/` with a one-line note on what
-      each did and when.
-- [ ] A `fixtures.py` holding every fixture id and name, imported by the build scripts.
-- [ ] One entry command, e.g. `mobile.py verify | run | push | preflight | timing | reset-av`, wrapping the
-      existing scripts. Keep the scripts; the entry point is only a map.
-- [ ] Consider grouping the 103 `build_*.py` into folders by module, matching `suite_plan.MODULES`.
+- [x] Archive the one-off migration scripts: `fix_crew_coupling.py`, `harden_login.py` and
+      `patch_collector_upload.py` are in `Mobile/dd_scripts_mobile/_archive/`, with a README saying what each
+      did and why it's done. **Kept:** `add_role_guard.py` and `add_crash_guard.py`, which on reading are not
+      one-offs: they're the maintained way to change the shared login prefix (`test_authoring.md`, Tooling).
+- [x] One entry command: `mobile.py` at the root maps names (`preflight`, `replay`, `timing`, `bench`,
+      `literals`, `sweep`, `drift`, `suites`, `reset-av`, `push`, `verify`, `run`, `probe`) onto the existing
+      scripts, shows each one's Datadog cost, and warns with the exact count before anything billable
+      (`run MOB.963` → 7 runs). `suites` does the build-then-wire pair in one go; its output was checked
+      byte-identical.
+- [ ] **After switch-on:** a `fixtures.py` holding every fixture id and name, imported by the build scripts.
+      Every test's JSON must come out identical (`drift`, then `sync`).
+- [ ] **After switch-on:** consider grouping the 103 `build_*.py` into folders by module, matching
+      `suite_plan.MODULES`. It changes import paths, the drift checker's glob and many doc references.
 - [ ] Re-run `preflight.py` and `check_drift.py` after every move: generators and JSON must still agree.
 
 ### 4 · Ownership and CI

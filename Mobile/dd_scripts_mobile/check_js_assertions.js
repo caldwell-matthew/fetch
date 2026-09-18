@@ -36,20 +36,23 @@ const path = require('path');
 const MOBILE = path.dirname(__dirname);
 const TESTS = path.join(MOBILE, 'dd_tests_mobile');
 
+// jsdom, in order: this repo's own node_modules (`npm install` at the repo root — setup.sh does it), then a
+// MentorTwo checkout's — $MENTORTWO_REPO, else the sibling layout this repo grew up in.
 let JSDOM;
-try {
-	({ JSDOM } = require('jsdom'));
-} catch (e) {
-	try {
-		({ JSDOM } = require(path.resolve(
-			MOBILE, '../../MentorTwo/node_modules/jsdom')));
-	} catch (e2) {
-		// 🛑 Exits NON-ZERO on purpose. "Skipped" that reports success is how a check quietly
-		// stops checking; the caller must be able to tell "passed" from "never ran".
-		console.error('jsdom not found - VERIFIED NOTHING. `npm i jsdom`, or check out '
-			+ 'MentorTwo beside this repo.');
-		process.exit(2);
-	}
+const JSDOM_FROM = [
+	'jsdom',
+	...(process.env.MENTORTWO_REPO ? [path.join(process.env.MENTORTWO_REPO, 'node_modules/jsdom')] : []),
+	path.resolve(MOBILE, '../../MentorTwo/node_modules/jsdom'),
+];
+for (const where of JSDOM_FROM) {
+	try { ({ JSDOM } = require(where)); break; } catch (e) { /* try the next */ }
+}
+if (!JSDOM) {
+	// 🛑 Exits NON-ZERO on purpose. "Skipped" that reports success is how a check quietly
+	// stops checking; the caller must be able to tell "passed" from "never ran".
+	console.error('jsdom not found - VERIFIED NOTHING. Run `npm install` at the repo root (setup.sh does), '
+		+ 'or set MENTORTWO_REPO to a MentorTwo checkout with node_modules.');
+	process.exit(2);
 }
 
 let failures = 0;

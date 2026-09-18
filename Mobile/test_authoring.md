@@ -130,7 +130,7 @@ login-bearing test asserts the role right after login.
 | `cleanup_residue.py` | prune residue by marker, delete by id — dry run by default (`cleanup_spec.md`) |
 | `set_device.py` | pins every test to `chrome.tablet`, `_Phone_` tests to `chrome.mobile_small`; run after any build |
 | `add_role_guard.py` · `add_crash_guard.py` | patch the shared login prefix (login → boot crash guard → shell → role is exactly `Admin`) into every login-bearing JSON. Builders copy the prefix from `MOB.000_Login_(Dev).json`, so a prefix change goes through these, never one builder |
-| `fetch.py` (repo root) `fetch(type="full", dir=…)` | back up every browser test. Names files by test name, so duplicate names overwrite — re-save those by `public_id`. Last full backup: `dd_tests_backup/2026-08-12_1543_pre-delete/` |
+| `legacy/fetch.py` `fetch(type="full", dir=…)` | back up every browser test. Names files by test name, so duplicate names overwrite — re-save those by `public_id`. Last full backup: `legacy/dd_tests_backup/2026-08-12_1543_pre-delete/` |
 
 **`dd_tools` helpers** — shared so there is one copy; do not hand-roll local versions.
 

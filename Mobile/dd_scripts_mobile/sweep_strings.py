@@ -17,10 +17,13 @@ import json
 import os
 import re
 import subprocess
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TESTS = os.path.join(HERE, "..", "dd_tests_mobile")
-REPO = os.path.expanduser("~/GitHub/MentorAPM/MentorTwo")
+# The MentorTwo checkout: `--repo`, else $MENTORTWO_REPO (the setting check_literals.py reads), else the
+# sibling layout this repo grew up in.
+DEFAULT_REPO = os.environ.get("MENTORTWO_REPO", os.path.expanduser("~/GitHub/MentorAPM/MentorTwo"))
 TEXT = re.compile(r">([^<>{}]*[A-Za-z][^<>{}]*)<")
 CODE = re.compile(r"=>|&&|\|\||;|\bconst\b|\breturn\b|===|\bimport\b|\btype\b|\bvoid\b|React\.|\w\(|^\W+$|\]\s*,|: \w+\??:|//")
 
@@ -32,8 +35,12 @@ def norm(t):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ref", default="origin/development")
-    ref = ap.parse_args().ref
-    git = lambda *a: subprocess.run(["git", "-C", REPO, *a], capture_output=True, text=True, check=True).stdout
+    ap.add_argument("--repo", default=DEFAULT_REPO)
+    args = ap.parse_args()
+    ref, repo = args.ref, args.repo
+    if not os.path.isdir(os.path.join(repo, ".git")):
+        sys.exit(f"not a git repo: {repo}  (set MENTORTWO_REPO, or pass --repo)")
+    git = lambda *a: subprocess.run(["git", "-C", repo, *a], capture_output=True, text=True, check=True).stdout
     files = [f for f in git("ls-tree", "-r", "--name-only", ref, "client/mobile").split()
              if f.endswith(".tsx") and "/__jest__/" not in f and "/__stories__/" not in f]
     corpus = norm("\n".join(json.dumps(st.get("params", {}), ensure_ascii=False)
