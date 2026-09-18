@@ -4,7 +4,7 @@
         "name": "MOB.913_Offline_Transaction_Queue",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.913` **The offline queue holds, counts, drains and replays a mutation.**\n- In a browser the queue closes on window `offline` and opens on `online`\n  (`gateQueueLinkOnNetworkChange`) \u2014 the events `MOB.910` dispatches.\n- Leg 1: offline \u2192 verify an AV asset \u2192 header indicator **1**, still 1 after 6s (held) \u2192\n  `Pending Transactions` lists `VERIFY_ASSET` \u2192 online \u2192 indicator gone, the still-open list refreshes to `No logs found.` \u2192 **reload: the server\n  has it** \u2192 unverify.\n- Leg 2: offline \u2192 verify \u2192 held \u2192 **reload while held** \u2192 the app replays IndexedDB on\n  startup \u2192 1 of 2, nothing pending \u2192 unverify.\n- \ud83d\uded1 Self-restoring (`always`): `online`, a conditional unverify, a reload and a hard\n  0-of-2 gate. `reset_av_fixture.py --apply` is the 0-run fallback.",
+        "message": "`MOB.913` **The offline queue holds, counts, drains and replays a mutation.**\n- In a browser the queue closes on window `offline` and opens on `online`\n  (`gateQueueLinkOnNetworkChange`) \u2014 the events `MOB.910` dispatches.\n- \u2b50 **One click is TWO operations**: `VERIFY_ASSET`, plus the `UPDATE_MOBILE_JOB_STATUS`\n  that `VerificationCheckbox.update()` recomputes \u2014 the fixture rests READY, so verifying\n  one of two assets moves the job to IN_PROGRESS and both go into the closed queue.\n- Leg 1: offline \u2192 verify an AV asset \u2192 header indicator **2**, still 2 after 6s (held) \u2192\n  `Pending Transactions` lists both \u2192 online \u2192 indicator gone, the still-open list refreshes to `No logs found.` \u2192 **reload: the server\n  has it** \u2192 unverify.\n- Leg 2: offline \u2192 verify \u2192 held \u2192 **reload while held** \u2192 the app replays IndexedDB on\n  startup \u2192 1 of 2, nothing pending \u2192 unverify.\n- \ud83d\uded1 Self-restoring (`always`): `online`, a conditional unverify, a reload and a hard\n  0-of-2 gate. `reset_av_fixture.py --apply` is the 0-run fallback.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -370,7 +370,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the mutation reach the closed queue",
+                "name": "Let both mutations reach the closed queue",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -382,10 +382,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 QUEUED (leg 1): the pending indicator reads 1",
+                "name": "\u2b50 QUEUED (leg 1): the pending indicator reads 2 \u2014 `VERIFY_ASSET` and the `UPDATE_MOBILE_JOB_STATUS` its update() recomputes (READY \u2192 IN_PROGRESS)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '1';"
+                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '2';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 20
@@ -407,10 +407,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 HELD (leg 1): still 1 pending after 6s offline \u2014 the request never left",
+                "name": "\u2b50 HELD (leg 1): still 2 pending after 6s offline \u2014 neither request left",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '1';"
+                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '2';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 10
@@ -445,10 +445,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 LISTED: `Pending Transactions` shows the held VERIFY_ASSET with verified:true",
+                "name": "\u2b50 LISTED: `Pending Transactions` shows BOTH held operations \u2014 `VERIFY_ASSET` with verified:true, and `UPDATE_MOBILE_JOB_STATUS` with IN_PROGRESS",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const t = (document.body.textContent || '');\nreturn t.includes('Pending Transactions') && t.includes('VERIFY_ASSET')\n  && /\"verified\":\\s*true/.test(t);"
+                    "code": "const t = (document.body.textContent || '');\nreturn t.includes('Pending Transactions') && t.includes('VERIFY_ASSET')\n  && /\"verified\":\\s*true/.test(t)\n  && t.includes('UPDATE_MOBILE_JOB_STATUS')\n  && /\"status\":\\s*\"IN_PROGRESS\"/.test(t);"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 20
@@ -509,10 +509,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 EMPTIED: the still-open list, refreshed, reads `No logs found.` \u2014 no VERIFY_ASSET left (`PendingTransactionLogs.tsx:58`)",
+                "name": "\u2b50 EMPTIED: the still-open list, refreshed, reads `No logs found.` \u2014 neither VERIFY_ASSET nor UPDATE_MOBILE_JOB_STATUS left (`PendingTransactionLogs.tsx:58`)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const title = [...document.querySelectorAll('h3')].find(h => (h.textContent || '').trim() === 'Pending Transactions');\nconst box = title && title.parentElement && title.parentElement.parentElement;\nif (!box) return false;\nconst t = box.textContent || '';\nif (t.includes('No logs found.') && !t.includes('VERIFY_ASSET')) return true;\nconst at = Number(sessionStorage.getItem('__dd913_refresh') || 0);\nif (Date.now() - at > 2000) {\n  sessionStorage.setItem('__dd913_refresh', String(Date.now()));\n  const b = [...box.querySelectorAll('button')].find(x => (x.textContent || '').trim() === 'Refresh');\n  if (b) b.click();\n}\nreturn false;"
+                    "code": "const title = [...document.querySelectorAll('h3')].find(h => (h.textContent || '').trim() === 'Pending Transactions');\nconst box = title && title.parentElement && title.parentElement.parentElement;\nif (!box) return false;\nconst t = box.textContent || '';\nif (t.includes('No logs found.') && !t.includes('VERIFY_ASSET')\n    && !t.includes('UPDATE_MOBILE_JOB_STATUS')) return true;\nconst at = Number(sessionStorage.getItem('__dd913_refresh') || 0);\nif (Date.now() - at > 2000) {\n  sessionStorage.setItem('__dd913_refresh', String(Date.now()));\n  const b = [...box.querySelectorAll('button')].find(x => (x.textContent || '').trim() === 'Refresh');\n  if (b) b.click();\n}\nreturn false;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -1144,7 +1144,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the mutation reach the closed queue",
+                "name": "Let both mutations reach the closed queue",
                 "noScreenshot": false,
                 "params": {
                     "value": 2
@@ -1156,10 +1156,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 QUEUED (leg 2): the pending indicator reads 1",
+                "name": "\u2b50 QUEUED (leg 2): the pending indicator reads 2 \u2014 `VERIFY_ASSET` and the `UPDATE_MOBILE_JOB_STATUS` its update() recomputes (READY \u2192 IN_PROGRESS)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '1';"
+                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '2';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 20
@@ -1181,10 +1181,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 HELD (leg 2): still 1 pending after 6s offline \u2014 the request never left",
+                "name": "\u2b50 HELD (leg 2): still 2 pending after 6s offline \u2014 neither request left",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '1';"
+                    "code": "const up = document.querySelector('svg[data-icon=\"upload\"]');\nconst root = up && up.closest('[class*=\"mantine-Indicator-root\"]');\nconst lab = root && root.querySelector('[class*=\"mantine-Indicator-indicator\"]');\nconst pending = lab ? (lab.textContent || '').trim() : null;\nreturn pending === '2';"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 10

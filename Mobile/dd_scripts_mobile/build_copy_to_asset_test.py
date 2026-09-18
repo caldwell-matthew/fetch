@@ -51,7 +51,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert, ACTIVE_PANEL_JS  # noqa: E402
+from dd_tools import (BASE, step, xpath_el, go, test, write, jsassert, ACTIVE_PANEL_JS,  # noqa: E402
+                      work_list_gate)
 
 WO_ID = "RcdI0xcpc8NBV8VoRNNBYM"
 WO_URL = f"{BASE}/work/{WO_ID}"
@@ -133,8 +134,12 @@ def open_asset_photos(label):
 
 def open_wo_attachments():
     return [
-        go(WORK_URL, "/work to warm the lookup cache"),
-        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        # 🛑 WAIT FOR THE DOWNLOADS, NOT A FIXED 20s. The lookups this test needs are cache-only on the
+        # detail page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left
+        # `/work` after the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option
+        # never appeared. `work_list_gate` polls LOADEDALL 3/3 (up to 180s) — the prefetch runs before
+        # those downloads, so the gate clearing means the cache is warm (the blind-warm-up sweep, 2026-09-17).
+        *work_list_gate(require_row=False),
         go(WO_URL, "the copy-to-asset work order"),
         step("wait", "Let the detail view begin rendering", {"value": 2}),
         step("assertPageContains", "Test work order detail rendered", {"value": "Status:"}, timeout=30),

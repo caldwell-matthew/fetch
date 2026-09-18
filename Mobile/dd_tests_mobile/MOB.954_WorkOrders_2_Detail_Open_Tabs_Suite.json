@@ -4,7 +4,7 @@
         "name": "MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.954` `/work/:workStageId` read-only: open, tabs, the add-form picker, permits, warranties, MapLink, record cycling.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
+        "message": "`MOB.954` `/work/:workStageId` read-only: open, tabs, General Info's value arrow, the add-form picker, permits, warranties, MapLink, record cycling.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -348,6 +348,19 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "p8z-fgd-5bp",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.331_Work_GenInfo_Value_Modal",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "kbh-m4x-98g",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

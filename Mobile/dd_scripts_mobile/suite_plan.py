@@ -40,9 +40,9 @@ SUITES = [
      "work order (residue) and MOB.301 opens the insert form's photo picker.",
      ["150", "300", "301", "340", "341", "343", "344", "342", "345"]),
     ("954", "work-orders", "2_Detail_Open_Tabs", "read-only",
-     "`/work/:workStageId` read-only: open, tabs, the add-form picker, permits, warranties, MapLink, record "
-     "cycling.",
-     ["310", "330", "393", "394", "399", "348", "349"]),
+     "`/work/:workStageId` read-only: open, tabs, General Info's value arrow, the add-form picker, permits, "
+     "warranties, MapLink, record cycling.",
+     ["310", "330", "331", "393", "394", "399", "348", "349"]),
     ("981", "work-orders", "3_Detail_Charges_Offline", "read-only",
      "`/work/:workStageId` read-only: the charge forms and their ESTIMATES section, form metrics, the assign "
      "modal, and the offline screens.\n"
@@ -75,8 +75,8 @@ SUITES = [
      ["396", "397", "302", "363", "365", "364"]),
     ("960", "work-orders", "9_Forms", "writes",
      "`/work/:workStageId/form/:formId`: the form renders; MOB.134 fills an integer field and clears it "
-     "(self-restoring).",
-     ["355", "134"]),
+     "(self-restoring); MOB.135 opens the Inspection form's signature pad and closes it untouched (read-only).",
+     ["355", "134", "135"]),
     ("961", "asset-verify", "1_Jobs_List", "read-only",
      "`/asset-verify`: the job list renders, search/filter/sort, counts and badges, sort persistence and "
      "sort ordering.\n"
@@ -91,10 +91,12 @@ SUITES = [
      ["500", "520", "585", "531", "547", "551"]),
     ("963", "asset-verify", "3_Verify_Status_Queue", "writes",
      "Self-restoring on job Z0EVwQcdJZhMURcBFkp0E0: verify and unverify, the Unverified tab, the offline "
-     "transaction queue, the job status menu.\n"
-     "- MOB.536 LAST: a failed status restore can drop the job from the crew's list. "
-     "`reset_av_fixture.py --apply` is the 0-run fallback.",
-     ["510", "590", "913", "536"]),
+     "transaction queue, the job status menu, and verifying EVERY asset.\n"
+     "- MOB.511 and MOB.512 LAST, in that order: they leave the job `2 out of 2` and COMPLETED until "
+     "their restore legs run, and MOB.500/510/590 guard on `0 out of 2` while MOB.530/560 expect READY.\n"
+     "- MOB.536 before them: a failed status restore can drop the job from the crew's list. "
+     "`reset_av_fixture.py --apply` is the 0-run fallback for either.",
+     ["510", "590", "913", "536", "511", "512"]),
     ("964", "asset-verify", "4_Asset_Detail_Read", "read-only",
      "`/asset-verify/:jobId/asset/:verificationId` read-only: cycling, the failure and condition forms, "
      "attachments.",
@@ -105,8 +107,9 @@ SUITES = [
      ["537", "545", "550"]),
     ("966", "asset-collector", "1_Capture", "read-only",
      "`/asset-collector`: the route, the photo picker and carousel (never submitted), capture options, "
-     "search, the row avatar modal, sort.",
-     ["160", "620", "621", "622", "626", "610", "624", "625"]),
+     "the form's Location row (stubbed geolocation, captured and cleared, never submitted), search, the row "
+     "avatar modal, sort.",
+     ["160", "620", "621", "622", "626", "629", "610", "624", "625"]),
     ("967", "asset-collector", "2_Saved_Asset", "writes",
      "Writes on `DD SYNTHETIC MOBILE` assets: create an asset (red while bugs §34 is open), the saved-photo "
      "menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag).\n"

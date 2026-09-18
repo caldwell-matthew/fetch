@@ -4,7 +4,7 @@
         "name": "MOB.960_WorkOrders_9_Forms_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.960` `/work/:workStageId/form/:formId`: the form renders; MOB.134 fills an integer field and clears it (self-restoring).\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
+        "message": "`MOB.960` `/work/:workStageId/form/:formId`: the form renders; MOB.134 fills an integer field and clears it (self-restoring); MOB.135 opens the Inspection form's signature pad and closes it untouched (read-only).\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -348,6 +348,19 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "2hc-cx9-z2g",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.135_Work_Form_Signature_Pad",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "wu9-kmf-vpf",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

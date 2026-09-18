@@ -4,7 +4,7 @@
         "name": "MOB.397_Work_Assign_Followup",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.397` **Assign Follow-up Work** from a work-order collection item's gear menu.\n- \u26a0\ufe0f **LEAVES RESIDUE**: creates a real work order per run. Approved 2026-08-12.\n- \u26a0\ufe0f **The same gear menu contains `Delete Item`.** Mobile is delete-free (trap 2), so\n  the entry is matched by **exact text**, never by position or `contains()`. Keep it\n  that way if this test is ever edited.\n- Uses the **Assets** tab: `hideFollowUpWork` suppresses the action on `jobNotes`,\n  `condition` and `failures`, so those tabs cannot exercise it.\n- Tabs are asserted by NAME here \u2014 MOB.330 only ever switched them positionally, so this\n  is also the first test to pin that the fixture has an `Assets` tab.",
+        "message": "`MOB.397` **Assign Follow-up Work** from a work-order collection item's gear menu.\n- \u26a0\ufe0f **LEAVES RESIDUE**: creates a real work order per run. Approved 2026-08-12.\n- \u26a0\ufe0f **The same gear menu contains `Delete Item`.** Mobile is delete-free (trap 2), so\n  the entry is matched by **exact text**, never by position or `contains()`. Keep it\n  that way if this test is ever edited.\n- Uses the **Assets** tab: `hideFollowUpWork` suppresses the action on `jobNotes`,\n  `condition` and `failures`, so those tabs cannot exercise it.\n- Tabs are asserted by NAME here \u2014 MOB.330 only ever switched them positionally, so this\n  is also the first test to pin that the fixture has an `Assets` tab.\n- \ud83d\udc1e **Guarded against bugs \u00a745**: expanding an asset row before the Asset schema is cached\n  crashes the page. It opens `Add Existing Asset` and closes it unused (that loads the\n  schema), then gates on every row's geolocate control before expanding.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -77,7 +77,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Navigate to /work to warm the lookup cache",
+                "name": "Navigate to /work \u2014 the work order list",
                 "noScreenshot": false,
                 "params": {
                     "value": "https://dev.mentorapm.com/apm-mobile/work"
@@ -89,12 +89,110 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the work list and lookup prefetch",
+                "name": "Let the work list begin rendering",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The \"Work Orders\" page mounted",
+                "noScreenshot": false,
+                "params": {
+                    "check": "contains",
+                    "value": "Work Orders",
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4[contains(normalize-space(.), \"Work Orders\")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementContent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the workstage pages and the lookup prefetch",
                 "noScreenshot": false,
                 "params": {
                     "value": 20
                 },
                 "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The work list rendered its search box",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//input[@placeholder=\"Find Workstage(s)\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 1/3: the initial fetch finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Retrieving assigned work"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 2/3: paging through workstages finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "workstages found"
+                },
+                "type": "assertPageLacks"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL 3/3: the per-stage detail downloads finished",
+                "noScreenshot": false,
+                "params": {
+                    "value": "workstages downloaded"
+                },
+                "type": "assertPageLacks",
+                "timeout": 180
             },
             {
                 "allowFailure": false,
@@ -190,6 +288,129 @@
                     }
                 },
                 "type": "assertElementPresent"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GUARD: open `Add Asset` \u2014 its picker is what loads the Asset schema",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[normalize-space(.)=\"Add Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GUARD: choose `Add Existing Asset` (mounts `AssetLookup` \u2192 `useQuery(GET_SCHEMA Asset)`)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//label[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-SegmentedControl-label \")][normalize-space(.)=\"Add Existing Asset\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GUARD: the picker's search box mounted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")]//input[@name=\"asset-search\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GUARD: the picker finished its first load \u2014 no LoadingOverlay, and rows or `No Results`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name=\"asset-search\"]'));\nif (!m) return false;\nif (m.querySelector('.mantine-LoadingOverlay-overlay, .mantine-LoadingOverlay-root')) return false;\nreturn m.querySelectorAll('.mantine-Accordion-item').length > 0 || /No Results/.test(m.textContent || '');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GUARD: close the picker UNUSED \u2014 nothing picked, nothing written",
+                "noScreenshot": false,
+                "params": {
+                    "value": "Escape"
+                },
+                "type": "pressKey"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GUARD: the picker is closed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name=\"asset-search\"]'));\nreturn !m;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u00a745 GATE: the Asset schema is cached \u2014 every asset row renders its geolocate control (`AssetGeolocate` renders null without it), so expanding a row cannot crash the page",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const t = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\nif (!t || (t.textContent || '').trim() !== 'Assets') return false;\nconst p = t.getAttribute('aria-controls') ? document.getElementById(t.getAttribute('aria-controls')) : null;\nif (!p) return false;\nconst rows = [...p.querySelectorAll('.mantine-Accordion-item')];\nreturn rows.length > 0 && rows.every(r => !!r.querySelector('[data-icon=\"location-crosshairs\"]'));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
             },
             {
                 "allowFailure": false,

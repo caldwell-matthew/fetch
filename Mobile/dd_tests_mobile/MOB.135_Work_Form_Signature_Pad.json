@@ -1,16 +1,16 @@
 {
-    "test_name": "MOB.399_Work_Warranties",
+    "test_name": "MOB.135_Work_Form_Signature_Pad",
     "details": {
-        "name": "MOB.399_Work_Warranties",
+        "name": "MOB.135_Work_Form_Signature_Pad",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.399` The **Warranties** tab renders its real content.\n- READ-ONLY. `WarrentyList` displays only; there is no form.\n- The fixture carries a **real warranty** (added by the repo owner 2026-08-12), so this\n  asserts actual content: `Expiration Date` for a Time warranty or `Exp. Reading` for a\n  reading-based one. **The `No Warranties Found...` empty state is deliberately NOT\n  accepted** \u2014 allowing it would leave an escape hatch that passes on a tab rendering\n  nothing (trap 5).\n- **Also covers the red `Assets Related to the Work Order are under Warranty` banner**\n  (added 2026-08-20). It is driven by `hasActiveWarranties`, NOT by the tab, so the two\n  can legitimately disagree: the tab lists every warranty, the banner appears only while\n  one is still ACTIVE. The assertion is therefore a **consistency** check, not a\n  presence check \u2014 see the note in the generator.\n- **The empty state** is asserted on `MOB.302`'s work order, whose `Bypass Valve 0001` has no\n  warranty: `No Warranties Found...` in the active panel, no warranty content, no banner.",
+        "message": "`MOB.135` **A tablet signs a form's signature field in the desktop grid.**\n- The 768-wide tablet takes the desktop grid, which now draws signature fields with the\n  MOBILE control: `\ud83d\udd0e Inspection`'s `Add a signature label` renders as a `.mobile-signature-cell` with\n  `Add Signature`, which opens the pad in a modal.\n- \u2b50 Closed without drawing, the pad saves NOTHING \u2014 proved over /graphql. The pad reports only\n  a finished stroke or `Clear`, and the field saves only what is pending, on close.\n- \ud83d\uded1 `Clear` is never clicked (it would queue a null save). Drawing and saving a signature is\n  left out: it would sign the fixture's form \u2014 an owner decision.\n- Read-only.",
         "tags": [
             "Mobile",
             "env:dev",
             "Work Order",
-            "read-only",
-            "module:work-orders"
+            "Forms",
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -201,54 +201,6 @@
                 "name": "Let the detail view begin rendering",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test work order detail rendered",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Status:"
-                },
-                "type": "assertPageContains",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open the \"Warranties\" tab",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Warranties\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the panel",
-                "noScreenshot": false,
-                "params": {
                     "value": 3
                 },
                 "type": "wait"
@@ -258,7 +210,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "The \"Warranties\" tab is active",
+                "name": "GATE: the detail data arrived (tab strip)",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -268,91 +220,31 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Warranties\"][@data-active]"
+                                    "value": "(//*[@role=\"tab\"])[1]"
                                 }
                             ]
                         }
                     }
                 },
-                "type": "assertElementPresent"
+                "type": "assertElementPresent",
+                "timeout": 60
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF: the panel rendered warranty content or its empty state, not a blank tab",
-                "noScreenshot": false,
-                "params": {
-                    "code": "\nconst t = (document.body.textContent || '');\nreturn ['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading']\n  .some(k => t.indexOf(k) !== -1);\n"
-                },
-                "type": "assertFromJavascript"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "BANNER: its presence agrees with whether a warranty is still active",
-                "noScreenshot": false,
-                "params": {
-                    "code": "\nconst BANNER = 'Assets Related to the Work Order are under Warranty';\nconst t = document.body.innerText || '';\nconst banner = t.indexOf(BANNER) !== -1;\nconst hasAnyWarranty = ['Expiration Date', 'Exp. Reading', 'Remaining Days']\n    .some(k => t.indexOf(k) !== -1);\nif (!hasAnyWarranty) return !banner;          // no warranties at all -> no banner\nconst days = [...t.matchAll(/Remaining Days:?\\s*(-?[0-9]+)/g)].map(m => parseInt(m[1], 10));\nif (!days.length) return true;                 // reading-based only: nothing parseable here\nconst anyLive = days.some(d => d > 0);\nreturn banner === anyLive;\n"
-                },
-                "type": "assertFromJavascript"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Navigate to MOB.302's work order \u2014 its asset has no warranty",
-                "noScreenshot": false,
-                "params": {
-                    "value": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM"
-                },
-                "type": "goToUrl"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Let the detail view begin rendering",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Test work order detail rendered",
-                "noScreenshot": false,
-                "params": {
-                    "value": "Status:"
-                },
-                "type": "assertPageContains",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Open its \"Warranties\" tab",
+                "name": "Open the Forms tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM",
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
                         "userLocator": {
                             "failTestOnCannotLocate": true,
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"Warranties\"]"
+                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
                                 }
                             ]
                         }
@@ -366,7 +258,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for the panel",
+                "name": "Wait for the forms list",
                 "noScreenshot": false,
                 "params": {
                     "value": 3
@@ -378,26 +270,204 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "\u2b50 EMPTY STATE: the active Warranties panel names `Bypass Valve 0001` and shows `No Warranties Found...` \u2014 no warranty content",
+                "name": "Open the `\ud83d\udd0e Inspection` form card \u2014 by NAME, not position",
                 "noScreenshot": false,
                 "params": {
-                    "code": "\nconst tabEl = document.querySelector('[role=\"tab\"][data-active]');\nconst id = tabEl && tabEl.getAttribute('aria-controls');\nconst p = id ? document.getElementById(id) : null;\nif (!p || (tabEl.textContent || '').trim() !== 'Warranties') return false;\nconst t = p.textContent || '';\nreturn t.includes('Bypass Valve 0001') && t.includes('No Warranties Found...')\n  && !['Expiration Date', 'Remaining Days', 'Current Reading', 'Exp. Reading'].some(k => t.includes(k));\n"
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "(//*[@role=\"tabpanel\"][not(contains(@style, \"display: none\"))]//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Paper-root \")][.//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Title-root \")][contains(normalize-space(.), \"Inspection\")]])[1]"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "type": "assertFromJavascript",
-                "timeout": 30
+                "type": "click",
+                "timeout": 60
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "BANNER: absent on a work order with no warranty (paired with the empty state above)",
+                "name": "Let the form page render",
                 "noScreenshot": false,
                 "params": {
-                    "code": "return !(document.body.textContent || '').includes('Assets Related to the Work Order are under Warranty');"
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "ROUTE: we are on /work/<id>/form/<id>",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return /\\/work\\/[^/]+\\/form\\/[^/]+$/.test(location.pathname);"
                 },
                 "type": "assertFromJavascript",
-                "timeout": 10
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The DESKTOP GRID mounted (`#apm-dv-tabpanel`) \u2014 this 768-wide tablet takes the wide branch (`screen.availWidth >= 750`), which is where the new signature cell lives",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !!document.getElementById('apm-dv-tabpanel') && window.screen.availWidth >= 750;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 60
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "PREMISE (server): the Inspection form holds ONE signature field, `Add a signature label`, UNSIGNED",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd135_sig\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => { const f = (w.forms || []).filter(f => (f.name || '').indexOf('Inspection') !== -1);\n  if (f.length !== 1) return false;\n  const s = f[0].widgets.filter(x => x.__typename === 'WorkflowFormSignature');\n  return s.length === 1 && s[0].label === 'Add a signature label' && !s[0].signature; })(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { forms { name widgets { __typename ... on WorkflowFormSignature { id label signature } } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd135_sig', '__dd135_sig:inflight', '__dd135_sig:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The grid draws it with the MOBILE control: exactly one `.mobile-signature-cell`, labelled `Add a signature label`, its button reading `Add Signature`, no signature image yet",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const cells = [...document.querySelectorAll('#apm-dv-tabpanel .mobile-signature-cell')];\nconst cell = cells.length === 1 ? cells[0] : null;\nconst btn = cell && [...cell.querySelectorAll('button')].find(b => b.getAttribute('title') === 'Add Signature');\nreturn !!btn && (btn.textContent || '').trim() === 'Add Signature'\n  && (cell.textContent || '').includes('Add a signature label')\n  && !cell.querySelector('[data-testid=\"signature-image\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the pad (`Add Signature`)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const cells = [...document.querySelectorAll('#apm-dv-tabpanel .mobile-signature-cell')];\nconst cell = cells.length === 1 ? cells[0] : null;\nconst btn = cell && [...cell.querySelectorAll('button')].find(b => b.getAttribute('title') === 'Add Signature');\nif (!btn) return false;\nbtn.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The pad opened in a modal \u2014 a canvas and its `Clear` control (NOT clicked: Clear would queue a null signature that the close then saves)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const pad = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => m.querySelector('canvas') && m.querySelector('[title=\"Clear\"]'));\nreturn !!pad;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the pad WITHOUT drawing \u2014 its modal's close button",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const pad = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => m.querySelector('canvas') && m.querySelector('[title=\"Clear\"]'));\nconst c = pad && pad.querySelector('.mantine-Modal-close');\nif (!c) return false;\nc.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The pad is gone",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const pad = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(m => m.querySelector('canvas') && m.querySelector('[title=\"Clear\"]'));\nreturn !pad;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Give a (wrong) save on close time to reach the server",
+                "noScreenshot": false,
+                "params": {
+                    "value": 3
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: closing an untouched pad saved NOTHING \u2014 the signature is still null (`MobileSignatureField` saves only a pending stroke, on close)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd135_sig\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((w => { const f = (w.forms || []).filter(f => (f.name || '').indexOf('Inspection') !== -1);\n  if (f.length !== 1) return false;\n  const s = f[0].widgets.filter(x => x.__typename === 'WorkflowFormSignature');\n  return s.length === 1 && s[0].label === 'Add a signature label' && !s[0].signature; })(data.workStage)); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($id: ID!) { workStage(id: $id) { forms { name widgets { __typename ... on WorkflowFormSignature { id label signature } } } } }\", variables: {\"id\": \"EYRpYJ9QYdQ1JFF10JtB0Q\"} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd135_sig', '__dd135_sig:inflight', '__dd135_sig:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2026and the cell still reads `Add Signature`, with no image",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const cells = [...document.querySelectorAll('#apm-dv-tabpanel .mobile-signature-cell')];\nconst cell = cells.length === 1 ? cells[0] : null;\nconst btn = cell && [...cell.querySelectorAll('button')].find(b => b.getAttribute('title') === 'Add Signature');\nreturn !!btn && !cell.querySelector('[data-testid=\"signature-image\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
             }
         ]
     }

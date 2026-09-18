@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**139 leaf tests · 24 suites · 4735 steps · 134 subtest slots** — counted from the test JSON.
+**145 leaf tests · 24 suites · 5033 steps · 139 subtest slots** — counted from the test JSON.
 5 leaves are in no suite, by design.
 Every local test matches Datadog (`preflight.py sync`).
 
@@ -143,10 +143,10 @@ server answer) · `MOB.301` a photo in the create form (a local `blob:`, discard
 `MOB.345` sort applied, persisted and really reversed — narrowed by a search first, and every row rendered in both
 directions must come out reversed, so a row paging in mid-test cannot fail it.
 
-#### `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` — 7 children · read-only · Datadog 294s
+#### `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` — 8 children · read-only · Datadog 294s (its 7-child version)
 **The work-order detail screen opened, its tabs, and the records behind them.**
 
-`MOB.310` read · `MOB.330` tabs · `MOB.393` the add-form picker (nothing attached) · `MOB.394` permits · `MOB.399`
+`MOB.310` read · `MOB.330` tabs · `MOB.331` General Info's value arrow — beside Stage Notes (`DATADOG FIXTURE`), absent beside the empty Problem Description, and opening exactly the value · `MOB.393` the add-form picker (nothing attached) · `MOB.394` permits · `MOB.399`
 warranties (and the empty state on MOB.302's work order) · `MOB.348` globe menu and LocationForm · `MOB.349` record
 cycling.
 
@@ -213,11 +213,11 @@ still loads · on `20260910-16`: `MOB.363` a photo uploaded to the Attachments t
 ending exactly the 8 at rest · `MOB.364` a form attached — one more over `/graphql`, its card after a reload and the
 page's ⟳ resync — then deleted over `/graphql`, the form ids back to the premise's.
 
-#### `MOB.960_WorkOrders_9_Forms_Suite` — 2 children · writes (self-restoring) · Datadog 191s
+#### `MOB.960_WorkOrders_9_Forms_Suite` — 3 children · writes (self-restoring) · Datadog 191s (its 2-child version)
 **A work stage form, rendered and written.**
 
 `MOB.355` form render (desktop branch) · `MOB.134` a work form's integer field saved on blur, proved over `/graphql`, and
-cleared.
+cleared · `MOB.135` the `🔎 Inspection` form's signature field in the tablet's desktop grid — drawn with the MOBILE control, `Add Signature`, its pad opened in a modal and closed untouched, and the server still holding no signature (the pad saves only a pending stroke, on close).
 
 ### Asset Verify
 
@@ -235,19 +235,25 @@ on the way out.
 `MOB.500` job read · `MOB.520` five data tabs · `MOB.585` map toggle · `MOB.531` in-job search · `MOB.547` the photo tag
 search (the create button is an exclusive-or with an exact match) · `MOB.551` the reading-history popover.
 
-#### `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` — 4 children · writes (self-restoring) · Datadog 500s
+#### `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` — 6 children · writes (self-restoring) · Datadog 739s
 **The verification workflow and the job's status, putting themselves back.**
 
 ⭐ `MOB.510` verifies, proves the asset **moved tabs**, un-verifies · `MOB.590` the same crossing from the other side ·
-⭐ `MOB.913` **the offline queue**: a verify made offline is held (pending 1, still 1 after 6s), listed in `Pending
+⭐ `MOB.913` **the offline queue**: a verify made offline queues TWO operations — `VERIFY_ASSET` and the `UPDATE_MOBILE_JOB_STATUS` its `update()` recomputes — held (pending 2, still 2 after 6s), both listed in `Pending
 Transactions` (still open, it refreshes to `No logs found.` once drained), drained on reconnect and on the server after a
 reload, and replayed from IndexedDB after a reload while held · `MOB.536` the job status menu — READY → CANCELED
 (the canceled alert) → IN PROGRESS → READY, proved after a reload; last, because a failed restore can drop the job from
 the list. The menu cannot offer READY, so its last leg is a verify/unverify round trip, and the whole test reads the
 status back from the MENU's exits: three items means READY, two means IN PROGRESS.
-🛑 Nothing verifies the job's last asset — that would flip the job `COMPLETED` and falsify the resting premise every
-other AV test starts from. It is no longer a one-way door (unverifying recomputes the status back down), so a verify-all
-test is buildable; see the checklist.
+⭐ `MOB.511` verifies **both** assets — the one test that drives a job to `COMPLETED` — and reads the status from the
+server at each step: `READY` → `IN_PROGRESS` → `COMPLETED`, then back to `READY` when both are unverified · ⭐ `MOB.512`
+does the same act and then asserts what the **job list** renders: the card's own `2 out of 2 Assets Verified` and `100%`,
+the `Completed` badge keeping the job and `Ready` hiding it. The dot beside a job is a colour, not text, so a status
+badge is the only thing that can read a job's status back from the list.
+🛑 These two run LAST, in that order: until their `always` restore legs finish, the fixture is `2 out of 2` and the job
+is COMPLETED, which is false for every premise `MOB.500`/`510`/`590` and `MOB.530`/`560` start from. They are only
+possible at all because the status now recomputes DOWNWARD — until build 92 `COMPLETED` was a one-way door and each run
+would have needed `reset_av_fixture.py --apply` afterwards.
 
 #### `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` — 3 children · read-only · Datadog 263s
 **The full-page asset, read.**
@@ -264,14 +270,15 @@ the UI **fakes** (it hand-writes the cache), proved by the next run's cold read 
 
 ### Asset Collector
 
-#### `MOB.966_AssetCollector_1_Capture_Suite` — 8 children · read-only · Datadog 356s
+#### `MOB.966_AssetCollector_1_Capture_Suite` — 9 children · read-only · Datadog 356s (its 8-child version)
 **The collector's capture surface — nothing submitted.**
 
 `MOB.160` the route renders · `MOB.620` the picker (capture buttons asserted, never clicked) · `MOB.621` a photo reaches
 the carousel, discarded unsent · `MOB.622` the carousel at one photo **and** two, fullscreen, and the tag editor's
-`MentorLens Tags` · `MOB.626` the tag/description capture menus — exactly `Add Asset Photo` in a browser, plus `Use photo
+`MentorLens Tags` — including a lens tag's **description**: the `?` on `Lens: Thermography`, then on `Lens: Condition
+Assessment`, shows exactly that tag's desc in a modal that closes itself after 3s, and assigns nothing · `MOB.626` the tag/description capture menus — exactly `Add Asset Photo` in a browser, plus `Use photo
 selected above` once the form holds a photo, and offline the wand's and `Add Asset Photo`'s connection messages
-(recorded — they flash, bugs §43) · `MOB.610` search · `MOB.624` the row avatar's attachments modal (its sentinel carries
+(recorded — they flash, bugs §43) · `MOB.629` the create form's **`Location` row**: `No location captured.`, then — with `MOB.358`'s geolocation and Mapbox stubs — `Asset Location` prefilled from the geocode, its Submit putting `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` on the row, and `Clear location` restoring the placeholder; the location lives in the form's reducer, so nothing is written and the form is discarded unsent (the location APPLIED to a created asset is `MOB.600`'s, held by bugs §34) · `MOB.610` search · `MOB.624` the row avatar's attachments modal (its sentinel carries
 bugs §35) · `MOB.625` list sort on our own rows against the server's order and `localeCompare`, and `Collected By Me` as a
 filter (sentinels carry bugs §38).
 
@@ -298,7 +305,7 @@ branch proved by a prototype-`click` recorder (one file dialog, rear camera, ima
 §37 sentinelled · `MOB.720` Readings and `MOB.721` its empty state · ⭐ `MOB.914` the offline messages — the Readings and
 Work History tabs show `OFFLINE_FEATURE_MESSAGE`, `Add reading types` offline opens it in a popover, and `Get
 Description` on a saved photo, clicked only offline, renders it (recorded — bugs §43) · ⭐ `MOB.740` `WorkLookupDetails`,
-which is also the map's `WorkCard` · `MOB.735` `View in Map` (router state, not a URL) · `MOB.730` Near Me.
+which is also the map's `WorkCard`, and the history rows' `Assigned to:` — the newest row's value checked against the server's `_assignments` for that row · `MOB.735` `View in Map` (router state, not a URL) · `MOB.730` Near Me.
 `Photos`/`Docs`/`Attributes` content is asserted by `MOB.623` on the collector — the same `AssetLookupDetails` component.
 
 #### `MOB.969_AssetLookup_2_Filters_Sort_Suite` — 5 children · read-only · Datadog 307s
@@ -333,8 +340,10 @@ reading per run).
 ### Standalone — in no suite
 
 `MOB.000_Login` / `MOB.440_Logout` establish and end a session. `MOB.200_Crew_Switch` mutates the session crew.
-`MOB.346_Work_Scheduled_View` is unreachable for this crew (bugs §25). `MOB.978_DIAG_WorkList_Probe` is the one
-diagnostic. Outside the counts: `MOB.999_Verify_Scratch` (the `verify.py` harness) and `MOB.PDF_Upload_Recording`, which
+`MOB.346_Work_Scheduled_View` is unreachable for this crew (bugs §25). Two diagnostics: `MOB.978_DIAG_WorkList_Probe`,
+and `MOB.977_DIAG_Condition_Form_Schema_Race`, which **asserts bugs §42** — a deep link to a work order, never `/work`,
+so the condition form opens before the schema prefetch and its first armed Submit reaches nobody; the same form reopened
+saves. It is red once §42 is fixed, and it is out of the schedule because §42 is a race. Outside the counts: `MOB.999_Verify_Scratch` (the `verify.py` harness) and `MOB.PDF_Upload_Recording`, which
 exists only on Datadog — never delete it.
 
 ---

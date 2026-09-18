@@ -82,9 +82,10 @@ const runJs = (code, win) => {
 	// `window` too: MOB.123 carries ids between steps on it (MOB.470's `__ddSW` proved that
 	// survives from one Datadog step to the next while the page does not navigate).
 	// `location` and `navigator` for MOB.912 (route, `navigator.onLine`); `getComputedStyle` for MOB.952;
-	// `MutationObserver` for the MOB.626/914 flash recorders.
-	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator', 'getComputedStyle', 'MutationObserver',
-		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator, win.getComputedStyle.bind(win), win.MutationObserver);
+	// `MutationObserver` for the MOB.626/914 flash recorders; `MouseEvent` for MOB.331, which dispatches a
+	// click on an <svg> (it has no `.click()`).
+	return new Function('document', 'sessionStorage', 'window', 'location', 'navigator', 'getComputedStyle', 'MutationObserver', 'MouseEvent',
+		`return (function(){${code}})()`)(win.document, ss, win, win.location, win.navigator, win.getComputedStyle.bind(win), win.MutationObserver, win.MouseEvent);
 };
 
 /* ===========================================================================================
@@ -2063,9 +2064,9 @@ check('MUST FAIL: material offline - no tab panel at all', runJs(M912.matOff, pa
 const MOB913 = 'MOB.913_Offline_Transaction_Queue.json';
 const M913 = {
 	baseline: bodyOf(MOB913, 'BASELINE (leg 1): no pending-transactions indicator'),
-	queued: bodyOf(MOB913, 'QUEUED (leg 1): the pending indicator reads 1'),
-	held: bodyOf(MOB913, 'HELD (leg 1): still 1 pending'),
-	listed: bodyOf(MOB913, 'LISTED: `Pending Transactions` shows the held VERIFY_ASSET'),
+	queued: bodyOf(MOB913, 'QUEUED (leg 1): the pending indicator reads 2'),
+	held: bodyOf(MOB913, 'HELD (leg 1): still 2 pending'),
+	listed: bodyOf(MOB913, 'LISTED: `Pending Transactions` shows BOTH held operations'),
 	drained: bodyOf(MOB913, 'DRAINED: the pending indicator is gone'),
 	restore: bodyOf(MOB913, 'RESTORE (leg 1): unverify every checked asset'),
 };
@@ -2104,16 +2105,27 @@ check('MUST FAIL: baseline - 1 pending already', runJs(M913.baseline, page913({ 
 	check('MUST FAIL: 913 emptied - no list is open', runJs(emptied, listPage('').window ? listPage('') : (() => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/x' }).window; return w; })()), false);
 	check('MUST FAIL: 913 emptied - `No logs found.` outside the list while it still shows VERIFY_ASSET',
 		runJs(emptied, listPage('<p>VERIFY_ASSET</p>', '<p>No logs found.</p>')), false);
+	check('MUST FAIL: 913 emptied - the verify drained but the status recompute is still listed',
+		runJs(emptied, listPage('<p>No logs found.</p><p>UPDATE_MOBILE_JOB_STATUS</p>')), false);
 }
 check('MUST FAIL: baseline - the header never rendered (no wifi icon)', runJs(M913.baseline, page913({ wifi: 'none' })), false);
-check('queued - the upload indicator reads 1', runJs(M913.queued, page913({ count: 1, wifi: 'wifi-slash' })), true);
-check('MUST FAIL: queued - nothing pending (the mutation went straight out)', runJs(M913.queued, page913({ wifi: 'wifi-slash' })), false);
-check('MUST FAIL: queued - 2 pending', runJs(M913.queued, page913({ count: 2 })), false);
-check('held - still 1', runJs(M913.held, page913({ count: 1 })), true);
-check('listed - VERIFY_ASSET with "verified": true (pretty-printed)', runJs(M913.listed, page913({ count: 1, modal: LIST('VERIFY_ASSET', { id: 'x', verified: true }) })), true);
-check('MUST FAIL: listed - an unverify (verified: false)', runJs(M913.listed, page913({ count: 1, modal: LIST('VERIFY_ASSET', { id: 'x', verified: false }) })), false);
-check('MUST FAIL: listed - a different operation', runJs(M913.listed, page913({ count: 1, modal: LIST('UPDATE_ASSET', { verified: true }) })), false);
-check('MUST FAIL: listed - the list never opened', runJs(M913.listed, page913({ count: 1 })), false);
+// One click is TWO operations: VERIFY_ASSET, plus the UPDATE_MOBILE_JOB_STATUS that
+// VerificationCheckbox.update() recomputes (the fixture rests READY, so 1 of 2 is IN_PROGRESS).
+const BOTH_OPS = LIST('VERIFY_ASSET', { id: 'x', verified: true })
+	+ LIST('UPDATE_MOBILE_JOB_STATUS', { jobId: 'x', status: 'IN_PROGRESS' }).replace('<h3>Pending Transactions</h3>', '');
+check('queued - the upload indicator reads 2', runJs(M913.queued, page913({ count: 2, wifi: 'wifi-slash' })), true);
+check('MUST FAIL: queued - nothing pending (the mutations went straight out)', runJs(M913.queued, page913({ wifi: 'wifi-slash' })), false);
+check('MUST FAIL: queued - only 1 pending (the status recompute never queued)', runJs(M913.queued, page913({ count: 1, wifi: 'wifi-slash' })), false);
+check('MUST FAIL: queued - 3 pending', runJs(M913.queued, page913({ count: 3 })), false);
+check('held - still 2', runJs(M913.held, page913({ count: 2 })), true);
+check('MUST FAIL: held - down to 1 (one of them left)', runJs(M913.held, page913({ count: 1 })), false);
+check('listed - both ops, pretty-printed', runJs(M913.listed, page913({ count: 2, modal: BOTH_OPS })), true);
+check('MUST FAIL: listed - the verify alone (no status recompute queued)', runJs(M913.listed, page913({ count: 2, modal: LIST('VERIFY_ASSET', { id: 'x', verified: true }) })), false);
+check('MUST FAIL: listed - the status update alone', runJs(M913.listed, page913({ count: 2, modal: LIST('UPDATE_MOBILE_JOB_STATUS', { jobId: 'x', status: 'IN_PROGRESS' }) })), false);
+check('MUST FAIL: listed - an unverify (verified: false)', runJs(M913.listed, page913({ count: 2, modal: BOTH_OPS.replace('"verified": true', '"verified": false') })), false);
+check('MUST FAIL: listed - the status recompute went the wrong way (READY)', runJs(M913.listed, page913({ count: 2, modal: BOTH_OPS.replace('"IN_PROGRESS"', '"READY"') })), false);
+check('MUST FAIL: listed - a different operation', runJs(M913.listed, page913({ count: 2, modal: LIST('UPDATE_ASSET', { verified: true }) })), false);
+check('MUST FAIL: listed - the list never opened', runJs(M913.listed, page913({ count: 2 })), false);
 check('drained - nothing pending (the job-status Indicator is not mistaken for it)', runJs(M913.drained, page913()), true);
 check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ count: 1 })), false);
 {
@@ -4420,6 +4432,139 @@ if (!['MOB.363_Work_Attachment_Upload_Delete.json', 'MOB.364_Work_Attach_Form.js
 		twice(G.backstop, w);
 		check('359 backstop - only the coordinates drifted: it never writes coordinates (the final read stays red)', w.__posts.length === 1, true);
 	}
+}
+
+/* ===========================================================================================
+ * MOB.622 - a MentorLens tag's description `?`. LensTags renders each tag as Checkbox.Card
+ * (role="checkbox" aria-checked) holding its name in a <p> and, when it has a desc, an ActionIcon
+ * `aria-label="Show MentorLens tag description"`. The desc modal closes itself after 3s, so a recorder
+ * lists NEW modal bodies; the assertions read that list and the pre-existing set.
+ * ========================================================================================= */
+{
+	const F = 'MOB.622_Collector_Photo_Carousel.json';
+	const THERMO = 'Lens: Thermography', COND = 'Lens: Condition Assessment';
+	const D1 = 'Used in MentorLens for thermographic analysis', D2 = 'Used in MentorLens for condition assessment';
+	const ready = bodyOf(F, "`Lens: Thermography` is a lens card, UNCHECKED");
+	const clickQ = bodyOf(F, "Click `Lens: Thermography`'s `?`");
+	const shown1 = bodyOf(F, "showed `Lens: Thermography`'s desc");
+	const shown2 = bodyOf(F, "showed `Lens: Condition Assessment`'s desc");
+	const closed = bodyOf(F, 'CLOSED ITSELF');
+	const still = bodyOf(F, "`Lens: Thermography` is STILL unchecked");
+	// The real card is a <button> (UnstyledButton) with the ? <button> INSIDE it — React builds that with DOM
+	// calls, but an HTML string cannot: the parser closes the outer button when the inner one opens, and the ?
+	// lands BESIDE the card. The selectors only read [role="checkbox"], so the model uses a <div> for the card.
+	const card = (name, checked = false, q = true) =>
+		`<div role="checkbox" aria-checked="${checked}"><p>${name}</p>${q ? '<button aria-label="Show MentorLens tag description">?</button>' : ''}</div>`;
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-collector' }).window; w.document.body.innerHTML = html; return w; };
+	console.log('\nMOB.622 - a MentorLens tag description');
+	check('ready - the Thermography card, unchecked, with its ?', runJs(ready, pg(card(COND) + card(THERMO))), true);
+	check('MUST FAIL: ready - the card is already CHECKED (the tag is assigned)', runJs(ready, pg(card(THERMO, true))), false);
+	check('MUST FAIL: ready - no ? on it (no desc)', runJs(ready, pg(card(THERMO, false, false))), false);
+	check('MUST FAIL: ready - a name that only CONTAINS it', runJs(ready, pg(card('Lens: Thermography (old)'))), false);
+	{
+		const w = pg(card(COND) + card(THERMO));
+		let hit = null; w.document.querySelectorAll('[aria-label="Show MentorLens tag description"]').forEach(b => b.addEventListener('click', () => { hit = b.parentElement.querySelector('p').textContent; }));
+		check('click - the ? on THERMOGRAPHY, not the first card\'s', runJs(clickQ, w) && hit === THERMO, true);
+	}
+	const withDesc = (list) => { const w = pg(''); w.__dd622Desc = list; return w; };
+	check('shown - exactly the Thermography desc', runJs(shown1, withDesc([D1])), true);
+	check('MUST FAIL: shown - another tag\'s desc', runJs(shown1, withDesc([D2])), false);
+	check('MUST FAIL: shown - nothing recorded (the modal never opened)', runJs(shown1, withDesc([])), false);
+	check('MUST FAIL: shown - a stray modal body recorded too', runJs(shown1, withDesc([D1, 'Get New Asset …'])), false);
+	check('shown 2 - both, in click order', runJs(shown2, withDesc([D1, D2])), true);
+	check('MUST FAIL: shown 2 - the second modal repeated the FIRST desc', runJs(shown2, withDesc([D1])), false);
+	{
+		const w = pg('<div class="mantine-Modal-body">editor</div><div class="mantine-Modal-body">form</div>');
+		w.__dd622Old = new w.Set(w.document.querySelectorAll('.mantine-Modal-body'));
+		check('closed - only the modals that were open before remain', runJs(closed, w), true);
+		const extra = w.document.createElement('div'); extra.className = 'mantine-Modal-body'; extra.textContent = D1;
+		w.document.body.appendChild(extra);
+		check('MUST FAIL: closed - the desc modal is still up', runJs(closed, w), false);
+	}
+	check('still - unchecked after the ?', runJs(still, pg(card(THERMO))), true);
+	check('MUST FAIL: still - the ? ASSIGNED the tag', runJs(still, pg(card(THERMO, true))), false);
+}
+
+/* ===========================================================================================
+ * MOB.740 - a work-history row's `Assigned to:` (WorkListItem.tsx:94-102): a <div> per display field
+ * holding <strong>{label}: </strong> + the value, filtered out when the value is empty. The step stashes the
+ * FIRST row's value (a server read compares it); it must skip the modal's own Papers.
+ * ========================================================================================= */
+{
+	const stash = bodyOf('MOB.740_AssetLookup_Work_History.json', 'The first history row reads `Assigned to:');
+	const row = (assigned) => `<div class="mantine-Paper-root"><p>☢️ Datadog Test</p>`
+		+ (assigned === null ? '' : `<div><strong>Assigned to: </strong><span>${assigned}</span></div>`)
+		+ `<p>Description:</p></div>`;
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/asset-lookup' }).window; w.document.body.innerHTML = html; return w; };
+	console.log('\nMOB.740 - a work history row\'s Assigned to');
+	{
+		const w = pg(row('Admin') + row('Other'));
+		check('stash - the FIRST row\'s value', runJs(stash, w) && w.sessionStorage.getItem('__dd740_assigned') === 'Admin', true);
+	}
+	check('MUST FAIL: stash - the first row has no Assigned to (empty value is filtered out)', runJs(stash, pg(row(null) + row('Admin'))), false);
+	check('MUST FAIL: stash - the label with an empty value', runJs(stash, pg(row(''))), false);
+	check('MUST FAIL: stash - no history rows at all', runJs(stash, pg('<p>No History Found</p>')), false);
+	{
+		const w = pg(`<div class="mantine-Modal-content">${row('FromModal')}</div>` + row('Admin'));
+		check('stash - a Paper inside the modal is not a history row', runJs(stash, w) && w.sessionStorage.getItem('__dd740_assigned') === 'Admin', true);
+	}
+}
+
+/* ===========================================================================================
+ * MOB.331 - the value arrow (MultiLineLabel) beside General Info's multiline fields. FormFieldContainer:
+ * div.form-group > label[for=id] + div(labelRightSection) + the input; the arrow renders only for a
+ * non-empty value, and its onClick is on the <svg>.
+ * ========================================================================================= */
+{
+	const F = 'MOB.331_Work_GenInfo_Value_Modal.json';
+	const bic = bodyOf(F, 'The value arrow renders beside Stage Notes');
+	const clickA = bodyOf(F, "Click Stage Notes' arrow");
+	const shown = bodyOf(F, "A modal opened showing the field's VALUE");
+	// type="button" as Mantine renders it (UnstyledButton.mjs:53) — without it the button defaults to SUBMIT,
+	// and the click bubbling from the svg would submit General Info (in the model; not in the app).
+	const ARROW = '<div><button type="button" aria-label="Settings"><svg data-icon="square-arrow-up-right"></svg></button></div>';
+	const grp = (id, label, value, arrow) => `<div class="form-group"><label for="${id}">${label}</label>${arrow ? ARROW : ''}`
+		+ `<div class="mantine-InputWrapper-root"><textarea id="${id}">${value}</textarea></div></div>`;
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x' }).window; w.document.body.innerHTML = `<form id="mobile-genInfo">${html}</form>`; return w; };
+	console.log('\nMOB.331 - the General Info value arrow');
+	check('arrow - beside Stage Notes, not beside the empty Problem Description', runJs(bic, pg(grp('desc', 'Stage Notes', 'DATADOG FIXTURE', true) + grp('problemDesc', 'Problem Description', '', false))), true);
+	check('MUST FAIL: arrow - drawn beside the EMPTY field too', runJs(bic, pg(grp('desc', 'Stage Notes', 'DATADOG FIXTURE', true) + grp('problemDesc', 'Problem Description', '', true))), false);
+	check('MUST FAIL: arrow - missing beside Stage Notes', runJs(bic, pg(grp('desc', 'Stage Notes', 'DATADOG FIXTURE', false) + grp('problemDesc', 'Problem Description', '', false))), false);
+	check('MUST FAIL: arrow - Problem Description is not on the form (the negative leg would be vacuous)', runJs(bic, pg(grp('desc', 'Stage Notes', 'DATADOG FIXTURE', true))), false);
+	{
+		const w = pg(grp('desc', 'Stage Notes', 'DATADOG FIXTURE', true) + grp('problemDesc', 'Problem Description', '', false));
+		let hit = false; w.document.querySelector('svg').addEventListener('click', () => { hit = true; });
+		check('click - dispatched on the SVG (its onClick), not the Settings button', runJs(clickA, w) && hit, true);
+	}
+	const modal = (body) => { const w = pg(''); w.document.body.insertAdjacentHTML('beforeend', `<div class="mantine-Modal-content"><div class="mantine-Modal-body">${body}</div></div>`); return w; };
+	check('shown - a modal holding exactly the value', runJs(shown, modal('DATADOG FIXTURE')), true);
+	check('MUST FAIL: shown - the modal holds the LABEL, not the value', runJs(shown, modal('Stage Notes')), false);
+	check('MUST FAIL: shown - no modal', runJs(shown, pg('')), false);
+}
+
+/* ===========================================================================================
+ * MOB.135 - the tablet's signature cell in the desktop grid (FormDetails.renderSignature ->
+ * MobileSignatureField): div.mobile-signature-cell > label + a button titled `Add Signature`; its pad is a
+ * Mantine Modal holding a canvas and a `Clear` control.
+ * ========================================================================================= */
+{
+	const F = 'MOB.135_Work_Form_Signature_Pad.json';
+	const cellOk = bodyOf(F, 'The grid draws it with the MOBILE control');
+	const opened = bodyOf(F, 'The pad opened in a modal');
+	const LABEL = 'Add a signature label';
+	const cell = (btnText = 'Add Signature', img = false, label = LABEL) => `<div class="mobile-signature-cell"><label>${label}</label>`
+		+ (img ? '<img data-testid="signature-image">' : '') + `<button title="Add Signature">${btnText}</button></div>`;
+	const pg = (html) => { const w = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work/x/form/y' }).window; w.document.body.innerHTML = `<div id="apm-dv-tabpanel">${html}</div>`; return w; };
+	console.log('\nMOB.135 - the tablet signature cell');
+	check('cell - one mobile cell, labelled, `Add Signature`, unsigned', runJs(cellOk, pg(cell())), true);
+	check('MUST FAIL: cell - already signed (an image, `Update Signature`)', runJs(cellOk, pg(cell('Update Signature', true))), false);
+	check('MUST FAIL: cell - two signature cells', runJs(cellOk, pg(cell() + cell())), false);
+	check('MUST FAIL: cell - a different field\'s label', runJs(cellOk, pg(cell('Add Signature', false, 'Supervisor'))), false);
+	check('MUST FAIL: cell - outside the desktop grid (the phone branch)', runJs(cellOk, (() => { const w = pg(''); w.document.body.insertAdjacentHTML('beforeend', cell()); return w; })()), false);
+	const modal = (inner) => { const w = pg(cell()); w.document.body.insertAdjacentHTML('beforeend', `<div class="mantine-Modal-content">${inner}</div>`); return w; };
+	check('pad - a modal with a canvas and Clear', runJs(opened, modal('<canvas></canvas><button title="Clear"></button>')), true);
+	check('MUST FAIL: pad - a modal with no canvas', runJs(opened, modal('<button title="Clear"></button>')), false);
+	check('MUST FAIL: pad - no modal', runJs(opened, pg(cell())), false);
 }
 
 Promise.all(pending).then(() => {

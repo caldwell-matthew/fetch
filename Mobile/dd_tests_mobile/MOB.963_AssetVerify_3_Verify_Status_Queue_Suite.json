@@ -4,7 +4,7 @@
         "name": "MOB.963_AssetVerify_3_Verify_Status_Queue_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.963` Self-restoring on job Z0EVwQcdJZhMURcBFkp0E0: verify and unverify, the Unverified tab, the offline transaction queue, the job status menu.\n- MOB.536 LAST: a failed status restore can drop the job from the crew's list. `reset_av_fixture.py --apply` is the 0-run fallback.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
+        "message": "`MOB.963` Self-restoring on job Z0EVwQcdJZhMURcBFkp0E0: verify and unverify, the Unverified tab, the offline transaction queue, the job status menu, and verifying EVERY asset.\n- MOB.511 and MOB.512 LAST, in that order: they leave the job `2 out of 2` and COMPLETED until their restore legs run, and MOB.500/510/590 guard on `0 out of 2` while MOB.530/560 expect READY.\n- MOB.536 before them: a failed status restore can drop the job from the crew's list. `reset_av_fixture.py --apply` is the 0-run fallback for either.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -374,6 +374,32 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "ug3-rjc-trw",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.511_AssetVerify_Verify_All_Completed",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "5tk-ifb-hu8",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.512_AssetVerify_Job_List_Status",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "4gw-66m-9d2",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

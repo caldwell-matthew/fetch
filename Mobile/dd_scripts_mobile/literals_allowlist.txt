@@ -130,3 +130,9 @@ __dd354_prevQuery
 North Alexander Street
 New Orleans
 Metairie
+# MOB.629: the Location row's text as the app composes it from MOB.358's STUBBED geocode —
+# test data the stub supplies (`1600` + `Main Street`, `Chicago`, `US-IL`, `60601`), not app text.
+1600 Main Street, Chicago, IL, 60601
+# MOB.622: two MentorLens tags' `desc` values (DB data on the tags table, read over /graphql 2026-09-17).
+Used in MentorLens for thermographic analysis
+Used in MentorLens for condition assessment

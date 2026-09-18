@@ -78,19 +78,18 @@ def tab(label):
     return f'//*[@role="tab"][contains(normalize-space(.), "{label}")]'
 
 
-def open_fixture(gate=False):
+def open_fixture():
     """/work first warms the cache-only lookups (prefetchWorkData runs off the crew's own
     work list); the wait after the second navigation avoids asserting into a lagging
     detail view."""
     return [
-        # (opt-in: gate=True) 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups this test types into are cache-only on the detail
+        # 🛑 WAIT FOR THE DOWNLOADS, NOT 20s. The lookups these tests type into are cache-only on the detail
         # page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left /work after
         # the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option never appeared.
         # `work_list_gate` polls LOADEDALL 3/3 (up to 180s) - the prefetch runs before those downloads.
-        *(work_list_gate(require_row=False) if gate else [
-            go(WORK_URL, "/work to warm the lookup cache"),
-            step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
-        ]),
+        # (It was opt-in behind `gate=True` until 2026-09-17, when MOB.393 - the last caller without it -
+        # switched and the blind 20s branch had no callers left.)
+        *work_list_gate(require_row=False),
         go(STAGE_URL, "the fixture work order"),
         # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
         # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
@@ -309,7 +308,7 @@ def add_prove_delete(what, tab_label, cards_js, key_desc, orig_desc, values_js, 
     # form's zod schema was built before GET_SCHEMA loaded. From the modal-closed check on, every proof
     # and the cleanup are `soft`: the test goes red, the run continues, and a suite's later children still
     # run (the MOB.346 lesson). The cleanup checks still prove nothing was left behind.
-    return open_fixture(gate=True) + [
+    return open_fixture() + [
         step("click", f"Open the {tab_label} tab", {"element": xpath_el(STAGE_URL, tab(tab_label))}),
         step("wait", f"Let the {tab_label} cards render", {"value": 2}),
         jsassert(f"PREMISE: no {what} with the run's key ({key_desc}) exists — so the one found "
@@ -424,7 +423,7 @@ write(test(
     "  WorkStageJobNote schema but Notes.tsx prefills them through defaultValues, so the\n"
     "  form arrives already valid for those two.\n"
     f"- MUTATES: adds a permanent note to {FIXTURE_ID} on every run.",
-    open_fixture(gate=True) + [
+    open_fixture() + [
         step("click", "Open the Notes tab", {"element": xpath_el(STAGE_URL, tab("Notes"))}),
         step("wait", "Let the note cards render", {"value": 2}),
         # SERVER PROOF (bugs §40): count the notes carrying OUR text, reload after, require +1.
@@ -465,6 +464,8 @@ write(test(
     "  with options. What it does NOT prove: that adding one persists.\n"
     "- The fill-out flow — which is the valuable half — is covered by **MOB.134**, using the\n"
     "  `Inspection` form this test attached on its single successful run.",
+    # The add-form picker reads form lookups that only `/work`'s prefetch fills - `open_fixture`
+    # waits for it (the last blind 20s warm-up here went 2026-09-17).
     open_fixture() + [
         step("click", "Open the Forms tab", {"element": xpath_el(STAGE_URL, tab("Form"))},
              timeout=30),

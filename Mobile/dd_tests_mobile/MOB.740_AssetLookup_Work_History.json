@@ -359,6 +359,58 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "The first history row reads `Assigned to: <someone>` \u2014 STASH the value it shows",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const rows = [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(p => (p.textContent || '').includes('Description:') && !p.closest('.mantine-Modal-content'));\nif (!rows.length) return false;\nconst line = [...rows[0].querySelectorAll('div')].find(d => {\n  const s = d.querySelector(':scope > strong');\n  return s && (s.textContent || '').trim() === 'Assigned to:';\n});\nif (!line) return false;\nconst v = (line.textContent || '').replace('Assigned to:', '').trim();\nif (!v) return false;\nsessionStorage.setItem('__dd740_assigned', v);\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 SERVER: that value is exactly the `_assignments` the server holds for the newest history row",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = \"__dd740_history\", F = K + ':inflight', T = K + ':at';\nconst raw = sessionStorage.getItem(K);\nif (raw) {\n  let ok = false;\n  try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!(data.assetWorkHistory.edges.length === 1 && !!data.assetWorkHistory.edges[0]._assignments && data.assetWorkHistory.edges[0]._assignments === sessionStorage.getItem('__dd740_assigned')); } catch (e) { ok = false; }\n  if (ok) return true;\n  sessionStorage.removeItem(K);\n}\nif (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) || 0) > 2000) {\n  sessionStorage.setItem(F, '1');\n  sessionStorage.setItem(T, String(Date.now()));\n  window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',\n      headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },\n      body: JSON.stringify({ query: \"query($p: ChildTableQuery!) { assetWorkHistory(params: $p) { edges { id _assignments } } }\", variables: {\"p\": {\"parentId\": \"oB5BUN1Es1Jctw8FVYwYBh\", \"sortId\": \"createdAt\", \"sortDir\": \"DESC\", \"limit\": 1}} }) })\n    .then(r => r.json())\n    .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })\n    .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });\n}\nreturn false;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the server read's sessionStorage keys",
+                "noScreenshot": false,
+                "params": {
+                    "code": "['__dd740_history', '__dd740_history:inflight', '__dd740_history:at'].forEach(k => sessionStorage.removeItem(k));\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the stash",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd740_assigned');\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Open the first work history record (opens a modal, not a route)",
                 "noScreenshot": false,
                 "params": {

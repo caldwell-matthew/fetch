@@ -1,0 +1,363 @@
+{
+    "test_name": "MOB.629_Collector_Location_Capture",
+    "details": {
+        "name": "MOB.629_Collector_Location_Capture",
+        "type": "browser",
+        "status": "paused",
+        "message": "`MOB.629` **The collector's `Location` row** \u2014 captured, shown, cleared.\n- The create form reads `No location captured.` until a position is taken. With `MOB.358`'s geolocation and\n  Mapbox stubs, the geolocate button opens `Asset Location` prefilled from the geocode; its Submit\n  puts `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` on the row, and `Clear location` puts the placeholder back.\n- \u2b50 **Read-only**: the location lives in the form's reducer until the asset is created, and the form\n  is discarded with its X. The applied half \u2014 the new asset's address and GIS \u2014 needs a created\n  asset, so it belongs with `MOB.600` (bugs \u00a734).\n- \ud83d\uded1 Never Escape: it would discard the form (bugs \u00a713).",
+        "tags": [
+            "Mobile",
+            "env:dev",
+            "Asset Collector",
+            "read-only"
+        ],
+        "locations": [
+            "gcp:us-west2"
+        ],
+        "config": {
+            "assertions": [],
+            "config_variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "request": {
+                "headers": {},
+                "method": "GET",
+                "url": "{{ MOBDEV }}"
+            },
+            "variables": [
+                {
+                    "id": "fe7958bf-435f-4932-af8e-0931caab79e7",
+                    "name": "MOBDEV",
+                    "type": "global"
+                }
+            ],
+            "set_cookie": ""
+        },
+        "options": {
+            "device_ids": [
+                "chrome.tablet"
+            ],
+            "disable_cors": false,
+            "disable_csp": false,
+            "ignore_server_certificate_error": false,
+            "min_failure_duration": 0,
+            "min_location_failed": 1,
+            "monitor_options": {},
+            "no_screenshot": false,
+            "retry": {
+                "count": 1,
+                "interval": 300.0
+            },
+            "rum_settings": {
+                "is_enabled": false
+            },
+            "tick_every": 86400
+        },
+        "steps": [
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Navigate to the asset collector",
+                "noScreenshot": false,
+                "params": {
+                    "value": "https://dev.mentorapm.com/apm-mobile/asset-collector"
+                },
+                "type": "goToUrl"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Wait for the collector to load its lookup cache",
+                "noScreenshot": false,
+                "params": {
+                    "value": 15
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The collector page rendered",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[@id=\"page-title\"]//h4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Open the new-asset form (affixed + button)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//div[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Affix-root \")]//button"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The new-asset form opened",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"asset-collector\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "assertElementPresent",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "BASELINE: the Location row reads exactly `No location captured.`, with a geolocate button and NO `Clear location`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst label = [...f.querySelectorAll('p')].find(p => (p.textContent || '').trim() === 'Location');\nconst grp = label && label.closest('[class*=\"mantine-Group-root\"]');\nif (!grp) return false;\nconst after = [];\nfor (let n = grp.nextElementSibling; n && n.tagName === 'P'; n = n.nextElementSibling)\n  after.push((n.textContent || '').trim());\nconst clear = !!grp.querySelector('button[aria-label=\"Clear location\"]');\nconst geo = grp.querySelector('svg[data-icon=\"location-crosshairs\"]');\nreturn after.length === 1 && after[0] === 'No location captured.' && !!geo && !clear;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Install the geolocation + Mapbox stubs (after the last `go()` \u2014 they do not survive a navigation)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!window.__ddOrigFetch) window.__ddOrigFetch = window.fetch;\nif (!window.__ddOrigGeo) window.__ddOrigGeo = navigator.geolocation.getCurrentPosition;\nnavigator.geolocation.getCurrentPosition = function (ok) {\n  ok({ coords: { latitude: 41.8781, longitude: -87.6298, accuracy: 5 } });\n};\n// Mapbox ONLY \u2014 Apollo uses fetch, so everything else must pass through untouched.\nwindow.fetch = function (input) {\n  var u = typeof input === 'string' ? input : ((input && input.url) || '');\n  if (u.indexOf('api.mapbox.com/geocoding') !== -1) {\n    var body = JSON.stringify({features:[{place_type:['address'],text:'Main Street',address:'1600',properties:{}},{place_type:['place'],text:'Chicago',properties:{}},{place_type:['region'],text:'Illinois',properties:{short_code:'US-IL'}},{place_type:['country'],text:'United States',properties:{short_code:'us'}},{place_type:['postcode'],text:'60601',properties:{}}]});\n    return Promise.resolve(new Response(body, { status: 200, headers: { 'Content-Type': 'application/json' } }));\n  }\n  return window.__ddOrigFetch.apply(window, arguments);\n};\nreturn typeof window.fetch === 'function';\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click the Location row's geolocate button",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst label = [...f.querySelectorAll('p')].find(p => (p.textContent || '').trim() === 'Location');\nconst grp = label && label.closest('[class*=\"mantine-Group-root\"]');\nif (!grp) return false;\nconst after = [];\nfor (let n = grp.nextElementSibling; n && n.tagName === 'P'; n = n.nextElementSibling)\n  after.push((n.textContent || '').trim());\nconst clear = !!grp.querySelector('button[aria-label=\"Clear location\"]');\nconst geo = grp.querySelector('svg[data-icon=\"location-crosshairs\"]');\nconst b = geo && geo.closest('[class*=\"mantine-ActionIcon-root\"]');\nif (!b) return false;\nb.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The `Asset Location` modal opened with the location form",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => x.querySelector('#mobile-geolocate'));\nreturn !!m && (m.textContent || '').includes('Asset Location');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The form is prefilled from the (stubbed) geocode \u2014 address `1600 Main Street`, city `Chicago`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nif (!f) return false;\nconst v = [...f.querySelectorAll('input')].map(i => i.value);\nreturn v.includes('1600 Main Street') && v.includes('Chicago');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Both `Include GIS` and `Include Address` start ON (no type picked yet, so GIS is allowed), so Submit is armed",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('mobile-geolocate');\nconst boxes = f ? [...f.querySelectorAll('input[type=checkbox]')] : [];\nconst b = document.querySelector('button[form=\"mobile-geolocate\"]');\nreturn boxes.length === 2 && boxes.every(x => x.checked) && !!b && b.type === 'submit';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Submit the location (it goes into the form's reducer \u2014 nothing is written)",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//button[@form=\"mobile-geolocate\"]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "The `Asset Location` modal closed, and the new-asset form is still open",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => x.querySelector('#mobile-geolocate'));\nreturn !m && !!document.getElementById('asset-collector');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CAPTURED: the Location row reads `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` \u2014 the placeholder is gone and `Clear location` appeared",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst label = [...f.querySelectorAll('p')].find(p => (p.textContent || '').trim() === 'Location');\nconst grp = label && label.closest('[class*=\"mantine-Group-root\"]');\nif (!grp) return false;\nconst after = [];\nfor (let n = grp.nextElementSibling; n && n.tagName === 'P'; n = n.nextElementSibling)\n  after.push((n.textContent || '').trim());\nconst clear = !!grp.querySelector('button[aria-label=\"Clear location\"]');\nconst geo = grp.querySelector('svg[data-icon=\"location-crosshairs\"]');\nreturn after.length === 2 && after[0] === '1600 Main Street, Chicago, IL, 60601' && after[1] === '41.878100, -87.629800' && clear;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Clear location`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst label = [...f.querySelectorAll('p')].find(p => (p.textContent || '').trim() === 'Location');\nconst grp = label && label.closest('[class*=\"mantine-Group-root\"]');\nif (!grp) return false;\nconst after = [];\nfor (let n = grp.nextElementSibling; n && n.tagName === 'P'; n = n.nextElementSibling)\n  after.push((n.textContent || '').trim());\nconst clear = !!grp.querySelector('button[aria-label=\"Clear location\"]');\nconst geo = grp.querySelector('svg[data-icon=\"location-crosshairs\"]');\nconst c = grp.querySelector('button[aria-label=\"Clear location\"]');\nif (!c) return false;\nc.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 CLEARED: the Location row reads exactly `No location captured.`, with a geolocate button and NO `Clear location`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const f = document.getElementById('asset-collector');\nif (!f) return false;\nconst label = [...f.querySelectorAll('p')].find(p => (p.textContent || '').trim() === 'Location');\nconst grp = label && label.closest('[class*=\"mantine-Group-root\"]');\nif (!grp) return false;\nconst after = [];\nfor (let n = grp.nextElementSibling; n && n.tagName === 'P'; n = n.nextElementSibling)\n  after.push((n.textContent || '').trim());\nconst clear = !!grp.querySelector('button[aria-label=\"Clear location\"]');\nconst geo = grp.querySelector('svg[data-icon=\"location-crosshairs\"]');\nreturn after.length === 1 && after[0] === 'No location captured.' && !!geo && !clear;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the stubs",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (window.__ddOrigFetch) { window.fetch = window.__ddOrigFetch; delete window.__ddOrigFetch; }\nif (window.__ddOrigGeo) { navigator.geolocation.getCurrentPosition = window.__ddOrigGeo; delete window.__ddOrigGeo; }\nreturn !window.__ddOrigFetch && !window.__ddOrigGeo;\n"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Close the form with its X \u2014 DISCARDED, never submitted",
+                "noScreenshot": false,
+                "params": {
+                    "element": {
+                        "url": "https://dev.mentorapm.com/apm-mobile/asset-collector",
+                        "userLocator": {
+                            "failTestOnCannotLocate": true,
+                            "values": [
+                                {
+                                    "type": "xpath",
+                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-content \")][contains(., \"Get New Asset\")]//button[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Modal-close \")]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "click",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "RESTORED: the form is gone, so nothing was created",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return !document.getElementById('asset-collector');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            }
+        ]
+    }
+}

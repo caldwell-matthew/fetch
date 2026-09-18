@@ -31,7 +31,7 @@ import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, localvar, jsassert,
-                      av_job_gate)  # noqa: E402
+                      av_job_gate, work_list_gate)  # noqa: E402
 
 WORK_URL = BASE + "/work"
 WORK_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
@@ -66,16 +66,71 @@ def tab(name):
     return f'//*[@role="tab"][normalize-space(.)="{name}"]'
 
 
+# ---- bugs §45 guard: cache the Asset schema BEFORE expanding an asset row --------------------------
+# The Assets tab reads the Asset schema with a synchronous `readQuery` (`Assets/index.tsx:42-45`) and
+# hands `schemaQuery?._info?.fields` to each expanded row's `AssetLookupDetails`, whose `useMemo` calls
+# `fields.map` unguarded (`AssetLookupDetails/index.tsx:43`). On a cold cache the prop is `undefined` and
+# the ErrorBoundary replaces the page. `/work`'s prefetch loads that schema only when a listed stage's
+# template has an ASSETS section — the fixture's has none — so whether it is cached depends on the rest of
+# the crew's list. Measured 2026-09-17: MOB.397 crashed on 1 of 2 local replays at "expand the first row".
+#
+# A gate alone cannot fix that, because nothing guarantees the schema ever arrives. So PRIME it, the
+# way a user's own path would: `Add Asset` → `Add Existing Asset` mounts `AssetLookup`, whose
+# `useQuery(GET_SCHEMA Asset)` fills the cache. Close it unused — nothing is picked, nothing is written.
+# THEN gate on a positive signal: `AssetGeolocate` renders null without the same schema, so every row
+# showing its crosshairs means the expand is safe (MOB.354's gate).
+def tok(cls):
+    return f'contains(concat(" ", normalize-space(@class), " "), " {cls} ")'
+
+
+ADD_ASSET = '//button[normalize-space(.)="Add Asset"]'
+ADD_EXISTING = f'//label[{tok("mantine-SegmentedControl-label")}][normalize-space(.)="Add Existing Asset"]'
+PICKER_SEARCH = f'//*[{tok("mantine-Modal-content")}]//input[@name="asset-search"]'
+PICKER = ("const m = [...document.querySelectorAll('.mantine-Modal-content')]"
+          ".find(x => x.querySelector('input[name=\"asset-search\"]'));\n")
+ASSET_ROWS = (
+    "const t = document.querySelector('[role=\"tab\"][aria-selected=\"true\"], [role=\"tab\"][data-active]');\n"
+    "if (!t || (t.textContent || '').trim() !== 'Assets') return false;\n"
+    "const p = t.getAttribute('aria-controls') ? document.getElementById(t.getAttribute('aria-controls')) : null;\n"
+    "if (!p) return false;\n"
+    "const rows = [...p.querySelectorAll('.mantine-Accordion-item')];\n")
+
+
+def prime_asset_schema():
+    return [
+        step("click", "§45 GUARD: open `Add Asset` — its picker is what loads the Asset schema",
+             {"element": xpath_el(WORK_DETAIL, ADD_ASSET)}, timeout=30),
+        step("click", "§45 GUARD: choose `Add Existing Asset` (mounts `AssetLookup` → `useQuery(GET_SCHEMA Asset)`)",
+             {"element": xpath_el(WORK_DETAIL, ADD_EXISTING)}, timeout=30),
+        step("assertElementPresent", "§45 GUARD: the picker's search box mounted",
+             {"element": xpath_el(WORK_DETAIL, PICKER_SEARCH)}, timeout=60),
+        jsassert("§45 GUARD: the picker finished its first load — no LoadingOverlay, and rows or `No Results`",
+                 PICKER + "if (!m) return false;\n"
+                 "if (m.querySelector('.mantine-LoadingOverlay-overlay, .mantine-LoadingOverlay-root')) return false;\n"
+                 "return m.querySelectorAll('.mantine-Accordion-item').length > 0 || /No Results/.test(m.textContent || '');",
+                 timeout=60),
+        step("pressKey", "§45 GUARD: close the picker UNUSED — nothing picked, nothing written",
+             {"value": "Escape"}),
+        jsassert("§45 GUARD: the picker is closed", PICKER + "return !m;", timeout=20),
+        jsassert("§45 GATE: the Asset schema is cached — every asset row renders its geolocate control "
+                 "(`AssetGeolocate` renders null without it), so expanding a row cannot crash the page",
+                 ASSET_ROWS + "return rows.length > 0 && rows.every(r => "
+                 "!!r.querySelector('[data-icon=\"location-crosshairs\"]'));", timeout=60),
+    ]
+
+
 def open_work_detail():
     return [
-        go(WORK_URL, "/work to warm the lookup cache"),
-        step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+        # 🛑 WAIT FOR THE DOWNLOADS, NOT A FIXED 20s. The lookups this test needs are cache-only on the
+        # detail page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left
+        # `/work` after the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option
+        # never appeared. `work_list_gate` polls LOADEDALL 3/3 (up to 180s) — the prefetch runs before
+        # those downloads, so the gate clearing means the cache is warm (the blind-warm-up sweep, 2026-09-17).
+        *work_list_gate(require_row=False),
         go(WORK_DETAIL, "the fixture work order"),
         # Appendix F: 5s -> 2s settle floor, and the assertion POLLS (timeout=30) instead.
         # Datadog steps poll until their timeout - measured 58.2s against a 60s limit - so a
-        # gate returns as soon as it is satisfied. The 20s /work wait above is NOT convertible:
-        # it warms the lookup cache and its only readiness signals are negative (a `lacks` on a
-        # loading label is true before loading starts too) or a colour, which is not assertable.
+        # gate returns as soon as it is satisfied.
         step("wait", "Let the detail view begin rendering", {"value": 2}),
         step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},
              timeout=30),
@@ -238,13 +293,17 @@ write(test(
     "- Uses the **Assets** tab: `hideFollowUpWork` suppresses the action on `jobNotes`,\n"
     "  `condition` and `failures`, so those tabs cannot exercise it.\n"
     "- Tabs are asserted by NAME here — MOB.330 only ever switched them positionally, so this\n"
-    "  is also the first test to pin that the fixture has an `Assets` tab.",
+    "  is also the first test to pin that the fixture has an `Assets` tab.\n"
+    "- 🐞 **Guarded against bugs §45**: expanding an asset row before the Asset schema is cached\n"
+    "  crashes the page. It opens `Add Existing Asset` and closes it unused (that loads the\n"
+    "  schema), then gates on every row's geolocate control before expanding.",
     open_work_detail() + [
         step("click", 'Open the "Assets" tab',
              {"element": xpath_el(WORK_DETAIL, tab("Assets"))}),
         step("wait", "Wait for the panel", {"value": 3}),
         step("assertElementPresent", 'The "Assets" tab is active',
              {"element": xpath_el(WORK_DETAIL, tab("Assets") + "[@data-active]")}),
+    ] + prime_asset_schema() + [
         # EXPAND THE ROW FIRST - the gear menu is inside <Accordion.Panel> and only renders
         # when `opened.includes(asset.id)` (Assets/index.tsx:200). A user clicks the row, then
         # the gear. Jumping straight to the gear is the same force-the-shortcut mistake as

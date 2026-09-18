@@ -45,7 +45,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 39 | A record-field `includes` filter is saved with no value | Runtime + API + Source | ❌ `MOB.807` sentinels it |
 | 40 | **A rejected add or edit looks saved** — the server's refusal is swallowed | API + Source | 🛑 `addToCollection` / `updateCollectionRecord` |
 | 41 | **A work order whose workflow copied stage certifications or event readings cannot be deleted** | Runtime + Source | ❌ `delete/index.ts:55-79` omits `workstagecertification` and `workstageeventreading`; `tedious` hides the FK reason |
-| 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — and **no test reproduces it now** (the suites wait for `/work`'s prefetch, which loads the schema first) |
+| 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — **reproduced by `MOB.977_DIAG_Condition_Form_Schema_Race`**, which is red when the bug is gone |
 | 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:76-88` looks the new tag up in the pre-create list |
 | 45 | Expanding an asset row on a work order's Assets tab can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema; `AssetLookupDetails/index.tsx:43` maps it unguarded |
@@ -453,10 +453,14 @@ mount.
 **Both forms:** `Conditions/Form.tsx:88` and `Failures/Form.tsx:57` build their forms the same way — both confirmed above.
 **Fix:** pass `withDynamicSchema: true` from both forms, or render the form body only once `GET_SCHEMA`
 has resolved, so `useCustomForm` first runs with the fields.
-**Tests:** 🛑 **None reproduces this now.** `MOB.386`/`385` (first `Edit Item` save) and `MOB.390`/`391` (first
-add) keep their `soft` sentinels, but inside `MOB.956`/`MOB.957` they open the forms after `/work`'s prefetch, so
-they pass while the bug stands. A test for §42 must open the fixture work order WITHOUT warming `/work` first and
-assert the first Submit — not built (owner, 2026-09-16: later).
+**Tests:** ⭐ **`MOB.977_DIAG_Condition_Form_Schema_Race` reproduces it** (built 2026-09-17): a deep link to
+`/work/<id>` — never `/work` — then `Edit Item`, Condition Left 2 → 4, an ARMED Submit, and the server still
+holding 2 with the modal open; then the same form reopened with `GET_SCHEMA` cached, which saves. It asserts the
+BUG, so **it goes red when §42 is fixed** — at which point delete it, delete this row, and drop the `soft`
+sentinels below. It is deliberately in no scheduled suite: §42 is a race (the add path failed 2 of 3 and 3 of 3
+runs), so a single red run means read the source, not that the bug is gone.
+`MOB.386`/`385` (first `Edit Item` save) and `MOB.390`/`391` (first add) keep their `soft` sentinels, but inside
+`MOB.956`/`MOB.957` they open the forms after `/work`'s prefetch, so they pass while the bug stands.
 
 ## §43 · An offline menu item's "requires an internet connection" message flashes and vanishes with the menu
 
@@ -525,7 +529,10 @@ Assets tab loses the page to the error screen, until something else on the devic
 { schema: 'Asset' } })`), and render `AssetLookupDetails` only once the fields exist — or default `fields`
 to `[]` there.
 **Tests:** `MOB.354` gates on the rows' geolocate controls before expanding a row, so it cannot trip the
-crash. `MOB.358` does **not** expand a row — but its step 10 fixture guard requires an asset row to render the
+crash. `MOB.397` expands the first asset row to reach its gear menu, and **did trip it** — 1 of 2 local replays,
+2026-09-17, at "Expand the first asset row", the page replaced by the error screen. It is now guarded the same way,
+after first opening `Add Existing Asset` and closing it unused, since that picker's `useQuery` is what loads the
+schema — a gate alone would wait on a schema nothing had asked for. `MOB.358` does **not** expand a row — but its step 10 fixture guard requires an asset row to render the
 geolocate control, and `AssetGeolocate` renders nothing without the schema, so that is its exposure. Inside
 `MOB.955` it runs last, after `MOB.347` opens the Assets tab — whether that loads the schema is not measured.
 

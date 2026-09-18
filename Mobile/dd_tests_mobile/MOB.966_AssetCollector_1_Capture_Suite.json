@@ -4,7 +4,7 @@
         "name": "MOB.966_AssetCollector_1_Capture_Suite",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.966` `/asset-collector`: the route, the photo picker and carousel (never submitted), capture options, search, the row avatar modal, sort.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
+        "message": "`MOB.966` `/asset-collector`: the route, the photo picker and carousel (never submitted), capture options, the form's Location row (stubbed geolocation, captured and cleared, never submitted), search, the row avatar modal, sort.\n- Logs in once, then chains its subtests in the same browser session, in this order.\n- Children are listed in `suite_plan.py`, the only place suite membership is kept.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -387,6 +387,19 @@
                 "noScreenshot": false,
                 "params": {
                     "subtestPublicId": "vuq-d49-mpv",
+                    "playingTabId": -1
+                },
+                "type": "playSubTest"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "MOB.629_Collector_Location_Capture",
+                "noScreenshot": false,
+                "params": {
+                    "subtestPublicId": "djc-zm2-u6w",
                     "playingTabId": -1
                 },
                 "type": "playSubTest"

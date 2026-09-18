@@ -1,18 +1,15 @@
 {
-    "test_name": "MOB.393_Work_Add_Form",
+    "test_name": "MOB.331_Work_GenInfo_Value_Modal",
     "details": {
-        "name": "MOB.393_Work_Add_Form",
+        "name": "MOB.331_Work_GenInfo_Value_Modal",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.393` The **add-form** modal opens and offers its picker.\n- **READ-ONLY BY DESIGN \u2014 do not make it submit again.** It used to add the `Inspection`\n  form for real, and AdHocForm hides forms already attached, so it passed once and then\n  failed forever at *Pick Inspection* (trap 10), keeping its whole suite red.\n- What it proves: the Forms tab opens, the add modal opens, and the form picker renders\n  with options. What it does NOT prove: that adding one persists.\n- The fill-out flow \u2014 which is the valuable half \u2014 is covered by **MOB.134**, using the\n  `Inspection` form this test attached on its single successful run.",
+        "message": "`MOB.331` **The arrow beside a multiline field opens its full value.**\n- General Info's Stage Notes (`desc` = `DATADOG FIXTURE`) carries the arrow; Problem Description\n  (`problemDesc`, empty) does not \u2014 `MultiLineLabel` renders nothing for an empty value, so\n  the pair is a biconditional read at once.\n- Clicking it opens a modal showing exactly `DATADOG FIXTURE` \u2014 the field's VALUE, not its label.\n- \u26a0\ufe0f The onClick is on the icon, not the button (whose `aria-label` is `Settings`), so the\n  click is dispatched on the <svg>.\n- Read-only: a modal opened and closed, nothing typed.",
         "tags": [
             "Mobile",
             "env:dev",
             "Work Order",
-            "CRUD",
-            "Forms",
-            "read-only",
-            "module:work-orders"
+            "read-only"
         ],
         "locations": [
             "gcp:us-west2"
@@ -225,7 +222,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the Forms tab",
+                "name": "Open the \"General Info\" tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -235,7 +232,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//*[@role=\"tab\"][contains(normalize-space(.), \"Form\")]"
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"General Info\"]"
                                 }
                             ]
                         }
@@ -249,7 +246,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the add form",
+                "name": "\"General Info\" is the active tab",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -259,43 +256,7 @@
                             "values": [
                                 {
                                     "type": "xpath",
-                                    "value": "//button[normalize-space(.)=\"Add\"]"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "type": "click",
-                "timeout": 30
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "Wait for the modal",
-                "noScreenshot": false,
-                "params": {
-                    "value": 2
-                },
-                "type": "wait"
-            },
-            {
-                "allowFailure": false,
-                "alwaysExecute": false,
-                "exitIfSucceed": false,
-                "isCritical": true,
-                "name": "PROOF: the form picker rendered",
-                "noScreenshot": false,
-                "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"formId\"]"
+                                    "value": "//*[@role=\"tab\"][normalize-space(.)=\"General Info\"][@data-active]"
                                 }
                             ]
                         }
@@ -309,23 +270,25 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Open the picker",
+                "name": "PREMISE: the form shows Stage Notes (`#desc`) = `DATADOG FIXTURE` and an empty Problem Description (`#problemDesc`) \u2014 the two multiline fields",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[@id=\"formId\"]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const d = document.getElementById('desc'), p = document.getElementById('problemDesc');\nreturn !!document.getElementById('mobile-genInfo') && !!d && d.value === 'DATADOG FIXTURE' && !!p && !p.value;"
                 },
-                "type": "click",
+                "type": "assertFromJavascript",
+                "timeout": 45
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The value arrow renders beside Stage Notes (it holds a value) and NOT beside Problem Description (empty) \u2014 `MultiLineLabel` returns nothing for an empty value",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const field = id => {\n  const i = document.getElementById(id);\n  return i && i.closest('.form-group');\n};\nconst arrow = w => w && w.querySelector('svg[data-icon=\"square-arrow-up-right\"]');\nreturn !!arrow(field('desc')) && !!field('problemDesc') && !arrow(field('problemDesc'));"
+                },
+                "type": "assertFromJavascript",
                 "timeout": 30
             },
             {
@@ -333,72 +296,65 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Wait for options",
+                "name": "Click Stage Notes' arrow \u2014 dispatched on the ICON, which carries the onClick (its ActionIcon's `aria-label` is `Settings` and does nothing)",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "code": "const field = id => {\n  const i = document.getElementById(id);\n  return i && i.closest('.form-group');\n};\nconst arrow = w => w && w.querySelector('svg[data-icon=\"square-arrow-up-right\"]');\nconst a = arrow(field('desc'));\nif (!a) return false;\na.dispatchEvent(new MouseEvent('click', { bubbles: true }));\nreturn true;"
                 },
-                "type": "wait"
+                "type": "assertFromJavascript",
+                "timeout": 20
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "PROOF: the picker offers at least one form",
+                "name": "\u2b50 A modal opened showing the field's VALUE \u2014 exactly `DATADOG FIXTURE` (not its label `Stage Notes`)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "(//*[@role=\"option\"])[1]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => ((x.querySelector('.mantine-Modal-body') || {}).textContent || '').trim() === 'DATADOG FIXTURE');\nreturn !!m;"
                 },
-                "type": "assertElementPresent",
-                "timeout": 30
+                "type": "assertFromJavascript",
+                "timeout": 20
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Cancel without adding",
+                "name": "Close it with its own close button",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => ((x.querySelector('.mantine-Modal-body') || {}).textContent || '').trim() === 'DATADOG FIXTURE');\nconst c = m && m.querySelector('.mantine-Modal-close');\nif (!c) return false;\nc.click();\nreturn true;"
                 },
-                "type": "pressKey"
+                "type": "assertFromJavascript",
+                "timeout": 20
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Let the modal close",
+                "name": "The value modal is gone",
                 "noScreenshot": false,
                 "params": {
-                    "value": 2
+                    "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => ((x.querySelector('.mantine-Modal-body') || {}).textContent || '').trim() === 'DATADOG FIXTURE');\nreturn !m;"
                 },
-                "type": "wait"
+                "type": "assertFromJavascript",
+                "timeout": 20
             },
             {
                 "allowFailure": false,
                 "alwaysExecute": true,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Close the add modal",
+                "name": "RESTORED: the form is untouched \u2014 Stage Notes still `DATADOG FIXTURE`, nothing typed",
                 "noScreenshot": false,
                 "params": {
-                    "value": "Escape"
+                    "code": "const d = document.getElementById('desc');\nreturn !!d && d.value === 'DATADOG FIXTURE';"
                 },
-                "type": "pressKey"
+                "type": "assertFromJavascript",
+                "timeout": 20
             }
         ]
     }

@@ -54,7 +54,7 @@ READ-ONLY. Opens a modal, reads four tabs, closes it. Nothing is typed, nothing 
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, jsassert, server_assert  # noqa: E402
 
 LOOKUP_URL = BASE + "/asset-lookup"
 ASSET = "Pump 0102"
@@ -76,6 +76,31 @@ MODAL_TAB = f'{MODAL}//*[@role="tab"]'
 # component. Scoped INSIDE the accordion item so it cannot match the /work list.
 HISTORY_ROW = (f'{ITEM}//*[contains(concat(" ", normalize-space(@class), " "),'
                f' " mantine-Paper-root ")][contains(., "Description:")]')
+
+# ---- a row's `Assigned to:` (`WorkHistory.tsx:18` → `WorkListItem.tsx:94-102`) ------------------------------
+# Work History hands `WorkListItem` one display field, `{ key: '_assignments', label: 'Assigned to' }`, rendered
+# as `<strong>Assigned to: </strong>` + the value — and FILTERED OUT when the value is empty. So the label alone
+# proves little; what it proves is that the first row's value is the one the SERVER holds for that row.
+# The list and the read share one order (`createdAt DESC`, `WorkHistory.tsx:77-85`), so row 1 is `edges[0]`.
+# Every row read 2026-09-17 said `Admin` (the history is Datadog's own work orders) — the value is compared,
+# not hardcoded, so a reassignment would not break it.
+ASSIGNED_KEY = "__dd740_assigned"
+PUMP_ID = "oB5BUN1Es1Jctw8FVYwYBh"      # Pump 0102, read over /graphql 2026-09-17
+HISTORY_Q = ("query($p: ChildTableQuery!) { assetWorkHistory(params: $p) "
+             "{ edges { id _assignments } } }")
+FIRST_ASSIGNED_JS = (
+    "const rows = [...document.querySelectorAll('.mantine-Paper-root')]\n"
+    "  .filter(p => (p.textContent || '').includes('Description:') && !p.closest('.mantine-Modal-content'));\n"
+    "if (!rows.length) return false;\n"
+    "const line = [...rows[0].querySelectorAll('div')].find(d => {\n"
+    "  const s = d.querySelector(':scope > strong');\n"
+    "  return s && (s.textContent || '').trim() === 'Assigned to:';\n"
+    "});\n"
+    "if (!line) return false;\n"
+    "const v = (line.textContent || '').replace('Assigned to:', '').trim();\n"
+    "if (!v) return false;\n"
+    f"sessionStorage.setItem('{ASSIGNED_KEY}', v);\n"
+    "return true;")
 
 # The four sections, in the order WorkLookupDetails declares them.
 SECTIONS = ["General Info", "Assets", "Attributes", "Attachments"]
@@ -126,6 +151,18 @@ steps = [
          {"element": xpath_el(LOOKUP_URL, f'({HISTORY_ROW})[1]')}, timeout=60),
     step("assertPageLacks", "…and the empty state is NOT what we are looking at",
          {"value": "No History Found"}, timeout=30),
+
+    # ---- the rows' `Assigned to:` -------------------------------------------------------------
+    jsassert("The first history row reads `Assigned to: <someone>` — STASH the value it shows",
+             FIRST_ASSIGNED_JS, timeout=30),
+] + server_assert(
+    "⭐ SERVER: that value is exactly the `_assignments` the server holds for the newest history row",
+    "__dd740_history", HISTORY_Q,
+    {"p": {"parentId": PUMP_ID, "sortId": "createdAt", "sortDir": "DESC", "limit": 1}},
+    f"data.assetWorkHistory.edges.length === 1 && !!data.assetWorkHistory.edges[0]._assignments"
+    f" && data.assetWorkHistory.edges[0]._assignments === sessionStorage.getItem('{ASSIGNED_KEY}')") + [
+    jsassert("Remove the stash", f"sessionStorage.removeItem('{ASSIGNED_KEY}');\nreturn true;",
+             always=True, timeout=15),
 
     # ---- open the row -> the modal -----------------------------------------------------------
     step("click", "Open the first work history record (opens a modal, not a route)",

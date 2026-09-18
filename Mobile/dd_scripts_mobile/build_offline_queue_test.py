@@ -23,13 +23,22 @@ WHY THIS WAS CALLED UNREACHABLE, AND WHY IT IS NOT
     Auth.tsx:126        `restoreMutationQueue(client)` re-sends whatever IndexedDB still holds
                         when the app starts.
 
-THE MUTATION: `VERIFY_ASSET` on the AV fixture job (`VerificationCheckbox.tsx`) - one click,
-optimistic, not gated on being online, and self-restoring by unverifying (MOB.510's pair).
+THE MUTATIONS: ONE CLICK, TWO OPERATIONS. `VerificationCheckbox` sends `VERIFY_ASSET`, and its
+`update()` - which Apollo runs immediately off the optimisticResponse, online or not - recomputes
+the job status from the verified count and sends `UPDATE_MOBILE_JOB_STATUS` when it changed. The
+fixture rests READY with 0 of 2 verified, so verifying one asset moves it to IN_PROGRESS and BOTH
+operations go into the closed queue.
+
+  ⚠️ This test read `1` until 2026-09-17 and was right to: the fixture rested IN_PROGRESS then,
+  and the old forward-only recompute produced no status write for 1-of-2. The count here is a
+  property of the FIXTURE'S REST STATE, not of the queue - if the fixture ever rests somewhere
+  else, read this again. It is also the only test that shows a recompute's own mutation queuing.
 
 ⭐ LEG 1 - HOLD, COUNT, DRAIN
     at rest (0 of 2, no pending indicator) -> `offline` -> verify
-      -> the indicator reads 1, and STILL 1 after 6s (held, not merely in flight)
-      -> `PendingTransactionLogs` lists `VERIFY_ASSET` with `"verified":true`
+      -> the indicator reads 2, and STILL 2 after 6s (held, not merely in flight)
+      -> `PendingTransactionLogs` lists `VERIFY_ASSET` with `"verified":true` AND
+         `UPDATE_MOBILE_JOB_STATUS` with `"status": "IN_PROGRESS"`
     -> `online`, the list still open -> the indicator is gone (drained) -> Refresh: `No logs found.`
     -> RELOAD -> the job reads 1 of 2 (the server has it) -> unverify -> reload -> 0 of 2
 ⭐ LEG 2 - SURVIVES A RELOAD
@@ -72,7 +81,8 @@ LIST_EMPTIED = ("const title = [...document.querySelectorAll('h3')].find(h => (h
                 "const box = title && title.parentElement && title.parentElement.parentElement;\n"
                 "if (!box) return false;\n"
                 "const t = box.textContent || '';\n"
-                "if (t.includes('No logs found.') && !t.includes('VERIFY_ASSET')) return true;\n"
+                "if (t.includes('No logs found.') && !t.includes('VERIFY_ASSET')\n"
+                "    && !t.includes('UPDATE_MOBILE_JOB_STATUS')) return true;\n"
                 "const at = Number(sessionStorage.getItem('__dd913_refresh') || 0);\n"
                 "if (Date.now() - at > 2000) {\n"
                 "  sessionStorage.setItem('__dd913_refresh', String(Date.now()));\n"
@@ -109,12 +119,13 @@ def queue_one_verify(label):
                  "return !!document.querySelector('[data-icon=\"wifi-slash\"]');", timeout=20),
         step("click", "Verify the first asset (VERIFY_ASSET — optimistic)",
              {"element": xpath_el(DETAIL, FIRST_BOX)}, timeout=30),
-        step("wait", "Let the mutation reach the closed queue", {"value": 2}),
-        jsassert(f"⭐ QUEUED ({label}): the pending indicator reads 1",
-                 PENDING_JS + "return pending === '1';", timeout=20),
+        step("wait", "Let both mutations reach the closed queue", {"value": 2}),
+        jsassert(f"⭐ QUEUED ({label}): the pending indicator reads 2 — `VERIFY_ASSET` and the "
+                 "`UPDATE_MOBILE_JOB_STATUS` its update() recomputes (READY → IN_PROGRESS)",
+                 PENDING_JS + "return pending === '2';", timeout=20),
         step("wait", "Hold offline — an in-flight request would have resolved by now", {"value": 6}),
-        jsassert(f"⭐ HELD ({label}): still 1 pending after 6s offline — the request never left",
-                 PENDING_JS + "return pending === '1';", timeout=10),
+        jsassert(f"⭐ HELD ({label}): still 2 pending after 6s offline — neither request left",
+                 PENDING_JS + "return pending === '2';", timeout=10),
     ]
 
 
@@ -146,18 +157,22 @@ steps = at_rest("leg 1") + queue_one_verify("leg 1") + [
              "if (!up) return false;\n"
              "up.dispatchEvent(new MouseEvent('click', { bubbles: true }));\nreturn true;", timeout=20),
     step("wait", "Let the list read IndexedDB", {"value": 2}),
-    jsassert("⭐ LISTED: `Pending Transactions` shows the held VERIFY_ASSET with verified:true",
+    jsassert("⭐ LISTED: `Pending Transactions` shows BOTH held operations — `VERIFY_ASSET` with "
+             "verified:true, and `UPDATE_MOBILE_JOB_STATUS` with IN_PROGRESS",
              # JSON.stringify(variables, null, 2) -> `"verified": true`, with a space
              TEXT + "return t.includes('Pending Transactions') && t.includes('VERIFY_ASSET')\n"
-             "  && /\"verified\":\\s*true/.test(t);", timeout=20),
+             "  && /\"verified\":\\s*true/.test(t)\n"
+             "  && t.includes('UPDATE_MOBILE_JOB_STATUS')\n"
+             "  && /\"status\":\\s*\"IN_PROGRESS\"/.test(t);", timeout=20),
     jsassert("UI (optional: records whether the job counter follows the optimistic verify while "
              "it is unsent)", TEXT + f"return t.includes('{ONE}');", optional=True, timeout=10),
     dispatch("online"),                                    # the list stays OPEN through the drain
     step("wait", "Let the queue drain", {"value": 4}),
     jsassert("⭐ DRAINED: the pending indicator is gone once back online",
              PENDING_JS + "return pending === null;", timeout=30),
-    jsassert("⭐ EMPTIED: the still-open list, refreshed, reads `No logs found.` — no VERIFY_ASSET left "
-             "(`PendingTransactionLogs.tsx:58`)", LIST_EMPTIED, timeout=30),
+    jsassert("⭐ EMPTIED: the still-open list, refreshed, reads `No logs found.` — neither "
+             "VERIFY_ASSET nor UPDATE_MOBILE_JOB_STATUS left (`PendingTransactionLogs.tsx:58`)",
+             LIST_EMPTIED, timeout=30),
     jsassert("Remove the refresh gate's sessionStorage key",
              "sessionStorage.removeItem('__dd913_refresh');\nreturn true;", always=True, timeout=15),
     step("pressKey", "Close the list", {"value": "Escape"}, always=True),
@@ -183,8 +198,11 @@ write(test(
     "`MOB.913` **The offline queue holds, counts, drains and replays a mutation.**\n"
     "- In a browser the queue closes on window `offline` and opens on `online`\n"
     "  (`gateQueueLinkOnNetworkChange`) — the events `MOB.910` dispatches.\n"
-    "- Leg 1: offline → verify an AV asset → header indicator **1**, still 1 after 6s (held) →\n"
-    "  `Pending Transactions` lists `VERIFY_ASSET` → online → indicator gone, the still-open list refreshes to `No logs found.` → **reload: the server\n"
+    "- ⭐ **One click is TWO operations**: `VERIFY_ASSET`, plus the `UPDATE_MOBILE_JOB_STATUS`\n"
+    "  that `VerificationCheckbox.update()` recomputes — the fixture rests READY, so verifying\n"
+    "  one of two assets moves the job to IN_PROGRESS and both go into the closed queue.\n"
+    "- Leg 1: offline → verify an AV asset → header indicator **2**, still 2 after 6s (held) →\n"
+    "  `Pending Transactions` lists both → online → indicator gone, the still-open list refreshes to `No logs found.` → **reload: the server\n"
     "  has it** → unverify.\n"
     "- Leg 2: offline → verify → held → **reload while held** → the app replays IndexedDB on\n"
     "  startup → 1 of 2, nothing pending → unverify.\n"

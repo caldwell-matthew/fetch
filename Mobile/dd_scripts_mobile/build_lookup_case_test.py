@@ -36,7 +36,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import BASE, step, xpath_el, go, test, write, jsassert  # noqa: E402
+from dd_tools import BASE, step, xpath_el, go, test, write, jsassert, work_list_gate  # noqa: E402
 
 # Shared with build_tab_tests.py (MOB.390/391) - same fixture work order and asset.
 FIXTURE_ID = "EYRpYJ9QYdQ1JFF10JtB0Q"
@@ -124,8 +124,12 @@ def probe(form_label, form_id):
 
 steps = [
     # /work first warms the cache-only lookups - `build_tab_tests.open_fixture`'s recipe.
-    go(WORK_URL, "/work to warm the lookup cache"),
-    step("wait", "Wait for the work list and lookup prefetch", {"value": 20}),
+    # 🛑 WAIT FOR THE DOWNLOADS, NOT A FIXED 20s. The lookups this test needs are cache-only on the
+    # detail page and only `/work`'s prefetch fills them. On Datadog 2026-09-16 a cold session left
+    # `/work` after the fixed 20s, the prefetch never finished, and MOB.350's `AC Adapter` option
+    # never appeared. `work_list_gate` polls LOADEDALL 3/3 (up to 180s) — the prefetch runs before
+    # those downloads, so the gate clearing means the cache is warm (the blind-warm-up sweep, 2026-09-17).
+    *work_list_gate(require_row=False),
     go(STAGE_URL, "the fixture work order"),
     step("wait", "Let the detail view begin rendering", {"value": 2}),
     step("assertPageContains", "Test work order detail rendered", {"value": "Status:"},

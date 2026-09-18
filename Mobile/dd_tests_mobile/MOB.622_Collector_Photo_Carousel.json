@@ -4,7 +4,7 @@
         "name": "MOB.622_Collector_Photo_Carousel",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.622` **The carousel's DISPLAY surface \u2014 read at ONE photo and at TWO.**\n- \u26d4 **This retires a fixture ask rather than waiting on it.** The surface sat in \ud83d\udfe1 BLOCKED\n  behind *\"\u22652 photos on a named fixture asset\"*, which assumed photos can only arrive\n  **before page load**. `ADD_PHOTO` **appends** (`Form/utils.ts:124`), so uploading twice\n  supplies them at runtime \u2014 and it dispatches to a **local reducer**, so a test that never\n  submits writes nothing.\n- \u2b50 **The central assertion is a BICONDITIONAL across the two states.**\n  `withIndicators`/`withControls` are `{photos.length > 1}`. Asserting they *appear* would\n  pass on a carousel that always shows them, so the same two facts are read at one photo and\n  at two and **required to disagree** \u2014 the conditional pinned in both directions, one run.\n- \u2b50 Same shape again for **`aria-label=\"Close\"`**, which renders *only* in fullscreen\n  (`PhotoMenu:130`) \u2014 absent before, present inside. And the **fullscreen carousel is\n  `withIndicators` UNCONDITIONALLY** (`index.tsx:177`): two carousels, two different rules.\n- Covers what nothing had reached: `PhotoMenu` (proven to render for a **local, unsaved**\n  photo \u2014 the fact the withdrawn ask turned on), **View in Fullscreen**, the derived\n  **`Edit Tags (0)`** badge, and \u2b50 the **FULL `TagSelector`** (`Search tags...`) \u2014 a\n  different component from the `MiniTagSelector` (`Auto-apply tags?`) `MOB.620` pins.\n- \ud83d\uded1 **READ-ONLY, and the tag controls are asserted but NEVER actuated** \u2014 assigning or\n  creating a tag writes (`Tags/index.tsx:100`). The editor is dismissed with its own `Done`,\n  and the form is closed without submitting, so no asset and no attachment are created.\n- \u26a0\ufe0f **Trap 3 at its worst: four modals can be mounted at once**, three containing a\n  carousel and two containing an `aria-label=\"Close\"`. Nothing is selected by position \u2014\n  the inline carousel is scoped to `#asset-collector`, and fullscreen is identified as *the\n  modal with a carousel that does not contain the form*.",
+        "message": "`MOB.622` **The carousel's DISPLAY surface \u2014 read at ONE photo and at TWO.**\n- \u26d4 **This retires a fixture ask rather than waiting on it.** The surface sat in \ud83d\udfe1 BLOCKED\n  behind *\"\u22652 photos on a named fixture asset\"*, which assumed photos can only arrive\n  **before page load**. `ADD_PHOTO` **appends** (`Form/utils.ts:124`), so uploading twice\n  supplies them at runtime \u2014 and it dispatches to a **local reducer**, so a test that never\n  submits writes nothing.\n- \u2b50 **The central assertion is a BICONDITIONAL across the two states.**\n  `withIndicators`/`withControls` are `{photos.length > 1}`. Asserting they *appear* would\n  pass on a carousel that always shows them, so the same two facts are read at one photo and\n  at two and **required to disagree** \u2014 the conditional pinned in both directions, one run.\n- \u2b50 Same shape again for **`aria-label=\"Close\"`**, which renders *only* in fullscreen\n  (`PhotoMenu:130`) \u2014 absent before, present inside. And the **fullscreen carousel is\n  `withIndicators` UNCONDITIONALLY** (`index.tsx:177`): two carousels, two different rules.\n- Covers what nothing had reached: `PhotoMenu` (proven to render for a **local, unsaved**\n  photo \u2014 the fact the withdrawn ask turned on), **View in Fullscreen**, the derived\n  **`Edit Tags (0)`** badge, and \u2b50 the **FULL `TagSelector`** (`Search tags...`) \u2014 a\n  different component from the `MiniTagSelector` (`Auto-apply tags?`) `MOB.620` pins.\n- \u2b50 **A MentorLens tag's description**: the `?` beside `Lens: Thermography` and then\n  `Lens: Condition Assessment` opens a modal with exactly THAT tag's desc \u2014 recorded as it\n  appears, because the modal closes itself after 3s (asserted too).\n- \ud83d\uded1 **READ-ONLY, and the tag controls are asserted but NEVER actuated** \u2014 assigning or\n  creating a tag writes (`Tags/index.tsx:100`). The one exception is the description `?`,\n  clicked from JS on the icon itself (its card's click would assign the tag), and each card\n  is read back unchecked afterwards. The editor is dismissed with its own `Done`,\n  and the form is closed without submitting, so no asset and no attachment are created.\n- \u26a0\ufe0f **Trap 3 at its worst: four modals can be mounted at once**, three containing a\n  carousel and two containing an `aria-label=\"Close\"`. Nothing is selected by position \u2014\n  the inline carousel is scoped to `#asset-collector`, and fullscreen is identified as *the\n  modal with a carousel that does not contain the form*.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -763,6 +763,186 @@
                 },
                 "type": "assertPageContains",
                 "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Install a recorder for modal bodies \u2014 the description modal closes itself after 3s",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (!window.__dd622Obs) {\n  window.__dd622Old = new Set(document.querySelectorAll('.mantine-Modal-body'));\n  window.__dd622Desc = [];\n  window.__dd622Obs = new MutationObserver(() => {\n    document.querySelectorAll('.mantine-Modal-body').forEach(b => {\n      if (window.__dd622Old.has(b)) return;\n      const t = (b.textContent || '').trim();\n      if (t && window.__dd622Desc.indexOf(t) === -1) window.__dd622Desc.push(t);\n    });\n  });\n  window.__dd622Obs.observe(document.body, { childList: true, subtree: true, characterData: true });\n}\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "`Lens: Thermography` is a lens card, UNCHECKED, with a description `?`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n  const t = c.querySelector('p');\n  return t && (t.textContent || '').trim() === 'Lens: Thermography';\n});\nreturn !!card && card.getAttribute('aria-checked') === 'false'\n  && !!card.querySelector('button[aria-label=\"Show MentorLens tag description\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Lens: Thermography`'s `?` \u2014 from JS, on the icon itself (its card's own click would ASSIGN the tag)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n  const t = c.querySelector('p');\n  return t && (t.textContent || '').trim() === 'Lens: Thermography';\n});\nconst q = card && card.querySelector('button[aria-label=\"Show MentorLens tag description\"]');\nif (!q) return false;\nq.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The description modal showed `Lens: Thermography`'s desc \u2014 exactly `Used in MentorLens for thermographic analysis` (and only it)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return JSON.stringify(window.__dd622Desc) === JSON.stringify(['Used in MentorLens for thermographic analysis']);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal outlive its 3s auto-close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The description modal CLOSED ITSELF \u2014 only the modals that were open before it remain",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('.mantine-Modal-body')]\n  .every(b => window.__dd622Old.has(b));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "`Lens: Thermography` is STILL unchecked \u2014 the `?` assigned nothing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n  const t = c.querySelector('p');\n  return t && (t.textContent || '').trim() === 'Lens: Thermography';\n});\nreturn !!card && card.getAttribute('aria-checked') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "`Lens: Condition Assessment` is a lens card, UNCHECKED, with a description `?`",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n  const t = c.querySelector('p');\n  return t && (t.textContent || '').trim() === 'Lens: Condition Assessment';\n});\nreturn !!card && card.getAttribute('aria-checked') === 'false'\n  && !!card.querySelector('button[aria-label=\"Show MentorLens tag description\"]');"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 30
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Click `Lens: Condition Assessment`'s `?` \u2014 from JS, on the icon itself (its card's own click would ASSIGN the tag)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n  const t = c.querySelector('p');\n  return t && (t.textContent || '').trim() === 'Lens: Condition Assessment';\n});\nconst q = card && card.querySelector('button[aria-label=\"Show MentorLens tag description\"]');\nif (!q) return false;\nq.click();\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 20
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The description modal showed `Lens: Condition Assessment`'s desc \u2014 exactly `Used in MentorLens for condition assessment`, recorded after the first",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return JSON.stringify(window.__dd622Desc) === JSON.stringify(['Used in MentorLens for thermographic analysis', 'Used in MentorLens for condition assessment']);"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Let the modal outlive its 3s auto-close",
+                "noScreenshot": false,
+                "params": {
+                    "value": 4
+                },
+                "type": "wait"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "\u2b50 The description modal CLOSED ITSELF \u2014 only the modals that were open before it remain",
+                "noScreenshot": false,
+                "params": {
+                    "code": "return [...document.querySelectorAll('.mantine-Modal-body')]\n  .every(b => window.__dd622Old.has(b));"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "`Lens: Condition Assessment` is STILL unchecked \u2014 the `?` assigned nothing",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n  const t = c.querySelector('p');\n  return t && (t.textContent || '').trim() === 'Lens: Condition Assessment';\n});\nreturn !!card && card.getAttribute('aria-checked') === 'false';"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": true,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "Remove the recorder",
+                "noScreenshot": false,
+                "params": {
+                    "code": "if (window.__dd622Obs) window.__dd622Obs.disconnect();\ndelete window.__dd622Obs; delete window.__dd622Desc; delete window.__dd622Old;\nreturn true;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 15
             },
             {
                 "allowFailure": false,

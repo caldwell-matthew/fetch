@@ -59,6 +59,79 @@ ADD_PHOTO = '//button[normalize-space(.)="Add Asset Photo"]'
 ADD_MORE = '//button[normalize-space(.)="Add More Photos"]'
 
 
+# ---- a MentorLens tag's description (`LensTags.tsx:58-103`) --------------------------------------------
+# A lens tag with a `desc` gets a `?` (`aria-label="Show MentorLens tag description"`) that opens a small
+# modal holding that desc — and the modal CLOSES ITSELF after 3s (`DESC_MODAL_AUTO_CLOSE_MS`). Datadog's
+# step overhead makes "click, then read it next step" a race, so a MutationObserver installed BEFORE the
+# click records every modal body that appears (the MOB.626 / MOB.914 recorder).
+# ⚠️ ONLY BODIES THAT ARE NEW. Two modals are already mounted under it — the tag editor and the
+# `Get New Asset` form, whose body text changes as its carousel moves. Filtering by text caught the form
+# (local replay 1), so the recorder snapshots the bodies present at install and records only others.
+#
+# 🛑 THE `?` IS CLICKED FROM JS, NEVER BY A DATADOG CLICK. It sits INSIDE the tag's `Checkbox.Card`, whose
+# own onClick ASSIGNS the tag — a server write (`Tags/index.tsx:100`). The `?` stops propagation, but a
+# Datadog click lands on coordinates (trap 6b), so it is `.click()`ed on the element itself, and each
+# card's `aria-checked` is read before and after to prove no tag was assigned.
+#
+# Two tags, two different descs (read over /graphql 2026-09-17): the modal must name the tag CLICKED,
+# which one fixed string could not show.
+LENS_DESC = [("Lens: Thermography", "Used in MentorLens for thermographic analysis"),
+             ("Lens: Condition Assessment", "Used in MentorLens for condition assessment")]
+
+
+def lens_card_js(name):
+    return ("const card = [...document.querySelectorAll('[role=\"checkbox\"]')].find(c => {\n"
+            "  const t = c.querySelector('p');\n"
+            f"  return t && (t.textContent || '').trim() === '{name}';\n"
+            "});\n")
+
+
+RECORD_DESC_JS = (
+    "if (!window.__dd622Obs) {\n"
+    "  window.__dd622Old = new Set(document.querySelectorAll('.mantine-Modal-body'));\n"
+    "  window.__dd622Desc = [];\n"
+    "  window.__dd622Obs = new MutationObserver(() => {\n"
+    "    document.querySelectorAll('.mantine-Modal-body').forEach(b => {\n"
+    "      if (window.__dd622Old.has(b)) return;\n"
+    "      const t = (b.textContent || '').trim();\n"
+    "      if (t && window.__dd622Desc.indexOf(t) === -1) window.__dd622Desc.push(t);\n"
+    "    });\n"
+    "  });\n"
+    "  window.__dd622Obs.observe(document.body, { childList: true, subtree: true, characterData: true });\n"
+    "}\n"
+    "return true;")
+
+
+def lens_desc_steps():
+    out = [jsassert("Install a recorder for modal bodies — the description modal closes itself after 3s",
+                    RECORD_DESC_JS, timeout=15)]
+    for i, (name, desc) in enumerate(LENS_DESC, 1):
+        out += [
+            jsassert(f"`{name}` is a lens card, UNCHECKED, with a description `?`",
+                     lens_card_js(name) + "return !!card && card.getAttribute('aria-checked') === 'false'\n"
+                     "  && !!card.querySelector('button[aria-label=\"Show MentorLens tag description\"]');",
+                     timeout=30),
+            jsassert(f"Click `{name}`'s `?` — from JS, on the icon itself (its card's own click would ASSIGN the tag)",
+                     lens_card_js(name) + "const q = card && card.querySelector('button[aria-label=\"Show MentorLens tag description\"]');\n"
+                     "if (!q) return false;\nq.click();\nreturn true;", timeout=20),
+            jsassert(f"⭐ The description modal showed `{name}`'s desc — exactly `{desc}`"
+                     + (" (and only it)" if i == 1 else ", recorded after the first"),
+                     f"return JSON.stringify(window.__dd622Desc) === JSON.stringify({[d for _, d in LENS_DESC[:i]]!r});",
+                     timeout=15),
+            step("wait", "Let the modal outlive its 3s auto-close", {"value": 4}),
+            jsassert("⭐ The description modal CLOSED ITSELF — only the modals that were open before it remain",
+                     "return [...document.querySelectorAll('.mantine-Modal-body')]\n"
+                     "  .every(b => window.__dd622Old.has(b));", timeout=15),
+            jsassert(f"`{name}` is STILL unchecked — the `?` assigned nothing",
+                     lens_card_js(name) + "return !!card && card.getAttribute('aria-checked') === 'false';", timeout=15),
+        ]
+    out.append(jsassert("Remove the recorder",
+                        "if (window.__dd622Obs) window.__dd622Obs.disconnect();\n"
+                        "delete window.__dd622Obs; delete window.__dd622Desc; delete window.__dd622Old;\nreturn true;",
+                        always=True, timeout=15))
+    return out
+
+
 def modal_containing(text):
     return ('//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]'
             f'[contains(., "{text}")]')
@@ -283,9 +356,11 @@ steps += [
     # header is `MentorLens Tags` (`LensTags.tsx:81`) - the sweep found it asserted nowhere.
     step("assertPageContains", "…and its `MentorLens Tags` section (`LensTags`) rendered",
          {"value": "MentorLens Tags"}, timeout=30),
+] + lens_desc_steps() + [
 
-    # 🛑 NOTHING IS CLICKED IN HERE. Assigning or creating a tag MUTATES (`Tags/index.tsx:100`).
-    # `Done` is the component's own dismissal and writes nothing.
+    # 🛑 NOTHING ELSE IS CLICKED IN HERE. Assigning or creating a tag MUTATES (`Tags/index.tsx:100`);
+    # the description `?` above only sets component state. `Done` is the component's own dismissal
+    # and writes nothing.
     step("click", "Close the tag editor with its own `Done` button (assigning a tag would WRITE)",
          {"element": xpath_el(COLLECTOR_URL, '//button[normalize-space(.)="Done"]')},
          always=True, timeout=30),
@@ -324,8 +399,13 @@ write(test(
     "  photo — the fact the withdrawn ask turned on), **View in Fullscreen**, the derived\n"
     "  **`Edit Tags (0)`** badge, and ⭐ the **FULL `TagSelector`** (`Search tags...`) — a\n"
     "  different component from the `MiniTagSelector` (`Auto-apply tags?`) `MOB.620` pins.\n"
+    "- ⭐ **A MentorLens tag's description**: the `?` beside `Lens: Thermography` and then\n"
+    "  `Lens: Condition Assessment` opens a modal with exactly THAT tag's desc — recorded as it\n"
+    "  appears, because the modal closes itself after 3s (asserted too).\n"
     "- 🛑 **READ-ONLY, and the tag controls are asserted but NEVER actuated** — assigning or\n"
-    "  creating a tag writes (`Tags/index.tsx:100`). The editor is dismissed with its own `Done`,\n"
+    "  creating a tag writes (`Tags/index.tsx:100`). The one exception is the description `?`,\n"
+    "  clicked from JS on the icon itself (its card's click would assign the tag), and each card\n"
+    "  is read back unchecked afterwards. The editor is dismissed with its own `Done`,\n"
     "  and the form is closed without submitting, so no asset and no attachment are created.\n"
     "- ⚠️ **Trap 3 at its worst: four modals can be mounted at once**, three containing a\n"
     "  carousel and two containing an `aria-label=\"Close\"`. Nothing is selected by position —\n"
