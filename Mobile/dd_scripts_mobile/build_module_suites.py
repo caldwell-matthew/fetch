@@ -15,7 +15,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import step, test, write, HERE  # noqa: E402
-from suite_plan import SUITES, suite_name, leaf_names, assert_complete  # noqa: E402
+from suite_plan import (SUITES, suite_name, leaf_names, assert_complete, schedule_options,  # noqa: E402
+                        SCHEDULE_ON, ALERT_TO)
 
 login_steps = json.load(open(os.path.join(HERE, "MOB.000_Login_(Dev).json")))["details"]["steps"]
 CREDS = ("DATA_DOG_EMAIL", "DATA_DOG_PASSWORD")
@@ -38,4 +39,14 @@ for sid, module, part, cls, blurb, children in SUITES:
     message = (f"`MOB.{sid}` {blurb}\n"
                "- Logs in once, then chains its subtests in the same browser session, in this order.\n"
                "- Children are listed in `suite_plan.py`, the only place suite membership is kept.")
-    write(test(name, message, login_steps + [sub(leaves[c]) for c in children], tags, extra_globals=CREDS))
+    t = test(name, message, login_steps + [sub(leaves[c]) for c in children], tags, extra_globals=CREDS)
+    # The weekly slot (suite_plan.SLOTS): hourly inside a one-hour weekly window. `live` only when the schedule
+    # is switched on AND the suite has a slot — MOB.967 has none, so it stays paused whatever the switch says.
+    sched = schedule_options(sid)
+    if sched:
+        t["details"]["options"].update(sched)
+    t["details"]["status"] = "live" if (SCHEDULE_ON and sched) else "paused"
+    # Failure alerts: Datadog emails whoever the message @-mentions — so only a LIVE suite names anyone.
+    if t["details"]["status"] == "live":
+        t["details"]["message"] += f"\n\n@{ALERT_TO}"
+    write(t)

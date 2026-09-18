@@ -12,7 +12,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** |
 > | what a green run actually proves | `coverage.md` |
-> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 33 traps) |
+> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 40 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | test residue, cleanup, the AV fixture reset | `cleanup_spec.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |
@@ -56,7 +56,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Local ↔ remote | every local test matches Datadog by content — `preflight.py sync` compares step names and subtest ids (it prints the first 5). `MOB.711` is archived locally only |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
 | Rows | 176 `[x]` · 13 `[~]` · 0 `[ ]` · 33 `[-]` — 222 rows. Counts describe *this file*, not the app |
-| Cost of one full pass | **158 billed runs** — the 24 module suites plus their 134 children; a subtest bills as its own run |
+| Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is 2,000 runs a month |
 | Scheduling | Manual today. On-demand runs may use 10 at once (concurrency cap raised 1 → 10; it does not change billed runs). **Owner's plan: weekly Datadog runs** (▶ OPEN WORK #37) |
 
 ### Suites — children, and what they leave behind
@@ -66,22 +66,22 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | module | suite | children (run order) | class | local | est. Datadog | Datadog |
 |---|---|---|---|---|---|---|
 | Work Orders | `MOB.953_WorkOrders_1_List_Suite` | 150 300 301 340 341 343 344 342 345 | writes | 443s | 532–886s | 634s |
-| Work Orders | `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` | 310 330 331 393 394 399 348 349 | read-only | ~320s | 384–640s | 294s ⚠️ measured on its 7-child version |
-| Work Orders | `MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite` | 357 356 351 398 911 912 | read-only | 313s | 376–626s | 453s |
-| Work Orders | `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` | 347 389 387 741 731 358 | read-only | 239s | 287–478s | 351s |
+| Work Orders | `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` | 310 330 331 393 394 399 348 349 | read-only | 375s | 450–750s | 294s (before the 09-17 changes) |
+| Work Orders | `MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite` | 357 356 351 398 911 912 | read-only | 361s | 433–722s | 453s (before the 09-17 changes) |
+| Work Orders | `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` | 347 389 387 741 731 358 | read-only | 313s | 376–626s | 351s (before the 09-17 changes) |
 | Work Orders | `MOB.956_WorkOrders_5_Records_Suite` | 350 360 370 380 390 391 392 361 | writes | 462s | 554–924s | 623s |
 | Work Orders | `MOB.957_WorkOrders_6_Status_Field_Edits_Suite` | 320 395 388 386 385 | writes | 377s | 452–754s | 581s |
 | Work Orders | `MOB.958_WorkOrders_7_Assets_Location_Edits_Suite` | 352 353 354 359 | writes | 215s | 258–430s | 356s |
-| Work Orders | `MOB.959_WorkOrders_8_Stage_Writes_Create_Suite` | 396 397 302 363 365 364 | writes | 434s | 521–868s | 682s |
-| Work Orders | `MOB.960_WorkOrders_9_Forms_Suite` | 355 134 135 | writes | ~260s | 312–520s | 191s ⚠️ measured on its 2-child version |
-| Asset Verify | `MOB.961_AssetVerify_1_Jobs_List_Suite` | 140 530 560 580 810 535 | read-only | 235s | 282–470s | 322s |
+| Work Orders | `MOB.959_WorkOrders_8_Stage_Writes_Create_Suite` | 396 397 302 363 365 364 | writes | 526s | 631–1052s | 682s (before the 09-17 changes) |
+| Work Orders | `MOB.960_WorkOrders_9_Forms_Suite` | 355 134 135 | writes | 225s | 270–450s | 191s (before the 09-17 changes) |
+| Asset Verify | `MOB.961_AssetVerify_1_Jobs_List_Suite` | 140 530 560 580 810 535 | read-only | 234s | 281–468s | 322s (before the 09-17 changes) |
 | Asset Verify | `MOB.962_AssetVerify_2_Job_Assets_Read_Suite` | 500 520 585 531 547 551 | read-only | 305s | 366–610s | 429s |
 | Asset Verify | `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` | 510 590 913 536 511 512 | writes | ~595s | 714–1190s | 739s |
 | Asset Verify | `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` | 570 575 546 | read-only | 166s | 199–332s | 263s |
 | Asset Verify | `MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite` | 537 545 550 | writes | 340s | 408–680s | 438s |
-| Asset Collector | `MOB.966_AssetCollector_1_Capture_Suite` | 160 620 621 622 626 629 610 624 625 | read-only | ~275s | 330–550s | 356s ⚠️ measured on its 8-child version |
+| Asset Collector | `MOB.966_AssetCollector_1_Capture_Suite` | 160 620 621 622 626 629 610 624 625 | read-only | 261s | 313–522s | 356s (before the 09-17 changes) |
 | Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s | held out — bugs §34 |
-| Asset Lookup | `MOB.968_AssetLookup_1_Rows_Tabs_Suite` | 100 700 750 720 721 914 740 735 730 | read-only | 216s | 259–432s | 324s |
+| Asset Lookup | `MOB.968_AssetLookup_1_Rows_Tabs_Suite` | 100 700 750 720 721 914 740 735 730 | read-only | 213s | 256–426s | 324s (before the 09-17 changes) |
 | Asset Lookup | `MOB.969_AssetLookup_2_Filters_Sort_Suite` | 800 805 806 807 820 | read-only | 185s | 222–370s | 307s |
 | Asset Lookup | `MOB.980_AssetLookup_3_Edits_Suite` | 710 712 722 | writes | 109s | 131–218s | 179s |
 | Material Lookup | `MOB.970_MaterialLookup_Suite` | 110 850 860 870 855 865 866 | writes | 283s | 340–566s | 368s |
@@ -119,6 +119,7 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 - **The `READY` rest state is proven on Datadog (2026-09-17).** `MOB.963` ran green as a whole at 739s with all six children — `510`, `590`, `913`, `536` and the new `511`/`512` — and the fixture read back at rest afterwards. `MOB.530` and `MOB.560` were verified individually (2 runs each); their suite `MOB.961` has not re-run since, so its ✅ is per-test for those two.
 - ⚠️ `956` and `957` pass their bugs §42 sentinels NOT because §42 is fixed (its forms are unchanged on `9d80ad499c`): their children wait for `/work`'s prefetch, which loads `WorkStageCondition`/`WorkStageFailure` (`prefetchData.ts:26-36`) before the form opens. §42 still hits a user who opens a work order before that prefetch — `MOB.977_DIAG_Condition_Form_Schema_Race` is the test that reproduces it, deliberately outside the schedule.
 - `MOB.622` (now opening two MentorLens tags' descriptions) and `MOB.740` (a history row's `Assigned to` checked against the server) **passed on Datadog individually 2026-09-17** (2 runs each, `MOB.999` 96s / 110s). Their suites `966` and `968` have not re-run with them.
+- **Local re-timing, 2026-09-17** (0 runs): the eight suites changed that day — `954` `955` `959` `960` `961` `966` `968` `981` — all pass locally, and the table's `local` column is from that pass. ⚠️ **`MOB.959` is now the one to watch: 526s locally**, ≈ 830s on Datadog at its own measured ratio (1.57) — under the ~1,070s ceiling, but the closest suite to it, and the work-order residue each pass adds to `/work` lengthens it. The first scheduled pass re-measures all of them.
 - `MOB.135_Work_Form_Signature_Pad` — new, wired into `960` after `MOB.134` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 252s). `960` has not re-run with it.
 - `MOB.331_Work_GenInfo_Value_Modal` — new, wired into `954` after `MOB.330` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 193s). `954` has not re-run with it.
 - `MOB.629_Collector_Location_Capture` — new, wired into `MOB.966` after `MOB.626` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 58s). `MOB.966` has not re-run with it in place.
@@ -139,7 +140,7 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 
 | # | item | state |
 |---|---|---|
-| **37** | **Weekly schedule on Datadog** (owner). **158 runs per full pass** (24 module suites + 134 children; ~153 without `MOB.967`) ≈ 632/month weekly. Schedule the **24 module suites only** (a child also scheduled bills twice); **stagger** them — the writing suites share fixtures (trap 1), `MOB.973_Session_RunAlone` must run alone and `MOB.975_Phone` runs on its own device; give each a failure notification. Consider holding `MOB.967` out until bugs §34 is fixed: 5 runs a pass to re-confirm a filed bug. Runtimes are measured on Datadog — the longest are `MOB.959` 682s and `MOB.953` 634s, both clear of the ~1071s ceiling. Needs `dd_tools.push` to send `status` + a weekly `tick_every` for suites (`BODY_KEYS` omits `status`). Residue grows ~4 work orders per pass until bugs §41 — and it is not free: every `/work` visit downloads each listed stage's detail (86s locally, measured 2026-09-16), so `MOB.953` creeps toward the ceiling each pass. On-demand runs may use 10 at once (the read-only suites passed that way); whether a SCHEDULE shares that cap is unchecked | late game |
+| **37** | **Weekly schedule on Datadog's own scheduler** (owner, 2026-09-17: weekly, native — no script; plan **2,000 runs/month**; dev is up at weekends). Each suite runs once a week in its own ONE-HOUR slot (`tick_every = 3600` inside an `options.scheduling` window): the 10 read-only suites share Sat 18:00 Pacific, the 12 data-changing ones follow two hours apart through Sun 18:00, Session last at Sun 20:00. **158 runs a pass, ≈ 750/month with retries.** Slots live in `suite_plan.SLOTS`; `build_module_suites.py` writes them; `push` now sends `status`; `preflight.py schedule` refuses slots under 2h apart, a live leaf, and a live schedule before the day numbering is confirmed; `sync` now compares status and schedule. MOB.967 stays paused (bugs §34). ⚠️ A test's windows must all share one time of day (Datadog: `All start times should be equal`). **Steps:** (1) `schedule_probe.py` — live since Thu 2026-09-17 20:21, one window 21:00–22:00 on day numbers 5/6/7. **Day numbering confirmed: Monday = 1** (Datadog gave its next run as "1d from now" on Thursday evening, so 5 = Friday). ⏳ Still measuring runs per window and the minute they fire (Fri/Sat/Sun nights); pause it after Sunday. (2) ✔ tooling. (3) one manual full pass (~160 runs) to re-measure `954`/`955`/`959`/`960`/`961`/`966`/`968`/`981`. (4) `SCHEDULE_ON = True`, rebuild, push | in progress · awaiting the probe |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 134 asserted, 63 in no test (some still

@@ -11,6 +11,9 @@ from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 from datadog_api_client.v1.model.synthetics_browser_test import SyntheticsBrowserTest
 from datadog_api_client.v1.model.synthetics_trigger_body import SyntheticsTriggerBody
 from datadog_api_client.v1.model.synthetics_trigger_test import SyntheticsTriggerTest
+from datadog_api_client.v1.model.synthetics_update_test_pause_status_payload import (
+    SyntheticsUpdateTestPauseStatusPayload)
+from datadog_api_client.v1.model.synthetics_test_pause_status import SyntheticsTestPauseStatus
 
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))   # Mobile/dd_scripts
 MOBILE = os.path.dirname(SCRIPTS)                      # Mobile
@@ -955,17 +958,30 @@ def push(*names, all_tests=False):
     failed = []
     with ApiClient(_conf()) as c:
         api = SyntheticsApi(c)
-        ids = remote_ids(api)
+        listed = api.list_tests().to_dict()["tests"]
+        ids = {t["name"]: t["public_id"] for t in listed}
+        status = {t["name"]: t.get("status") for t in listed}
         for f in _local_test_files(() if all_tests and not names else names):
             d = json.load(open(f))["details"]
             try:
                 body = SyntheticsBrowserTest(**{k: d[k] for k in BODY_KEYS})
                 if d["name"] in ids:
-                    api.update_browser_test(ids[d["name"]], body)
+                    pid = ids[d["name"]]
+                    api.update_browser_test(pid, body)
                     print(f"update {d['name']}")
                 else:
-                    r = api.create_synthetics_browser_test(body).to_dict()
-                    print(f"CREATE {d['name']} -> {r['public_id']}")
+                    pid = api.create_synthetics_browser_test(body).to_dict()["public_id"]
+                    status[d["name"]] = "paused"   # created without `status` (BODY_KEYS) — Datadog makes it paused
+                    print(f"CREATE {d['name']} -> {pid}")
+                # 🛑 LIVE/PAUSED IS NOT PART OF THE BODY. Datadog sets it through its own endpoint, so it is
+                # sent separately — and only when the JSON disagrees with Datadog. `live` is what BILLS: a test
+                # left live runs on its `tick_every` whether or not anyone is watching (▶ the weekly schedule,
+                # suite_plan.SLOTS). `preflight.py schedule` refuses a live leaf.
+                want = d.get("status") or "paused"
+                if status.get(d["name"]) != want:
+                    api.update_test_pause_status(pid, SyntheticsUpdateTestPauseStatusPayload(
+                        new_status=SyntheticsTestPauseStatus(want)))
+                    print(f"   status {status.get(d['name'])} -> {want}")
             except Exception as e:
                 failed.append(d["name"])
                 print(f"FAILED {d['name']}: {str(e)[:200]}")

@@ -75,7 +75,8 @@ def check_wiring():
 
 # Datadog tests with no local JSON on purpose. `MOB.PDF_Upload_Recording` holds the owner-recorded PDF that
 # MOB.628 and MOB.866 upload (trap 12) - paused, never pushed from here, never deleted.
-REMOTE_ONLY = {"MOB.PDF_Upload_Recording"}
+# `MOB.TRIAL_Schedule_Window_Probe`: schedule_probe.py's throwaway, live only for the scheduling trial (▶ #37).
+REMOTE_ONLY = {"MOB.PDF_Upload_Recording", "MOB.TRIAL_Schedule_Window_Probe"}
 
 
 def check_sync():
@@ -106,6 +107,14 @@ def check_sync():
                                (s.get("params") or {}).get("subtest_public_id")) for s in st]
             if sig(steps_of(d)) != sig(remote.get("steps") or []):
                 diffs.append(f"{name}: steps differ ({len(steps_of(d))} local vs {len(remote.get('steps') or [])})")
+            # What BILLS must match too: a test left `live` on Datadog runs on its own schedule whatever the
+            # repo says, and a window that drifted breaks the slot spacing `schedule` proves (▶ #37).
+            det, ro = (d.get("details") or d), (remote.get("options") or {})
+            lo = det.get("options") or {}
+            if (det.get("status") or "paused") != remote.get("status"):
+                diffs.append(f"{name}: {remote.get('status')} on Datadog, {det.get('status')} locally")
+            if lo.get("tick_every") != ro.get("tick_every") or (lo.get("scheduling") or None) != (ro.get("scheduling") or None):
+                diffs.append(f"{name}: its schedule differs from Datadog's")
         extra = [n for n in ids if n.startswith("MOB.") and n not in local and n not in REMOTE_ONLY]
     ok = not diffs and not extra and not dups
     msg = f"{len(local)} local tests match Datadog by content" if ok else "; ".join(
@@ -278,9 +287,75 @@ def check_docs():
     return False, f"{len(problems)} problem(s): " + "; ".join(problems[:4])
 
 
+def check_schedule():
+    """The weekly slots are what keep the data-changing suites apart — so prove them (▶ #37).
+
+    Datadog cannot make one test wait for another. Two data-changing suites in overlapping hours would edit the
+    same fixtures at once (trap 1) and fail each other, and a read-only suite running beside one reads a fixture
+    mid-edit. So, from `suite_plan.SLOTS` and every suite's JSON:
+      - every suite but MOB.967 has a slot, and its JSON carries exactly that window (rebuilt, not stale);
+      - every read-only suite shares the one read-only slot, and no two OTHER slots start under 2h apart
+        (a one-hour window + the longest suite with its retry, ~25 min, + margin);
+      - Session (MOB.973) is the last data-changing slot;
+      - MOB.967 has no slot and is paused (bugs §34);
+      - every suite's status agrees with `SCHEDULE_ON`, and nothing is LIVE before the probe has confirmed which
+        weekday Datadog's `day` numbers mean;
+      - no leaf test is live or carries a window: it would run on its own AND inside its suite — billed twice.
+    """
+    from suite_plan import (SUITES, suite_name, SLOTS, READ_ONLY_SLOT, DAY_NUMBERING_CONFIRMED, SCHEDULE_ON,
+                            schedule_options, slot_problems, ALERT_TO)
+    local = local_tests()
+    problems, suites, n_writes = [], set(), 0
+    for sid, _m, _p, cls, _b, _c in SUITES:
+        name = suite_name(sid, _m, _p)
+        suites.add(name)
+        det = local[name].get("details") or local[name]
+        o, st = det.get("options") or {}, det.get("status") or "paused"
+        if sid == "967":
+            if sid in SLOTS or o.get("scheduling") or st != "paused":
+                problems.append("MOB.967 must stay paused with no slot until bugs §34 is fixed")
+            continue
+        want = schedule_options(sid)
+        if not want:
+            problems.append(f"MOB.{sid} has no slot")
+            continue
+        if o.get("tick_every") != want["tick_every"] or o.get("scheduling") != want["scheduling"]:
+            problems.append(f"MOB.{sid}'s JSON does not carry its slot — rebuild the suites")
+        if cls.startswith("read-only"):
+            if SLOTS[sid] != READ_ONLY_SLOT:
+                problems.append(f"MOB.{sid} is read-only but not in the read-only slot")
+        else:
+            n_writes += 1
+        if st != ("live" if SCHEDULE_ON else "paused"):
+            problems.append(f"MOB.{sid} is {st}, but SCHEDULE_ON is {SCHEDULE_ON}")
+        # Alerts go out with the schedule and not before: a live suite must name ALERT_TO, a paused one no one.
+        if (st == "live") != (f"@{ALERT_TO}" in (det.get("message") or "")):
+            problems.append(f"MOB.{sid} is {st} but {'does not name' if st == 'live' else 'names'} @{ALERT_TO}")
+        if st == "live" and not DAY_NUMBERING_CONFIRMED:
+            problems.append(f"MOB.{sid} is live before the probe confirmed Datadog's day numbering")
+    read_only = [sid for sid, _m, _p, cls, _b, _c in SUITES if cls.startswith("read-only")]
+    problems += [x for x in slot_problems(SLOTS, read_only) if "read-only slot" not in x]
+    # The rule proves itself on tables it MUST reject — a spacing check that passes everything is trap 5.
+    for label, bad in (("an hour apart", {"956": ("Sat", 21)}), ("the same hour", {"956": ("Sat", 20)}),
+                       ("an hour after the read-only slot", {"953": ("Sat", 19)}),
+                       ("Session not last", {"972": ("Sun", 22)}),
+                       ("across Sun→Mon midnight", {"973": ("Sun", 23), "957": ("Mon", 0)})):
+        if not slot_problems({**SLOTS, **bad}, read_only):
+            problems.append(f"slot_problems() ACCEPTED a bad table ({label}) — the spacing rule is broken")
+    for name, d in local.items():
+        det = d.get("details") or d
+        if name not in suites and ((det.get("status") == "live") or (det.get("options") or {}).get("scheduling")):
+            problems.append(f"{name} is a leaf with a schedule — it would bill twice")
+    if problems:
+        return False, f"{len(problems)} problem(s): " + "; ".join(problems[:4])
+    state = "LIVE" if SCHEDULE_ON else "paused (SCHEDULE_ON = False)"
+    return True, (f"{n_writes} data-changing slots + 1 read-only slot, all ≥2h apart · Session last · "
+                  f"MOB.967 held · {state}")
+
+
 CHECKS = {"wiring": check_wiring, "sync": check_sync, "drift": check_drift, "literals": check_literals,
           "bench": check_bench, "locals": check_locals, "av": check_av, "work": check_work, "mob302": check_mob302,
-          "mob39x": check_mob39x, "docs": check_docs}
+          "mob39x": check_mob39x, "docs": check_docs, "schedule": check_schedule}
 
 
 def main(names):

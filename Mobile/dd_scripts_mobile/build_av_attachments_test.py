@@ -69,10 +69,10 @@ CAROUSEL = '[class*="mantine-Carousel-slide"]'
 
 
 def switch_segment(value, label):
-    """Click the radio by VALUE. The labels are rendered by `useMediaQuery` inside a loop and
-    are nondeterministic (bugs §22), so the value is the only stable handle."""
+    """Click the radio by VALUE. `SegmentedControlWithIcons` renders an unselected option as a bare icon
+    below its `minWidth`, so a label may not be there at all; the value always is."""
     return [
-        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by label (§22)',
+        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by label (it can render icon-only)',
                  PANEL_JS +
                  "const root = p.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\n"
                  "if (!root) return false;\n"
@@ -150,8 +150,8 @@ write(test(
     "  (`TabsPanel.mjs:24,32`), which is the trap that cost `MOB.623` two runs. Second, the fixture\n"
     "  asset carries **both** photos and a PDF, so `no carousel on Docs` is proved on a screen\n"
     "  where a carousel demonstrably exists on Photos.\n"
-    "- Segments are switched by radio **value** (`1`/`2`), never by label — the labels are\n"
-    "  rendered through `useMediaQuery` inside a loop and are nondeterministic (bugs §22).\n"
+    "- Segments are switched by radio **value** (`1`/`2`), never by label — an unselected option\n"
+    "  renders as a bare icon below the control's `minWidth`.\n"
     "- 🛑 **No filename is hardcoded** (trap 29): the Docs proof counts anchors pointing at\n"
     "  `/api/attachment/<id>`, which is the row's shape, not someone's file name.\n"
     "- Ends back on the `General Info` tab with the Photos segment selected.",

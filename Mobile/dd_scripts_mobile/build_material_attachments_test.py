@@ -26,7 +26,7 @@ THE SEGMENT SET IS PINNED, BY VALUE
   Exactly `['1','2','3','4']` read from the radio inputs (Mantine `SegmentedControl` - structure
   verified on the bench for `MOB.351`), and the four labels in order. Fails on any add, remove,
   rename or reorder. Segments are switched by clicking the radio INPUT by value, never by label
-  text (bugs §22).
+  text (an unselected option can render icon-only).
 
 THE AVATAR MODAL IS AN EXCLUSIVE-OR
   The image button exists only when `materialItemId.avatar.imageUrl` is set. So EITHER the
@@ -94,7 +94,7 @@ SECTIONS_JS = ("const leaves = [...m.querySelectorAll('p, div, span')].filter(e 
 
 def switch_segment(value, label):
     return [
-        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by text (§22)',
+        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by text (it can render icon-only)',
                  MODAL_JS +
                  "const root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\n"
                  "if (!root) return false;\n"
@@ -221,7 +221,7 @@ write(test(
     "modal.**\n"
     "- READ-ONLY. Nothing is uploaded, adjusted or submitted; the modal is closed on the way out.\n"
     "- ⭐ **The segment set is pinned by VALUE**: `Quantity Adjustment` · `Stock Item` · `Photos` ·\n"
-    "  `Docs` (`1`..`4`), switched by clicking the radio input, never by label text (§22).\n"
+    "  `Docs` (`1`..`4`), switched by clicking the radio input, never by label text.\n"
     "- ⭐ **Photos vs Docs is a biconditional** (`MOB.741`'s shape on a third parent type,\n"
     "  `MaterialItem`): `Add Photo` and no `Add File`, then `Add File`, no `Add Photo`, no carousel.\n"
     "  🛑 Neither button is clicked — `FileAttachments` has no image filter, so an upload lands.\n"

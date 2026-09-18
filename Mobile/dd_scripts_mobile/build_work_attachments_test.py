@@ -41,10 +41,9 @@ HOW THE ASSERTION AVOIDS TRAP 5
   Only then is the absence from the table meaningful. If the fixture file were ever swapped for
   a PDF the middle clause fails loudly, instead of the test passing for the wrong reason.
 
-⚠️ NEVER MATCH A SEGMENTED CONTROL BY ITS VISIBLE TEXT - `bugs_found.md` §22, standing rule.
-  `SegmentedControlWithIcons` calls `useMediaQuery` inside a `.map()` callback, and with
-  `minWidth={375}` the UNSELECTED option renders as a bare icon with no text below that width.
-  The label is therefore nondeterministic by construction. The tab switch here is done in JS
+⚠️ NEVER MATCH A SEGMENTED CONTROL BY ITS VISIBLE TEXT - standing rule.
+  With `minWidth={375}`, `SegmentedControlWithIcons` renders the UNSELECTED option as a bare icon with
+  no text below that width, so the label may simply not be there. The tab switch here is done in JS
   against the option's `value` (trap 28 - these inputs are visually hidden, so `element.click()`
   is the only way in), with a structural fallback, and what PROVES the switch worked is the
   assertion after it, not the click.
@@ -87,7 +86,7 @@ IN_MODAL = ("const m = document.querySelector('.mantine-Modal-content');\n"
 ADD_PHOTO = "Add Photo"
 ADD_FILE = "Add File"
 
-# Switch the Photos/Docs segmented control by VALUE, never by text (see the header, §22).
+# Switch the Photos/Docs segmented control by VALUE, never by text (see the header).
 # tabOptions is hardcoded [{value:'1',Photos},{value:'2',Docs}] (WorkStageAttachments.tsx:106).
 def pick_segment(value):
     return (IN_MODAL +
@@ -170,7 +169,7 @@ steps = [
 
     # ---- the Photos/Docs control ----------------------------------------------------------------
     # Counted rather than spot-checked, and read off the radio VALUES rather than the labels,
-    # which §22 makes nondeterministic below 375px.
+    # which an unselected option does not render below 375px.
     jsassert("The panel offers EXACTLY TWO segments (Photos / Docs), read by value not label",
              IN_MODAL +
              "const root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\n"
@@ -189,7 +188,7 @@ steps = [
              only_button(ADD_PHOTO, ADD_FILE), timeout=30),
 
     # ---- switch to DOCS --------------------------------------------------------------------------
-    jsassert("Switch to the Docs segment by VALUE (never by text — §22)", pick_segment("2"),
+    jsassert("Switch to the Docs segment by VALUE (never by text — it can render icon-only)", pick_segment("2"),
              timeout=30),
     step("wait", "Let the Docs panel render", {"value": 2}),
     # This is what proves the switch happened; the click above only proves an element was hit.
@@ -283,8 +282,8 @@ write(test(
     "  `buttonText`, so it must show the component default **`Add Photo`** where the collector\n"
     "  shows its derived `Add Asset Photo`. The two Add buttons are **mutually exclusive** by\n"
     "  construction, which is what makes the tab switch checkable rather than assumed.\n"
-    "- ⚠️ **The segmented control is switched by VALUE, never by text** (`bugs_found.md` §22 —\n"
-    "  `useMediaQuery` inside a `.map()` makes the label nondeterministic under 375px).\n"
+    "- ⚠️ **The segmented control is switched by VALUE, never by text** — under 375px an\n"
+    "  unselected option renders as a bare icon with no label.\n"
     "- ⚠️ The route is `MOB.740`'s, **duplicated on purpose** — `WorkLookupDetails` hardcodes its\n"
     "  four sections, so the tab is guaranteed there, and sharing the prefix would rewrite a\n"
     "  green wired test. **If the route breaks, both files change together.**",

@@ -4,7 +4,7 @@
         "name": "MOB.865_MaterialLookup_Item_Attachments",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.865` **The storeroom item modal's `Photos` / `Docs` segments, and the row avatar image modal.**\n- READ-ONLY. Nothing is uploaded, adjusted or submitted; the modal is closed on the way out.\n- \u2b50 **The segment set is pinned by VALUE**: `Quantity Adjustment` \u00b7 `Stock Item` \u00b7 `Photos` \u00b7\n  `Docs` (`1`..`4`), switched by clicking the radio input, never by label text (\u00a722).\n- \u2b50 **Photos vs Docs is a biconditional** (`MOB.741`'s shape on a third parent type,\n  `MaterialItem`): `Add Photo` and no `Add File`, then `Add File`, no `Add Photo`, no carousel.\n  \ud83d\uded1 Neither button is clicked \u2014 `FileAttachments` has no image filter, so an upload lands.\n- Whether the fixture item has photos/documents is \ud83d\udcca reported, not asserted.\n- \u2b50 **The avatar modal is an exclusive-or**: either the row has no image button, or clicking\n  it opens the (same) modal showing `img.file-image`. The branch taken is recorded.\n- Fixture: `000-000-000 Adamantium` in `Central Storeroom`.",
+        "message": "`MOB.865` **The storeroom item modal's `Photos` / `Docs` segments, and the row avatar image modal.**\n- READ-ONLY. Nothing is uploaded, adjusted or submitted; the modal is closed on the way out.\n- \u2b50 **The segment set is pinned by VALUE**: `Quantity Adjustment` \u00b7 `Stock Item` \u00b7 `Photos` \u00b7\n  `Docs` (`1`..`4`), switched by clicking the radio input, never by label text.\n- \u2b50 **Photos vs Docs is a biconditional** (`MOB.741`'s shape on a third parent type,\n  `MaterialItem`): `Add Photo` and no `Add File`, then `Add File`, no `Add Photo`, no carousel.\n  \ud83d\uded1 Neither button is clicked \u2014 `FileAttachments` has no image filter, so an upload lands.\n- Whether the fixture item has photos/documents is \ud83d\udcca reported, not asserted.\n- \u2b50 **The avatar modal is an exclusive-or**: either the row has no image button, or clicking\n  it opens the (same) modal showing `img.file-image`. The branch taken is recorded.\n- Fixture: `000-000-000 Adamantium` in `Central Storeroom`.",
         "tags": [
             "Mobile",
             "env:dev",
@@ -421,7 +421,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Photos\" segment by VALUE (3) \u2014 never by text (\u00a722)",
+                "name": "Switch to the \"Photos\" segment by VALUE (3) \u2014 never by text (it can render icon-only)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"3\"]');\nif (!el) return false;\nel.click();\nreturn true;"
@@ -498,7 +498,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Docs\" segment by VALUE (4) \u2014 never by text (\u00a722)",
+                "name": "Switch to the \"Docs\" segment by VALUE (4) \u2014 never by text (it can render icon-only)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const m = document.querySelector('.mantine-Modal-content');\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nif (!root) return false;\nconst el = root.querySelector('input[type=\"radio\"][value=\"4\"]');\nif (!el) return false;\nel.click();\nreturn true;"

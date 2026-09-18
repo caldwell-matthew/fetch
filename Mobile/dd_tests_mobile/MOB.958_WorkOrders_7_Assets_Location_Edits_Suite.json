@@ -76,7 +76,17 @@
             "rum_settings": {
                 "is_enabled": false
             },
-            "tick_every": 86400
+            "tick_every": 3600,
+            "scheduling": {
+                "timezone": "America/Los_Angeles",
+                "timeframes": [
+                    {
+                        "day": 7,
+                        "from": "02:00",
+                        "to": "03:00"
+                    }
+                ]
+            }
         },
         "steps": [
             {

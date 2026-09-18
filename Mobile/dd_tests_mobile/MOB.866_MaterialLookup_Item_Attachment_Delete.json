@@ -361,7 +361,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Photos\" segment by VALUE (3) \u2014 never by text (\u00a722)",
+                "name": "Switch to the \"Photos\" segment by VALUE (3) \u2014 never by text (it can render icon-only)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => !!x.querySelector('[class*=\"mantine-SegmentedControl-root\"]'));\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nconst el = root.querySelector('input[type=\"radio\"][value=\"3\"]');\nif (!el) return false;\nel.click();\nreturn true;"
@@ -679,7 +679,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Switch to the \"Docs\" segment by VALUE (4) \u2014 never by text (\u00a722)",
+                "name": "Switch to the \"Docs\" segment by VALUE (4) \u2014 never by text (it can render icon-only)",
                 "noScreenshot": false,
                 "params": {
                     "code": "const m = [...document.querySelectorAll('.mantine-Modal-content')]\n  .find(x => !!x.querySelector('[class*=\"mantine-SegmentedControl-root\"]'));\nif (!m) return false;\nconst root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\nconst el = root.querySelector('input[type=\"radio\"][value=\"4\"]');\nif (!el) return false;\nel.click();\nreturn true;"

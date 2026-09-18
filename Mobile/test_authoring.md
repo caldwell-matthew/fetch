@@ -6,7 +6,7 @@
 |---|---|
 | `testing_checklist.md` | what is left to do, and what has run |
 | `coverage.md` | what a green run proves |
-| **`test_authoring.md`** | how to build a test and prove it (locally, then on Datadog) without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 33 traps |
+| **`test_authoring.md`** | how to build a test and prove it (locally, then on Datadog) without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 40 traps |
 | `bugs_found.md` | what the tests found in the app |
 | `cleanup_spec.md` | test residue: what exists, what can be removed, never-touch fixtures |
 
@@ -158,7 +158,7 @@ login-bearing test asserts the role right after login.
 ## Locator & assertion traps
 
 *1–17 are locator/assertion traps; 18–27 process traps (how tooling, fixtures or framing misled);
-28–33 more locator, fixture and offline traps.*
+28–40 more locator, fixture, offline and scheduling traps.*
 
 **1 · Never add a second `device_id`.** Datadog runs each device as a **concurrent** session, and
 the mutating tests share one fixture, so two devices race (caught when a phone session walked the
@@ -414,3 +414,52 @@ starts `online: true` and copies `navigator.onLine` on mount — which a dispatc
 `QueueLink`, so a query fired after it hangs: a loading overlay, not the offline message. Open the
 panel online, then go offline (`MOB.914`'s Readings); a panel that must mount offline needs a second
 dispatch after it mounts (its Work History).
+
+**34 · A modal that closes itself must be recorded — and the recorder must skip what was already open.**
+A MentorLens tag's description modal closes after 3s (`LensTags.tsx`, `DESC_MODAL_AUTO_CLOSE_MS`); Datadog's
+step overhead makes "click, then read it next step" a race. Install a `MutationObserver` before the click
+(trap 32) — but snapshot the modal bodies ALREADY mounted and record only new ones: filtering by text caught
+the `Get New Asset` form behind the editor, whose carousel keeps mutating (`MOB.622`, local replay 1). Then
+assert the self-close too: only the snapshot's bodies remain.
+
+**35 · Click what carries the handler — from JS when it sits inside something that writes.**
+- A button inside a clickable card: the `?` beside a MentorLens tag stops propagation, but the card's own
+  onClick ASSIGNS the tag (a server write) and Datadog clicks by coordinates (trap 6b). `.click()` the
+  icon itself from JS and read the card back unchanged (`aria-checked`) — `MOB.622`.
+- `GeoLocateButton` is `<ActionIcon component="span">`: `closest('button')` finds nothing. Click the
+  `mantine-ActionIcon-root` (`MOB.629`, as `MOB.358`/`911`).
+- `MultiLineLabel` puts `onClick` on the `<svg>` inside an `ActionIcon aria-label="Settings"` that does
+  nothing. An `<svg>` has no `.click()` — dispatch `new MouseEvent('click', {bubbles: true})` on it (`MOB.331`).
+
+**36 · A form field's label section sits BESIDE its input's wrapper.** `FormFieldContainer` renders
+`div.form-group > label[for] + div(labelRightSection) + the input`, so anything drawn beside a label (the
+value arrow) is a sibling of the Mantine `InputWrapper`, not inside it: scope to `.form-group` (`MOB.331`).
+On the bench, model markup faithfully: an HTML string cannot nest `<button>` in `<button>` (the parser
+closes the outer one — React builds it with DOM calls; model the outer as a `div` with the same `role`),
+and a model `<button>` needs its real `type` — typeless inside a `<form>`, it SUBMITS it (Mantine renders
+`type="button"`, `UnstyledButton.mjs:53`).
+
+**37 · A field can be null on the server and set in the cache.** `mobileJob.assetsVerified` exists on the
+type, but the server returns `null` — it is filled in client-side off the job list. A `/graphql` proof
+read it as 0 and failed (`MOB.510`, local replay 1). Count what the server stores (`assets { verified }`).
+
+**38 · One click can queue more than one mutation — and the count belongs to the fixture.**
+`VerificationCheckbox.update()` runs off the optimistic response, offline too, and recomputes the job
+status; verifying from `READY` therefore queues `VERIFY_ASSET` AND `UPDATE_MOBILE_JOB_STATUS`. `MOB.913`
+read 1 pending while the fixture rested `IN_PROGRESS` and needed 2 once it rested `READY` — it went red
+on Datadog though no step of it named a status. When a fixture's rest state moves, re-read every test
+that COUNTS something about it, not only those that assert the state.
+
+**39 · A gate can only wait for something that is coming.** The work order's Assets tab crashes when a
+row is expanded before the Asset schema is cached (bugs §45), and nothing on `/work` guarantees to fetch
+it. Gating on the rows' geolocate controls (which render only with that schema) would wait for a request
+nobody makes. Prime it through the user's own path — open `Add Existing Asset`, whose picker queries the
+schema, close it unused — THEN gate (`MOB.397`).
+
+**40 · Datadog's scheduler, as measured.** Browser `tick_every` is 60–604800s — weekly at most.
+`options.scheduling` is `{timezone, timeframes: [{day, from, to}]}`, **`day` is ISO (Monday = 1)**
+(`schedule_probe.py`, 2026-09-17), and all of a test's windows must share ONE start time (`All start
+times should be equal`). `retry.interval` is MILLISECONDS (our `300` is 0.3s). Live/paused is NOT in the
+test body — it has its own endpoint, which `push` now calls. Scheduling is per test and nothing orders
+them, so suites that share fixtures are kept apart by slot (`suite_plan.SLOTS`, `preflight.py
+schedule`). Only suites are scheduled: a live leaf that is also a suite child bills twice.

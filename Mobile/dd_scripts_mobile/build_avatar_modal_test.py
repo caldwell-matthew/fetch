@@ -16,8 +16,8 @@ THE FIXTURE IS `MOB.623`'S RESIDUE
 ⭐ PHOTOS vs DOCS IS A BICONDITIONAL - `MOB.741`'s shape, on the modal rather than a tab
   Photos: a carousel and `Add Photo` (`asset.update`), NO `Add File`. Docs: `Add File`
   (`asset.create`), NO `Add Photo`, NO carousel. Segments are switched by clicking the radio INPUT
-  by value - the labels are rendered by `useMediaQuery` inside a loop and are nondeterministic
-  (bugs §22), and the control is scoped to the modal (trap 3).
+  by value - an unselected option renders as a bare icon below the control's `minWidth`, so a label may
+  not be there - and the control is scoped to the modal (trap 3).
 
 🛑 Nothing is uploaded: `FileAttachments.addFiles` has no image filter, so an upload here lands.
   `Done` is the component's own dismissal and writes nothing.
@@ -68,7 +68,7 @@ CAROUSEL = "[class*=\"mantine-Carousel\"]"
 
 def switch_segment(value, label):
     return [
-        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by label (§22)',
+        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by label (it can render icon-only)',
                  MODAL_JS +
                  "const root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\n"
                  "if (!root) return false;\n"
@@ -173,7 +173,7 @@ write(test(
     "  (`stopPropagation`), that the modal names the asset and offers `Done`, and that the\n"
     "  segmented control has exactly values `1`/`2`.\n"
     "- ⭐ **Photos vs Docs is a biconditional**: carousel + `Add Photo` and no `Add File`, then\n"
-    "  `Add File`, no `Add Photo`, no carousel. Switched by radio VALUE (§22). Nothing uploaded.\n"
+    "  `Add File`, no `Add Photo`, no carousel. Switched by radio VALUE. Nothing uploaded.\n"
     "- Closed with `Done`. ⚠️ **bugs §35**: every click INSIDE the modal reaches the\n"
     "  `Accordion.Control` behind it (a React portal propagates through the React TREE), so the\n"
     "  three in-modal clicks leave the row expanded. The test collapses it again and carries an\n"

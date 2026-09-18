@@ -23,13 +23,9 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 11 | Verification toast fires before the mutation | Source | ❌ `VerificationCheckbox.tsx:24` |
-| 12 | Asset detail route implements 6 of 15 template section types | Source | ❌ latent |
-| 13 | Escape discards the whole new-asset form | Runtime | ❌ `AssetCollector/index.tsx:264` guards click-outside only |
-| 18 | `SubmitButton` ignores a label passed as children | Source | ❌ cosmetic, latent |
-| 20 | Submitting search discards active structured filters | Runtime | ❌ `MOB.820` pins it |
-| 21 | Permits tab renders blank with no permits | Source | ❌ `Permits.tsx` |
-| 22 | `useMediaQuery` called inside a loop callback | Source | ❌ `SegmentedControlWithIcons/index.tsx:16` |
+| 11 | Verification toast fires before the mutation | Source | ❌ low–medium · `VerificationCheckbox.tsx:24` |
+| 20 | Submitting search discards active structured filters | Runtime | ❌ medium · one-line fix · `MOB.820` pins it |
+| 21 | Permits tab renders blank with no permits | Source | ❌ low (missing empty state) · `WorkDetails.tsx:195` |
 | 24 | `Supersesed` misspelling in the status legend | Source | ❌ `StatusSummary/index.tsx:45` — likely unreachable on mobile |
 | 25 | How the crew's work list is populated | Reference | not a bug — the four server rules the checklist cites |
 | 28 | The offline geolocate message sits behind a `disabled` element's `onClick` | Source + Runtime | ❌ `GeolocateButton.tsx:94` |
@@ -60,24 +56,13 @@ toast.success(`Asset ${flag ? 'verified' : 'unverified'}`);
 client.mutate({ mutation: VERIFY_ASSETDocument, ... });
 ```
 
-Nothing awaits or catches the result, so a rejected mutation still reports "Asset verified" — in
-the module whose record says the asset was physically inspected. `AdHocForm.tsx:49` has the same
-shape (`toast.success('Form added')` before its mutate).
+The mutate is `void`ed with no `onError` and no `.catch`, so a rejected mutation still reports "Asset
+verified" — in the module whose record says the asset was physically inspected — and the optimistic check
+rolls back without a word. The checkbox is `defaultChecked` (uncontrolled, `:17`), so it may not even show
+that rollback. Not checked: whether a global Apollo error link reports the failure some other way.
+`AdHocForm.tsx:49` has the same shape (`toast.success('Form added')` before its mutate).
+**Severity:** low–medium — only a server rejection exposes it, but then the user is told the opposite.
 **Tests:** a toast proves the handler ran, not persistence (trap 7).
-
-## §12 · The asset detail route implements 6 of 15 template section types
-
-`AssetVerification/AssetDetails.tsx:201-243` maps six `MobileJobTemplateSectionType` values
-(`GENERAL_INFO`, `ATTRIBUTES`, `ATTACHMENTS`, `CONDITION`, `EVENT_READINGS`, `FAILURES`) of 16.
-Any other section renders a selectable tab with an **empty panel** — no fallback, no warning.
-`CONDITION`, `EVENT_READINGS` and `FAILURES` are further gated on `job.mobileJob.workStageId`, so
-they are empty on a job with no work stage (the fixture job is one).
-
-**Scope:** this is the `/asset-verify/:jobId/asset/:id` route only. The tabs users see on an
-expanded row (`AssetLookupDetails/index.tsx:91-102`) are a hardcoded six and unaffected. Latent — the
-owner says templates use a restricted set.
-**Fix:** render a fallback for unhandled types; constrain the template editor to what each app
-implements.
 
 ## §13 · Escape discards the whole new-asset form
 
@@ -85,20 +70,12 @@ implements.
 modal and leaves `closeOnEscape` at Mantine's default `true`. Escape discards every field and
 photo, without confirmation — and cascades: with the "Select Photo Source" picker open on top,
 one Escape closes both.
+The modal does not set `keepMounted`, so closing unmounts `NewAssetForm` and what was typed is gone. (The X
+loses the form the same way, which is presumably intended.)
 **Runtime:** `MOB.600` pressed Escape to leave the picker and its next step found no form.
+**Reach:** on a phone or tablet webview nothing sends Escape — only a hardware keyboard, or a desktop
+browser, can trigger it. **Severity:** low.
 **Fix:** `closeOnEscape={false}` on the outer modal, matching the click-outside guard.
-
-## §18 · `SubmitButton` ignores the label passed as children
-
-```jsx
-export default function SubmitButton({ isValid, buttonText = 'Submit', onClick, ...btnProps }) {
-    return <Button ... {...btnProps}>{buttonText}</Button>;
-}
-```
-
-An explicit JSX child wins over a spread `children`, so
-`<SubmitButton ...>Update Asset</SubmitButton>` (`EditForm.tsx:63-70`) renders `Submit`. Cosmetic;
-callers using `buttonText` are unaffected. `MOB.710` matches either label, scoped to the modal.
 
 ## §20 · Submitting the search box discards every active structured filter
 
@@ -109,36 +86,32 @@ line  97  useQuery   params: buildParams(1, [...(props.query || query || [])])  
 line 173  refetch    query:  { conditions: [...(props.query ?? [])] }             // WITHOUT
 ```
 
-`props.query` is set only when Asset Lookup is embedded, so on the standalone page the submit
-refetches with `conditions: []` while the UI still shows `Filters (1)`. The handler also issues a
-filtered request via `setSearchText`; the unfiltered response wins in practice.
+`fetchMore` (`:139`) uses `props.query || query` like line 97. `props.query` is set only when Asset Lookup is
+embedded, so on the standalone page the submit refetches with no conditions while the filter chips stay on
+screen (`Filters (1)`). What the user then sees depends on the text:
+- **the same text again** — the hook's variables do not change, so the unfiltered result stays; and the NEXT
+  page, from `fetchMore`, comes back filtered — one list, two rules;
+- **new text** — `setSearchText` makes the hook re-query WITH the filters, racing the unfiltered refetch;
+  which lands last depends on Apollo's timing (on the standalone page the unfiltered one won, `MOB.820`).
+The same refetch also hardcodes `jobLookup: { jobId: '??' }` instead of `props.jobId` (line 96 uses the prop).
 
 **Runtime (`MOB.820`):** filter `Name contains ZZZZ-NO-SUCH-ASSET` hides `Pump 0102`; submitting
 the search box brings it back with `Filters (1)` still displayed.
-**Severity:** high — silently wrong data.
-**Fix:** line 173 should match line 97.
+**Severity:** medium — results that do not match the filters shown, with no error.
+**Fix:** one line — the refetch's params should be `buildParams(1, [...(props.query || query || [])])`, as at
+line 97 (and `jobId: props.jobId`).
 **Tests:** `MOB.820` asserts the buggy behaviour and will fail when this is fixed — then flip its
-assertions and delete this entry.
+assertions and delete this entry. The component's own Jest test mocks `useQuery`, so it exercises none of this.
 
 ## §21 · The Permits tab renders a blank panel when there are no permits
 
-`WorkOrders/components/Permits.tsx:9-12` maps the list with no empty case. Every sibling has one
-(`No Warranties Found...`, `No asset attributes found.`); Permits shows nothing, so "no permits"
-and "failed to load" look identical.
+`WorkDetails.tsx:195` guards only against a null list, and `WorkOrders/components/Permits.tsx:9-12` maps an
+EMPTY one to nothing — an empty scroll area, so "no permits" and "failed to load" look identical. Some
+siblings do have an empty state (`No Warranties Found...`, `No asset attributes found.`); the Failures,
+Conditions and Forms tabs do not either. Missing UX rather than a regression. **Severity:** low.
 **Fix:** `if (!permits.length) return <Text>No Permits Found...</Text>;`
 **Tests:** `MOB.394` depends on the permit the owner added to the fixture; if it is removed the
 test fails on data.
-
-## §22 · `useMediaQuery` is called inside a loop callback
-
-`helper-components/SegmentedControlWithIcons/index.tsx:13-20` calls `useMediaQuery` from
-`showDisplayLabel`, conditionally, inside `options.map` — breaking the Rules of Hooks twice
-(conditional, variable count). Hook state is positional, so labels can render as text or bare
-icons nondeterministically, and the drift can affect other hooks in the component.
-**Fix:** hoist it — `const wide = useMediaQuery(...)` in the body, then
-`showDisplayLabel = v => minWidth == null || wide || v === selectedValue`.
-**Tests:** `av_job_gate` matches the radio input (`//label[.//input[@value="All"]]`), never the
-visible label. `build_verify_tests.py`'s `filt()` still matches text for `MOB.500`–`530`.
 
 ## §24 · `Supersesed` misspelling in the status legend
 

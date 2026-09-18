@@ -64,7 +64,7 @@ LOCATORS
   SegmentedControl, because the photo picker and the delete confirmation are modals of their
   own - and inside it to the `Storeroom Item` section: the siblings between its heading and
   `Material Item (read only)` (trap 3; `MOB.865`'s split). Segments are switched by radio VALUE,
-  never by label (bugs §22).
+  never by label (an unselected option can render icon-only).
 """
 import json, os, sys
 
@@ -197,7 +197,7 @@ REST_P = (f"(() => {{ const mat = sessionStorage.getItem('{K_MAT}');\n"
 
 def switch_segment(value, label):
     return [
-        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by text (§22)',
+        jsassert(f'Switch to the "{label}" segment by VALUE ({value}) — never by text (it can render icon-only)',
                  MODAL_JS +
                  "const root = m.querySelector('[class*=\"mantine-SegmentedControl-root\"]');\n"
                  f"const el = root.querySelector('input[type=\"radio\"][value=\"{value}\"]');\n"
