@@ -1,0 +1,103 @@
+# DRAFT — the Playwright jobs to add to MentorTwo's .circleci/config.yml. Not wired anywhere yet.
+#
+# Assumes the e2e/ folder has moved into MentorTwo (it is self-contained for that reason). Until it
+# does, the job would need a second checkout of this repo, which needs a deploy key.
+#
+# Two jobs, because the suites cost very different amounts of time:
+#
+#   e2e_smoke  after every dev deploy. READ-ONLY suites only, so it can never damage the shared
+#              fixtures, and short enough to report back while the deploy is still fresh.
+#   e2e_full   nightly (or weekly). Every suite in the safe order, with the fixture checks between
+#              the data-changing ones — that ordering is `playwright_pass.py`, which is Python, so this
+#              job needs Python as well as Node.
+#
+# Neither job gates the deploy: dev is already serving the build when they start. A red is a report,
+# not a rollback. The same jobs could later gate promotion to `stage`.
+#
+# ⚠️ Open questions before this can run (checklist ▶ #37):
+#   - Can CircleCI's cloud runners reach dev.mentorapm.com, or does dev only accept known IPs?
+#   - Which context holds DATA_DOG_EMAIL / DATA_DOG_PASSWORD / MOBDEV? (Proposed: `mobile-e2e`.)
+#   - Where do results go — Slack, email, or both?
+
+version: 2.1
+
+jobs:
+  e2e_smoke:
+    docker:
+      # Playwright's own image: Node plus Chromium and its system libraries, pinned to the version
+      # in e2e/package-lock.json so the browser matches the one the tests were proven on.
+      - image: mcr.microsoft.com/playwright:v1.63.0-noble
+    working_directory: ~/project/mentor
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install the e2e packages
+          command: cd e2e && npm ci --no-audit --no-fund
+      - run:
+          name: Read-only suites against dev
+          # workers: 1 comes from playwright.config.ts. Read-only suites could overlap safely, but one
+          # at a time keeps dev's load predictable and the logs readable.
+          command: |
+            cd e2e
+            # the config's own reporters: list to the log, JUnit to results/junit.xml, and HTML
+            npx playwright test suites/MOB.954* suites/MOB.961* suites/MOB.968* suites/MOB.975*
+      - store_test_results:
+          path: e2e/results/junit.xml
+      - store_artifacts:
+          path: e2e/results/artifacts        # failure screenshots and traces
+          destination: e2e
+
+  e2e_full:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.63.0-noble
+    working_directory: ~/project/mentor
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install the e2e packages, and Python for the fixture checks
+          command: |
+            cd e2e && npm ci --no-audit --no-fund && cd ..
+            apt-get update -qq && apt-get install -y -qq python3-venv >/dev/null
+            python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt
+      - run:
+          name: Every suite, in the safe order
+          # Stops at the first red (the first failure is the one worth reading). Fixture checks run
+          # before each data-changing suite and after the last.
+          command: .venv/bin/python Mobile/dd_scripts_mobile/playwright_pass.py
+          no_output_timeout: 30m
+      - store_artifacts:
+          path: Mobile/local_runs/passes
+          destination: passes
+
+workflows:
+  # ---- merge into MentorTwo's build_and_deploy workflow: ------------------------------------------
+  build_and_deploy:
+    jobs:
+      - e2e_smoke:
+          requires:
+            - composer_deploy
+          context:
+            - mobile-e2e
+          filters:
+            branches:
+              only:
+                - development          # NEVER stage/production: the suites write to shared data
+          # Two deploys close together must not run the suites side by side (trap 1).
+          serial-group: << pipeline.project.slug >>/e2e-dev
+
+  # ---- a separate scheduled workflow: ------------------------------------------------------------
+  nightly_e2e:
+    triggers:
+      - schedule:
+          cron: "0 9 * * *"             # 02:00 Pacific
+          filters:
+            branches:
+              only:
+                - development
+    jobs:
+      - e2e_full:
+          context:
+            - mobile-e2e
+          serial-group: << pipeline.project.slug >>/e2e-dev

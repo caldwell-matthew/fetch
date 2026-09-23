@@ -2,7 +2,7 @@
 // MOB.340_Work_Search_Sort
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../support/dd';
 
 export async function mob340(page: Page): Promise<void> {
   const run = new Sequence();
@@ -29,6 +29,20 @@ export async function mob340(page: Page): Promise<void> {
   });
   await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
     await assertPageLacks(page, `workstages downloaded`, 360000);
+  });
+  await run.step("LOADEDALL: start the idle clock", {}, async () => {
+    await assertFromJavascript(page, `sessionStorage.removeItem('__dd_worklist_idle_since');
+return true;`, DEFAULT_TIMEOUT);
+  });
+  await run.step("LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)", {}, async () => {
+    await assertFromJavascript(page, `const K = '__dd_worklist_idle_since';
+if (document.querySelector('.mantine-Progress-root')) {
+  sessionStorage.removeItem(K);
+  return false;
+}
+const since = Number(sessionStorage.getItem(K)) || 0;
+if (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }
+return Date.now() - since >= 10000;`, 360000);
   });
   await run.step("Focus the search box", {}, async () => {
     await click(page, `//input[@placeholder="Find Workstage(s)"]`, 30000);

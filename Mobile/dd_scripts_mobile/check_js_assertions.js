@@ -822,6 +822,44 @@ check('MUST FAIL: diag - a different sort is stored',
 check('MUST FAIL: diag - nothing stored', runJs(M580.diag, avList([TANK, MOTOR])), false);
 
 /* ===========================================================================================
+ * The work list's IDLE gate (dd_tools.work_list_idle) - shared by 27 tests.
+ * The three LOADEDALL `lacks` checks also pass in the 2-5s GAPS between the list's six loading
+ * phases; MOB.350 navigated away mid-prefetch because of that, and the equipment lookup was never
+ * cached. The gate now needs NO LoadingProgress bar for 10s straight, timed in sessionStorage.
+ * ========================================================================================= */
+console.log('\nWork list idle gate - no loading bar for 10s straight');
+{
+	const start = bodyOf('MOB.350_Work_Add_Equipment_Charge.json', 'start the idle clock');
+	const idle = bodyOf('MOB.350_Work_Add_Equipment_Charge.json', 'no loading bar on screen');
+	const KEY = '__dd_worklist_idle_since';
+	const page = ({ bar }) => {
+		const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work' });
+		const doc = dom.window.document;
+		if (bar) { const b = doc.createElement('div'); b.className = 'mantine-Progress-root'; doc.body.appendChild(b); }
+		const ring = doc.createElement('div'); ring.className = 'mantine-RingProgress-root';   // the status ring is NOT a bar
+		doc.body.appendChild(ring);
+		return dom.window;
+	};
+	const w = page({ bar: false });
+	w.sessionStorage.setItem(KEY, String(Date.now() - 60000));          // a stale clock from an earlier test
+	check('start resets a stale clock', runJs(start, w), true);
+	check('reset really removed it', w.sessionStorage.getItem(KEY), null);
+	check('MUST FAIL: idle, but the clock only just started', runJs(idle, w), false);
+	check('the clock is now running', !!w.sessionStorage.getItem(KEY), true);
+	w.sessionStorage.setItem(KEY, String(Date.now() - 4000));
+	check('MUST FAIL: idle for 4s - a gap between phases, not the end', runJs(idle, w), false);
+	w.sessionStorage.setItem(KEY, String(Date.now() - 11000));
+	check('idle for 11s - done', runJs(idle, w), true);
+	const busy = page({ bar: true });
+	busy.sessionStorage.setItem(KEY, String(Date.now() - 60000));
+	check('MUST FAIL: a loading bar is on screen, however long the clock has run', runJs(idle, busy), false);
+	check('a loading bar RESETS the clock', busy.sessionStorage.getItem(KEY), null);
+	const ringOnly = page({ bar: false });
+	ringOnly.sessionStorage.setItem(KEY, String(Date.now() - 11000));
+	check('the status RING alone does not count as loading', runJs(idle, ringOnly), true);
+}
+
+/* ===========================================================================================
  * MOB.820 - the filter SURVIVES a search (bugs_found.md 20, fixed in 02b17aa82e 2026-09-17).
  * The test used to pin the bug: the asset came back while the pill still said Filters (1). Now
  * it asserts the opposite, so the bench must prove it FAILS on the old, buggy page - a result
@@ -945,19 +983,21 @@ function workRows(specs) {
 const rowIdentity = (spec) => (typeof spec === 'string' ? spec : spec.seq) + ' | ' +
 	(typeof spec === 'string' ? 'Inspection (No Permit)' : (spec.name || 'Inspection (No Permit)'));
 
-console.log('\nMOB.345 - the narrowing guard (at least 2 rows, and tellable apart)');
+console.log('\nMOB.345 - the narrowing guard (exactly the 2 fixture stages, tellable apart)');
 {
-	const narrowed = bodyOf('MOB.345_Work_Sort_Persist.json', 'NARROWED: at least 2 rows render');
-	check('4 distinct rows', runJs(narrowed, workRows(['A-1', 'A-2', 'A-3', 'A-4'])), true);
-	check('MUST FAIL: 1 row - an order over one row is vacuous (trap 5)', runJs(narrowed, workRows(['A-1'])), false);
+	// 2026-09-23: the narrowing term is now `USED IN DATADOG`, which matches exactly two protected
+	// fixture stages, so the whole list fits one window in both orders. The guard insists on that
+	// count: a set that grew or shrank would prove the sort on rows nobody chose.
+	const narrowed = bodyOf('MOB.345_Work_Sort_Persist.json', 'NARROWED: exactly the');
+	const fixtures = [{ seq: '20260805-18-001', name: 'USED IN DATADOG DO NOT TOUCH THIS FILE' },
+		{ seq: '20260910-18-001', name: '☢️ USED IN DATADOG DONT TOUCH' }];
+	check('the two fixture stages', runJs(narrowed, workRows(fixtures)), true);
+	check('MUST FAIL: 1 row - an order over one row is vacuous (trap 5)', runJs(narrowed, workRows([fixtures[0]])), false);
 	check('MUST FAIL: 0 rows - the term matched nothing', runJs(narrowed, workRows([])), false);
-	// ⭐ 2026-09-15: the old guard capped this at 15 to keep the list inside one Virtuoso
-	// window. It never could - the dev list has outgrown any search term - so `scroll_to_end`
-	// carries the proof instead and a long list is no longer a failure.
-	check('⭐ 16 rows PASS now - scroll_to_end handles a list longer than the window',
-		runJs(narrowed, workRows(Array.from({ length: 16 }, (_, i) => `A-${i}`))), true);
+	check('MUST FAIL: a THIRD stage gained the name - the set is no longer the chosen pair',
+		runJs(narrowed, workRows([...fixtures, { seq: '20260923-1-001', name: 'USED IN DATADOG copy' }])), false);
 	check('MUST FAIL: two rows share a sequence AND a name - they cannot be told apart',
-		runJs(narrowed, workRows(['SAME', 'SAME', 'OTHER'])), false);
+		runJs(narrowed, workRows([fixtures[0], fixtures[0]])), false);
 	check('MUST FAIL: identity ignores the display fields - same sequence, different Address, still a duplicate',
 		runJs(narrowed, workRows([{ seq: 'A-1', fields: ['Address: one'] },
 			{ seq: 'A-1', fields: ['Address: two'] }])), false);

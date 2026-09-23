@@ -44,6 +44,36 @@ rewrite. Tightening those waits into waits-for-a-condition happens later, suite 
 measured either side. Until a suite has been through that, edit its `build_*.py` and re-convert rather than
 editing the generated files.
 
+## Datadog's rules, as this port keeps them
+
+Each of these was a bug in the first conversion, found by a suite that went red for the wrong reason.
+`Mobile/dd_scripts_mobile/check_conversion.py` checks the first two for every step, for free.
+
+| Datadog rule | How `support/dd.ts` keeps it | What broke when it didn't |
+|---|---|---|
+| A failed step skips the steps after it, **except** `alwaysExecute` ones, which run **where they are** | every step goes through `run.step(name, {always?, allow?})`, in its original order | hoisting `alwaysExecute` steps to the end left MOB.626's menus open mid-test |
+| `alwaysExecute` and `allowFailure` are **independent** flags | `{always: true, allow: 'ignore'}` is a valid step | treating "always" as a kind made MOB.348's optional fallback fatal |
+| The report names the **first** failure | `Sequence` keeps it; later failures are logged | a failing cleanup step hid what really broke MOB.389 |
+| A click lands on the element, even under an overlay | strict click first, then `dispatchEvent('click')` — never `force: true`, which fires at coordinates and an open modal eats it | MOB.389's Failure tab click went to the Condition modal, and Playwright called it a success |
+| `typeText` types key by key and **appends** (trap 17) | `pressSequentially`, no delay, and the value is checked afterwards | a 20ms delay let the login form wipe the password mid-word |
+| Datadog's browsers run on Linux, where select-all is Control+A | `Control+` becomes `ControlOrMeta+` | on macOS the "select the old term, then retype" steps left the old text |
+| One match or fail (trap 3) — among elements you can **see** | `one()` keeps the visible match when hidden Mantine nodes also match | — |
+| A suite's children share local variables by name, first definition wins | each test gets its **own** `RUNID` — a deliberate difference | nothing: the four suites where two children declare `RUNID` never read each other's |
+
+## Running a pass
+
+`npx playwright test` runs suites back to back and knows nothing about the shared fixtures. For a
+pass, use the runner, which keeps the schedule's order and checks the fixtures between the
+data-changing suites:
+
+```bash
+.venv/bin/python Mobile/dd_scripts_mobile/playwright_pass.py --stage 1   # read-only suites
+.venv/bin/python Mobile/dd_scripts_mobile/playwright_pass.py --stage 2   # data-changing, one at a time
+```
+
+A draft of the CircleCI jobs (smoke after each dev deploy, a nightly full pass) is in
+`ci/circleci-e2e.yml`.
+
 ## What does not survive the move from Datadog
 
 - **`MOB.600`'s photo picker** cannot be driven outside Datadog's browser, so that check stays manual.

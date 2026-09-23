@@ -30,6 +30,20 @@ export async function mob345(page: Page): Promise<void> {
   await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
     await assertPageLacks(page, `workstages downloaded`, 360000);
   });
+  await run.step("LOADEDALL: start the idle clock", {}, async () => {
+    await assertFromJavascript(page, `sessionStorage.removeItem('__dd_worklist_idle_since');
+return true;`, DEFAULT_TIMEOUT);
+  });
+  await run.step("LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)", {}, async () => {
+    await assertFromJavascript(page, `const K = '__dd_worklist_idle_since';
+if (document.querySelector('.mantine-Progress-root')) {
+  sessionStorage.removeItem(K);
+  return false;
+}
+const since = Number(sessionStorage.getItem(K)) || 0;
+if (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }
+return Date.now() - since >= 10000;`, 360000);
+  });
   await run.step("WORK ROW GUARD: at least one work order rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 60000);
   });
@@ -59,19 +73,19 @@ return g === 0;`, 30000);
   await run.step("Focus the work list search box", {}, async () => {
     await click(page, `//input[@placeholder="Find Workstage(s)"]`, 30000);
   });
-  await run.step("Narrow the list to \"permit\" \u2014 fewer rows, readable failures", {}, async () => {
-    await typeText(page, `//input[@placeholder="Find Workstage(s)"]`, `permit`, DEFAULT_TIMEOUT);
+  await run.step("Narrow the list to \"USED IN DATADOG\" \u2014 fewer rows, readable failures", {}, async () => {
+    await typeText(page, `//input[@placeholder="Find Workstage(s)"]`, `USED IN DATADOG`, DEFAULT_TIMEOUT);
   });
   await run.step("Let the 300ms debounce fire and the list re-render", {}, async () => {
     await wait(page, 4);
   });
-  await run.step("NARROWED: at least 2 rows render and each is DISTINCT (a duplicate identity would let the proof pass on nothing)", {}, async () => {
+  await run.step("NARROWED: exactly the 2 fixture stages render, each DISTINCT (a duplicate identity would let the proof pass on nothing)", {}, async () => {
     await assertFromJavascript(page, `const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();
 const ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]
   .filter(e => (e.textContent || '').includes('Description:'))
   .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));
 const o = ORDER();
-if (o.length < 2) return false;
+if (o.length !== 2) return false;
 return new Set(o).size === o.length;`, 30000);
   });
   await run.step("Open the sort dropdown", {}, async () => {

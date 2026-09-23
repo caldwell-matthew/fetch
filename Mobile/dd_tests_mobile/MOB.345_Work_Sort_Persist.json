@@ -187,6 +187,31 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "LOADEDALL: start the idle clock",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd_worklist_idle_since');\nreturn true;"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = '__dd_worklist_idle_since';\nif (document.querySelector('.mantine-Progress-root')) {\n  sessionStorage.removeItem(K);\n  return false;\n}\nconst since = Number(sessionStorage.getItem(K)) || 0;\nif (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }\nreturn Date.now() - since >= 10000;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 360
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "WORK ROW GUARD: at least one work order rendered",
                 "noScreenshot": false,
                 "params": {
@@ -332,7 +357,7 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "Narrow the list to \"permit\" \u2014 fewer rows, readable failures",
+                "name": "Narrow the list to \"USED IN DATADOG\" \u2014 fewer rows, readable failures",
                 "noScreenshot": false,
                 "params": {
                     "element": {
@@ -347,7 +372,7 @@
                             ]
                         }
                     },
-                    "value": "permit"
+                    "value": "USED IN DATADOG"
                 },
                 "type": "typeText"
             },
@@ -368,10 +393,10 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "NARROWED: at least 2 rows render and each is DISTINCT (a duplicate identity would let the proof pass on nothing)",
+                "name": "NARROWED: exactly the 2 fixture stages render, each DISTINCT (a duplicate identity would let the proof pass on nothing)",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst o = ORDER();\nif (o.length < 2) return false;\nreturn new Set(o).size === o.length;"
+                    "code": "const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim();\nconst ORDER = () => [...document.querySelectorAll('.mantine-Paper-root')]\n  .filter(e => (e.textContent || '').includes('Description:'))\n  .map(e => T(e.firstElementChild) + ' | ' + T(e.children[1]));\nconst o = ORDER();\nif (o.length !== 2) return false;\nreturn new Set(o).size === o.length;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

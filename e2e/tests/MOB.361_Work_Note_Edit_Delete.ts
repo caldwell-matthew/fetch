@@ -32,6 +32,20 @@ export async function mob361(page: Page): Promise<void> {
   await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
     await assertPageLacks(page, `workstages downloaded`, 360000);
   });
+  await run.step("LOADEDALL: start the idle clock", {}, async () => {
+    await assertFromJavascript(page, `sessionStorage.removeItem('__dd_worklist_idle_since');
+return true;`, DEFAULT_TIMEOUT);
+  });
+  await run.step("LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)", {}, async () => {
+    await assertFromJavascript(page, `const K = '__dd_worklist_idle_since';
+if (document.querySelector('.mantine-Progress-root')) {
+  sessionStorage.removeItem(K);
+  return false;
+}
+const since = Number(sessionStorage.getItem(K)) || 0;
+if (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }
+return Date.now() - since >= 10000;`, 360000);
+  });
   await run.step("Clear this test's sessionStorage keys \u2014 only THIS run's premise may license the delete", {}, async () => {
     await assertFromJavascript(page, `sessionStorage.removeItem('__dd361_before');
 sessionStorage.removeItem('__dd361_id');

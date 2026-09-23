@@ -199,6 +199,31 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
+                "name": "LOADEDALL: start the idle clock",
+                "noScreenshot": false,
+                "params": {
+                    "code": "sessionStorage.removeItem('__dd_worklist_idle_since');\nreturn true;"
+                },
+                "type": "assertFromJavascript"
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
+                "name": "LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)",
+                "noScreenshot": false,
+                "params": {
+                    "code": "const K = '__dd_worklist_idle_since';\nif (document.querySelector('.mantine-Progress-root')) {\n  sessionStorage.removeItem(K);\n  return false;\n}\nconst since = Number(sessionStorage.getItem(K)) || 0;\nif (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }\nreturn Date.now() - since >= 10000;"
+                },
+                "type": "assertFromJavascript",
+                "timeout": 360
+            },
+            {
+                "allowFailure": false,
+                "alwaysExecute": false,
+                "exitIfSucceed": false,
+                "isCritical": true,
                 "name": "Navigate to the fixture work order",
                 "noScreenshot": false,
                 "params": {

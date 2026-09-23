@@ -104,11 +104,10 @@ STASH = "__dd345_asc"   # test-owned scratch key, deleted by the cleanup step
 
 # ROW IDENTITY IS THE TWO HEADINGS, NOT THE WHOLE ROW.
 #
-# Every `permit` row on dev renders the SAME name, assets, address and description - they
-# differ only in `_workSequence` (measured 2026-09-15 from the MOB.953 trace: the rows read
-# `20260910-1-001`, `20260910-2-001`, ... all of them `Inspection (No Permit)` / `Valve Group`
-# / `228 North Alexander Street`). Keying on the whole textContent therefore carries four
-# lines of identical boilerplate, plus the `Show more` spoiler toggle, to distinguish nothing.
+# Rows of one template render the SAME name, assets, address and description and differ only in
+# `_workSequence` (the old `permit` narrowing was all `Inspection (No Permit)` / `Valve Group` /
+# `228 North Alexander Street`). Keying on the whole textContent therefore carries lines of
+# identical boilerplate, plus the `Show more` spoiler toggle, to distinguish nothing.
 #
 # `_workSequence` and the name are the Paper's first two children (WorkListItem.tsx:53-91),
 # above every display field. They identify a row exactly and the string stays short enough to
@@ -121,7 +120,11 @@ ROWS_JS = ("const T = e => (e && e.textContent || '').replace(/\\s+/g, ' ').trim
 
 
 SEARCH_BOX = '//input[@placeholder="Find Workstage(s)"]'
-NARROW = "permit"          # 4 matching work orders on dev, each with a distinct _workSequence
+# Exactly two stages on dev carry this in their name, both PROTECTED fixtures that no test creates
+# more of: 20260805-18-001 (created 2026-08-05) and 20260910-18-001 (2026-09-10). Read over /graphql
+# 2026-09-23 across name, desc and address. See narrow_the_list for why a fixed pair.
+NARROW = "USED IN DATADOG"
+NARROW_ROWS = 2
 
 
 def narrow_the_list():
@@ -135,15 +138,16 @@ def narrow_the_list():
     second, so a filtered subset is still in sort order. `permit` matched 4 stages when this
     was written.
 
-    ⚠️ IT NO LONGER FITS, AND NARROWING ALONE CANNOT KEEP UP. Measured 2026-09-15 from the
-    MOB.953 trace: ascending rendered `20260910-1-001, -2-001, -3-001` and descending rendered
-    `20260913-1-001, 20260911-1-001, 20260910-6-001` - two DISJOINT slices of the same filtered
-    list, with nothing in common to compare. The ring read `Ready (213)`. The `permit` matches
-    are dev fixture data that keeps being added to, so any count this docstring quotes expires.
+    🛑 THE NARROWING MUST MATCH A SET THAT CANNOT GROW. It used to be `permit`, which matches every
+    `Inspection (No Permit)` stage - and several suites create one of those on every pass. The set
+    outgrew one window, the ascending head and descending tail stopped overlapping, and the proof
+    failed in its suite under BOTH runners (2026-09-15, and again 2026-09-23 with `Ready (448)`).
+    `scroll_to_end` delayed that; it could not stop it.
 
-    So the narrowing stays (it keeps the test fast and the failures readable) but it is no
-    longer load-bearing: `scroll_to_end` makes the proof work at any list length - see
-    `assert_reversed`. This guard is now only about the rows being DISTINGUISHABLE.
+    `USED IN DATADOG` matches exactly the two protected fixture stages, which no test adds to, so
+    the WHOLE filtered list renders in one window in both orders and the reversal is checked on
+    every row. This guard asserts the count is exactly `NARROW_ROWS`: if a stage gains or loses
+    that name, the test says so here instead of proving the sort on a set nobody chose.
     """
     return [
         step("click", "Focus the work list search box",
@@ -151,11 +155,11 @@ def narrow_the_list():
         step("typeText", f'Narrow the list to "{NARROW}" — fewer rows, readable failures',
              {"element": xpath_el(WORK_URL, SEARCH_BOX), "value": NARROW}),
         step("wait", "Let the 300ms debounce fire and the list re-render", {"value": 4}),
-        jsassert("NARROWED: at least 2 rows render and each is DISTINCT "
+        jsassert(f"NARROWED: exactly the {NARROW_ROWS} fixture stages render, each DISTINCT "
                  "(a duplicate identity would let the proof pass on nothing)",
                  ROWS_JS +
                  "const o = ORDER();\n"
-                 "if (o.length < 2) return false;\n"
+                 f"if (o.length !== {NARROW_ROWS}) return false;\n"
                  "return new Set(o).size === o.length;", timeout=30),
     ]
 

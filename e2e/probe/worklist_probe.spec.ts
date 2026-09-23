@@ -12,11 +12,11 @@ test('how long does /work take to finish downloading', async ({ browser }) => {
   for (;;) {
     const body = await page.evaluate(() => document.body?.innerText ?? '');
     const el = (Date.now() - t0) / 1000;
-    for (const phrase of ['Retrieving assigned work', 'workstages found', 'workstages downloaded']) {
+    for (const phrase of ['Retrieving assigned work', 'workstages found', 'workstages downloaded', 'Downloading lookup list items']) {
       if (body.includes(phrase) && !marks[phrase + ' seen']) marks[phrase + ' seen'] = el;
       if (!body.includes(phrase) && marks[phrase + ' seen'] && !marks[phrase + ' gone']) marks[phrase + ' gone'] = el;
     }
-    if (marks['workstages downloaded gone'] || el > 600) break;
+    if ((marks['Downloading lookup list items gone'] && marks['workstages downloaded gone']) || el > 600) break;
     await page.waitForTimeout(2000);
   }
   for (const [k, v] of Object.entries(marks)) console.log(`  ${k}: ${v.toFixed(0)}s`);

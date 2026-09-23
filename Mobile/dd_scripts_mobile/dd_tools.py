@@ -668,6 +668,43 @@ def av_job_gate(job_id, fixture=AV_FIXTURE_JOB):
 WORK_URL = BASE + "/work"
 
 
+# 🛑 THE THREE `LOADEDALL` CHECKS PASS IN THE GAPS BETWEEN PHASES, NOT ONLY BEFORE THE FIRST.
+# The list shows SIX loading phases, one after another, each as a `LoadingProgress` bar
+# (`WorkOrders/index.tsx:286-314`, `utils/prefetchData.ts`): "Retrieving assigned work", "N workstages
+# found", "Fetching AdHoc Forms", "Fetching work order meta data", "Downloading lookup list items",
+# "x / N workstages downloaded". The gate knew three, and between phases NO label is on screen:
+# measured 2026-09-23, "found" gone at 51s, "Downloading lookup list items" at 53s, "downloaded" at
+# 56s. So `lacks "workstages downloaded"` passed at 51s, before that phase began, and a test that then
+# navigated away killed the prefetch mid-flight. The equipment lookup the charge form reads with
+# `fetchPolicy: 'cache-only'` was never cached, and MOB.350's picker said "No results found" for an
+# item the server returns (under both runners; the cache inspected directly, read-only).
+#
+# The fix is a POSITIVE idle signal: no `LoadingProgress` bar (a Mantine `Progress` - the status
+# ring is `RingProgress`, a different class) on screen for 10 seconds straight. The gaps are 2-5s, so
+# 10s spans them, and any phase added later is covered without naming it. The clock lives in
+# sessionStorage because a JS step is re-run from scratch on every poll.
+WORK_IDLE_KEY = "__dd_worklist_idle_since"
+WORK_IDLE_SECONDS = 10
+
+
+def work_list_idle():
+    return [
+        jsassert("LOADEDALL: start the idle clock",
+                 f"sessionStorage.removeItem('{WORK_IDLE_KEY}');\nreturn true;"),
+        jsassert(f"LOADEDALL: no loading bar on screen for {WORK_IDLE_SECONDS}s straight "
+                 "(all six phases, and the gaps between them)",
+                 f"const K = '{WORK_IDLE_KEY}';\n"
+                 "if (document.querySelector('.mantine-Progress-root')) {\n"
+                 "  sessionStorage.removeItem(K);\n"
+                 "  return false;\n"
+                 "}\n"
+                 "const since = Number(sessionStorage.getItem(K)) || 0;\n"
+                 "if (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }\n"
+                 f"return Date.now() - since >= {WORK_IDLE_SECONDS * 1000};",
+                 timeout=360),
+    ]
+
+
 def work_list_gate(wait=20, require_row=True):
     """Readiness for the WORK ORDER LIST. Added 2026-08-18 for the same reason
     `av_job_gate` exists: MOB.340 and MOB.134 had each grown their own warm-up and neither
@@ -718,7 +755,7 @@ def work_list_gate(wait=20, require_row=True):
         # downloads run still fails (MOB.953's MOB.301 could not click + inside 30s on Datadog).
         step("assertPageLacks", "LOADEDALL 3/3: the per-stage detail downloads finished",
              {"value": "workstages downloaded"}, timeout=360),
-    ] + ([
+    ] + work_list_idle() + ([
         step("assertElementPresent", "WORK ROW GUARD: at least one work order rendered",
              {"element": xpath_el(WORK_URL, WORK_ROW + "[1]")}, timeout=60),
     ] if require_row else [])
