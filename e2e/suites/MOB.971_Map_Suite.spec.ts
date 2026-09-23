@@ -1,0 +1,42 @@
+// Generated from Mobile/dd_tests_mobile/MOB.971_Map_Suite.json by to_playwright.py — do not edit by hand yet.
+//
+// The children share ONE browser session, in order, exactly as the Datadog suite ran them
+// (they also share the fixture records, so nothing here may run in parallel — trap 1).
+import { test, Browser, Page } from '@playwright/test';
+import { DEVICES } from '../playwright.config';
+import { login } from '../support/login';
+import { mob120 } from '../tests/MOB.120_Nav_Map';
+import { mob121 } from '../tests/MOB.121_Map_Controls';
+import { mob123 } from '../tests/MOB.123_Map_Switch_Map';
+import { mob122 } from '../tests/MOB.122_Map_Create_Work';
+
+test.describe.serial('MOB.971_Map_Suite', () => {
+  let page: Page;
+
+  test.beforeAll(async ({ browser }: { browser: Browser }) => {
+    const context = await browser.newContext({ viewport: DEVICES.tablet });
+    page = await context.newPage();
+    await login(page);
+  });
+
+  test.afterAll(async () => {
+    await page?.context().close();
+  });
+
+  test('MOB.120_Nav_Map', async () => {
+    await mob120(page);
+  });
+
+  test('MOB.121_Map_Controls', async () => {
+    await mob121(page);
+  });
+
+  test('MOB.123_Map_Switch_Map', async () => {
+    await mob123(page);
+  });
+
+  test('MOB.122_Map_Create_Work', async () => {
+    await mob122(page);
+  });
+
+});

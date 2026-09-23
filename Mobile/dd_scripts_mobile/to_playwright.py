@@ -107,12 +107,24 @@ def step_lines(step, timeout_expr):
     raise ValueError(f"step type {t!r} not handled")
 
 
-def convert_steps(steps, indent="  "):
-    """(body lines, helper names used, variable names used) for a run of steps."""
+def convert_steps(steps, indent="  ", unportable=None):
+    """(body lines, helper names used, variable names used) for a run of steps.
+
+    A step this cannot express (one recorded without an xpath, so only Datadog's own multiLocator can
+    find it) is appended to `unportable` and left out: the caller marks that test `fixme` rather than
+    letting it look green."""
     used, variables, body = set(), set(), []
     soft_seen = False
     for s in steps:
         if s["type"] == "playSubTest":
+            continue
+        try:
+            xpath_of(s.get("params") or {}) if (s.get("params") or {}).get("element") else None
+        except ValueError as e:
+            if unportable is None:
+                raise
+            unportable.append(f"{s.get('name') or s['type']}: {e}")
+            body += [f"{indent}// ⛔ NOT PORTABLE — {s.get('name') or s['type']}: {e}"]
             continue
         timeout = f"{int(s['timeout']) * 1000}" if s.get("timeout") else "DEFAULT_TIMEOUT"
         if s.get("timeout"):
@@ -150,18 +162,26 @@ def fn_name(test_name):
 
 
 def write_leaf(test_name, details, out_dir):
-    """One leaf test -> an exported async function."""
+    """One leaf test -> an exported async function. Returns the steps that could not be expressed."""
     steps = details["steps"]
     always = [s for s in steps if s.get("alwaysExecute")]
     main = [s for s in steps if not s.get("alwaysExecute")]
-    body, used, variables, soft = convert_steps(main, "    ")
-    tail, used2, vars2, soft2 = convert_steps(always, "    ")
+    unportable = []
+    body, used, variables, soft = convert_steps(main, "    ", unportable)
+    tail, used2, vars2, soft2 = convert_steps(always, "    ", unportable)
     used |= used2
     variables |= vars2
     soft = soft or soft2
     locs = locals_of(details)
     lines = [f"// Generated from Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
-             f"// {details.get('name') or test_name}", ""]
+             f"// {details.get('name') or test_name}"]
+    if unportable:
+        lines += ["//",
+                  "// ⛔ THIS TEST CANNOT RUN OUTSIDE DATADOG. Steps below were recorded without an xpath, so only",
+                  "//    Datadog's own multiLocator can find their element. Its suite marks it `fixme`, so it is",
+                  "//    reported as skipped and never as a pass:"]
+        lines += [f"//      - {u}" for u in unportable]
+    lines += [""]
     imports = sorted(h for h in used if h in HELPERS)
     lines += [f"import {{ Page }} from '@playwright/test';",
               f"import {{ {', '.join(imports)} }} from '../support/dd';"]
@@ -185,10 +205,10 @@ def write_leaf(test_name, details, out_dir):
     lines += ["}", ""]
     path = os.path.join(out_dir, f"{test_name}.ts")
     open(path, "w").write("\n".join(lines))
-    return path
+    return path, unportable
 
 
-def write_suite(sid, details, children, out_dir):
+def write_suite(sid, details, children, out_dir, skip=()):
     """A suite -> one spec: log in once, then each child as its own test() in order."""
     name = details.get("name") or f"MOB.{sid}"
     device = "mobile_small" if "_Phone_" in name else "tablet"
@@ -213,7 +233,12 @@ def write_suite(sid, details, children, out_dir):
               "    await page?.context().close();",
               "  });", ""]
     for child, child_name in children:
-        lines += [f"  test('{child_name}', async () => {{", f"    await {fn_name(child_name)}(page);", "  });", ""]
+        if child_name in skip:
+            lines += [f"  // cannot run outside Datadog — see the header of tests/{child_name}.ts",
+                      f"  test.fixme('{child_name}', async () => {{", f"    await {fn_name(child_name)}(page);",
+                      "  });", ""]
+        else:
+            lines += [f"  test('{child_name}', async () => {{", f"    await {fn_name(child_name)}(page);", "  });", ""]
     lines += ["});", ""]
     path = os.path.join(out_dir, f"{name}.spec.ts")
     open(path, "w").write("\n".join(lines))
@@ -267,18 +292,26 @@ def main():
 
     os.makedirs(os.path.join(E2E, "tests"), exist_ok=True)
     os.makedirs(os.path.join(E2E, "suites"), exist_ok=True)
-    written = [write_login(os.path.join(E2E, "support"))]
+    written, cannot = [write_login(os.path.join(E2E, "support"))], {}
     for sid in ids:
         name, children = suite_children(sid)
         _n, details = load(f"MOB.{sid}")
-        pairs = []
+        pairs, skip = [], []
         for c in children:
             child_name, child_details = load(f"MOB.{c}")
-            written.append(write_leaf(child_name, child_details, os.path.join(E2E, "tests")))
+            path, unportable = write_leaf(child_name, child_details, os.path.join(E2E, "tests"))
+            written.append(path)
             pairs.append((c, child_name))
-        written.append(write_suite(sid, details, pairs, os.path.join(E2E, "suites")))
-    for p in written:
-        print("wrote", os.path.relpath(p, ROOT))
+            if unportable:
+                skip.append(child_name)
+                cannot[child_name] = unportable
+        written.append(write_suite(sid, details, pairs, os.path.join(E2E, "suites"), skip))
+    print(f"wrote {len(written)} files under e2e/")
+    if cannot:
+        print("\n⛔ not portable — marked `fixme` in their suite, so they report as skipped:")
+        for name, why in cannot.items():
+            for w in why:
+                print(f"   {name}: {w}")
     return 0
 
 
