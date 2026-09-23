@@ -32,6 +32,7 @@ COMMANDS = {
     "push":      ([PY, "dd_tools.py", "push"], "0", "upload the NAMED tests to Datadog (never all by default)"),
     "verify":    ([PY, "verify.py"], "2 (3 if red)", "run ONE test on Datadog through the scratch suite"),
     "run":       ([PY, "dd_tools.py", "run"], "1 + tests", "run a whole suite on Datadog"),
+    "pass":      ([PY, "full_pass.py"], "≈158", "a full manual pass in the schedule's safe order (--dry-run to see it)"),
     "probe":     ([PY, "schedule_probe.py"], "~1 a window", "the schedule probe: create | report | pause (bills while live)"),
 }
 
@@ -76,6 +77,8 @@ def main(argv):
         known = [c for c in costs if c]
         total = f"{sum(known)} runs" if known and len(known) == len(costs) else "1 + its tests, per suite"
         print(f"⚠️  Datadog: this bills {total}.", flush=True)
+    elif name == "pass" and "--dry-run" in args:
+        pass                                   # the plan only — nothing bills
     elif cost != "0":
         print(f"⚠️  Datadog runs: {cost}.", flush=True)
 

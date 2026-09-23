@@ -4,7 +4,7 @@ THE PROBLEM THIS SOLVES — and it is a BILLING problem, not a testing one.
 
   ⭐ **A SUBTEST IS BILLED AS ITS OWN RUN.** A suite is not one run; it is `1 + len(children)`.
   So one full pass of all 24 suites costs **163 billed runs** (158 as scheduled, with MOB.967 held),
-  and the 2,000-run monthly plan (2026-09-17) is ~12 passes.
+  and the 1,000-run monthly plan is ~6 passes. Runs past 1,000 bill as overage.
 
   The dominant consumer is not regression passes - it is VERIFYING A CHANGE. A leaf carries no
   login of its own, so the only way to exercise it has been to run its whole suite:

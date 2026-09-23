@@ -176,15 +176,22 @@ HELD = {}
 #   🛑 SLOTS ARE HOW SUITES ARE KEPT APART. Datadog cannot make one test wait for another, so the data-changing
 #   suites (trap 1: they share fixtures) each get their own hour, starting TWO hours apart: a suite may start
 #   anywhere in its hour and the longest takes ~12½ min, ~25 with its retry, so the next slot never overlaps.
-#   The read-only suites share one slot — they may overlap each other, never a data-changing one.
-#   `preflight.py schedule` refuses any two slots (other than the shared read-only one) under 2h apart.
+#   The read-only suites may overlap each other, never a data-changing one — but NOT ALL TEN AT ONCE: on
+#   2026-09-18 ten simultaneous logins left five suites without the app shell after 120s (dev under the login
+#   burst), while the same suites' retries, five at a time, all passed. So they share TWO slots of at most
+#   READ_ONLY_BATCH, two hours apart like every other slot.
+#   `preflight.py schedule` refuses any two slots under 2h apart and a read-only slot over READ_ONLY_BATCH.
 #
-# The owner chose this 2026-09-17 (2,000 runs/month; dev is up at weekends). MOB.967 has NO slot: it stays
+# The owner chose this 2026-09-17 (plan: 1,000 runs/month, overage bills extra — a weekly pass is ~700 of them;
+# dev is up at weekends). MOB.967 has NO slot: it stays
 # paused until bugs §34 is fixed.
 SCHEDULE_TZ = "America/Los_Angeles"
-READ_ONLY_SLOT = ("Sat", 18)
+READ_ONLY_BATCH = 5            # the most read-only suites that start together (and the most the pass runs at once)
+READ_ONLY_SLOTS = [("Sat", 16), ("Sat", 18)]   # in order: the first is where the weekly cycle begins
 SLOTS = {                     # suite id -> (weekday, start hour, Pacific)
-    **{sid: READ_ONLY_SLOT for sid in ("954", "981", "955", "961", "962", "964", "966", "968", "969", "975")},
+    # the two halves are balanced by duration (longest first: 954 981 955 962 969 | 966 968 961 964 975)
+    **{sid: READ_ONLY_SLOTS[0] for sid in ("954", "955", "969", "968", "964")},
+    **{sid: READ_ONLY_SLOTS[1] for sid in ("981", "962", "966", "961", "975")},
     "953": ("Sat", 20), "956": ("Sat", 22),
     "957": ("Sun", 0), "958": ("Sun", 2), "959": ("Sun", 4), "960": ("Sun", 6), "963": ("Sun", 8),
     "965": ("Sun", 10), "980": ("Sun", 12), "970": ("Sun", 14), "971": ("Sun", 16), "972": ("Sun", 18),
@@ -207,18 +214,23 @@ ALERT_TO = "matthew.caldwell@mentorapm.com"
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 
-def slot_problems(slots, read_only_ids, read_only_slot=READ_ONLY_SLOT, last="973", min_gap=2):
+def slot_problems(slots, read_only_ids, read_only_slots=READ_ONLY_SLOTS, last="973", min_gap=2,
+                  batch=READ_ONLY_BATCH):
     """What is wrong with a slot table — pure, so `preflight.py schedule` can prove it rejects bad ones.
 
-    Read-only suites share `read_only_slot`; every other slot, and the read-only one, must start `min_gap`
-    hours from every other (on the weekly circle, so Sun 23:00 → Mon 00:00 is 1h); `last` must be the final
-    data-changing slot after the read-only one."""
+    Read-only suites share the `read_only_slots`, at most `batch` in each; every slot must start `min_gap` hours
+    from every other (on the weekly circle, so Sun 23:00 → Mon 00:00 is 1h); `last` must be the final
+    data-changing slot after the first read-only one."""
     how = lambda slot: WEEKDAYS.index(slot[0]) * 24 + slot[1]
     out = []
     for sid in read_only_ids:
-        if slots.get(sid) != read_only_slot:
-            out.append(f"MOB.{sid} is read-only but not in the read-only slot")
-    starts = {"read-only": how(read_only_slot)}
+        if slots.get(sid) not in read_only_slots:
+            out.append(f"MOB.{sid} is read-only but not in a read-only slot")
+    for slot in read_only_slots:
+        n = sum(1 for sid in read_only_ids if slots.get(sid) == slot)
+        if n > batch:
+            out.append(f"{slot[0]} {slot[1]:02d}:00 starts {n} read-only suites together — the most is {batch}")
+    starts = {f"read-only {d} {h:02d}:00": how((d, h)) for d, h in read_only_slots}
     starts.update({sid: how(slot) for sid, slot in slots.items() if sid not in read_only_ids})
     keys = list(starts)
     for i, a in enumerate(keys):
@@ -227,8 +239,9 @@ def slot_problems(slots, read_only_ids, read_only_slot=READ_ONLY_SLOT, last="973
             gap = min(gap, 168 - gap)
             if gap < min_gap:
                 out.append(f"slots {a} and {b} start {gap}h apart — the minimum is {min_gap}h")
-    writes = [k for k in keys if k != "read-only"]
-    if writes and max(writes, key=lambda k: (starts[k] - starts["read-only"]) % 168) != last:
+    base = how(read_only_slots[0])
+    writes = [k for k in keys if not k.startswith("read-only")]
+    if writes and max(writes, key=lambda k: (starts[k] - base) % 168) != last:
         out.append(f"MOB.{last} (Session) must be the LAST data-changing slot")
     return out
 

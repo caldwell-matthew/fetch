@@ -56,8 +56,8 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Local ↔ remote | every local test matches Datadog by content — `preflight.py sync` compares step names and subtest ids (it prints the first 5). `MOB.711` is archived locally only |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
 | Rows | 176 `[x]` · 13 `[~]` · 0 `[ ]` · 33 `[-]` — 222 rows. Counts describe *this file*, not the app |
-| Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is 2,000 runs a month |
-| Scheduling | Manual today. On-demand runs may use 10 at once (concurrency cap raised 1 → 10; it does not change billed runs). **Owner's plan: weekly Datadog runs** (▶ OPEN WORK #37) |
+| Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra |
+| Scheduling | Manual today. On-demand runs go one at a time: the concurrency cap is **1**, because each parallel slot above it bills monthly (test_authoring, trap 1). **Owner's plan: weekly Datadog runs** (▶ OPEN WORK #37) |
 
 ### Suites — children, and what they leave behind
 
@@ -111,7 +111,7 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 
 | run as | suites · Datadog time | result |
 |---|---|---|
-| read-only, 10 at once | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
+| read-only, together (cap 10 then) | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
 | writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 739s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
 | alone | `973` 215s | ✅ · current build · 2026-09-16 |
 | held out | `967` | 🛑 not run — its `MOB.600` is red on Datadog while bugs §34 is open (confirmed 2026-09-15). A LOCAL replay of `MOB.600` is a false negative: it cannot drive the photo picker |
@@ -140,7 +140,7 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 
 | # | item | state |
 |---|---|---|
-| **37** | **Weekly schedule on Datadog's own scheduler** (owner, 2026-09-17: weekly, native — no script; plan **2,000 runs/month**; dev is up at weekends). Each suite runs once a week in its own ONE-HOUR slot (`tick_every = 3600` inside an `options.scheduling` window): the 10 read-only suites share Sat 18:00 Pacific, the 12 data-changing ones follow two hours apart through Sun 18:00, Session last at Sun 20:00. **158 runs a pass, ≈ 750/month with retries.** Slots live in `suite_plan.SLOTS`; `build_module_suites.py` writes them; `push` now sends `status`; `preflight.py schedule` refuses slots under 2h apart, a live leaf, and a live schedule before the day numbering is confirmed; `sync` now compares status and schedule. MOB.967 stays paused (bugs §34). ⚠️ A test's windows must all share one time of day (Datadog: `All start times should be equal`). **Steps:** (1) `schedule_probe.py` — live since Thu 2026-09-17 20:21, one window 21:00–22:00 on day numbers 5/6/7. **Day numbering confirmed: Monday = 1** (Datadog gave its next run as "1d from now" on Thursday evening, so 5 = Friday). ⏳ Still measuring runs per window and the minute they fire (Fri/Sat/Sun nights); pause it after Sunday. (2) ✔ tooling. (3) one manual full pass (~160 runs) to re-measure `954`/`955`/`959`/`960`/`961`/`966`/`968`/`981`. (4) `SCHEDULE_ON = True`, rebuild, push | in progress · awaiting the probe |
+| **37** | **Weekly schedule on Datadog's own scheduler** (owner, 2026-09-17: weekly, native — no script; plan **1,000 runs/month** — overage bills extra; dev is up at weekends). ⛔ **All Datadog testing is paused** (manager, 2026-09-18, over the bill): nothing runs or goes live until it's cleared. Each suite runs once a week in its own ONE-HOUR slot (`tick_every = 3600` inside an `options.scheduling` window): the 10 read-only suites share Sat 18:00 Pacific, the 12 data-changing ones follow two hours apart through Sun 18:00, Session last at Sun 20:00. **158 runs a pass, ≈ 750/month with retries.** Slots live in `suite_plan.SLOTS`; `build_module_suites.py` writes them; `push` now sends `status`; `preflight.py schedule` refuses slots under 2h apart, a live leaf, and a live schedule before the day numbering is confirmed; `sync` now compares status and schedule. MOB.967 stays paused (bugs §34). ⚠️ A test's windows must all share one time of day (Datadog: `All start times should be equal`). **Steps:** (1) `schedule_probe.py` — live since Thu 2026-09-17 20:21, one window 21:00–22:00 on day numbers 5/6/7. **Day numbering confirmed: Monday = 1** (Datadog gave its next run as "1d from now" on Thursday evening, so 5 = Friday). ⏳ Still measuring runs per window and the minute they fire (Fri/Sat/Sun nights); pause it after Sunday. (2) ✔ tooling. (3) one manual full pass (~160 runs) to re-measure `954`/`955`/`959`/`960`/`961`/`966`/`968`/`981`. (4) `SCHEDULE_ON = True`, rebuild, push | in progress · awaiting the probe |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -648,7 +648,7 @@ Runtime ≈ explicit `wait` seconds + ~1s per step.
 - `work_list_gate` warms a per-session cache — gate on the first leg only. Its `LOADEDALL 3/3` polls up to 180s:
   every listed stage's detail downloads first (86s locally on a cold session, measured 2026-09-16; it grows with residue, bugs §41).
 - Screenshots are on for every step; keep them on assertions.
-- Independent read-only suites can run in parallel (`dd_tools.run` takes several names; the on-demand cap is 10); never
+- Independent read-only suites can run in parallel (`dd_tools.run` takes several names; with the cap at 1 they queue, one after another); never
   the writing ones (trap 1).
 - A red `verify.py` run bills **3**: Datadog retries the scratch once.
 - Measure locally first: `local_timing.py` times every suite for 0 runs. Local seconds are an

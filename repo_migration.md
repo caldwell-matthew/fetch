@@ -85,7 +85,7 @@ The standing rules to carry into the repo (step 2) are:
 ### 4 · Ownership and CI
 - [ ] Move the repo to the MentorAPM GitHub org.
 - [ ] Datadog keys per person, or a service account, never shared in a file. Document which Datadog
-      permissions are needed (the concurrency-cap setting needs `billing_edit`).
+      permissions are needed (the concurrency-cap setting needs `billing_edit`, and raising it bills parallel slots monthly, so few people should hold it).
 - [ ] CI on every pull request running the **free** checks only: drift, literals, bench, locals, docs,
       schedule, wiring. Never a Datadog run. `sync` and the fixture checks need keys and dev access, so they can
       stay local, or run with a read-only key.

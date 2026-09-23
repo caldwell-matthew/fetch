@@ -50,6 +50,7 @@ run `preflight.py`.
 | `push <test …>` | `dd_tools.py push` | uploads the named tests (never all by default) | 0 |
 | `verify <test>` | `verify.py` | pushes the test and a one-child scratch suite, and runs it | 2 (3 red) |
 | `run <suite>` | `dd_tools.py run` | runs a whole suite (prints the exact cost first) | 1 + its tests |
+| `pass [--dry-run]` | `full_pass.py` | every scheduled suite once, in the schedule's safe order, waiting out Datadog's retries and checking fixtures between suites | ≈158 |
 
 ## Glossary
 

@@ -42,6 +42,12 @@ for sid, module, part, cls, blurb, children in SUITES:
     t = test(name, message, login_steps + [sub(leaves[c]) for c in children], tags, extra_globals=CREDS)
     # The weekly slot (suite_plan.SLOTS): hourly inside a one-hour weekly window. `live` only when the schedule
     # is switched on AND the suite has a slot — MOB.967 has none, so it stays paused whatever the switch says.
+    # 🛑 THE PHONE SUITE RUNS ON THE PHONE. `test()` writes every test as `chrome.tablet`, and this used to leave the
+    # phone suite to `set_device.py` afterwards - a step four rebuilds on 2026-09-17 skipped, so MOB.975 ran its
+    # phone-only children on a tablet and went red (`Toggle navigation` is a phone-width control). The builder now
+    # sets it itself; `preflight.py devices` checks every test's device either way.
+    if "_Phone_" in name:
+        t["details"]["options"]["device_ids"] = ["chrome.mobile_small"]
     sched = schedule_options(sid)
     if sched:
         t["details"]["options"].update(sched)

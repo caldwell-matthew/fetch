@@ -294,7 +294,8 @@ def check_schedule():
     same fixtures at once (trap 1) and fail each other, and a read-only suite running beside one reads a fixture
     mid-edit. So, from `suite_plan.SLOTS` and every suite's JSON:
       - every suite but MOB.967 has a slot, and its JSON carries exactly that window (rebuilt, not stale);
-      - every read-only suite shares the one read-only slot, and no two OTHER slots start under 2h apart
+      - every read-only suite is in a read-only slot, at most READ_ONLY_BATCH to a slot (ten at once starved
+        logins, 2026-09-18), and no two slots start under 2h apart
         (a one-hour window + the longest suite with its retry, ~25 min, + margin);
       - Session (MOB.973) is the last data-changing slot;
       - MOB.967 has no slot and is paused (bugs §34);
@@ -302,7 +303,7 @@ def check_schedule():
         weekday Datadog's `day` numbers mean;
       - no leaf test is live or carries a window: it would run on its own AND inside its suite — billed twice.
     """
-    from suite_plan import (SUITES, suite_name, SLOTS, READ_ONLY_SLOT, DAY_NUMBERING_CONFIRMED, SCHEDULE_ON,
+    from suite_plan import (SUITES, suite_name, SLOTS, READ_ONLY_SLOTS, READ_ONLY_BATCH, DAY_NUMBERING_CONFIRMED, SCHEDULE_ON,
                             schedule_options, slot_problems, ALERT_TO)
     local = local_tests()
     problems, suites, n_writes = [], set(), 0
@@ -322,8 +323,8 @@ def check_schedule():
         if o.get("tick_every") != want["tick_every"] or o.get("scheduling") != want["scheduling"]:
             problems.append(f"MOB.{sid}'s JSON does not carry its slot — rebuild the suites")
         if cls.startswith("read-only"):
-            if SLOTS[sid] != READ_ONLY_SLOT:
-                problems.append(f"MOB.{sid} is read-only but not in the read-only slot")
+            if SLOTS[sid] not in READ_ONLY_SLOTS:
+                problems.append(f"MOB.{sid} is read-only but not in a read-only slot")
         else:
             n_writes += 1
         if st != ("live" if SCHEDULE_ON else "paused"):
@@ -334,11 +335,12 @@ def check_schedule():
         if st == "live" and not DAY_NUMBERING_CONFIRMED:
             problems.append(f"MOB.{sid} is live before the probe confirmed Datadog's day numbering")
     read_only = [sid for sid, _m, _p, cls, _b, _c in SUITES if cls.startswith("read-only")]
-    problems += [x for x in slot_problems(SLOTS, read_only) if "read-only slot" not in x]
+    problems += [x for x in slot_problems(SLOTS, read_only) if "not in a read-only slot" not in x]
     # The rule proves itself on tables it MUST reject — a spacing check that passes everything is trap 5.
     for label, bad in (("an hour apart", {"956": ("Sat", 21)}), ("the same hour", {"956": ("Sat", 20)}),
                        ("an hour after the read-only slot", {"953": ("Sat", 19)}),
                        ("Session not last", {"972": ("Sun", 22)}),
+                       ("six read-only suites in one slot", {"981": READ_ONLY_SLOTS[0]}),
                        ("across Sun→Mon midnight", {"973": ("Sun", 23), "957": ("Mon", 0)})):
         if not slot_problems({**SLOTS, **bad}, read_only):
             problems.append(f"slot_problems() ACCEPTED a bad table ({label}) — the spacing rule is broken")
@@ -349,7 +351,7 @@ def check_schedule():
     if problems:
         return False, f"{len(problems)} problem(s): " + "; ".join(problems[:4])
     state = "LIVE" if SCHEDULE_ON else "paused (SCHEDULE_ON = False)"
-    return True, (f"{n_writes} data-changing slots + 1 read-only slot, all ≥2h apart · Session last · "
+    return True, (f"{n_writes} data-changing slots + {len(READ_ONLY_SLOTS)} read-only slots of ≤{READ_ONLY_BATCH}, all ≥2h apart · Session last · "
                   f"MOB.967 held · {state}")
 
 
