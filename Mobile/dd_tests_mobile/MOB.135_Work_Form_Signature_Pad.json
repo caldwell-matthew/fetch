@@ -10,7 +10,8 @@
             "env:dev",
             "Work Order",
             "Forms",
-            "read-only"
+            "read-only",
+            "module:work-orders"
         ],
         "locations": [
             "gcp:us-west2"
@@ -179,7 +180,7 @@
                     "value": "workstages downloaded"
                 },
                 "type": "assertPageLacks",
-                "timeout": 180
+                "timeout": 360
             },
             {
                 "allowFailure": false,

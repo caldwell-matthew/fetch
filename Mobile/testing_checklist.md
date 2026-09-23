@@ -512,7 +512,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 ### Filters and sort
 
-- [x] Search vs. filter interaction *(MOB.820)* — submitting the search box discards active filters (bugs §20)
+- [x] Search vs. filter interaction *(MOB.820)* — submitting the search box KEEPS active filters (it discarded them until `02b17aa82e`, 2026-09-17; the test pinned that and went red on the fix)
 - [x] `StructuredQuery` filter builder *(MOB.800)* · edit *(MOB.805)* · multi-value *(MOB.806)*
 - [x] `enum` multi-value branch *(MOB.807)* — `Failure Curve includes flat`, the list re-queried
 - [x] `record` multi-value branch *(MOB.807)* — `Asset Type`: options load from the server

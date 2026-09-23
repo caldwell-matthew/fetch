@@ -111,7 +111,11 @@ def probe(form_label, form_id):
         # ---- close without saving -----------------------------------------------------------
         jsassert("Close the add form with the modal's close button — nothing is submitted",
                  f"const f = document.getElementById('{form_id}');\n"
-                 "const m = f && f.closest('[class*=\"mantine-Modal-content\"]');\n"
+                 # Already gone is DONE, not a failure: this step's job is to leave no form open, and
+                 # switching tabs can unmount it first. Returning false there reported a red on a test
+                 # whose body had passed (2026-09-23, MOB.389 under Playwright).
+                 "if (!f) return true;\n"
+                 "const m = f.closest('[class*=\"mantine-Modal-content\"]');\n"
                  "const x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\n"
                  "if (!x) return false;\n"
                  "x.click();\n"

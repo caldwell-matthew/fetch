@@ -2,39 +2,51 @@
 // MOB.358_Work_Asset_Geolocate
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, el, optional, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, wait } from '../support/dd';
 
 export async function mob358(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — warm the work lookup cache
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Let the lookup prefetch run
+  });
+  await run.step("Let the lookup prefetch run", {}, async () => {
     await wait(page, 30);
-    // Navigate to the fixture work order
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the fixture work order", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 3);
-    // GATE: the detail data arrived (tab strip)
+  });
+  await run.step("GATE: the detail data arrived (tab strip)", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[1]`, 60000);
-    // Open the "Assets" tab
-    await el(page, `//*[@role="tab"][normalize-space(.)="Assets"]`).click({ timeout: 30000 });
-    // Wait for the asset list
+  });
+  await run.step("Open the \"Assets\" tab", {}, async () => {
+    await click(page, `//*[@role="tab"][normalize-space(.)="Assets"]`, 30000);
+  });
+  await run.step("Wait for the asset list", {}, async () => {
     await wait(page, 3);
-    // "Assets" is now the active tab
+  });
+  await run.step("\"Assets\" is now the active tab", {}, async () => {
     await assertElementPresent(page, `//*[@role="tab"][normalize-space(.)="Assets"][@data-active="true"]`, 30000);
-    // FIXTURE GUARD: an asset row renders the geolocate control
+  });
+  await run.step("FIXTURE GUARD: an asset row renders the geolocate control", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tabpanel"][not(contains(@style, "display: none"))]//*[@data-icon="location-crosshairs" or contains(concat(" ", normalize-space(@class), " "), " fa-location-crosshairs ")])[1]`, 60000);
-    // The control is ENABLED — it gates on `online`, and we are online
+  });
+  await run.step("The control is ENABLED \u2014 it gates on `online`, and we are online", {}, async () => {
     await assertFromJavascript(page, `const icon = document.querySelector('[data-icon="location-crosshairs"]');
 if (!icon) return false;
 const root = icon.closest('.mantine-ActionIcon-root');
 if (!root) return false;
 return !root.hasAttribute('data-disabled') && navigator.onLine === true;`, 30000);
-    // Install the geolocation + Mapbox stubs (must follow the last go() — G7)
+  });
+  await run.step("Install the geolocation + Mapbox stubs (must follow the last go() \u2014 G7)", {}, async () => {
     await assertFromJavascript(page, `if (!window.__ddOrigFetch) window.__ddOrigFetch = window.fetch;
 if (!window.__ddOrigGeo) window.__ddOrigGeo = navigator.geolocation.getCurrentPosition;
 navigator.geolocation.getCurrentPosition = function (ok) {
@@ -51,17 +63,23 @@ window.fetch = function (input) {
 };
 return typeof window.fetch === 'function';
 `, 30000);
-    // Tap the geolocate control (click the ActionIcon ROOT — MOB.911)
-    await el(page, `(//*[@role="tabpanel"][not(contains(@style, "display: none"))]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-ActionIcon-root ")][.//*[@data-icon="location-crosshairs" or contains(concat(" ", normalize-space(@class), " "), " fa-location-crosshairs ")]])[1]`).click({ timeout: 30000 });
-    // The modal opened — "Updating Asset Location"
+  });
+  await run.step("Tap the geolocate control (click the ActionIcon ROOT \u2014 MOB.911)", {}, async () => {
+    await click(page, `(//*[@role="tabpanel"][not(contains(@style, "display: none"))]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-ActionIcon-root ")][.//*[@data-icon="location-crosshairs" or contains(concat(" ", normalize-space(@class), " "), " fa-location-crosshairs ")]])[1]`, 30000);
+  });
+  await run.step("The modal opened \u2014 \"Updating Asset Location\"", {}, async () => {
     await assertPageContains(page, `Updating Asset Location`, 60000);
-    // The location form mounted
+  });
+  await run.step("The location form mounted", {}, async () => {
     await assertElementPresent(page, `//form[@id="mobile-geolocate"]`, 60000);
-    // …with its `Include GIS` control
+  });
+  await run.step("\u2026with its `Include GIS` control", {}, async () => {
     await assertPageContains(page, `Include GIS`, 30000);
-    // …and its `Include Address` control
+  });
+  await run.step("\u2026and its `Include Address` control", {}, async () => {
     await assertPageContains(page, `Include Address`, 30000);
-    // ⭐ THE STUBBED GEOCODE REACHED THE FORM — address, city and postcode
+  });
+  await run.step("\u2b50 THE STUBBED GEOCODE REACHED THE FORM \u2014 address, city and postcode", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 const vals = [...f.querySelectorAll('input')].map(i => (i.value || '').trim());
@@ -70,12 +88,14 @@ const joined = vals.join('|');
 return joined.includes('1600 Main Street')
   && joined.includes('Chicago')
   && joined.includes('60601');`, 30000);
-    // …and the region/country short_codes were unwrapped (US-IL -> IL, us -> US)
+  });
+  await run.step("\u2026and the region/country short_codes were unwrapped (US-IL -> IL, us -> US)", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 const joined = [...f.querySelectorAll('input')].map(i => (i.value || '').trim()).join('|');
 return /(^|\\|)IL(\\||$)/.test(joined) && /(^|\\|)US(\\||$)/.test(joined);`, 30000);
-    // ⭐ VALIDITY 1/2: Submit is `submit` iff some include-box is checked
+  });
+  await run.step("\u2b50 VALIDITY 1/2: Submit is `submit` iff some include-box is checked", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 const boxes = [...f.querySelectorAll('input[type=checkbox]')];
@@ -87,11 +107,13 @@ if (!btn) return false;
 // SubmitButton.tsx: type={isValid ? 'submit' : 'button'}, isValid = includeGis || includeAddress
 return anyChecked ? btn.type === 'submit' : btn.type === 'button';
 `, 30000);
-    // CHECKBOX GUARD: the form has exactly two include-boxes, so [2] is unambiguous
+  });
+  await run.step("CHECKBOX GUARD: the form has exactly two include-boxes, so [2] is unambiguous", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 return f.querySelectorAll('input[type=checkbox]').length === 2;`, 30000);
-    // ⭐ TOGGLE + PROOF: flip `Include Address` (BY FIELD ID) and confirm it changed
+  });
+  await run.step("\u2b50 TOGGLE + PROOF: flip `Include Address` (BY FIELD ID) and confirm it changed", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 let el = f.querySelector('#includeAddress, input[name="includeAddress"]');
@@ -103,14 +125,16 @@ if (!el) {
 const before = el.checked;
 el.click();                // real click event — React's onChange fires
 return el.checked !== before;`, 30000);
-    await optional("DIAG: the `includeAddress` field id resolved (if this fails, the toggle above fell back to position and the id needs re-reading)", async () => {
-      await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
+  });
+  await run.step("DIAG: the `includeAddress` field id resolved (if this fails, the toggle above fell back to position and the id needs re-reading)", {allow: 'ignore'}, async () => {
+    await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 return !!f.querySelector('#includeAddress, input[name="includeAddress"]');`, 15000);
-    });
-    // Let the form revalidate
+  });
+  await run.step("Let the form revalidate", {}, async () => {
     await wait(page, 2);
-    // ⭐ VALIDITY 2/2: the invariant still holds after a real toggle
+  });
+  await run.step("\u2b50 VALIDITY 2/2: the invariant still holds after a real toggle", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('mobile-geolocate');
 if (!f) return false;
 const boxes = [...f.querySelectorAll('input[type=checkbox]')];
@@ -122,40 +146,51 @@ if (!btn) return false;
 // SubmitButton.tsx: type={isValid ? 'submit' : 'button'}, isValid = includeGis || includeAddress
 return anyChecked ? btn.type === 'submit' : btn.type === 'button';
 `, 30000);
-    // OFFLINE LEG: define an own `onLine` getter (false) — no `offline` event, so the control stays enabled
+  });
+  await run.step("Escape \u2014 close WITHOUT submitting", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let the modal close", {always: true}, async () => {
+    await wait(page, 2);
+  });
+  await run.step("RESTORED: the modal is gone and nothing was submitted", {always: true}, async () => {
+    await assertPageLacks(page, `Updating Asset Location`, 30000);
+  });
+  await run.step("OFFLINE LEG: define an own `onLine` getter (false) \u2014 no `offline` event, so the control stays enabled", {}, async () => {
     await assertFromJavascript(page, `Object.defineProperty(navigator, 'onLine', { configurable: true, get: function () { return false; } });
 return navigator.onLine === false;`, 15000);
-    // Tap the geolocate control again (property offline)
-    await el(page, `(//*[@role="tabpanel"][not(contains(@style, "display: none"))]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-ActionIcon-root ")][.//*[@data-icon="location-crosshairs" or contains(concat(" ", normalize-space(@class), " "), " fa-location-crosshairs ")]])[1]`).click({ timeout: 30000 });
-    // The modal opened again — "Updating Asset Location"
+  });
+  await run.step("Tap the geolocate control again (property offline)", {}, async () => {
+    await click(page, `(//*[@role="tabpanel"][not(contains(@style, "display: none"))]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-ActionIcon-root ")][.//*[@data-icon="location-crosshairs" or contains(concat(" ", normalize-space(@class), " "), " fa-location-crosshairs ")]])[1]`, 30000);
+  });
+  await run.step("The modal opened again \u2014 \"Updating Asset Location\"", {}, async () => {
     await assertPageContains(page, `Updating Asset Location`, 60000);
-    // ⭐ OFFLINE FORM: `Location details are unavailable offline.` + `Submit to update latitude/longitude.` in `#mobile-geolocate-offline` — and the online form is NOT there
+  });
+  await run.step("\u2b50 OFFLINE FORM: `Location details are unavailable offline.` + `Submit to update latitude/longitude.` in `#mobile-geolocate-offline` \u2014 and the online form is NOT there", {}, async () => {
     await assertFromJavascript(page, `const off = document.getElementById('mobile-geolocate-offline');
 const t = off ? (off.textContent || '') : '';
 return t.includes('Location details are unavailable offline.')
   && t.includes('Submit to update latitude/longitude.')
   && !document.getElementById('mobile-geolocate');`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Escape — close WITHOUT submitting
-    await page.keyboard.press(`Escape`);
-    // Let the modal close
+  });
+  await run.step("Escape \u2014 close the offline form WITHOUT submitting", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let the modal close", {always: true}, async () => {
     await wait(page, 2);
-    // RESTORED: the modal is gone and nothing was submitted
-    await assertPageLacks(page, `Updating Asset Location`, 30000);
-    // Escape — close the offline form WITHOUT submitting
-    await page.keyboard.press(`Escape`);
-    // Let the modal close
-    await wait(page, 2);
-    // RESTORE: remove the `onLine` getter
+  });
+  await run.step("RESTORE: remove the `onLine` getter", {always: true}, async () => {
     await assertFromJavascript(page, `try { delete navigator.onLine; } catch (e) {}
 return navigator.onLine === true;`, 15000);
-    // RESTORED: the modal is gone again, nothing submitted
+  });
+  await run.step("RESTORED: the modal is gone again, nothing submitted", {always: true}, async () => {
     await assertPageLacks(page, `Updating Asset Location`, 30000);
-    // RESTORED: both stubs removed
+  });
+  await run.step("RESTORED: both stubs removed", {always: true}, async () => {
     await assertFromJavascript(page, `if (window.__ddOrigFetch) { window.fetch = window.__ddOrigFetch; delete window.__ddOrigFetch; }
 if (window.__ddOrigGeo) { navigator.geolocation.getCurrentPosition = window.__ddOrigGeo; delete window.__ddOrigGeo; }
 return !window.__ddOrigFetch && !window.__ddOrigGeo;
 `, 30000);
-  }
+  });
+  run.finish();
 }

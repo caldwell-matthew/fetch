@@ -2,11 +2,15 @@
 // MOB.170_Nav_Dev_Logs
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent } from '../support/dd';
 
 export async function mob170(page: Page): Promise<void> {
-    // Navigate to /logz
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/logz`);
-    // Test page title "Dev Logs"
+  const run = new Sequence();
+  await run.step("Navigate to /logz", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/logz`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Test page title \"Dev Logs\"", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Dev Logs")]`, `Dev Logs`, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

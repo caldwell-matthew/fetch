@@ -43,7 +43,7 @@ THE SHAPE OF THE PROOF
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dd_tools import (BASE, HERE, step, xpath_el, go, test, write,  # noqa: E402
+from dd_tools import (BASE, HERE, step, xpath_el, go, test, write, jsassert,  # noqa: E402
                       open_filters_drawer, pick_option)
 
 LOOKUP_URL = BASE + "/asset-lookup"
@@ -86,13 +86,15 @@ write(test(
     "  search form's `refetch` (line 142) uses `props.query ?? []`, which is `[]` on the\n"
     "  standalone page. The pill would still show the filter as active while the results\n"
     "  ignored it: the UI says filtered, the data is not.\n"
-    "- ✅ **ANSWERED 2026-08-12: the filter IS discarded.** `bugs_found.md` §20. This is now a\n"
-    "  **characterization test** — it asserts the *buggy* behaviour so the suite stays green\n"
-    "  and the defect stays pinned. **It will FAIL when the app is fixed**, which is the\n"
-    "  point: flip the two assertions back and delete §20 rather than repairing it.\n"
-    "- The racing `setSearchText` re-fire does **not** rescue it — the filter-less `refetch`\n"
-    "  response wins in practice. Reasoning from the two code paths alone would have guessed\n"
-    "  wrong, in the optimistic direction.\n"
+    "- ✅ **ANSWERED: the filter now SURVIVES the search.** It did not until `02b17aa82e`\n"
+    "  (2026-09-17), which gave the submit `refetch` the same `buildParams(1, [...])` the\n"
+    "  hook uses; before that it refetched with no conditions and the pill lied. The test\n"
+    "  pinned that bug as `bugs_found.md` §20 and went red the first time it ran against the\n"
+    "  fix (2026-09-23, under Playwright), which is exactly what it was for. It now asserts\n"
+    "  the correct behaviour, and §20 is gone.\n"
+    "- ⚠️ The same `refetch` still sends `jobLookup: { jobId: \'??\' }` instead of\n"
+    "  `props.jobId` (`index.tsx:171`). That only bites where Asset Lookup is embedded with a\n"
+    "  job — `AssetVerification/NewAssetForm` — so this standalone test cannot see it.\n"
     f"- The filter value is `{NO_MATCH}`, not the asset name, so the filter pill cannot echo\n"
     f"  `{ASSET}` onto the page and satisfy its own assertion (trap 5b — the exact mistake\n"
     "  that produced a wrong answer for Q8).",
@@ -137,18 +139,18 @@ write(test(
         step("pressKey", "Submit the search", {"value": "Enter"}),
         step("wait", "Wait for BOTH racing requests to settle", {"value": 10}),
         # ---------------------------------------------------------------------------
-        # CHARACTERIZATION ASSERTIONS - these pin a CONFIRMED BUG (bugs_found.md 20).
-        # The first version asserted the CORRECT behaviour and FAILED, which is how the bug
-        # was found. Asserting the actual behaviour keeps the suite green and keeps the
-        # defect pinned. THIS TEST WILL FAIL WHEN THE BUG IS FIXED - that is the intent.
-        # Do not "repair" it then: flip these two back to the correct behaviour
-        # (Filters (1) present AND the asset absent) and delete bugs_found.md 20.
+        # THE FIXED BEHAVIOUR. Until 2026-09-17 these two pinned the bug instead: the search
+        # discarded the filter and the asset came back while the pill still said Filters (1).
+        # `02b17aa82e` gave the submit refetch the filter conditions (`buildParams(1, [...])`
+        # on `AssetLookup/index.tsx:173`), so submitting now KEEPS the filter, and the test
+        # asserts that - what it was written to assert in the first place.
         # ---------------------------------------------------------------------------
         step("assertPageContains", "The filter still REPORTS as active", {"value": "Filters (1)"}),
-        step("assertElementPresent",
-             f"BUG 20 (pinned): the search DISCARDED the filter — {ASSET} is back as a result "
-             "row while the pill still says Filters (1). FIX THE APP AND THIS STEP FAILS.",
-             {"element": xpath_el(LOOKUP_URL, result_row(ASSET))}),
+        jsassert(f"The filter SURVIVED the search — no result row for {ASSET} while the pill "
+                 "says Filters (1)",
+                 "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\n"
+                 f"return !rows.some(r => (r.textContent || '').includes({ASSET!r}));",
+                 timeout=30),
 
         # -------- leave no filter behind for the next test in the suite
         # EVERY step of the cleanup is `always`, including the one that OPENS the drawer.

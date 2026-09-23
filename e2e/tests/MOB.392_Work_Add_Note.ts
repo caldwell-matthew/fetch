@@ -2,37 +2,50 @@
 // MOB.392_Work_Add_Note
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, el, optional, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, typeText, wait } from '../support/dd';
 
 export async function mob392(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — the work order list
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Wait for the workstage pages and the lookup prefetch
+  });
+  await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
     await wait(page, 20);
-    // The work list rendered its search box
+  });
+  await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
-    // LOADEDALL 1/3: the initial fetch finished
+  });
+  await run.step("LOADEDALL 1/3: the initial fetch finished", {}, async () => {
     await assertPageLacks(page, `Retrieving assigned work`, DEFAULT_TIMEOUT);
-    // LOADEDALL 2/3: paging through workstages finished
+  });
+  await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
-    // LOADEDALL 3/3: the per-stage detail downloads finished
-    await assertPageLacks(page, `workstages downloaded`, 180000);
-    // Navigate to the fixture work order
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
+    await assertPageLacks(page, `workstages downloaded`, 360000);
+  });
+  await run.step("Navigate to the fixture work order", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // Open the Notes tab
-    await el(page, `//*[@role="tab"][contains(normalize-space(.), "Notes")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Let the note cards render
+  });
+  await run.step("Open the Notes tab", {}, async () => {
+    await click(page, `//*[@role="tab"][contains(normalize-space(.), "Notes")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Let the note cards render", {}, async () => {
     await wait(page, 2);
-    // BEFORE: count the note cards already here (the server-proof baseline)
+  });
+  await run.step("BEFORE: count the note cards already here (the server-proof baseline)", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -46,34 +59,47 @@ const cards = [...p.querySelectorAll('[class*="mantine-Paper-root"]')]
   .filter(c => has(c) && ![...c.querySelectorAll('[class*="mantine-Paper-root"]')].some(has));
 sessionStorage.setItem('__dd392_before', String(cards.length));
 return true;`, 30000);
-    // Open the add form
-    await el(page, `//button[normalize-space(.)="Add"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Focus the rich text editor
-    await el(page, `//div[@contenteditable="true"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Enter the note instructions
-    await el(page, `//div[@contenteditable="true"]`).fill(`This is a note - DD SYNTHETIC MOBILE`, { timeout: DEFAULT_TIMEOUT });
-    // Submit the form
-    await el(page, `//button[@form="work-collection-form"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the add mutation
+  });
+  await run.step("Open the add form", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Add"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Focus the rich text editor", {}, async () => {
+    await click(page, `//div[@contenteditable="true"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Enter the note instructions", {}, async () => {
+    await typeText(page, `//div[@contenteditable="true"]`, `This is a note - DD SYNTHETIC MOBILE`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Submit the form", {}, async () => {
+    await click(page, `//button[@form="work-collection-form"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the add mutation", {}, async () => {
     await wait(page, 3);
-    // Test the form modal closed (durable success signal)
+  });
+  await run.step("Test the form modal closed (durable success signal)", {}, async () => {
     await assertPageLacks(page, `Submit`, DEFAULT_TIMEOUT);
-    await optional("Test the 'Item added' toast (optional: transient)", async () => {
-      await assertPageContains(page, `Item added`, DEFAULT_TIMEOUT);
-    });
-    // Let the server answer before reloading
+  });
+  await run.step("Test the 'Item added' toast (optional: transient)", {allow: 'ignore'}, async () => {
+    await assertPageContains(page, `Item added`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Let the server answer before reloading", {}, async () => {
     await wait(page, 3);
-    // Navigate to the fixture work order (reload: the server's answer)
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the fixture work order (reload: the server's answer)", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // Reopen the tab
-    await el(page, `//*[@role="tab"][contains(normalize-space(.), "Notes")]`).click({ timeout: 30000 });
-    // Let the cards render
+  });
+  await run.step("Reopen the tab", {}, async () => {
+    await click(page, `//*[@role="tab"][contains(normalize-space(.), "Notes")]`, 30000);
+  });
+  await run.step("Let the cards render", {}, async () => {
     await wait(page, 2);
-    // ⭐ SERVER PROOF: after a RELOAD there is exactly ONE more note card than before
+  });
+  await run.step("\u2b50 SERVER PROOF: after a RELOAD there is exactly ONE more note card than before", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -87,10 +113,10 @@ const cards = [...p.querySelectorAll('[class*="mantine-Paper-root"]')]
   .filter(c => has(c) && ![...c.querySelectorAll('[class*="mantine-Paper-root"]')].some(has));
 const before = sessionStorage.getItem('__dd392_before');
 return before !== null && cards.length === Number(before) + 1;`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove this test's sessionStorage key
+  });
+  await run.step("Remove this test's sessionStorage key", {always: true}, async () => {
     await assertFromJavascript(page, `sessionStorage.removeItem('__dd392_before');
 return true;`, 15000);
-  }
+  });
+  run.finish();
 }

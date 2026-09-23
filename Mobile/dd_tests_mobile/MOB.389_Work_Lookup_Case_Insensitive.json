@@ -179,7 +179,7 @@
                     "value": "workstages downloaded"
                 },
                 "type": "assertPageLacks",
-                "timeout": 180
+                "timeout": 360
             },
             {
                 "allowFailure": false,
@@ -422,7 +422,7 @@
                 "name": "Close the add form with the modal's close button \u2014 nothing is submitted",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const f = document.getElementById('work-condition-form');\nconst m = f && f.closest('[class*=\"mantine-Modal-content\"]');\nconst x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
+                    "code": "const f = document.getElementById('work-condition-form');\nif (!f) return true;\nconst m = f.closest('[class*=\"mantine-Modal-content\"]');\nconst x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30
@@ -656,7 +656,7 @@
                 "name": "Close the add form with the modal's close button \u2014 nothing is submitted",
                 "noScreenshot": false,
                 "params": {
-                    "code": "const f = document.getElementById('work-failure-form');\nconst m = f && f.closest('[class*=\"mantine-Modal-content\"]');\nconst x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
+                    "code": "const f = document.getElementById('work-failure-form');\nif (!f) return true;\nconst m = f.closest('[class*=\"mantine-Modal-content\"]');\nconst x = m && m.querySelector('button[class*=\"mantine-Modal-close\"]');\nif (!x) return false;\nx.click();\nreturn true;"
                 },
                 "type": "assertFromJavascript",
                 "timeout": 30

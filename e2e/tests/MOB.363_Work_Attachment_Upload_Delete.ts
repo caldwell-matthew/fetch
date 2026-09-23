@@ -2,25 +2,32 @@
 // MOB.363_Work_Attachment_Upload_Delete
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertFromJavascript, assertPageContains, assertPageLacks, el, uploadStandIn, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertFromJavascript, assertPageContains, assertPageLacks, click, uploadStandIn, wait } from '../support/dd';
 
 export async function mob363(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — warm the work lookup cache
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Let the lookup prefetch run
+  });
+  await run.step("Let the lookup prefetch run", {}, async () => {
     await wait(page, 30);
-    // Navigate to the attachment work order (20260910-16)
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the attachment work order (20260910-16)", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // PREMISE (server): the stage holds NO attachments (so the one after the upload is this run's), its template does not copy photos to the asset, and its one asset is ⚡ Tank 0000
+  });
+  await run.step("PREMISE (server): the stage holds NO attachments (so the one after the upload is this run's), its template does not copy photos to the asset, and its one asset is \u26a1 Tank 0000", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd363_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -44,11 +51,18 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Open the "Attachments" tab
-    await el(page, `//*[@role="tab"][contains(normalize-space(.), "Attachments")]`).click({ timeout: 30000 });
-    // Let the Photos segment render
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Open the \"Attachments\" tab", {}, async () => {
+    await click(page, `//*[@role="tab"][contains(normalize-space(.), "Attachments")]`, 30000);
+  });
+  await run.step("Let the Photos segment render", {}, async () => {
     await wait(page, 3);
-    // PHOTOS panel at rest: `Add Photo`, no `Add File`, and no slides
+  });
+  await run.step("PHOTOS panel at rest: `Add Photo`, no `Add File`, and no slides", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -58,11 +72,14 @@ if (!p) return false;
 const slides = [...p.querySelectorAll('[class*="mantine-Carousel-slide"]')];
 const labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());
 return slides.length === 0 && labels.includes('Add Photo') && !labels.includes('Add File');`, 30000);
-    // Open the picker ("Add Photo")
-    await el(page, `//button[normalize-space(.)="Add Photo"]`).click({ timeout: 30000 });
-    // The picker opened
+  });
+  await run.step("Open the picker (\"Add Photo\")", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Add Photo"]`, 30000);
+  });
+  await run.step("The picker opened", {}, async () => {
     await assertPageContains(page, `Select Photo Source`, 30000);
-    // Reveal the ONE gallery input (`accept="image/*"`, no `capture`) — fails closed otherwise
+  });
+  await run.step("Reveal the ONE gallery input (`accept=\"image/*\"`, no `capture`) \u2014 fails closed otherwise", {}, async () => {
     await assertFromJavascript(page, `document.querySelectorAll('[data-dd-upload]').forEach(n => n.removeAttribute('data-dd-upload'));
 const hits = [...document.querySelectorAll('input[type="file"]')]
   .filter(i => i.getAttribute('accept') === 'image/*' && !i.capture && !i.getAttribute('capture'));
@@ -76,11 +93,14 @@ Object.assign(el.style, {
 });
 return true;
 `, DEFAULT_TIMEOUT);
-    // Upload ONE photo to the work order's Photos
+  });
+  await run.step("Upload ONE photo to the work order's Photos", {}, async () => {
     await uploadStandIn(page, `//input[@data-dd-upload="1"]`, ["Screenshot 2024-12-11 at 3.23.46\u202fPM.png"], DEFAULT_TIMEOUT);
-    // The picker closed itself once the file arrived (`onDialogChange`)
+  });
+  await run.step("The picker closed itself once the file arrived (`onDialogChange`)", {}, async () => {
     await assertPageLacks(page, `Select Photo Source`, 30000);
-    // ⭐ UPLOAD LANDED: exactly one slide, its <img src> the server's `/api/attachment/<id>` URL (not the `blob:` preview)
+  });
+  await run.step("\u2b50 UPLOAD LANDED: exactly one slide, its <img src> the server's `/api/attachment/<id>` URL (not the `blob:` preview)", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -94,7 +114,8 @@ if (slides.length !== 1) return false;
 const img = slides[0].querySelector('img');
 const src = img ? (img.getAttribute('src') || '') : '';
 return !src.startsWith('blob:') && !!idOf(img);`, 90000);
-    // ⭐ SERVER: the stage holds exactly ONE attachment, an image — this run's (keep its id); and ⚡ Tank 0000 does NOT hold it (no copy to the asset)
+  });
+  await run.step("\u2b50 SERVER: the stage holds exactly ONE attachment, an image \u2014 this run's (keep its id); and \u26a1 Tank 0000 does NOT hold it (no copy to the asset)", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd363_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -118,7 +139,12 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 60000);
-    // 🛑 GUARD + open the gear: only if the panel shows exactly one slide and its image IS the attachment the server just named
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("\ud83d\uded1 GUARD + open the gear: only if the panel shows exactly one slide and its image IS the attachment the server just named", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -134,22 +160,29 @@ const g = slides[0].querySelector('[aria-label="Settings"]');
 if (!g) return false;
 g.click();
 return true;`, 30000);
-    // Let the menu open
+  });
+  await run.step("Let the menu open", {}, async () => {
     await wait(page, 1);
-    // MENU (stage photo): exactly View in Fullscreen · Copy to asset · Delete Photo — in that order
+  });
+  await run.step("MENU (stage photo): exactly View in Fullscreen \u00b7 Copy to asset \u00b7 Delete Photo \u2014 in that order", {}, async () => {
     await assertFromJavascript(page, `const dds = [...document.querySelectorAll('.mantine-Menu-dropdown')];
 if (dds.length !== 1) return false;
 const got = [...dds[0].querySelectorAll('.mantine-Menu-item')].map(e => (e.textContent || '').trim());
 return JSON.stringify(got) === JSON.stringify(["View in Fullscreen", "Copy to asset", "Delete Photo"]);`, 30000);
-    // Click `Delete Photo` (NEVER `Copy to asset`)
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Delete Photo"])[1]`).click({ timeout: 30000 });
-    // Let the confirmation open
+  });
+  await run.step("Click `Delete Photo` (NEVER `Copy to asset`)", {}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Delete Photo"])[1]`, 30000);
+  });
+  await run.step("Let the confirmation open", {}, async () => {
     await wait(page, 1);
-    // Confirm: "Yes"
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][.//*[contains(normalize-space(.), "Are you sure you want to delete this image?")]]//button[normalize-space(.)="Yes"]`).click({ timeout: 30000 });
-    // Wait for REMOVE_ATTACHMENT
+  });
+  await run.step("Confirm: \"Yes\"", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][.//*[contains(normalize-space(.), "Are you sure you want to delete this image?")]]//button[normalize-space(.)="Yes"]`, 30000);
+  });
+  await run.step("Wait for REMOVE_ATTACHMENT", {}, async () => {
     await wait(page, 3);
-    // ⭐ SERVER: the stage's attachments are back to NONE (its rest set), and ⚡ Tank 0000 never held the photo — asked over /graphql
+  });
+  await run.step("\u2b50 SERVER: the stage's attachments are back to NONE (its rest set), and \u26a1 Tank 0000 never held the photo \u2014 asked over /graphql", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd363_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -171,7 +204,12 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 60000);
-    // The Photos panel shows no slides again, and `Add Photo`
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("The Photos panel shows no slides again, and `Add Photo`", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -181,19 +219,10 @@ if (!p) return false;
 const slides = [...p.querySelectorAll('[class*="mantine-Carousel-slide"]')];
 const labels = [...p.querySelectorAll('button')].map(b => (b.textContent || '').trim());
 return slides.length === 0 && labels.includes('Add Photo');`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd363_server', '__dd363_server:inflight', '__dd363_server:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove this test's sessionStorage key
+  });
+  await run.step("Remove this test's sessionStorage key", {always: true}, async () => {
     await assertFromJavascript(page, `sessionStorage.removeItem('__dd363_id');
 return true;`, 15000);
-  }
+  });
+  run.finish();
 }

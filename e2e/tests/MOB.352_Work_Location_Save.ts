@@ -2,27 +2,35 @@
 // MOB.352_Work_Location_Save
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, el, optional, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, press, typeText, wait } from '../support/dd';
 
 export async function mob352(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — warm the work lookup cache
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Let the lookup prefetch run
+  });
+  await run.step("Let the lookup prefetch run", {}, async () => {
     await wait(page, 30);
-    // Navigate to the fixture work order
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the fixture work order", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 3);
-    // GATE 1/2: the /work/:id route mounted
+  });
+  await run.step("GATE 1/2: the /work/:id route mounted", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 60000);
-    // GATE 2/2: the detail data arrived (tab strip)
+  });
+  await run.step("GATE 2/2: the detail data arrived (tab strip)", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[1]`, 60000);
-    // PREMISE (server): the stage's address/x/y are the fixed rest values, status `Ready`
+  });
+  await run.step("PREMISE (server): the stage's address/x/y are the fixed rest values, status `Ready`", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd352_loc", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -42,22 +50,32 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Escape any open menu or modal first
-    await page.keyboard.press(`Escape`);
-    // Let it close
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Escape any open menu or modal first", {}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let it close", {}, async () => {
     await wait(page, 1);
-    // The globe control renders on the title (the write)
+  });
+  await run.step("The globe control renders on the title (the write)", {}, async () => {
     await assertElementPresent(page, `//button[.//*[@data-icon="globe" or contains(concat(" ", normalize-space(@class), " "), " fa-globe ")]]`, 60000);
-    // No toast is covering the page (a Datadog click would land on it)
+  });
+  await run.step("No toast is covering the page (a Datadog click would land on it)", {}, async () => {
     await assertFromJavascript(page, `
 const vis = e => { const r = e.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) return false;
   const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'; };
 return ![...document.querySelectorAll('.Toastify__toast')].some(vis);
 `, 30000);
-    // Open the MapLink menu (the write)
-    await el(page, `(//button[.//*[@data-icon="globe" or contains(concat(" ", normalize-space(@class), " "), " fa-globe ")]])[1]`).click({ timeout: 30000 });
-    // The menu offers "Edit Location" (re-opens the MapLink menu if the click was lost)
+  });
+  await run.step("Open the MapLink menu (the write)", {}, async () => {
+    await click(page, `(//button[.//*[@data-icon="globe" or contains(concat(" ", normalize-space(@class), " "), " fa-globe ")]])[1]`, 30000);
+  });
+  await run.step("The menu offers \"Edit Location\" (re-opens the MapLink menu if the click was lost)", {}, async () => {
     await assertFromJavascript(page, `const want = "Edit Location";
 const vis = e => { if (!e || !e.isConnected) return false;
   const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;
@@ -79,17 +97,21 @@ if (now - window[key] > 2500) {
   if (t) t.click();
 }
 return false;`, 45000);
-    // Open the location form via "Edit Location"
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Edit Location"]`).click({ timeout: 30000 });
-    // The location form mounted
+  });
+  await run.step("Open the location form via \"Edit Location\"", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Edit Location"]`, 30000);
+  });
+  await run.step("The location form mounted", {}, async () => {
     await assertElementPresent(page, `//form[@id="locationform"]`, 60000);
-    // The form is PREFILLED with the rest values (defaultValues from the work stage)
+  });
+  await run.step("The form is PREFILLED with the rest values (defaultValues from the work stage)", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 if (!f) return false;
 const v = id => { const el = f.querySelector('input#' + id); return el ? el.value : null; };
 return v('address') === '230 North Alexander Street, New Orleans, LA 70119' && v('x') !== '' && Math.abs(Number(v('x')) - (-90.1025785)) < 1e-6
   && v('y') !== '' && Math.abs(Number(v('y')) - (29.9782827)) < 1e-6;`, 30000);
-    // Clear the form's Address (native value setter + input event — trap 17)
+  });
+  await run.step("Clear the form's Address (native value setter + input event \u2014 trap 17)", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 const el = f && f.querySelector('input#address');
 if (!el) return false;
@@ -97,9 +119,11 @@ el.focus();
 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');
 el.dispatchEvent(new window.Event('input', { bubbles: true }));
 return el.value === '';`, 30000);
-    // Type Address: DD MOB.352 LOCATION SAVE
-    await el(page, `//form[@id="locationform"]//input[@id="address"]`).fill(`DD MOB.352 LOCATION SAVE`, { timeout: 30000 });
-    // Clear the form's X (native value setter + input event — trap 17)
+  });
+  await run.step("Type Address: DD MOB.352 LOCATION SAVE", {}, async () => {
+    await typeText(page, `//form[@id="locationform"]//input[@id="address"]`, `DD MOB.352 LOCATION SAVE`, 30000);
+  });
+  await run.step("Clear the form's X (native value setter + input event \u2014 trap 17)", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 const el = f && f.querySelector('input#x');
 if (!el) return false;
@@ -107,9 +131,11 @@ el.focus();
 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');
 el.dispatchEvent(new window.Event('input', { bubbles: true }));
 return el.value === '';`, 30000);
-    // Type X: -90.0812
-    await el(page, `//form[@id="locationform"]//input[@id="x"]`).fill(`-90.0812`, { timeout: 30000 });
-    // Clear the form's Y (native value setter + input event — trap 17)
+  });
+  await run.step("Type X: -90.0812", {}, async () => {
+    await typeText(page, `//form[@id="locationform"]//input[@id="x"]`, `-90.0812`, 30000);
+  });
+  await run.step("Clear the form's Y (native value setter + input event \u2014 trap 17)", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 const el = f && f.querySelector('input#y');
 if (!el) return false;
@@ -117,26 +143,32 @@ el.focus();
 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');
 el.dispatchEvent(new window.Event('input', { bubbles: true }));
 return el.value === '';`, 30000);
-    // Type Y: 29.9511
-    await el(page, `//form[@id="locationform"]//input[@id="y"]`).fill(`29.9511`, { timeout: 30000 });
-    // The form now holds the marker values — address `DD MOB.352 LOCATION SAVE`, x -90.0812, y 29.9511
+  });
+  await run.step("Type Y: 29.9511", {}, async () => {
+    await typeText(page, `//form[@id="locationform"]//input[@id="y"]`, `29.9511`, 30000);
+  });
+  await run.step("The form now holds the marker values \u2014 address `DD MOB.352 LOCATION SAVE`, x -90.0812, y 29.9511", {}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 if (!f) return false;
 const v = id => { const el = f.querySelector('input#' + id); return el ? el.value : null; };
 return v('address') === 'DD MOB.352 LOCATION SAVE' && v('x') !== '' && Math.abs(Number(v('x')) - (-90.0812)) < 1e-6
   && v('y') !== '' && Math.abs(Number(v('y')) - (29.9511)) < 1e-6;`, 30000);
-    // Submit is ARMED — `type="submit"` inside #locationform (trap 8)
+  });
+  await run.step("Submit is ARMED \u2014 `type=\"submit\"` inside #locationform (trap 8)", {}, async () => {
     await assertFromJavascript(page, `const b = document.querySelector('#locationform button[type="submit"]');
 return !!b && (b.textContent || '').trim() === 'SUBMIT';`, 30000);
-    // SUBMIT the marker location
-    await el(page, `//form[@id="locationform"]//button[normalize-space(.)="SUBMIT"]`).click({ timeout: 30000 });
-    await optional("The `Work stage location has been updated` toast (optional: transient)", async () => {
-      await assertPageContains(page, `Work stage location has been updated`, 10000);
-    });
-    // The location form is GONE and the page is still alive (the modal closes only once the server answers — no optimistic response)
+  });
+  await run.step("SUBMIT the marker location", {}, async () => {
+    await click(page, `//form[@id="locationform"]//button[normalize-space(.)="SUBMIT"]`, 30000);
+  });
+  await run.step("The `Work stage location has been updated` toast (optional: transient)", {allow: 'ignore'}, async () => {
+    await assertPageContains(page, `Work stage location has been updated`, 10000);
+  });
+  await run.step("The location form is GONE and the page is still alive (the modal closes only once the server answers \u2014 no optimistic response)", {}, async () => {
     await assertFromJavascript(page, `if (!document.querySelectorAll('[role=tab]').length) return false;
 return !document.getElementById('locationform');`, 45000);
-    // ⭐ SERVER: the stage now holds `DD MOB.352 LOCATION SAVE` · x -90.0812 · y 29.9511 — asked over /graphql
+  });
+  await run.step("\u2b50 SERVER: the stage now holds `DD MOB.352 LOCATION SAVE` \u00b7 x -90.0812 \u00b7 y 29.9511 \u2014 asked over /graphql", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd352_loc", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -156,30 +188,32 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Escape any open menu or modal first
-    await page.keyboard.press(`Escape`);
-    // Let it close
+  });
+  await run.step("Escape any open menu or modal first", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let it close", {always: true}, async () => {
     await wait(page, 1);
-    // The globe control renders on the title (the restore)
+  });
+  await run.step("The globe control renders on the title (the restore)", {always: true}, async () => {
     await assertElementPresent(page, `//button[.//*[@data-icon="globe" or contains(concat(" ", normalize-space(@class), " "), " fa-globe ")]]`, 60000);
-    // No toast is covering the page (a Datadog click would land on it)
+  });
+  await run.step("No toast is covering the page (a Datadog click would land on it)", {always: true}, async () => {
     await assertFromJavascript(page, `
 const vis = e => { const r = e.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) return false;
   const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'; };
 return ![...document.querySelectorAll('.Toastify__toast')].some(vis);
 `, 30000);
-    // Open the MapLink menu (the restore)
-    await el(page, `(//button[.//*[@data-icon="globe" or contains(concat(" ", normalize-space(@class), " "), " fa-globe ")]])[1]`).click({ timeout: 30000 });
-    // The menu offers "Edit Location" (re-opens the MapLink menu if the click was lost)
+  });
+  await run.step("Open the MapLink menu (the restore)", {always: true}, async () => {
+    await click(page, `(//button[.//*[@data-icon="globe" or contains(concat(" ", normalize-space(@class), " "), " fa-globe ")]])[1]`, 30000);
+  });
+  await run.step("The menu offers \"Edit Location\" (re-opens the MapLink menu if the click was lost)", {always: true}, async () => {
     await assertFromJavascript(page, `const want = "Edit Location";
 const vis = e => { if (!e || !e.isConnected) return false;
   const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;
@@ -201,11 +235,14 @@ if (now - window[key] > 2500) {
   if (t) t.click();
 }
 return false;`, 45000);
-    // Open the location form via "Edit Location"
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Edit Location"]`).click({ timeout: 30000 });
-    // The location form mounted
+  });
+  await run.step("Open the location form via \"Edit Location\"", {always: true}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Edit Location"]`, 30000);
+  });
+  await run.step("The location form mounted", {always: true}, async () => {
     await assertElementPresent(page, `//form[@id="locationform"]`, 60000);
-    // Clear the form's Address (native value setter + input event — trap 17)
+  });
+  await run.step("Clear the form's Address (native value setter + input event \u2014 trap 17)", {always: true}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 const el = f && f.querySelector('input#address');
 if (!el) return false;
@@ -213,9 +250,11 @@ el.focus();
 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');
 el.dispatchEvent(new window.Event('input', { bubbles: true }));
 return el.value === '';`, 30000);
-    // Type Address: 230 North Alexander Street, New Orleans, LA 70119
-    await el(page, `//form[@id="locationform"]//input[@id="address"]`).fill(`230 North Alexander Street, New Orleans, LA 70119`, { timeout: 30000 });
-    // Clear the form's X (native value setter + input event — trap 17)
+  });
+  await run.step("Type Address: 230 North Alexander Street, New Orleans, LA 70119", {always: true}, async () => {
+    await typeText(page, `//form[@id="locationform"]//input[@id="address"]`, `230 North Alexander Street, New Orleans, LA 70119`, 30000);
+  });
+  await run.step("Clear the form's X (native value setter + input event \u2014 trap 17)", {always: true}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 const el = f && f.querySelector('input#x');
 if (!el) return false;
@@ -223,9 +262,11 @@ el.focus();
 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');
 el.dispatchEvent(new window.Event('input', { bubbles: true }));
 return el.value === '';`, 30000);
-    // Type X: -90.1025785
-    await el(page, `//form[@id="locationform"]//input[@id="x"]`).fill(`-90.1025785`, { timeout: 30000 });
-    // Clear the form's Y (native value setter + input event — trap 17)
+  });
+  await run.step("Type X: -90.1025785", {always: true}, async () => {
+    await typeText(page, `//form[@id="locationform"]//input[@id="x"]`, `-90.1025785`, 30000);
+  });
+  await run.step("Clear the form's Y (native value setter + input event \u2014 trap 17)", {always: true}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 const el = f && f.querySelector('input#y');
 if (!el) return false;
@@ -233,26 +274,32 @@ el.focus();
 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, '');
 el.dispatchEvent(new window.Event('input', { bubbles: true }));
 return el.value === '';`, 30000);
-    // Type Y: 29.9782827
-    await el(page, `//form[@id="locationform"]//input[@id="y"]`).fill(`29.9782827`, { timeout: 30000 });
-    // The form now holds the rest values — address `230 North Alexander Street, New Orleans, LA 70119`, x -90.1025785, y 29.9782827
+  });
+  await run.step("Type Y: 29.9782827", {always: true}, async () => {
+    await typeText(page, `//form[@id="locationform"]//input[@id="y"]`, `29.9782827`, 30000);
+  });
+  await run.step("The form now holds the rest values \u2014 address `230 North Alexander Street, New Orleans, LA 70119`, x -90.1025785, y 29.9782827", {always: true}, async () => {
     await assertFromJavascript(page, `const f = document.getElementById('locationform');
 if (!f) return false;
 const v = id => { const el = f.querySelector('input#' + id); return el ? el.value : null; };
 return v('address') === '230 North Alexander Street, New Orleans, LA 70119' && v('x') !== '' && Math.abs(Number(v('x')) - (-90.1025785)) < 1e-6
   && v('y') !== '' && Math.abs(Number(v('y')) - (29.9782827)) < 1e-6;`, 30000);
-    // Submit is ARMED — `type="submit"` inside #locationform (trap 8)
+  });
+  await run.step("Submit is ARMED \u2014 `type=\"submit\"` inside #locationform (trap 8)", {always: true}, async () => {
     await assertFromJavascript(page, `const b = document.querySelector('#locationform button[type="submit"]');
 return !!b && (b.textContent || '').trim() === 'SUBMIT';`, 30000);
-    // SUBMIT the rest location
-    await el(page, `//form[@id="locationform"]//button[normalize-space(.)="SUBMIT"]`).click({ timeout: 30000 });
-    await optional("The `Work stage location has been updated` toast (optional: transient)", async () => {
-      await assertPageContains(page, `Work stage location has been updated`, 10000);
-    });
-    // The location form is GONE and the page is still alive (the modal closes only once the server answers — no optimistic response)
+  });
+  await run.step("SUBMIT the rest location", {always: true}, async () => {
+    await click(page, `//form[@id="locationform"]//button[normalize-space(.)="SUBMIT"]`, 30000);
+  });
+  await run.step("The `Work stage location has been updated` toast (optional: transient)", {always: true, allow: 'ignore'}, async () => {
+    await assertPageContains(page, `Work stage location has been updated`, 10000);
+  });
+  await run.step("The location form is GONE and the page is still alive (the modal closes only once the server answers \u2014 no optimistic response)", {always: true}, async () => {
     await assertFromJavascript(page, `if (!document.querySelectorAll('[role=tab]').length) return false;
 return !document.getElementById('locationform');`, 45000);
-    // ⭐ RESTORED (server): the UI wrote the fixed rest address/x/y back
+  });
+  await run.step("\u2b50 RESTORED (server): the UI wrote the fixed rest address/x/y back", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd352_loc", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -272,12 +319,15 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // Escape — leave no modal open
-    await page.keyboard.press(`Escape`);
-    // BACKSTOP: if the server is not at rest, send `updateWorkStage` with the FIXED rest values (reads first; sends nothing when the UI restore landed)
+  });
+  await run.step("Escape \u2014 leave no modal open", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("BACKSTOP: if the server is not at rest, send `updateWorkStage` with the FIXED rest values (reads first; sends nothing when the UI restore landed)", {always: true}, async () => {
     await assertFromJavascript(page, `const K = '__dd352_net';
 const st = sessionStorage.getItem(K);
 if (st === 'done') return true;
@@ -296,10 +346,12 @@ post({ query: 'query($id: ID!) { workStage(id: $id) { id status address x y } }'
   })
   .catch(() => sessionStorage.setItem(K, 'done'));
 return false;`, 45000);
-    // Remove the backstop's sessionStorage keys
+  });
+  await run.step("Remove the backstop's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd352_net', '__dd352_net:sent'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // ⭐ AT REST (server): address/x/y are the fixed rest values and the status is still `Ready`
+  });
+  await run.step("\u2b50 AT REST (server): address/x/y are the fixed rest values and the status is still `Ready`", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd352_loc", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -319,8 +371,10 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd352_loc', '__dd352_loc:inflight', '__dd352_loc:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-  }
+  });
+  run.finish();
 }

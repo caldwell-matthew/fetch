@@ -2,57 +2,78 @@
 // MOB.121_Map_Controls
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, click, press, wait } from '../support/dd';
 
 export async function mob121(page: Page): Promise<void> {
-  try {
-    // Navigate to the mobile map
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/map`);
-    // Let the map begin initialising
+  const run = new Sequence();
+  await run.step("Navigate to the mobile map", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the map begin initialising", {}, async () => {
     await wait(page, 5);
-    // Test the "Map" page rendered
+  });
+  await run.step("Test the \"Map\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Map")]`, `Map`, 30000);
-    // PROOF: the Mapbox WebGL canvas rendered
+  });
+  await run.step("PROOF: the Mapbox WebGL canvas rendered", {}, async () => {
     await assertElementPresent(page, `//canvas[contains(@class,"mapboxgl-canvas")]`, 60000);
-    // The style control offers "Satellite"
+  });
+  await run.step("The style control offers \"Satellite\"", {}, async () => {
     await assertElementPresent(page, `//button[@data-tooltip-content="Satellite"]`, 30000);
-    // Switch the basemap to Satellite
-    await el(page, `//button[@data-tooltip-content="Satellite"]`).click({ timeout: 30000 });
-    // Let the style load
+  });
+  await run.step("Switch the basemap to Satellite", {}, async () => {
+    await click(page, `//button[@data-tooltip-content="Satellite"]`, 30000);
+  });
+  await run.step("Let the style load", {}, async () => {
     await wait(page, 6);
-    // PROOF: the style changed — the control now offers "Street"
+  });
+  await run.step("PROOF: the style changed \u2014 the control now offers \"Street\"", {}, async () => {
     await assertElementPresent(page, `//button[@data-tooltip-content="Street"]`, 30000);
-    // The layers control is headed `Layers` (`Map/Layers/layersList.tsx:116`)
-    await assertElementContent(page, `//div[contains(concat(" ", normalize-space(@class), " "), " layers-title ")]//h4`, `Layers`, 30000);
-    // Open the Layers panel
-    await el(page, `//div[contains(concat(" ", normalize-space(@class), " "), " layers-title ")]`).click({ timeout: 30000 });
-    // Wait for the layers modal
-    await wait(page, 3);
-    // PROOF: the Layers modal opened
-    await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]`, 30000);
-    // The zoom controls render
-    await assertElementPresent(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-in")]`, 30000);
-    // Zoom in
-    await el(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-in")]`).click({ timeout: 30000 });
-    // Let the zoom animate
-    await wait(page, 3);
-    // Zoom out
-    await el(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-out")]`).click({ timeout: 30000 });
-    // Let the zoom animate
-    await wait(page, 3);
-    // The map survived zooming (LIMIT: the zoom level is not exposed to the DOM)
-    await assertElementPresent(page, `//canvas[contains(@class,"mapboxgl-canvas")]`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Switch back to Street
-    await el(page, `//button[@data-tooltip-content="Street"]`).click({ timeout: 30000 });
-    // Let the style load
+  });
+  await run.step("Switch back to Street", {always: true}, async () => {
+    await click(page, `//button[@data-tooltip-content="Street"]`, 30000);
+  });
+  await run.step("Let the style load", {always: true}, async () => {
     await wait(page, 6);
-    // RESTORED: the control offers "Satellite" again
+  });
+  await run.step("RESTORED: the control offers \"Satellite\" again", {always: true}, async () => {
     await assertElementPresent(page, `//button[@data-tooltip-content="Satellite"]`, 30000);
-    // Close the layers modal
-    await page.keyboard.press(`Escape`);
-    // Wait for it to close
+  });
+  await run.step("The layers control is headed `Layers` (`Map/Layers/layersList.tsx:116`)", {}, async () => {
+    await assertElementContent(page, `//div[contains(concat(" ", normalize-space(@class), " "), " layers-title ")]//h4`, `Layers`, 30000);
+  });
+  await run.step("Open the Layers panel", {}, async () => {
+    await click(page, `//div[contains(concat(" ", normalize-space(@class), " "), " layers-title ")]`, 30000);
+  });
+  await run.step("Wait for the layers modal", {}, async () => {
+    await wait(page, 3);
+  });
+  await run.step("PROOF: the Layers modal opened", {}, async () => {
+    await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]`, 30000);
+  });
+  await run.step("Close the layers modal", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Wait for it to close", {always: true}, async () => {
     await wait(page, 2);
-  }
+  });
+  await run.step("The zoom controls render", {}, async () => {
+    await assertElementPresent(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-in")]`, 30000);
+  });
+  await run.step("Zoom in", {}, async () => {
+    await click(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-in")]`, 30000);
+  });
+  await run.step("Let the zoom animate", {}, async () => {
+    await wait(page, 3);
+  });
+  await run.step("Zoom out", {}, async () => {
+    await click(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-out")]`, 30000);
+  });
+  await run.step("Let the zoom animate", {}, async () => {
+    await wait(page, 3);
+  });
+  await run.step("The map survived zooming (LIMIT: the zoom level is not exposed to the DOM)", {}, async () => {
+    await assertElementPresent(page, `//canvas[contains(@class,"mapboxgl-canvas")]`, 30000);
+  });
+  run.finish();
 }

@@ -2,35 +2,51 @@
 // MOB.700_AssetLookup_Search
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertPageContains, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertPageContains, click, press, typeText, wait } from '../support/dd';
 
 export async function mob700(page: Page): Promise<void> {
-    // Navigate to asset lookup
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`);
-    // Wait for the page to mount
+  const run = new Sequence();
+  await run.step("Navigate to asset lookup", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Wait for the page to mount", {}, async () => {
     await wait(page, 5);
-    // Test the "Asset Lookup" page rendered
+  });
+  await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, DEFAULT_TIMEOUT);
-    // Test the search input renders
+  });
+  await run.step("Test the search input renders", {}, async () => {
     await assertElementPresent(page, `//input[@name="asset-search"]`, DEFAULT_TIMEOUT);
-    // Focus the search input
-    await el(page, `//input[@name="asset-search"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Select any persisted query first (typeText APPENDS — trap 17)
-    await page.keyboard.press(`Control+a`);
-    // Search for Pump 0102
-    await el(page, `//input[@name="asset-search"]`).fill(`Pump 0102`, { timeout: DEFAULT_TIMEOUT });
-    // Submit the search (Enter - there is no search button)
-    await page.keyboard.press(`Enter`);
-    // Wait for the search results
+  });
+  await run.step("Focus the search input", {}, async () => {
+    await click(page, `//input[@name="asset-search"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Select any persisted query first (typeText APPENDS \u2014 trap 17)", {}, async () => {
+    await press(page, `Control+a`);
+  });
+  await run.step("Search for Pump 0102", {}, async () => {
+    await typeText(page, `//input[@name="asset-search"]`, `Pump 0102`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Submit the search (Enter - there is no search button)", {}, async () => {
+    await press(page, `Enter`);
+  });
+  await run.step("Wait for the search results", {}, async () => {
     await wait(page, 8);
-    // Test Pump 0102 is in the results
+  });
+  await run.step("Test Pump 0102 is in the results", {}, async () => {
     await assertPageContains(page, `Pump 0102`, DEFAULT_TIMEOUT);
-    // Expand the first result
-    await el(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the detail panel to mount
+  });
+  await run.step("Expand the first result", {}, async () => {
+    await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the detail panel to mount", {}, async () => {
     await wait(page, 3);
-    // Test the asset detail tab strip rendered
+  });
+  await run.step("Test the asset detail tab strip rendered", {}, async () => {
     await assertElementPresent(page, `((//*[contains(@class,"mantine-Accordion-item")])[1]//*[@role="tab"])[1]`, DEFAULT_TIMEOUT);
-    // Test the "Work History" tab exists (one of the six)
+  });
+  await run.step("Test the \"Work History\" tab exists (one of the six)", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[@role="tab"][normalize-space(.)="Work History"]`, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

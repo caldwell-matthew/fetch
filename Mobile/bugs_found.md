@@ -24,7 +24,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | § | Finding | Evidence | Status |
 |---|---|---|---|
 | 11 | Verification toast fires before the mutation | Source | ❌ low–medium · `VerificationCheckbox.tsx:24` |
-| 20 | Submitting search discards active structured filters | Runtime | ❌ medium · one-line fix · `MOB.820` pins it |
 | 21 | Permits tab renders blank with no permits | Source | ❌ low (missing empty state) · `WorkDetails.tsx:195` |
 | 24 | `Supersesed` misspelling in the status legend | Source | ❌ `StatusSummary/index.tsx:45` — likely unreachable on mobile |
 | 25 | How the crew's work list is populated | Reference | not a bug — the four server rules the checklist cites |
@@ -46,6 +45,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:76-88` looks the new tag up in the pre-create list |
 | 45 | Expanding an asset row on a work order's Assets tab can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema; `AssetLookupDetails/index.tsx:43` maps it unguarded |
 | 46 | A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated` | Runtime | ❌ `GeneralInfo.tsx:61,77-85`; `InsertForm/utils/index.ts:150-161` copies every `allowUpdate` field, dirty or not |
+| 47 | `Add asset to job` re-offers assets already on the job once you submit a search | Source | ❌ low–medium · `AssetLookup/index.tsx:171` — `jobId: '??'` |
 
 ## §11 · Verification toast fires before the mutation
 
@@ -76,32 +76,6 @@ loses the form the same way, which is presumably intended.)
 **Reach:** on a phone or tablet webview nothing sends Escape — only a hardware keyboard, or a desktop
 browser, can trigger it. **Severity:** low.
 **Fix:** `closeOnEscape={false}` on the outer modal, matching the click-outside guard.
-
-## §20 · Submitting the search box discards every active structured filter
-
-`AssetLookup/index.tsx`:
-
-```js
-line  97  useQuery   params: buildParams(1, [...(props.query || query || [])])   // WITH filters
-line 173  refetch    query:  { conditions: [...(props.query ?? [])] }             // WITHOUT
-```
-
-`fetchMore` (`:139`) uses `props.query || query` like line 97. `props.query` is set only when Asset Lookup is
-embedded, so on the standalone page the submit refetches with no conditions while the filter chips stay on
-screen (`Filters (1)`). What the user then sees depends on the text:
-- **the same text again** — the hook's variables do not change, so the unfiltered result stays; and the NEXT
-  page, from `fetchMore`, comes back filtered — one list, two rules;
-- **new text** — `setSearchText` makes the hook re-query WITH the filters, racing the unfiltered refetch;
-  which lands last depends on Apollo's timing (on the standalone page the unfiltered one won, `MOB.820`).
-The same refetch also hardcodes `jobLookup: { jobId: '??' }` instead of `props.jobId` (line 96 uses the prop).
-
-**Runtime (`MOB.820`):** filter `Name contains ZZZZ-NO-SUCH-ASSET` hides `Pump 0102`; submitting
-the search box brings it back with `Filters (1)` still displayed.
-**Severity:** medium — results that do not match the filters shown, with no error.
-**Fix:** one line — the refetch's params should be `buildParams(1, [...(props.query || query || [])])`, as at
-line 97 (and `jobId: props.jobId`).
-**Tests:** `MOB.820` asserts the buggy behaviour and will fail when this is fixed — then flip its
-assertions and delete this entry. The component's own Jest test mocks `useQuery`, so it exercises none of this.
 
 ## §21 · The Permits tab renders a blank panel when there are no permits
 
@@ -540,3 +514,28 @@ optimistic `update()`, surfacing the server's message on rejection.
 **Tests:** `MOB.395` is the test that caught it, and it is the reason its proof is a reload rather than the
 toast. The fixture work order's project reference has since been cleared so `MOB.395` can exercise the edit
 path, so **MOB.395 no longer covers this finding** — reproduce it on any work order that still has a project.
+
+## §47 · `Add asset to job` re-offers assets already on the job once you submit a search
+
+The search form's `refetch` hardcodes the job id instead of passing the one it was given
+(`client/mobile/components/AssetLookup/index.tsx`):
+
+```js
+line  95  useQuery  jobLookup: { query: searchText, jobId: props.jobId }   // the real job
+line 171  refetch   jobLookup: { query: _text,      jobId: '??' }          // a literal '??'
+```
+
+`jobId` is what tells the server to leave out the assets a job already has
+(`server/src/graphql/modules/asset/asset/resolver/asset.ts:73` — `whereNotIn ... mobilejobasset WHERE
+jobId = :jobId UNION ... workstageasset`). With `'??'` nothing matches, so nothing is excluded.
+
+**Reachable:** `AssetVerification/NewAssetForm` renders Asset Lookup with `jobId`, which is the *add
+assets to a mobile job* picker. Typing in its search box and submitting brings back assets that are
+already on the job, so a user can add the same asset twice. The standalone `/asset-lookup` page passes
+no `jobId`, so `MOB.820` cannot see this.
+
+**Severity:** low–medium — no error is shown, and the result looks like a normal list.
+
+**History:** this was the second half of §20. Its first half (the submit discarding structured filters)
+was fixed in `02b17aa82e`, 2026-09-17; this line was left as it was.
+

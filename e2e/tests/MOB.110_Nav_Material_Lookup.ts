@@ -2,13 +2,18 @@
 // MOB.110_Nav_Material_Lookup
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent } from '../support/dd';
 
 export async function mob110(page: Page): Promise<void> {
-    // Navigate to /material-lookup
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/material-lookup`);
-    // Test page title "Material Lookup"
+  const run = new Sequence();
+  await run.step("Navigate to /material-lookup", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/material-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Test page title \"Material Lookup\"", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Material Lookup")]`, `Material Lookup`, DEFAULT_TIMEOUT);
-    // Test material search input is present
+  });
+  await run.step("Test material search input is present", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Search for material items by name"]`, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

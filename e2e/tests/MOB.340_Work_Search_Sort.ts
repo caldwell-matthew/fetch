@@ -2,39 +2,57 @@
 // MOB.340_Work_Search_Sort
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertPageContains, assertPageLacks, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../support/dd';
 
 export async function mob340(page: Page): Promise<void> {
-    // Navigate to /work — the work order list
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Wait for the workstage pages and the lookup prefetch
+  });
+  await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
     await wait(page, 20);
-    // The work list rendered its search box
+  });
+  await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
-    // LOADEDALL 1/3: the initial fetch finished
+  });
+  await run.step("LOADEDALL 1/3: the initial fetch finished", {}, async () => {
     await assertPageLacks(page, `Retrieving assigned work`, DEFAULT_TIMEOUT);
-    // LOADEDALL 2/3: paging through workstages finished
+  });
+  await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
-    // LOADEDALL 3/3: the per-stage detail downloads finished
-    await assertPageLacks(page, `workstages downloaded`, 180000);
-    // Focus the search box
-    await el(page, `//input[@placeholder="Find Workstage(s)"]`).click({ timeout: 30000 });
-    // Type a search term
-    await el(page, `//input[@placeholder="Find Workstage(s)"]`).fill(`a`, { timeout: DEFAULT_TIMEOUT });
-    // Wait for the 300ms search debounce
+  });
+  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
+    await assertPageLacks(page, `workstages downloaded`, 360000);
+  });
+  await run.step("Focus the search box", {}, async () => {
+    await click(page, `//input[@placeholder="Find Workstage(s)"]`, 30000);
+  });
+  await run.step("Type a search term", {}, async () => {
+    await typeText(page, `//input[@placeholder="Find Workstage(s)"]`, `a`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the 300ms search debounce", {}, async () => {
     await wait(page, 2);
-    // Test the search box holds the term
+  });
+  await run.step("Test the search box holds the term", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
-    // Open the sort dropdown
-    await el(page, `//button[.//*[@data-icon="sort-alt" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Test the Sort Criteria modal opened
+  });
+  await run.step("Open the sort dropdown", {}, async () => {
+    await click(page, `//button[.//*[@data-icon="sort-alt" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Test the Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
-    // Dismiss the sort modal
-    await page.keyboard.press(`Escape`);
-    // Test the sort modal closed
+  });
+  await run.step("Dismiss the sort modal", {}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Test the sort modal closed", {}, async () => {
     await assertPageLacks(page, `Sort Criteria`, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

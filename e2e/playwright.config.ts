@@ -19,6 +19,9 @@ export const DEVICES = {
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.ts',
+  // probe/ holds throwaway diagnostics (how long /work takes to load, what a login sees). They are
+  // run by name when something needs measuring, never as part of a pass.
+  testIgnore: '**/probe/**',
   // The suites share fixture records on dev, so they must never run side by side (trap 1).
   workers: 1,
   fullyParallel: false,

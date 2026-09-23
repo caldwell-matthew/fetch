@@ -2,29 +2,38 @@
 // MOB.560_AssetVerify_Counts_Badges
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../support/dd';
 
 export async function mob560(page: Page): Promise<void> {
-  try {
-    // Navigate to the mobile job list
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`);
-    // Wait for the page to mount
+  const run = new Sequence();
+  await run.step("Navigate to the mobile job list", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Wait for the page to mount", {}, async () => {
     await wait(page, 10);
-    // Test the "Mobile Jobs" page mounted
+  });
+  await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, DEFAULT_TIMEOUT);
-    // Wait for the lookup prefetch and batched detail downloads
+  });
+  await run.step("Wait for the lookup prefetch and batched detail downloads", {}, async () => {
     await wait(page, 25);
-    // Test the job list rendered
+  });
+  await run.step("Test the job list rendered", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Mobile Job(s)"]`, DEFAULT_TIMEOUT);
-    // Test the batched job-detail downloads finished
+  });
+  await run.step("Test the batched job-detail downloads finished", {}, async () => {
     await assertPageLacks(page, `Fetching mobile job details`, DEFAULT_TIMEOUT);
-    // FIXTURE GUARD: "DATADOG MOBILE JOB" is in this crew's list
+  });
+  await run.step("FIXTURE GUARD: \"DATADOG MOBILE JOB\" is in this crew's list", {}, async () => {
     await assertPageContains(page, `DATADOG MOBILE JOB`, DEFAULT_TIMEOUT);
-    // The status ring's legend renders a Ready count
+  });
+  await run.step("The status ring's legend renders a Ready count", {}, async () => {
     await assertElementPresent(page, `//li[contains(normalize-space(.), "Ready:")]`, DEFAULT_TIMEOUT);
-    // The status ring's legend renders a Completed count
+  });
+  await run.step("The status ring's legend renders a Completed count", {}, async () => {
     await assertElementPresent(page, `//li[contains(normalize-space(.), "Completed:")]`, DEFAULT_TIMEOUT);
-    // PROOF: every card's % label matches its own X-out-of-Y counts
+  });
+  await run.step("PROOF: every card's % label matches its own X-out-of-Y counts", {}, async () => {
     await assertFromJavascript(page, `
 const t = document.body.innerText || '';
 const re = /(\\d+)\\s+out of\\s+(\\d+)\\s+Assets Verified\\s*(\\d+)%/g;
@@ -37,13 +46,17 @@ while ((m = re.exec(t)) !== null) {
 }
 return n > 0;
 `, DEFAULT_TIMEOUT);
-    // Select the Ready status badge
-    await el(page, `//li[contains(normalize-space(.), "Ready:")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the list to re-filter
+  });
+  await run.step("Select the Ready status badge", {}, async () => {
+    await click(page, `//li[contains(normalize-space(.), "Ready:")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the list to re-filter", {}, async () => {
     await wait(page, 3);
-    // "DATADOG MOBILE JOB" rests READY, so it survives the Ready badge
+  });
+  await run.step("\"DATADOG MOBILE JOB\" rests READY, so it survives the Ready badge", {}, async () => {
     await assertPageContains(page, `DATADOG MOBILE JOB`, DEFAULT_TIMEOUT);
-    // The % labels still match after filtering
+  });
+  await run.step("The % labels still match after filtering", {}, async () => {
     await assertFromJavascript(page, `
 const t = document.body.innerText || '';
 const re = /(\\d+)\\s+out of\\s+(\\d+)\\s+Assets Verified\\s*(\\d+)%/g;
@@ -56,23 +69,30 @@ while ((m = re.exec(t)) !== null) {
 }
 return n > 0;
 `, DEFAULT_TIMEOUT);
-    // Deselect the Ready badge (it toggles)
-    await el(page, `//li[contains(normalize-space(.), "Ready:")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the list to restore
+  });
+  await run.step("Deselect the Ready badge (it toggles)", {}, async () => {
+    await click(page, `//li[contains(normalize-space(.), "Ready:")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the list to restore", {}, async () => {
     await wait(page, 3);
-    // Select the Completed status badge
-    await el(page, `//li[contains(normalize-space(.), "Completed:")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the list to re-filter
+  });
+  await run.step("Select the Completed status badge", {}, async () => {
+    await click(page, `//li[contains(normalize-space(.), "Completed:")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the list to re-filter", {}, async () => {
     await wait(page, 3);
-    // PROOF: the Completed badge filters — "DATADOG MOBILE JOB" is hidden
+  });
+  await run.step("PROOF: the Completed badge filters \u2014 \"DATADOG MOBILE JOB\" is hidden", {}, async () => {
     await assertPageLacks(page, `DATADOG MOBILE JOB`, DEFAULT_TIMEOUT);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Deselect the Completed badge
-    await el(page, `//li[contains(normalize-space(.), "Completed:")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the list to restore
+  });
+  await run.step("Deselect the Completed badge", {always: true}, async () => {
+    await click(page, `//li[contains(normalize-space(.), "Completed:")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the list to restore", {always: true}, async () => {
     await wait(page, 3);
-    // RESTORED: "DATADOG MOBILE JOB" is listed again
+  });
+  await run.step("RESTORED: \"DATADOG MOBILE JOB\" is listed again", {always: true}, async () => {
     await assertPageContains(page, `DATADOG MOBILE JOB`, DEFAULT_TIMEOUT);
-  }
+  });
+  run.finish();
 }

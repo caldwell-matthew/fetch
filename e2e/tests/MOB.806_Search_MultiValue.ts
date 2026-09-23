@@ -2,21 +2,26 @@
 // MOB.806_Search_MultiValue
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, click, press, typeText, wait } from '../support/dd';
 
 export async function mob806(page: Page): Promise<void> {
-  try {
-    // Navigate to asset lookup
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`);
-    // Let the page begin loading
+  const run = new Sequence();
+  await run.step("Navigate to asset lookup", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the page begin loading", {}, async () => {
     await wait(page, 3);
-    // Test the "Asset Lookup" page rendered
+  });
+  await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
-    // Open the Filters drawer
-    await el(page, `//button[contains(concat(" ", normalize-space(@class), " "), " asset-lookup-filter-button ")]`).click({ timeout: 30000 });
-    // Wait for the drawer
+  });
+  await run.step("Open the Filters drawer", {}, async () => {
+    await click(page, `//button[contains(concat(" ", normalize-space(@class), " "), " asset-lookup-filter-button ")]`, 30000);
+  });
+  await run.step("Wait for the drawer", {}, async () => {
     await wait(page, 1);
-    // Test the Filters drawer opened (re-clicks Filters if the click was swallowed)
+  });
+  await run.step("Test the Filters drawer opened (re-clicks Filters if the click was swallowed)", {}, async () => {
     await assertFromJavascript(page, `
 const up = [...document.querySelectorAll('button')]
   .some(b => b.textContent.trim() === 'Add Filter');
@@ -25,11 +30,14 @@ const btn = document.querySelector('button.asset-lookup-filter-button');
 if (btn) btn.click();
 return false;
 `, 30000);
-    // Open the Field select
-    await el(page, `//*[@id="fieldId"]`).click({ timeout: 30000 });
-    // Wait for Field options
+  });
+  await run.step("Open the Field select", {}, async () => {
+    await click(page, `//*[@id="fieldId"]`, 30000);
+  });
+  await run.step("Wait for Field options", {}, async () => {
     await wait(page, 1);
-    // GATE: the Field option "Name" is VISIBLE (re-opens the select if the click was lost)
+  });
+  await run.step("GATE: the Field option \"Name\" is VISIBLE (re-opens the select if the click was lost)", {}, async () => {
     await assertFromJavascript(page, `const want = "Name";
 const vis = e => { if (!e || !e.isConnected) return false;
   const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;
@@ -50,13 +58,17 @@ if (now - window[key] > 2500) {
   if (input) input.click();
 }
 return false;`, 30000);
-    // Pick Field = "Name"
-    await el(page, `//*[@role="option"][normalize-space(.)="Name"]`).click({ timeout: 30000 });
-    // Open the Operator select
-    await el(page, `//*[@id="operator"]`).click({ timeout: 30000 });
-    // Wait for Operator options
+  });
+  await run.step("Pick Field = \"Name\"", {}, async () => {
+    await click(page, `//*[@role="option"][normalize-space(.)="Name"]`, 30000);
+  });
+  await run.step("Open the Operator select", {}, async () => {
+    await click(page, `//*[@id="operator"]`, 30000);
+  });
+  await run.step("Wait for Operator options", {}, async () => {
     await wait(page, 1);
-    // GATE: the Operator option "contains" is VISIBLE (re-opens the select if the click was lost)
+  });
+  await run.step("GATE: the Operator option \"contains\" is VISIBLE (re-opens the select if the click was lost)", {}, async () => {
     await assertFromJavascript(page, `const want = "contains";
 const vis = e => { if (!e || !e.isConnected) return false;
   const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;
@@ -77,19 +89,25 @@ if (now - window[key] > 2500) {
   if (input) input.click();
 }
 return false;`, 30000);
-    // Pick Operator = "contains" (the SINGLE-value branch)
-    await el(page, `//*[@role="option"][normalize-space(.)="contains"]`).click({ timeout: 30000 });
-    // Let the value input render
+  });
+  await run.step("Pick Operator = \"contains\" (the SINGLE-value branch)", {}, async () => {
+    await click(page, `//*[@role="option"][normalize-space(.)="contains"]`, 30000);
+  });
+  await run.step("Let the value input render", {}, async () => {
     await wait(page, 2);
-    // BASELINE: the single-value `#value` input is what renders for `contains`
+  });
+  await run.step("BASELINE: the single-value `#value` input is what renders for `contains`", {}, async () => {
     await assertFromJavascript(page, `const v = document.getElementById('value');
 const tags = document.querySelector('input[placeholder="Type and press Enter..."]');
 return !!v && !tags;`, 30000);
-    // Open the Operator select again
-    await el(page, `//*[@id="operator"]`).click({ timeout: 30000 });
-    // Wait for Operator options
+  });
+  await run.step("Open the Operator select again", {}, async () => {
+    await click(page, `//*[@id="operator"]`, 30000);
+  });
+  await run.step("Wait for Operator options", {}, async () => {
     await wait(page, 1);
-    // GATE: the Operator option "includes" is VISIBLE (re-opens the select if the click was lost)
+  });
+  await run.step("GATE: the Operator option \"includes\" is VISIBLE (re-opens the select if the click was lost)", {}, async () => {
     await assertFromJavascript(page, `const want = "includes";
 const vis = e => { if (!e || !e.isConnected) return false;
   const r = e.getBoundingClientRect(); if (r.width === 0 || r.height === 0) return false;
@@ -110,44 +128,57 @@ if (now - window[key] > 2500) {
   if (input) input.click();
 }
 return false;`, 30000);
-    // Pick Operator = "includes" (the MULTI-value branch)
-    await el(page, `//*[@role="option"][normalize-space(.)="includes"]`).click({ timeout: 30000 });
-    // Let the value input swap
+  });
+  await run.step("Pick Operator = \"includes\" (the MULTI-value branch)", {}, async () => {
+    await click(page, `//*[@role="option"][normalize-space(.)="includes"]`, 30000);
+  });
+  await run.step("Let the value input swap", {}, async () => {
     await wait(page, 2);
-    // The `TagsInput` rendered
+  });
+  await run.step("The `TagsInput` rendered", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Type and press Enter..."]`, 30000);
-    // ⭐ IT IS A SWAP: the single-value `#value` input is GONE
+  });
+  await run.step("\u2b50 IT IS A SWAP: the single-value `#value` input is GONE", {}, async () => {
     await assertFromJavascript(page, `const v = document.getElementById('value');
 const tags = document.querySelector('input[placeholder="Type and press Enter..."]');
 return !!tags && !v;`, 30000);
-    // ⭐ VALIDITY 1/2: with NO tags, `Add Filter` is INERT (type=button)
+  });
+  await run.step("\u2b50 VALIDITY 1/2: with NO tags, `Add Filter` is INERT (type=button)", {}, async () => {
     await assertFromJavascript(page, `const b = [...document.querySelectorAll('button')].find(x => (x.textContent || '').trim() === 'Add Filter');
 if (!b) return false;
 return b.type === 'button';`, 30000);
-    // Focus the tags input
-    await el(page, `//input[@placeholder="Type and press Enter..."]`).click({ timeout: 30000 });
-    // Type "Pump"
-    await el(page, `//input[@placeholder="Type and press Enter..."]`).fill(`Pump`, { timeout: DEFAULT_TIMEOUT });
-    // Press Enter to commit the tag
-    await page.keyboard.press(`Enter`);
-    // Let the draft revalidate
+  });
+  await run.step("Focus the tags input", {}, async () => {
+    await click(page, `//input[@placeholder="Type and press Enter..."]`, 30000);
+  });
+  await run.step("Type \"Pump\"", {}, async () => {
+    await typeText(page, `//input[@placeholder="Type and press Enter..."]`, `Pump`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Press Enter to commit the tag", {}, async () => {
+    await press(page, `Enter`);
+  });
+  await run.step("Let the draft revalidate", {}, async () => {
     await wait(page, 2);
-    // The tag "Pump" was committed as a pill
+  });
+  await run.step("The tag \"Pump\" was committed as a pill", {}, async () => {
     await assertFromJavascript(page, `const d = document.querySelector('.mantine-Drawer-content') || document;
 return [...d.querySelectorAll('.mantine-Pill-label')].some(p => (p.textContent || '').trim() === 'Pump');`, 30000);
-    // ⭐ VALIDITY 2/2: with one tag, `Add Filter` is LIVE (type=submit)
+  });
+  await run.step("\u2b50 VALIDITY 2/2: with one tag, `Add Filter` is LIVE (type=submit)", {}, async () => {
     await assertFromJavascript(page, `const b = [...document.querySelectorAll('button')].find(x => (x.textContent || '').trim() === 'Add Filter');
 if (!b) return false;
 return b.type === 'submit';`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Escape — close WITHOUT adding the filter
-    await page.keyboard.press(`Escape`);
-    // Let the drawer close
+  });
+  await run.step("Escape \u2014 close WITHOUT adding the filter", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let the drawer close", {always: true}, async () => {
     await wait(page, 2);
-    // RESTORED: no filter was added — the trigger still reads `Filters (0)`
+  });
+  await run.step("RESTORED: no filter was added \u2014 the trigger still reads `Filters (0)`", {always: true}, async () => {
     await assertFromJavascript(page, `const b = document.querySelector('.asset-lookup-filter-button');
 if (!b) return false;
 return /Filters\\s*\\(0\\)/.test(b.textContent || '');`, 30000);
-  }
+  });
+  run.finish();
 }

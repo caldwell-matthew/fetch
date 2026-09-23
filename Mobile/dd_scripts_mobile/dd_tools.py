@@ -710,13 +710,14 @@ def work_list_gate(wait=20, require_row=True):
              {"value": "Retrieving assigned work"}),
         step("assertPageLacks", "LOADEDALL 2/3: paging through workstages finished",
              {"value": "workstages found"}),
-        # 🛑 180s, NOT THE 60s DEFAULT. Measured 2026-09-16 (local probe, cold session): the
-        # per-stage detail downloads ran 86s - 304 /graphql requests, ~17 every 5s - because the
-        # list holds every residue work order (bugs §41 blocks pruning), and it grows each pass.
-        # Datadog runs ~1.5x slower. A step taken while they run timed out on Datadog: MOB.953's
-        # MOB.301 could not click the + button inside 30s, twice (first attempt and retry).
+        # 🛑 360s, NOT THE 60s DEFAULT. The per-stage detail downloads are the slowest thing the
+        # mobile app does, and they grow with the work list: 86s when measured 2026-09-16, 210s on
+        # 2026-09-23 with 462 ready work orders, and 178s right after pruning every work order the
+        # tests are allowed to delete (cleanup_residue.py). Pruning alone does not hold the line -
+        # most of that list is not ours - so the budget is 360s, and a step taken while the
+        # downloads run still fails (MOB.953's MOB.301 could not click + inside 30s on Datadog).
         step("assertPageLacks", "LOADEDALL 3/3: the per-stage detail downloads finished",
-             {"value": "workstages downloaded"}, timeout=180),
+             {"value": "workstages downloaded"}, timeout=360),
     ] + ([
         step("assertElementPresent", "WORK ROW GUARD: at least one work order rendered",
              {"element": xpath_el(WORK_URL, WORK_ROW + "[1]")}, timeout=60),

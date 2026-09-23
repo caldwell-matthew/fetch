@@ -2,19 +2,26 @@
 // MOB.410_Menu_Resync
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementPresent, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, click, wait } from '../support/dd';
 import { globals } from '../support/env';
 
 export async function mob410(page: Page): Promise<void> {
   const MOBDEV = globals.MOBDEV;
-    // Navigate to mobile home
-    await page.goto(`${MOBDEV}`);
-    // Open the hamburger menu
-    await el(page, `//button[@aria-label="Toggle navigation"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Click ReSync
-    await el(page, `//button[normalize-space(.)="ReSync"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the resync to complete
+  const run = new Sequence();
+  await run.step("Navigate to mobile home", {}, async () => {
+    await page.goto(`${MOBDEV}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Open the hamburger menu", {}, async () => {
+    await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Click ReSync", {}, async () => {
+    await click(page, `//button[normalize-space(.)="ReSync"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the resync to complete", {}, async () => {
     await wait(page, 10);
-    // Test app shell survived the resync
+  });
+  await run.step("Test app shell survived the resync", {}, async () => {
     await assertElementPresent(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

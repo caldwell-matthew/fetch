@@ -2,57 +2,75 @@
 // MOB.343_Work_List_Search_Filter
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageLacks, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageLacks, click, press, typeText, wait } from '../support/dd';
 
 export async function mob343(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — the work order list
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Wait for the workstage pages and the lookup prefetch
+  });
+  await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
     await wait(page, 20);
-    // The work list rendered its search box
+  });
+  await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
-    // LOADEDALL 1/3: the initial fetch finished
+  });
+  await run.step("LOADEDALL 1/3: the initial fetch finished", {}, async () => {
     await assertPageLacks(page, `Retrieving assigned work`, DEFAULT_TIMEOUT);
-    // LOADEDALL 2/3: paging through workstages finished
+  });
+  await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
-    // LOADEDALL 3/3: the per-stage detail downloads finished
-    await assertPageLacks(page, `workstages downloaded`, 180000);
-    // WORK ROW GUARD: at least one work order rendered
+  });
+  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
+    await assertPageLacks(page, `workstages downloaded`, 360000);
+  });
+  await run.step("WORK ROW GUARD: at least one work order rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 60000);
-    // BASELINE: the unfiltered list has at least one row
+  });
+  await run.step("BASELINE: the unfiltered list has at least one row", {}, async () => {
     await assertFromJavascript(page, `const ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]
   .filter(e => (e.textContent || '').includes('Description:'));
 return ROWS().length >= 1;`, 30000);
-    // Focus the search box
-    await el(page, `//input[@placeholder="Find Workstage(s)"]`).click({ timeout: 30000 });
-    // Select any existing text (typeText APPENDS without this)
-    await page.keyboard.press(`Control+a`);
-    // Type a term nothing can match ("ZZQXJV0000")
-    await el(page, `//input[@placeholder="Find Workstage(s)"]`).fill(`ZZQXJV0000`, { timeout: DEFAULT_TIMEOUT });
-    // Wait past the 300ms search debounce
+  });
+  await run.step("Focus the search box", {}, async () => {
+    await click(page, `//input[@placeholder="Find Workstage(s)"]`, 30000);
+  });
+  await run.step("Select any existing text (typeText APPENDS without this)", {}, async () => {
+    await press(page, `Control+a`);
+  });
+  await run.step("Type a term nothing can match (\"ZZQXJV0000\")", {}, async () => {
+    await typeText(page, `//input[@placeholder="Find Workstage(s)"]`, `ZZQXJV0000`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait past the 300ms search debounce", {}, async () => {
     await wait(page, 3);
-    // PROOF: the list filtered to ZERO rows — the search really filters
+  });
+  await run.step("PROOF: the list filtered to ZERO rows \u2014 the search really filters", {}, async () => {
     await assertFromJavascript(page, `const ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]
   .filter(e => (e.textContent || '').includes('Description:'));
 return ROWS().length === 0;`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Focus the search box again
-    await el(page, `//input[@placeholder="Find Workstage(s)"]`).click({ timeout: 30000 });
-    // Select the nonsense term
-    await page.keyboard.press(`Control+a`);
-    // Delete it — restore the unfiltered list
-    await page.keyboard.press(`Delete`);
-    // Wait past the debounce again
+  });
+  await run.step("Focus the search box again", {always: true}, async () => {
+    await click(page, `//input[@placeholder="Find Workstage(s)"]`, 30000);
+  });
+  await run.step("Select the nonsense term", {always: true}, async () => {
+    await press(page, `Control+a`);
+  });
+  await run.step("Delete it \u2014 restore the unfiltered list", {always: true}, async () => {
+    await press(page, `Delete`);
+  });
+  await run.step("Wait past the debounce again", {always: true}, async () => {
     await wait(page, 3);
-    // RESTORED: the rows are back — so there WERE rows to filter
+  });
+  await run.step("RESTORED: the rows are back \u2014 so there WERE rows to filter", {always: true}, async () => {
     await assertFromJavascript(page, `const ROWS = () => [...document.querySelectorAll('.mantine-Paper-root')]
   .filter(e => (e.textContent || '').includes('Description:'));
 return ROWS().length >= 1;`, 30000);
-  }
+  });
+  run.finish();
 }

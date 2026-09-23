@@ -2,21 +2,23 @@
 // MOB.628_Collector_Document_Add_Delete
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, Soft, assertElementPresent, assertFromJavascript, el, uploadStandIn, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, click, uploadStandIn, wait } from '../support/dd';
 
 export async function mob628(page: Page): Promise<void> {
-  const soft = new Soft();
-  try {
-    // Navigate to the asset collector
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`);
-    // Wait for the collector to load its lookup cache
+  const run = new Sequence();
+  await run.step("Navigate to the asset collector", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Wait for the collector to load its lookup cache", {}, async () => {
     await wait(page, 15);
-    // The collector page rendered
+  });
+  await run.step("The collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 30000);
-    await soft.run("FIXTURE GUARD: a \"DD SYNTHETIC MOBILE\" asset is in the collected list (MOB.600 residue)", async () => {
-      await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]`, 60000);
-    });
-    // Stash the row's asset name (`DD SYNTHETIC MOBILE <8 digits>`) — every server read resolves the asset by it
+  });
+  await run.step("FIXTURE GUARD: a \"DD SYNTHETIC MOBILE\" asset is in the collected list (MOB.600 residue)", {allow: 'soft'}, async () => {
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]`, 60000);
+  });
+  await run.step("Stash the row's asset name (`DD SYNTHETIC MOBILE <8 digits>`) \u2014 every server read resolves the asset by it", {}, async () => {
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
@@ -28,7 +30,8 @@ const m = (c.textContent || '').match(/DD SYNTHETIC MOBILE \\d{8}/);
 if (!m) return false;
 sessionStorage.setItem('__dd628_name', m[0]);
 return true;`, 30000);
-    // PREMISE (server): exactly ONE asset carries that name — stash its attachment ids (BEFORE)
+  });
+  await run.step("PREMISE (server): exactly ONE asset carries that name \u2014 stash its attachment ids (BEFORE)", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd628_srv_premise", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -54,19 +57,30 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Expand that row by its chevron
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`).click({ timeout: 30000 });
-    // Let the detail panel mount
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd628_srv_premise', '__dd628_srv_premise:inflight', '__dd628_srv_premise:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Expand that row by its chevron", {}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
+  });
+  await run.step("Let the detail panel mount", {}, async () => {
     await wait(page, 3);
-    // Switch to the "Docs" tab
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[@role="tab"][normalize-space(.)="Docs"]`).click({ timeout: 30000 });
-    // Let the Docs panel mount
+  });
+  await run.step("Switch to the \"Docs\" tab", {}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[@role="tab"][normalize-space(.)="Docs"]`, 30000);
+  });
+  await run.step("Let the Docs panel mount", {}, async () => {
     await wait(page, 3);
-    // The "Docs" tab is active
+  });
+  await run.step("The \"Docs\" tab is active", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[@role="tab"][normalize-space(.)="Docs"][@data-active]`, 30000);
-    // `Add File` renders (asset.create)
+  });
+  await run.step("`Add File` renders (asset.create)", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//button[normalize-space(.)="Add File"]`, 30000);
-    // Reveal the row's hidden "Add File" input (accept="*/*", exactly one on the page)
+  });
+  await run.step("Reveal the row's hidden \"Add File\" input (accept=\"*/*\", exactly one on the page)", {}, async () => {
     await assertFromJavascript(page, `document.querySelectorAll('[data-dd-upload]')
   .forEach(n => n.removeAttribute('data-dd-upload'));
 const items = [...document.querySelectorAll('.mantine-Accordion-item')];
@@ -87,16 +101,19 @@ Object.assign(el.style, {
 });
 return true;
 `, DEFAULT_TIMEOUT);
-    // 📄 Upload ONE PDF through `Add File` (the owner-recorded PDF — trap 12)
+  });
+  await run.step("\ud83d\udcc4 Upload ONE PDF through `Add File` (the owner-recorded PDF \u2014 trap 12)", {}, async () => {
     await uploadStandIn(page, `//input[@data-dd-upload="1"]`, ["TestPDF.pdf"], DEFAULT_TIMEOUT);
-    // The input holds exactly ONE file, a non-image `.pdf` — stash its name
+  });
+  await run.step("The input holds exactly ONE file, a non-image `.pdf` \u2014 stash its name", {}, async () => {
     await assertFromJavascript(page, `const el = document.querySelector('input[data-dd-upload="1"]');
 if (!el || !el.files || el.files.length !== 1) return false;
 const f = el.files[0];
 if (/^image\\//.test(f.type) || !/\\.pdf$/i.test(f.name)) return false;
 sessionStorage.setItem('__dd628_file', f.name);
 return true;`, 30000);
-    // The file table shows exactly ONE row with that name whose attachment id was not there before — stash the id
+  });
+  await run.step("The file table shows exactly ONE row with that name whose attachment id was not there before \u2014 stash the id", {}, async () => {
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
@@ -116,7 +133,8 @@ const fresh = rows.filter(r => r.name === file && r.id && !before.includes(r.id)
 if (fresh.length !== 1) return false;
 sessionStorage.setItem('__dd628_att', fresh[0].id);
 return true;`, 60000);
-    // ⭐ SERVER (CREATE_PENDING_ATTACHMENTS): that id is the ONE new attachment — the PDF's name, not an image, BEFORE intact
+  });
+  await run.step("\u2b50 SERVER (CREATE_PENDING_ATTACHMENTS): that id is the ONE new attachment \u2014 the PDF's name, not an image, BEFORE intact", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd628_srv_upload", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -146,7 +164,12 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 90000);
-    // 🛑 GUARD + check the box: only OUR row (the new id, the PDF's name), and nothing else checked
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd628_srv_upload', '__dd628_srv_upload:inflight', '__dd628_srv_upload:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("\ud83d\uded1 GUARD + check the box: only OUR row (the new id, the PDF's name), and nothing else checked", {}, async () => {
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
@@ -169,13 +192,17 @@ const cb = mineRows[0].cb;
 if (rows.some(r => r !== mineRows[0] && r.cb && r.cb.checked)) return false;
 if (!cb.checked) cb.click();
 return cb.checked && rows.filter(r => r.cb && r.cb.checked).length === 1;`, 30000);
-    // The table's gear is enabled (a row is selected)
+  });
+  await run.step("The table's gear is enabled (a row is selected)", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//table//button[@aria-label="Menu"][not(@disabled)]`, 30000);
-    // Open the table's gear
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//table//button[@aria-label="Menu"]`).click({ timeout: 30000 });
-    // Let the menu dropdown render
+  });
+  await run.step("Open the table's gear", {}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//table//button[@aria-label="Menu"]`, 30000);
+  });
+  await run.step("Let the menu dropdown render", {}, async () => {
     await wait(page, 1);
-    // 🛑 GUARD + click `Delete File(s)`: the ONLY checked row is ours — `deleteFiles` deletes every selected row
+  });
+  await run.step("\ud83d\uded1 GUARD + click `Delete File(s)`: the ONLY checked row is ours \u2014 `deleteFiles` deletes every selected row", {}, async () => {
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
@@ -201,7 +228,8 @@ const del = [...dds[0].querySelectorAll('.mantine-Menu-item')]
 if (del.length !== 1) return false;
 del[0].click();
 return true;`, 30000);
-    // ⭐ SERVER (REMOVE_ATTACHMENT): the PDF is gone and the attachment set is EXACTLY BEFORE
+  });
+  await run.step("\u2b50 SERVER (REMOVE_ATTACHMENT): the PDF is gone and the attachment set is EXACTLY BEFORE", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd628_srv_deleted", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -231,8 +259,13 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 60000);
-    await soft.run("\u2026and the table agrees: no row carries our id, the `Add File` button is still there (soft: UI echo)", async () => {
-      await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd628_srv_deleted', '__dd628_srv_deleted:inflight', '__dd628_srv_deleted:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("\u2026and the table agrees: no row carries our id, the `Add File` button is still there (soft: UI echo)", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
   return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
@@ -250,26 +283,18 @@ let before = null; try { before = JSON.parse(sessionStorage.getItem('__dd628_bef
 if (!att || !file || !Array.isArray(before) || before.includes(att)) return false;
 const addFile = [...it.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add File');
 return addFile && !rows.some(r => r.id === att);`, 30000);
-    });
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd628_srv_premise', '__dd628_srv_premise:inflight', '__dd628_srv_premise:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd628_srv_upload', '__dd628_srv_upload:inflight', '__dd628_srv_upload:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd628_srv_deleted', '__dd628_srv_deleted:inflight', '__dd628_srv_deleted:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // CLEANUP: remove this test's sessionStorage keys
+  });
+  await run.step("CLEANUP: remove this test's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd628_name', '__dd628_before', '__dd628_file', '__dd628_att'].forEach(k => sessionStorage.removeItem(k));
 return ['__dd628_name', '__dd628_before', '__dd628_file', '__dd628_att'].every(k => !sessionStorage.getItem(k));`, 15000);
-    // Collapse the row again
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`).click({ timeout: 30000 });
-    // Let the panel close
+  });
+  await run.step("Collapse the row again", {always: true}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
+  });
+  await run.step("Let the panel close", {always: true}, async () => {
     await wait(page, 2);
-    // RESTORED: the row reports itself collapsed
+  });
+  await run.step("RESTORED: the row reports itself collapsed", {always: true}, async () => {
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
@@ -278,6 +303,6 @@ const it = items.find(i => {
 if (!it) return false;
 const c = it.querySelector('.mantine-Accordion-control');
 return !!c && c.getAttribute('aria-expanded') === 'false';`, 30000);
-  }
-  soft.check();
+  });
+  run.finish();
 }

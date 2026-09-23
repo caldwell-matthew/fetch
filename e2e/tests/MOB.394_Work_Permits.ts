@@ -2,42 +2,59 @@
 // MOB.394_Work_Permits
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../support/dd';
 
 export async function mob394(page: Page): Promise<void> {
-    // Navigate to /work — the work order list
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Wait for the workstage pages and the lookup prefetch
+  });
+  await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
     await wait(page, 20);
-    // The work list rendered its search box
+  });
+  await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
-    // LOADEDALL 1/3: the initial fetch finished
+  });
+  await run.step("LOADEDALL 1/3: the initial fetch finished", {}, async () => {
     await assertPageLacks(page, `Retrieving assigned work`, DEFAULT_TIMEOUT);
-    // LOADEDALL 2/3: paging through workstages finished
+  });
+  await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
-    // LOADEDALL 3/3: the per-stage detail downloads finished
-    await assertPageLacks(page, `workstages downloaded`, 180000);
-    // Navigate to the fixture work order
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
+    await assertPageLacks(page, `workstages downloaded`, 360000);
+  });
+  await run.step("Navigate to the fixture work order", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // Open the "Permits" tab
-    await el(page, `//*[@role="tab"][normalize-space(.)="Permits"]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the panel
+  });
+  await run.step("Open the \"Permits\" tab", {}, async () => {
+    await click(page, `//*[@role="tab"][normalize-space(.)="Permits"]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the panel", {}, async () => {
     await wait(page, 3);
-    // The "Permits" tab is active
+  });
+  await run.step("The \"Permits\" tab is active", {}, async () => {
     await assertElementPresent(page, `//*[@role="tab"][normalize-space(.)="Permits"][@data-active]`, DEFAULT_TIMEOUT);
-    // PROOF: a permit card rendered with its status, expiration and approver
+  });
+  await run.step("PROOF: a permit card rendered with its status, expiration and approver", {}, async () => {
     await assertFromJavascript(page, `
 const t = document.body.innerText || '';
 return t.indexOf('Status:') !== -1
     && t.indexOf('Expiration Date:') !== -1
     && t.indexOf('Approved By:') !== -1;
 `, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

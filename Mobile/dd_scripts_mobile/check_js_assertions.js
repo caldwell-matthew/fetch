@@ -822,6 +822,35 @@ check('MUST FAIL: diag - a different sort is stored',
 check('MUST FAIL: diag - nothing stored', runJs(M580.diag, avList([TANK, MOTOR])), false);
 
 /* ===========================================================================================
+ * MOB.820 - the filter SURVIVES a search (bugs_found.md 20, fixed in 02b17aa82e 2026-09-17).
+ * The test used to pin the bug: the asset came back while the pill still said Filters (1). Now
+ * it asserts the opposite, so the bench must prove it FAILS on the old, buggy page - a result
+ * row for the asset - and passes only when the row is gone.
+ * ========================================================================================= */
+console.log('\nMOB.820 - the filter survives the search');
+{
+	const survived = bodyOf('MOB.820_Search_Filter_Then_Search.json', 'filter SURVIVED');
+	const rows = names => {
+		const dom = new JSDOM('<body></body>');
+		const doc = dom.window.document;
+		for (const name of names) {
+			const item = doc.createElement('div');
+			item.className = 'mantine-Accordion-item';
+			const control = doc.createElement('span');
+			control.className = 'mantine-Accordion-control';
+			control.textContent = name;
+			item.appendChild(control);
+			doc.body.appendChild(item);
+		}
+		return dom.window;
+	};
+	check('filtered out - no rows at all', runJs(survived, rows([])), true);
+	check('filtered out - other assets still listed', runJs(survived, rows(['Tank 0000', 'Motor 1'])), true);
+	check('MUST FAIL: the old bug - Pump 0102 is back as a row', runJs(survived, rows(['Pump 0102'])), false);
+	check('MUST FAIL: Pump 0102 among other rows', runJs(survived, rows(['Tank 0000', 'Pump 0102'])), false);
+}
+
+/* ===========================================================================================
  * DRIFT GUARD - every test that opens the Filters drawer must carry the SAME healed gate.
  * `MOB.800` was repaired on 2026-09-09 and the three siblings were not, so `MOB.996` went red
  * at `MOB.806` on the identical swallowed click one day later. The gate now lives in

@@ -2,31 +2,41 @@
 // MOB.353_Work_Asset_Status_Write
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, el, optional, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, press, wait } from '../support/dd';
 
 export async function mob353(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — warm the work lookup cache
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Let the lookup prefetch run
+  });
+  await run.step("Let the lookup prefetch run", {}, async () => {
     await wait(page, 30);
-    // Navigate to the fixture work order
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the fixture work order", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 3);
-    // GATE: the detail data arrived (tab strip)
+  });
+  await run.step("GATE: the detail data arrived (tab strip)", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[1]`, 60000);
-    // Open the "Assets" tab
-    await el(page, `//*[@role="tab"][normalize-space(.)="Assets"]`).click({ timeout: 30000 });
-    // "Assets" is now the active tab
+  });
+  await run.step("Open the \"Assets\" tab", {}, async () => {
+    await click(page, `//*[@role="tab"][normalize-space(.)="Assets"]`, 30000);
+  });
+  await run.step("\"Assets\" is now the active tab", {}, async () => {
     await assertElementPresent(page, `//*[@role="tab"][normalize-space(.)="Assets"][@data-active="true"]`, 30000);
-    // FIXTURE GUARD: an asset row shows "Progress:" — showAssetStatus is ON
+  });
+  await run.step("FIXTURE GUARD: an asset row shows \"Progress:\" \u2014 showAssetStatus is ON", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Text-root ")][starts-with(normalize-space(.), "Progress:")]`, 60000);
-    // PREMISE (server): Pump 0102's link is `Active`, sequence 1, the fixed comment; the stage is `Ready`
+  });
+  await run.step("PREMISE (server): Pump 0102's link is `Active`, sequence 1, the fixed comment; the stage is `Ready`", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd353_link", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -47,11 +57,18 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Escape any open menu first
-    await page.keyboard.press(`Escape`);
-    // Let it close
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Escape any open menu first", {}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let it close", {}, async () => {
     await wait(page, 1);
-    // The Assets tab shows ONE row — Pump 0102's — with the badge `Active`
+  });
+  await run.step("The Assets tab shows ONE row \u2014 Pump 0102's \u2014 with the badge `Active`", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -62,9 +79,11 @@ const mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-co
 const target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup="menu"]') : null;
 const badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;
 return rows.length === 1 && !!target && (badge || '').trim() === 'Active';`, 45000);
-    // Open Pump 0102's status menu (the `Progress:` badge — its wrapper stops propagation, so the row never expands)
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Text-root ")][starts-with(normalize-space(.), "Progress:")])[1]`).click({ timeout: 30000 });
-    // 🛑 GUARD: the open menu is Pump 0102's (its target is expanded, the badge reads `Active`) and offers `Mark as Completed` — the next click writes with no confirm
+  });
+  await run.step("Open Pump 0102's status menu (the `Progress:` badge \u2014 its wrapper stops propagation, so the row never expands)", {}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Text-root ")][starts-with(normalize-space(.), "Progress:")])[1]`, 30000);
+  });
+  await run.step("\ud83d\uded1 GUARD: the open menu is Pump 0102's (its target is expanded, the badge reads `Active`) and offers `Mark as Completed` \u2014 the next click writes with no confirm", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -79,12 +98,14 @@ if (target.getAttribute('aria-expanded') !== 'true') return false;
 const items = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Menu-item')]
   .map(i => (i.textContent || '').trim());
 return items.includes('Mark as Completed') && !items.includes('Mark as Active');`, 30000);
-    // Click `Mark as Completed` (writes immediately)
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Mark as Completed"]`).click({ timeout: 30000 });
-    await optional("The `Fields updated` toast (optional: transient)", async () => {
-      await assertPageContains(page, `Fields updated`, 10000);
-    });
-    // The badge now reads `Completed` (the CACHE write — not the proof)
+  });
+  await run.step("Click `Mark as Completed` (writes immediately)", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Mark as Completed"]`, 30000);
+  });
+  await run.step("The `Fields updated` toast (optional: transient)", {allow: 'ignore'}, async () => {
+    await assertPageContains(page, `Fields updated`, 10000);
+  });
+  await run.step("The badge now reads `Completed` (the CACHE write \u2014 not the proof)", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -95,7 +116,8 @@ const mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-co
 const target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup="menu"]') : null;
 const badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;
 return rows.length === 1 && !!target && (badge || '').trim() === 'Completed';`, 30000);
-    // ⭐ SERVER: Pump 0102's link is now `Completed` — asked over /graphql, not read from the cache
+  });
+  await run.step("\u2b50 SERVER: Pump 0102's link is now `Completed` \u2014 asked over /graphql, not read from the cache", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd353_link", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -116,19 +138,18 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Escape any open menu first
-    await page.keyboard.press(`Escape`);
-    // Let it close
+  });
+  await run.step("Escape any open menu first", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("Let it close", {always: true}, async () => {
     await wait(page, 1);
-    // The Assets tab shows ONE row — Pump 0102's — with the badge `Completed`
+  });
+  await run.step("The Assets tab shows ONE row \u2014 Pump 0102's \u2014 with the badge `Completed`", {always: true}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -139,9 +160,11 @@ const mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-co
 const target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup="menu"]') : null;
 const badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;
 return rows.length === 1 && !!target && (badge || '').trim() === 'Completed';`, 45000);
-    // Open Pump 0102's status menu (the `Progress:` badge — its wrapper stops propagation, so the row never expands)
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Text-root ")][starts-with(normalize-space(.), "Progress:")])[1]`).click({ timeout: 30000 });
-    // 🛑 GUARD: the open menu is Pump 0102's (its target is expanded, the badge reads `Completed`) and offers `Mark as Active` — the next click writes with no confirm
+  });
+  await run.step("Open Pump 0102's status menu (the `Progress:` badge \u2014 its wrapper stops propagation, so the row never expands)", {always: true}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Text-root ")][starts-with(normalize-space(.), "Progress:")])[1]`, 30000);
+  });
+  await run.step("\ud83d\uded1 GUARD: the open menu is Pump 0102's (its target is expanded, the badge reads `Completed`) and offers `Mark as Active` \u2014 the next click writes with no confirm", {always: true}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -156,12 +179,14 @@ if (target.getAttribute('aria-expanded') !== 'true') return false;
 const items = [...document.querySelectorAll('.mantine-Menu-dropdown .mantine-Menu-item')]
   .map(i => (i.textContent || '').trim());
 return items.includes('Mark as Active') && !items.includes('Mark as Completed');`, 30000);
-    // Click `Mark as Active` (writes immediately)
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Mark as Active"]`).click({ timeout: 30000 });
-    await optional("The `Fields updated` toast (optional: transient)", async () => {
-      await assertPageContains(page, `Fields updated`, 10000);
-    });
-    // The badge now reads `Active` (the CACHE write — not the proof)
+  });
+  await run.step("Click `Mark as Active` (writes immediately)", {always: true}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Mark as Active"]`, 30000);
+  });
+  await run.step("The `Fields updated` toast (optional: transient)", {always: true, allow: 'ignore'}, async () => {
+    await assertPageContains(page, `Fields updated`, 10000);
+  });
+  await run.step("The badge now reads `Active` (the CACHE write \u2014 not the proof)", {always: true}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
@@ -172,7 +197,8 @@ const mine = rows.filter(r => { const c = r.querySelector('.mantine-Accordion-co
 const target = mine.length === 1 ? mine[0].querySelector('[aria-haspopup="menu"]') : null;
 const badge = target ? (target.querySelector('.mantine-Badge-label') || {}).textContent : null;
 return rows.length === 1 && !!target && (badge || '').trim() === 'Active';`, 30000);
-    // ⭐ RESTORED (server): the UI wrote `Active` back
+  });
+  await run.step("\u2b50 RESTORED (server): the UI wrote `Active` back", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd353_link", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -193,12 +219,15 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // Escape — leave no menu open
-    await page.keyboard.press(`Escape`);
-    // BACKSTOP: if the link is not `Active`, send `updateWorkStageAsset` with the FIXED rest status (reads first; sends nothing when the UI restore landed)
+  });
+  await run.step("Escape \u2014 leave no menu open", {always: true}, async () => {
+    await press(page, `Escape`);
+  });
+  await run.step("BACKSTOP: if the link is not `Active`, send `updateWorkStageAsset` with the FIXED rest status (reads first; sends nothing when the UI restore landed)", {always: true}, async () => {
     await assertFromJavascript(page, `const K = '__dd353_net';
 const st = sessionStorage.getItem(K);
 if (st === 'done') return true;
@@ -217,10 +246,12 @@ post({ query: 'query($id: ID!) { workStage(id: $id) { id status assets { id stat
   })
   .catch(() => sessionStorage.setItem(K, 'done'));
 return false;`, 45000);
-    // Remove the backstop's sessionStorage keys
+  });
+  await run.step("Remove the backstop's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd353_net', '__dd353_net:sent'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // ⭐ AT REST (server): Pump 0102's link is `Active`, sequence 1, comment untouched; the stage still `Ready`
+  });
+  await run.step("\u2b50 AT REST (server): Pump 0102's link is `Active`, sequence 1, comment untouched; the stage still `Ready`", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd353_link", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -241,8 +272,10 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-  }
+  });
+  run.finish();
 }

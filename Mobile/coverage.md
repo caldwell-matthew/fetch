@@ -315,7 +315,8 @@ on NAME, so renaming would orphan the Datadog test.)*
 `MOB.800` a structured filter that really filters · `MOB.805` edit · `MOB.806` multi-value (string) · `MOB.807`
 multi-value `enum` (`Failure Curve`, narrows) and `record` (`Asset Type`; sentinels carry bugs §39) — all three
 `MultiValueSelector` branches · ⭐ `MOB.820` submitting the search box discards an active
-filter (bugs §20). All four filter tests share `dd_tools.open_filters_drawer` (a bench drift-guard enforces one copy).
+filter — it did until `02b17aa82e` (2026-09-17), and `MOB.820` now asserts that it survives. All four
+filter tests share `dd_tools.open_filters_drawer` (a bench drift-guard enforces one copy).
 
 #### `MOB.980_AssetLookup_3_Edits_Suite` — 3 children · writes · Datadog 179s
 **Writes on the Asset Lookup route.**

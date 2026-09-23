@@ -80,15 +80,17 @@ def step_lines(step, timeout_expr):
     if t == "wait":
         return [f"await wait(page, {int(p['value'])});"]
     if t == "goToUrl":
-        return [f"await page.goto({ts(p['value'])});"]
+        # `local_run.py` gives a navigation the step's own timeout and waits for `load`; Playwright's
+        # default is the config's navigationTimeout, which is not the same number.
+        return [f"await page.goto({ts(p['value'])}, {{ waitUntil: 'load', timeout: {timeout_expr} }});"]
     if t == "click":
-        return [f"await el(page, {ts(xpath_of(p))}).click({{ timeout: {timeout_expr} }});"]
+        return [f"await click(page, {ts(xpath_of(p))}, {timeout_expr});"]
     if t == "typeText":
-        return [f"await el(page, {ts(xpath_of(p))}).fill({ts(p['value'])}, {{ timeout: {timeout_expr} }});"]
+        return [f"await typeText(page, {ts(xpath_of(p))}, {ts(p['value'])}, {timeout_expr});"]
     if t == "pressKey":
         mods = p.get("modifiers") or []
         combo = "+".join([m.title() for m in mods] + [p["value"]])
-        return [f"await page.keyboard.press({ts(combo)});"]
+        return [f"await press(page, {ts(combo)});"]
     if t == "assertElementPresent":
         return [f"await assertElementPresent(page, {ts(xpath_of(p))}, {timeout_expr});"]
     if t == "assertElementContent":
@@ -108,13 +110,13 @@ def step_lines(step, timeout_expr):
 
 
 def convert_steps(steps, indent="  ", unportable=None):
-    """(body lines, helper names used, variable names used) for a run of steps.
+    """(body lines, helper names used, variable names used) for a run of steps, IN ORDER.
 
-    A step this cannot express (one recorded without an xpath, so only Datadog's own multiLocator can
-    find it) is appended to `unportable` and left out: the caller marks that test `fixme` rather than
-    letting it look green."""
+    Every step becomes a `Sequence` call, so Datadog's rules survive: a failure stops the steps after
+    it, `alwaysExecute` ones still run WHERE THEY ARE, `optional` may fail quietly, `soft` fails the
+    test but lets the rest run. A step this cannot express is appended to `unportable` and left out;
+    the caller marks that test `fixme` rather than letting it look green."""
     used, variables, body = set(), set(), []
-    soft_seen = False
     for s in steps:
         if s["type"] == "playSubTest":
             continue
@@ -127,34 +129,31 @@ def convert_steps(steps, indent="  ", unportable=None):
             body += [f"{indent}// ⛔ NOT PORTABLE — {s.get('name') or s['type']}: {e}"]
             continue
         timeout = f"{int(s['timeout']) * 1000}" if s.get("timeout") else "DEFAULT_TIMEOUT"
-        if s.get("timeout"):
-            used.add("DEFAULT_TIMEOUT") if False else None
-        else:
+        if not s.get("timeout"):
             used.add("DEFAULT_TIMEOUT")
         lines = step_lines(s, timeout)
-        used.update(h for h in ("wait", "el", "assertElementPresent", "assertElementContent",
-                                "assertPageContains", "assertPageLacks", "assertFromJavascript",
-                                "uploadStandIn") if any(l.startswith(f"await {h}(") or f" {h}(" in l for l in lines))
+        used.update(h for h in ("wait", "el", "click", "typeText", "press", "assertElementPresent",
+                                "assertElementContent", "assertPageContains", "assertPageLacks",
+                                "assertFromJavascript", "uploadStandIn")
+                    if any(re.search(rf"\bawait {h}\(", l) for l in lines))
         variables |= uses_vars(json.dumps(s.get("params") or {}))
         label = json.dumps(s.get("name") or s["type"])
-        if s.get("allowFailure") and not s.get("isCritical"):          # optional
-            used.add("optional")
-            body += [f"{indent}await optional({label}, async () => {{"]
-            body += [f"{indent}  {l}" for l in lines]
-            body += [f"{indent}}});"]
-        elif s.get("allowFailure") and s.get("isCritical"):            # soft
-            used.add("Soft")
-            soft_seen = True
-            body += [f"{indent}await soft.run({label}, async () => {{"]
-            body += [f"{indent}  {l}" for l in lines]
-            body += [f"{indent}}});"]
-        else:
-            body += [f"{indent}// {s.get('name') or s['type']}"] + [f"{indent}{l}" for l in lines]
-    return body, used, variables, soft_seen
+        # The flags are independent: `alwaysExecute` decides whether the step runs after a failure,
+        # `allowFailure` (+ `isCritical`) decides what its own failure does.
+        opts = []
+        if s.get("alwaysExecute"):
+            opts.append("always: true")
+        if s.get("allowFailure"):
+            opts.append("allow: 'soft'" if s.get("isCritical") else "allow: 'ignore'")
+        body += [f"{indent}await run.step({label}, {{{', '.join(opts)}}}, async () => {{"]
+        body += [f"{indent}  {l}" for l in lines]
+        body += [f"{indent}}});"]
+    return body, used, variables
 
 
 HELPERS = ["DEFAULT_TIMEOUT", "assertElementContent", "assertElementPresent", "assertFromJavascript",
-           "assertPageContains", "assertPageLacks", "el", "optional", "Soft", "uploadStandIn", "wait"]
+           "assertPageContains", "assertPageLacks", "click", "el", "press", "typeText", "uploadStandIn",
+           "wait"]
 
 
 def fn_name(test_name):
@@ -163,15 +162,8 @@ def fn_name(test_name):
 
 def write_leaf(test_name, details, out_dir):
     """One leaf test -> an exported async function. Returns the steps that could not be expressed."""
-    steps = details["steps"]
-    always = [s for s in steps if s.get("alwaysExecute")]
-    main = [s for s in steps if not s.get("alwaysExecute")]
     unportable = []
-    body, used, variables, soft = convert_steps(main, "    ", unportable)
-    tail, used2, vars2, soft2 = convert_steps(always, "    ", unportable)
-    used |= used2
-    variables |= vars2
-    soft = soft or soft2
+    body, used, variables = convert_steps(details["steps"], "  ", unportable)
     locs = locals_of(details)
     lines = [f"// Generated from Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
              f"// {details.get('name') or test_name}"]
@@ -182,9 +174,9 @@ def write_leaf(test_name, details, out_dir):
                   "//    reported as skipped and never as a pass:"]
         lines += [f"//      - {u}" for u in unportable]
     lines += [""]
-    imports = sorted(h for h in used if h in HELPERS)
-    lines += [f"import {{ Page }} from '@playwright/test';",
-              f"import {{ {', '.join(imports)} }} from '../support/dd';"]
+    imports = sorted(h for h in used if h in HELPERS) + ["Sequence"]
+    lines += ["import { Page } from '@playwright/test';",
+              f"import {{ {', '.join(sorted(set(imports)))} }} from '../support/dd';"]
     if variables - set(locs):
         lines += ["import { globals } from '../support/env';"]
     if locs:
@@ -194,15 +186,7 @@ def write_leaf(test_name, details, out_dir):
         lines += [f"  const {name} = runId('{kind}', {n});" if kind != "literal" else f"  const {name} = {ts(n)};"]
     for v in sorted(variables - set(locs)):
         lines += [f"  const {v} = globals.{v};"]
-    if soft:
-        lines += ["  const soft = new Soft();"]
-    if tail:
-        lines += ["  try {"] + body + ["  } finally {", "    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure"] + tail + ["  }"]
-    else:
-        lines += body
-    if soft:
-        lines += ["  soft.check();"]
-    lines += ["}", ""]
+    lines += ["  const run = new Sequence();"] + body + ["  run.finish();", "}", ""]
     path = os.path.join(out_dir, f"{test_name}.ts")
     open(path, "w").write("\n".join(lines))
     return path, unportable
@@ -248,8 +232,8 @@ def write_suite(sid, details, children, out_dir, skip=()):
 def write_login(out_dir):
     """MOB.000's steps -> support/login.ts, the prefix every suite shares."""
     test_name, details = load(LOGIN_TEST)
-    body, used, variables, _soft = convert_steps(details["steps"], "  ")
-    imports = sorted(h for h in used if h in HELPERS)
+    body, used, variables = convert_steps(details["steps"], "  ")
+    imports = sorted(set(list(h for h in used if h in HELPERS) + ["Sequence"]))
     lines = [f"// Generated from Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
              "// The shared login. Every suite runs it once, then its children reuse the session.",
              "import { Page } from '@playwright/test';",
@@ -258,7 +242,7 @@ def write_login(out_dir):
              "export async function login(page: Page): Promise<void> {"]
     for v in sorted(variables):
         lines += [f"  const {v} = globals.{v};"]
-    lines += body + ["}", ""]
+    lines += ["  const run = new Sequence();"] + body + ["  run.finish();", "}", ""]
     path = os.path.join(out_dir, "login.ts")
     open(path, "w").write("\n".join(lines))
     return path

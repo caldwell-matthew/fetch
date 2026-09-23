@@ -4,7 +4,7 @@
         "name": "MOB.820_Search_Filter_Then_Search",
         "type": "browser",
         "status": "paused",
-        "message": "`MOB.820` **Appendix D Q9** \u2014 does submitting the search box silently discard the\nactive structured filters?\n- READ-ONLY. Filters and searches only.\n- `AssetLookup/index.tsx` sends the filter conditions twice and the two disagree:\n  `useQuery` (line 62) uses `props.query || query || []` \u2014 **with** filters \u2014 while the\n  search form's `refetch` (line 142) uses `props.query ?? []`, which is `[]` on the\n  standalone page. The pill would still show the filter as active while the results\n  ignored it: the UI says filtered, the data is not.\n- \u2705 **ANSWERED 2026-08-12: the filter IS discarded.** `bugs_found.md` \u00a720. This is now a\n  **characterization test** \u2014 it asserts the *buggy* behaviour so the suite stays green\n  and the defect stays pinned. **It will FAIL when the app is fixed**, which is the\n  point: flip the two assertions back and delete \u00a720 rather than repairing it.\n- The racing `setSearchText` re-fire does **not** rescue it \u2014 the filter-less `refetch`\n  response wins in practice. Reasoning from the two code paths alone would have guessed\n  wrong, in the optimistic direction.\n- The filter value is `ZZZZ-NO-SUCH-ASSET`, not the asset name, so the filter pill cannot echo\n  `Pump 0102` onto the page and satisfy its own assertion (trap 5b \u2014 the exact mistake\n  that produced a wrong answer for Q8).",
+        "message": "`MOB.820` **Appendix D Q9** \u2014 does submitting the search box silently discard the\nactive structured filters?\n- READ-ONLY. Filters and searches only.\n- `AssetLookup/index.tsx` sends the filter conditions twice and the two disagree:\n  `useQuery` (line 62) uses `props.query || query || []` \u2014 **with** filters \u2014 while the\n  search form's `refetch` (line 142) uses `props.query ?? []`, which is `[]` on the\n  standalone page. The pill would still show the filter as active while the results\n  ignored it: the UI says filtered, the data is not.\n- \u2705 **ANSWERED: the filter now SURVIVES the search.** It did not until `02b17aa82e`\n  (2026-09-17), which gave the submit `refetch` the same `buildParams(1, [...])` the\n  hook uses; before that it refetched with no conditions and the pill lied. The test\n  pinned that bug as `bugs_found.md` \u00a720 and went red the first time it ran against the\n  fix (2026-09-23, under Playwright), which is exactly what it was for. It now asserts\n  the correct behaviour, and \u00a720 is gone.\n- \u26a0\ufe0f The same `refetch` still sends `jobLookup: { jobId: '??' }` instead of\n  `props.jobId` (`index.tsx:171`). That only bites where Asset Lookup is embedded with a\n  job \u2014 `AssetVerification/NewAssetForm` \u2014 so this standalone test cannot see it.\n- The filter value is `ZZZZ-NO-SUCH-ASSET`, not the asset name, so the filter pill cannot echo\n  `Pump 0102` onto the page and satisfy its own assertion (trap 5b \u2014 the exact mistake\n  that produced a wrong answer for Q8).",
         "tags": [
             "Mobile",
             "env:dev",
@@ -597,23 +597,13 @@
                 "alwaysExecute": false,
                 "exitIfSucceed": false,
                 "isCritical": true,
-                "name": "BUG 20 (pinned): the search DISCARDED the filter \u2014 Pump 0102 is back as a result row while the pill still says Filters (1). FIX THE APP AND THIS STEP FAILS.",
+                "name": "The filter SURVIVED the search \u2014 no result row for Pump 0102 while the pill says Filters (1)",
                 "noScreenshot": false,
                 "params": {
-                    "element": {
-                        "url": "https://dev.mentorapm.com/apm-mobile/asset-lookup",
-                        "userLocator": {
-                            "failTestOnCannotLocate": true,
-                            "values": [
-                                {
-                                    "type": "xpath",
-                                    "value": "//*[contains(concat(\" \", normalize-space(@class), \" \"), \" mantine-Accordion-item \")][contains(., \"Pump 0102\")]"
-                                }
-                            ]
-                        }
-                    }
+                    "code": "const rows = [...document.querySelectorAll('[class*=\"mantine-Accordion-item\"]')];\nreturn !rows.some(r => (r.textContent || '').includes('Pump 0102'));"
                 },
-                "type": "assertElementPresent"
+                "type": "assertFromJavascript",
+                "timeout": 30
             },
             {
                 "allowFailure": false,

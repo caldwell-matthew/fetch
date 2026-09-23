@@ -2,25 +2,36 @@
 // MOB.450_Global_Back_Arrow
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, click, wait } from '../support/dd';
 
 export async function mob450(page: Page): Promise<void> {
-    // Navigate to /work
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Wait for the work list
+  const run = new Sequence();
+  await run.step("Navigate to /work", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Wait for the work list", {}, async () => {
     await wait(page, 8);
-    // Start on "Work Orders"
+  });
+  await run.step("Start on \"Work Orders\"", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, DEFAULT_TIMEOUT);
-    // Navigate to /asset-lookup
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`);
-    // Wait for asset lookup
+  });
+  await run.step("Navigate to /asset-lookup", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Wait for asset lookup", {}, async () => {
     await wait(page, 6);
-    // Now on "Asset Lookup"
+  });
+  await run.step("Now on \"Asset Lookup\"", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, DEFAULT_TIMEOUT);
-    // Click the back arrow
-    await el(page, `//*[@id="page-title"]//*[@data-icon="chevrons-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevrons-left ") or @data-icon="chevron-double-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevron-double-left ") or @data-icon="angles-left" or contains(concat(" ", normalize-space(@class), " "), " fa-angles-left ")]`).click({ timeout: DEFAULT_TIMEOUT });
-    // Wait for the previous route
+  });
+  await run.step("Click the back arrow", {}, async () => {
+    await click(page, `//*[@id="page-title"]//*[@data-icon="chevrons-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevrons-left ") or @data-icon="chevron-double-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevron-double-left ") or @data-icon="angles-left" or contains(concat(" ", normalize-space(@class), " "), " fa-angles-left ")]`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Wait for the previous route", {}, async () => {
     await wait(page, 6);
-    // PROOF: back arrow returned to "Work Orders"
+  });
+  await run.step("PROOF: back arrow returned to \"Work Orders\"", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, DEFAULT_TIMEOUT);
+  });
+  run.finish();
 }

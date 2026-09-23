@@ -2,88 +2,113 @@
 // MOB.320_Work_Status_Update
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertFromJavascript, assertPageContains, el, optional, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertFromJavascript, assertPageContains, click, wait } from '../support/dd';
 
 export async function mob320(page: Page): Promise<void> {
-  try {
-    // Navigate to the fixture work order
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Test work order detail rendered
+  const run = new Sequence();
+  await run.step("Navigate to the fixture work order", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, DEFAULT_TIMEOUT);
-    // Open the status menu (-> Pending)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    await optional("Mark as Pending (optional: may already be set)", async () => {
-      await el(page, `//button[normalize-space(.)="Mark as Pending"]`).click({ timeout: 30000 });
-    });
-    // Wait for the status mutation (-> Pending)
+  });
+  await run.step("Open the status menu (-> Pending)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as Pending (optional: may already be set)", {allow: 'ignore'}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as Pending"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> Pending)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "Pending"
+  });
+  await run.step("Test the status badge now reads exactly \"Pending\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Pending';`, 30000);
-    // Open the status menu (-> In Progress)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as In Progress
-    await el(page, `//button[normalize-space(.)="Mark as In Progress"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> In Progress)
+  });
+  await run.step("Open the status menu (-> In Progress)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as In Progress", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as In Progress"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> In Progress)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "In Progress"
+  });
+  await run.step("Test the status badge now reads exactly \"In Progress\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'In Progress';`, 30000);
-    // Open the status menu (-> On Hold)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as On Hold
-    await el(page, `//button[normalize-space(.)="Mark as On Hold"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> On Hold)
+  });
+  await run.step("Open the status menu (-> On Hold)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as On Hold", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as On Hold"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> On Hold)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "On Hold"
+  });
+  await run.step("Test the status badge now reads exactly \"On Hold\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'On Hold';`, 30000);
-    // Open the status menu (-> Requested)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as Requested
-    await el(page, `//button[normalize-space(.)="Mark as Requested"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> Requested)
+  });
+  await run.step("Open the status menu (-> Requested)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as Requested", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as Requested"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> Requested)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "Requested"
+  });
+  await run.step("Test the status badge now reads exactly \"Requested\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Requested';`, 30000);
-    // Open the status menu (-> Not Completed)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as Not Completed
-    await el(page, `//button[normalize-space(.)="Mark as Not Completed"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> Not Completed)
+  });
+  await run.step("Open the status menu (-> Not Completed)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as Not Completed", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as Not Completed"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> Not Completed)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "Not Completed"
+  });
+  await run.step("Test the status badge now reads exactly \"Not Completed\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Not Completed';`, 30000);
-    // Navigate to the fixture work order (reload: the server's status)
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the fixture work order (reload: the server's status)", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // After a reload the badge reads "Not Completed" (the persisted cache — not a server proof, trap 6)
+  });
+  await run.step("After a reload the badge reads \"Not Completed\" (the persisted cache \u2014 not a server proof, trap 6)", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Not Completed';`, 30000);
-    // ⭐ SERVER: `workStage.status` is `NotCompleted` — asked over /graphql, not read from the cache
+  });
+  await run.step("\u2b50 SERVER: `workStage.status` is `NotCompleted` \u2014 asked over /graphql, not read from the cache", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd320_status", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -103,60 +128,76 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Open the status menu (-> Complete)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as Complete
-    await el(page, `//button[normalize-space(.)="Mark as Complete"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> Complete)
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd320_status', '__dd320_status:inflight', '__dd320_status:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Open the status menu (-> Complete)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as Complete", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as Complete"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> Complete)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "Complete"
+  });
+  await run.step("Test the status badge now reads exactly \"Complete\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Complete';`, 30000);
-    // Open the status menu (-> Canceled)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as Canceled
-    await el(page, `//button[normalize-space(.)="Mark as Canceled"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> Canceled)
+  });
+  await run.step("Open the status menu (-> Canceled)", {}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as Canceled", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as Canceled"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> Canceled)", {}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "Canceled"
+  });
+  await run.step("Test the status badge now reads exactly \"Canceled\"", {}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Canceled';`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd320_status', '__dd320_status:inflight', '__dd320_status:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Open the status menu (-> Ready)
-    await el(page, `//span[contains(normalize-space(.), "Status:")]`).click({ timeout: 30000 });
-    // Mark as Ready
-    await el(page, `//button[normalize-space(.)="Mark as Ready"]`).click({ timeout: 30000 });
-    // Wait for the status mutation (-> Ready)
+  });
+  await run.step("Open the status menu (-> Ready)", {always: true}, async () => {
+    await click(page, `//span[contains(normalize-space(.), "Status:")]`, 30000);
+  });
+  await run.step("Mark as Ready", {always: true}, async () => {
+    await click(page, `//button[normalize-space(.)="Mark as Ready"]`, 30000);
+  });
+  await run.step("Wait for the status mutation (-> Ready)", {always: true}, async () => {
     await wait(page, 3);
-    // Test the status badge now reads exactly "Ready"
+  });
+  await run.step("Test the status badge now reads exactly \"Ready\"", {always: true}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Ready';`, 30000);
-    // Navigate to the fixture work order (reload: the server's status)
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the fixture work order (reload: the server's status)", {always: true}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {always: true}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {always: true}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // After a reload the badge reads "Ready" (the persisted cache — not a server proof, trap 6)
+  });
+  await run.step("After a reload the badge reads \"Ready\" (the persisted cache \u2014 not a server proof, trap 6)", {always: true}, async () => {
     await assertFromJavascript(page, `const span = [...document.querySelectorAll('span')]
   .find(x => (x.textContent || '').trim().indexOf('Status:') === 0);
 const badge = span && span.querySelector('[class*="mantine-Badge"]');
 const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Ready';`, 30000);
-    // ⭐ SERVER: `workStage.status` is `Ready` — asked over /graphql, not read from the cache
+  });
+  await run.step("\u2b50 SERVER: `workStage.status` is `Ready` \u2014 asked over /graphql, not read from the cache", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd320_status", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -176,8 +217,10 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd320_status', '__dd320_status:inflight', '__dd320_status:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-  }
+  });
+  run.finish();
 }

@@ -2,47 +2,63 @@
 // MOB.344_Work_List_Row_Navigate
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../support/dd';
 
 export async function mob344(page: Page): Promise<void> {
-  try {
-    // Navigate to /work — the work order list
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Wait for the workstage pages and the lookup prefetch
+  });
+  await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
     await wait(page, 20);
-    // The work list rendered its search box
+  });
+  await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
-    // LOADEDALL 1/3: the initial fetch finished
+  });
+  await run.step("LOADEDALL 1/3: the initial fetch finished", {}, async () => {
     await assertPageLacks(page, `Retrieving assigned work`, DEFAULT_TIMEOUT);
-    // LOADEDALL 2/3: paging through workstages finished
+  });
+  await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
-    // LOADEDALL 3/3: the per-stage detail downloads finished
-    await assertPageLacks(page, `workstages downloaded`, 180000);
-    // WORK ROW GUARD: at least one work order rendered
+  });
+  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
+    await assertPageLacks(page, `workstages downloaded`, 360000);
+  });
+  await run.step("WORK ROW GUARD: at least one work order rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 60000);
-    // BASELINE: we are on the LIST, not a detail page
+  });
+  await run.step("BASELINE: we are on the LIST, not a detail page", {}, async () => {
     await assertFromJavascript(page, `return /\\/work\\/?$/.test(location.pathname);`, 30000);
-    // Tap the first work order in the list
-    await el(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`).click({ timeout: 30000 });
-    // Let the detail route mount
+  });
+  await run.step("Tap the first work order in the list", {}, async () => {
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 30000);
+  });
+  await run.step("Let the detail route mount", {}, async () => {
     await wait(page, 5);
-    // PROOF: the Work Orders detail page rendered
+  });
+  await run.step("PROOF: the Work Orders detail page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // The detail view rendered its status control
+  });
+  await run.step("The detail view rendered its status control", {}, async () => {
     await assertPageContains(page, `Status:`, DEFAULT_TIMEOUT);
-    // PROOF: the URL gained a /work/<id> segment — a record really opened
+  });
+  await run.step("PROOF: the URL gained a /work/<id> segment \u2014 a record really opened", {}, async () => {
     await assertFromJavascript(page, `return /\\/work\\/[^/]+$/.test(location.pathname);`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Go back to the list with the header back arrow
-    await el(page, `//*[@id="page-title"]//*[@data-icon="chevrons-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevrons-left ") or @data-icon="chevron-double-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevron-double-left ") or @data-icon="angles-left" or contains(concat(" ", normalize-space(@class), " "), " fa-angles-left ")]`).click({ timeout: 30000 });
-    // Let the list re-render
+  });
+  await run.step("Go back to the list with the header back arrow", {always: true}, async () => {
+    await click(page, `//*[@id="page-title"]//*[@data-icon="chevrons-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevrons-left ") or @data-icon="chevron-double-left" or contains(concat(" ", normalize-space(@class), " "), " fa-chevron-double-left ") or @data-icon="angles-left" or contains(concat(" ", normalize-space(@class), " "), " fa-angles-left ")]`, 30000);
+  });
+  await run.step("Let the list re-render", {always: true}, async () => {
     await wait(page, 4);
-    // RESTORED: back on the work list
+  });
+  await run.step("RESTORED: back on the work list", {always: true}, async () => {
     await assertFromJavascript(page, `return /\\/work\\/?$/.test(location.pathname);`, 30000);
-  }
+  });
+  run.finish();
 }

@@ -2,43 +2,59 @@
 // MOB.740_AssetLookup_Work_History
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, assertElementContent, assertElementPresent, assertFromJavascript, assertPageLacks, el, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageLacks, click, press, typeText, wait } from '../support/dd';
 
 export async function mob740(page: Page): Promise<void> {
-  try {
-    // Navigate to asset lookup
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`);
-    // Wait for the page to mount
+  const run = new Sequence();
+  await run.step("Navigate to asset lookup", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Wait for the page to mount", {}, async () => {
     await wait(page, 3);
-    // Test the "Asset Lookup" page rendered
+  });
+  await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
-    // Focus the search input
-    await el(page, `//input[@name="asset-search"]`).click({ timeout: 30000 });
-    // Select any persisted query first (typeText APPENDS — trap 17)
-    await page.keyboard.press(`Control+a`);
-    // Search for Pump 0102
-    await el(page, `//input[@name="asset-search"]`).fill(`Pump 0102`, { timeout: DEFAULT_TIMEOUT });
-    // Submit the search (Enter — there is no search button)
-    await page.keyboard.press(`Enter`);
-    // Wait for the search results
+  });
+  await run.step("Focus the search input", {}, async () => {
+    await click(page, `//input[@name="asset-search"]`, 30000);
+  });
+  await run.step("Select any persisted query first (typeText APPENDS \u2014 trap 17)", {}, async () => {
+    await press(page, `Control+a`);
+  });
+  await run.step("Search for Pump 0102", {}, async () => {
+    await typeText(page, `//input[@name="asset-search"]`, `Pump 0102`, DEFAULT_TIMEOUT);
+  });
+  await run.step("Submit the search (Enter \u2014 there is no search button)", {}, async () => {
+    await press(page, `Enter`);
+  });
+  await run.step("Wait for the search results", {}, async () => {
     await wait(page, 5);
-    // RESULT GUARD: a result row for Pump 0102 rendered
+  });
+  await run.step("RESULT GUARD: a result row for Pump 0102 rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1][contains(., "Pump 0102")]`, 60000);
-    // Expand the first result
-    await el(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`).click({ timeout: 30000 });
-    // Wait for the detail panel to mount
+  });
+  await run.step("Expand the first result", {}, async () => {
+    await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`, 30000);
+  });
+  await run.step("Wait for the detail panel to mount", {}, async () => {
     await wait(page, 3);
-    // Open the "Work History" tab
-    await el(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[@role="tab"][normalize-space(.)="Work History"]`).click({ timeout: 60000 });
-    // Let the work history query resolve
+  });
+  await run.step("Open the \"Work History\" tab", {}, async () => {
+    await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[@role="tab"][normalize-space(.)="Work History"]`, 60000);
+  });
+  await run.step("Let the work history query resolve", {}, async () => {
     await wait(page, 5);
-    // "Work History" is now the active tab
+  });
+  await run.step("\"Work History\" is now the active tab", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[@role="tab"][normalize-space(.)="Work History"][@data-active="true"]`, 30000);
-    // FIXTURE GUARD: Pump 0102 has at least one work history row
+  });
+  await run.step("FIXTURE GUARD: Pump 0102 has at least one work history row", {}, async () => {
     await assertElementPresent(page, `((//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 60000);
-    // …and the empty state is NOT what we are looking at
+  });
+  await run.step("\u2026and the empty state is NOT what we are looking at", {}, async () => {
     await assertPageLacks(page, `No History Found`, 30000);
-    // The first history row reads `Assigned to: <someone>` — STASH the value it shows
+  });
+  await run.step("The first history row reads `Assigned to: <someone>` \u2014 STASH the value it shows", {}, async () => {
     await assertFromJavascript(page, `const rows = [...document.querySelectorAll('.mantine-Paper-root')]
   .filter(p => (p.textContent || '').includes('Description:') && !p.closest('.mantine-Modal-content'));
 if (!rows.length) return false;
@@ -51,7 +67,8 @@ const v = (line.textContent || '').replace('Assigned to:', '').trim();
 if (!v) return false;
 sessionStorage.setItem('__dd740_assigned', v);
 return true;`, 30000);
-    // ⭐ SERVER: that value is exactly the `_assignments` the server holds for the newest history row
+  });
+  await run.step("\u2b50 SERVER: that value is exactly the `_assignments` the server holds for the newest history row", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd740_history", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -71,73 +88,98 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Open the first work history record (opens a modal, not a route)
-    await el(page, `((//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`).click({ timeout: 30000 });
-    // Let MOBILE_WORK_ORDER_DETAILS resolve and the panel mount
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd740_history', '__dd740_history:inflight', '__dd740_history:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Remove the stash", {always: true}, async () => {
+    await assertFromJavascript(page, `sessionStorage.removeItem('__dd740_assigned');
+return true;`, 15000);
+  });
+  await run.step("Open the first work history record (opens a modal, not a route)", {}, async () => {
+    await click(page, `((//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 30000);
+  });
+  await run.step("Let MOBILE_WORK_ORDER_DETAILS resolve and the panel mount", {}, async () => {
     await wait(page, 6);
-    // The work history modal opened
+  });
+  await run.step("The work history modal opened", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]`, 60000);
-    // The modal's tab strip has EXACTLY FOUR tabs
+  });
+  await run.step("The modal's tab strip has EXACTLY FOUR tabs", {}, async () => {
     await assertFromJavascript(page, `const m = document.querySelector('.mantine-Modal-content');
 if (!m) return false;
 return m.querySelectorAll('[role=tab]').length === 4;`, 30000);
-    // …and they are General Info / Assets / Attributes / Attachments, in order
+  });
+  await run.step("\u2026and they are General Info / Assets / Attributes / Attachments, in order", {}, async () => {
     await assertFromJavascript(page, `const m = document.querySelector('.mantine-Modal-content');
 if (!m) return false;
 const got = [...m.querySelectorAll('[role=tab]')].map(t => t.textContent.trim());
 const want = ['General Info','Assets','Attributes','Attachments'];
 return JSON.stringify(got) === JSON.stringify(want);`, 30000);
-    // The modal is bound to a real work order (a non-empty _workSequence)
+  });
+  await run.step("The modal is bound to a real work order (a non-empty _workSequence)", {}, async () => {
     await assertFromJavascript(page, `const m = document.querySelector('.mantine-Modal-content');
 if (!m) return false;
 return (m.textContent || '').trim().length > 0 && !/^\\s*$/.test(m.textContent);`, 30000);
-    // Open the "General Info" tab
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="General Info"]`).click({ timeout: 30000 });
-    // Let the General Info panel render
+  });
+  await run.step("Open the \"General Info\" tab", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="General Info"]`, 30000);
+  });
+  await run.step("Let the General Info panel render", {}, async () => {
     await wait(page, 2);
-    // "General Info" is the active tab
+  });
+  await run.step("\"General Info\" is the active tab", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="General Info"][@data-active="true"]`, 30000);
-    // Open the "Assets" tab
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Assets"]`).click({ timeout: 30000 });
-    // Let the Assets panel render
+  });
+  await run.step("Open the \"Assets\" tab", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Assets"]`, 30000);
+  });
+  await run.step("Let the Assets panel render", {}, async () => {
     await wait(page, 2);
-    // "Assets" is the active tab
+  });
+  await run.step("\"Assets\" is the active tab", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Assets"][@data-active="true"]`, 30000);
-    // Open the "Attributes" tab
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attributes"]`).click({ timeout: 30000 });
-    // Let the Attributes panel render
+  });
+  await run.step("Open the \"Attributes\" tab", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attributes"]`, 30000);
+  });
+  await run.step("Let the Attributes panel render", {}, async () => {
     await wait(page, 2);
-    // "Attributes" is the active tab
+  });
+  await run.step("\"Attributes\" is the active tab", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attributes"][@data-active="true"]`, 30000);
-    // Open the "Attachments" tab
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attachments"]`).click({ timeout: 30000 });
-    // Let the Attachments panel render
+  });
+  await run.step("Open the \"Attachments\" tab", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attachments"]`, 30000);
+  });
+  await run.step("Let the Attachments panel render", {}, async () => {
     await wait(page, 2);
-    // "Attachments" is the active tab
+  });
+  await run.step("\"Attachments\" is the active tab", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attachments"][@data-active="true"]`, 30000);
-    // Return to "General Info"
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="General Info"]`).click({ timeout: 30000 });
-    // Let the panel render
+  });
+  await run.step("Return to \"General Info\"", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="General Info"]`, 30000);
+  });
+  await run.step("Let the panel render", {}, async () => {
     await wait(page, 2);
-    // General Info rendered an actual table body, not an empty panel
+  });
+  await run.step("General Info rendered an actual table body, not an empty panel", {}, async () => {
     await assertFromJavascript(page, `const m = document.querySelector('.mantine-Modal-content');
 if (!m) return false;
 const p = m.querySelector('[role=tabpanel]');
 if (!p) return false;
 return p.querySelectorAll('tr, td, th').length >= 2;`, 30000);
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd740_history', '__dd740_history:inflight', '__dd740_history:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove the stash
-    await assertFromJavascript(page, `sessionStorage.removeItem('__dd740_assigned');
-return true;`, 15000);
-    // Close the modal (its CloseButton — Escape and the overlay are no-ops here)
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//button[contains(concat(" ", normalize-space(@class), " "), " mantine-CloseButton-root ")]`).click({ timeout: 30000 });
-    // Let the modal close
+  });
+  await run.step("Close the modal (its CloseButton \u2014 Escape and the overlay are no-ops here)", {always: true}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//button[contains(concat(" ", normalize-space(@class), " "), " mantine-CloseButton-root ")]`, 30000);
+  });
+  await run.step("Let the modal close", {always: true}, async () => {
     await wait(page, 2);
-    // RESTORED: no modal is left open for the next subtest
+  });
+  await run.step("RESTORED: no modal is left open for the next subtest", {always: true}, async () => {
     await assertFromJavascript(page, `return !document.querySelector('.mantine-Modal-content');`, 30000);
-  }
+  });
+  run.finish();
 }

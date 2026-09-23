@@ -148,20 +148,32 @@ def apply(s, p):
     # SMALL BATCHES, STOP ON THE FIRST ERROR. Each work delete also clears forms, attachments
     # and logs; 50 in one request hit a 504 at the gateway (nothing was deleted). The plan is
     # recomputed from the server on every run, so re-running after a stop resumes safely.
+    # A batch fails as a whole when ONE of its rows cannot go (a workstage the server refuses to
+    # remove). Stopping there leaves the rest of the list untouched and the next run stops on the
+    # same row, so a failed batch is retried one row at a time: the server still decides what may be
+    # deleted, and the rows it refuses are listed at the end instead of blocking everything behind
+    # them.
     for mut, ids in ops:
         if not ids:
             continue
-        done = 0
+        done, refused = 0, []
         for i in range(0, len(ids), BATCH):
             chunk = ids[i:i + BATCH]
             try:
                 r = s.graphql(f"mutation($ids: [ID!]!) {{ {mut}(ids: $ids) }}", {"ids": chunk})
-            except SystemExit as e:
-                print(f"  {mut}: STOPPED after {done} — {str(e)[:120]}  (re-run to resume)")
-                return
-            done += r[mut] or 0
+                done += r[mut] or 0
+            except SystemExit as batch_error:
+                for one in chunk:
+                    try:
+                        r = s.graphql(f"mutation($ids: [ID!]!) {{ {mut}(ids: $ids) }}", {"ids": [one]})
+                        done += r[mut] or 0
+                    except SystemExit as e:
+                        refused.append((one, str(e)))
+                del batch_error
             print(f"  {mut}: {done}/{len(ids)}", end="\r", flush=True)
-        print(f"  {mut}: {done}/{len(ids)} deleted")
+        print(f"  {mut}: {done}/{len(ids)} deleted" + (f", {len(refused)} refused by the server" if refused else ""))
+        for one, why in refused[:5]:
+            print(f"      {one}: {why.strip()[:150]}")
 
 
 def main():

@@ -2,26 +2,32 @@
 // MOB.364_Work_Attach_Form
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, Soft, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, el, optional, wait } from '../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, wait } from '../support/dd';
 
 export async function mob364(page: Page): Promise<void> {
-  const soft = new Soft();
-  try {
-    // Navigate to /work — warm the work lookup cache
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`);
-    // Let the work list begin rendering
+  const run = new Sequence();
+  await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the work list begin rendering", {}, async () => {
     await wait(page, 3);
-    // The "Work Orders" page mounted
+  });
+  await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
-    // Let the lookup prefetch run
+  });
+  await run.step("Let the lookup prefetch run", {}, async () => {
     await wait(page, 30);
-    // Navigate to the add-form work order (20260910-16)
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Navigate to the add-form work order (20260910-16)", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // PREMISE (server): read this stage's forms — their names are what the picker must hide and the baseline for +1
+  });
+  await run.step("PREMISE (server): read this stage's forms \u2014 their names are what the picker must hide and the baseline for +1", {}, async () => {
     await assertFromJavascript(page, `const K = "__dd364_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -47,22 +53,34 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 45000);
-    // Open the Forms tab
-    await el(page, `//*[@role="tab"][contains(normalize-space(.), "Form")]`).click({ timeout: 30000 });
-    // Let the form cards render
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Open the Forms tab", {}, async () => {
+    await click(page, `//*[@role="tab"][contains(normalize-space(.), "Form")]`, 30000);
+  });
+  await run.step("Let the form cards render", {}, async () => {
     await wait(page, 2);
-    // Open the add-form modal ("Add")
-    await el(page, `//button[normalize-space(.)="Add"]`).click({ timeout: 30000 });
-    // Wait for the modal
+  });
+  await run.step("Open the add-form modal (\"Add\")", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Add"]`, 30000);
+  });
+  await run.step("Wait for the modal", {}, async () => {
     await wait(page, 2);
-    // The form picker rendered in the modal
+  });
+  await run.step("The form picker rendered in the modal", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@id="formId"]`, 30000);
-    // Open the picker
-    await el(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@id="formId"]`).click({ timeout: 30000 });
-    // Wait for the template options (MOBILE_AD_HOC_FORMS)
+  });
+  await run.step("Open the picker", {}, async () => {
+    await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@id="formId"]`, 30000);
+  });
+  await run.step("Wait for the template options (MOBILE_AD_HOC_FORMS)", {}, async () => {
     await wait(page, 3);
-    await soft.run("FIXTURE GUARD + PICK: the picker offers a form this stage does not hold (trap 10); click the first VISIBLE one and keep its name", async () => {
-      await assertFromJavascript(page, `const before = JSON.parse(sessionStorage.getItem('__dd364_before') || 'null');
+  });
+  await run.step("FIXTURE GUARD + PICK: the picker offers a form this stage does not hold (trap 10); click the first VISIBLE one and keep its name", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `const before = JSON.parse(sessionStorage.getItem('__dd364_before') || 'null');
 const pick0 = sessionStorage.getItem('__dd364_pick');
 if (!Array.isArray(before)) return false;
 const vis = [...document.querySelectorAll('[role="option"]')]
@@ -75,30 +93,31 @@ if (!x) return false;
 sessionStorage.setItem('__dd364_pick', x.t);
 x.o.click();
 return true;`, 30000);
-    });
-    await soft.run("The picker now holds the picked form's name", async () => {
-      await assertFromJavascript(page, `const pick = sessionStorage.getItem('__dd364_pick');
+  });
+  await run.step("The picker now holds the picked form's name", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `const pick = sessionStorage.getItem('__dd364_pick');
 const el = document.getElementById('formId');
 return !!pick && !!el && (el.value || '').trim() === pick;`, 20000);
-    });
-    await soft.run("Submit is ARMED \u2014 `button[form=\"adhoc-form\"]` is `type=\"submit\"` (trap 8)", async () => {
-      await assertFromJavascript(page, `const b = document.querySelector('button[form="adhoc-form"]');
+  });
+  await run.step("Submit is ARMED \u2014 `button[form=\"adhoc-form\"]` is `type=\"submit\"` (trap 8)", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `const b = document.querySelector('button[form="adhoc-form"]');
 return !!b && b.type === 'submit';`, 30000);
-    });
-    await soft.run("Submit \u2014 attach the form", async () => {
-      await el(page, `//button[@form="adhoc-form"]`).click({ timeout: 30000 });
-    });
-    // Let CREATE_WORKSTAGE_FORM reach the server
+  });
+  await run.step("Submit \u2014 attach the form", {allow: 'soft'}, async () => {
+    await click(page, `//button[@form="adhoc-form"]`, 30000);
+  });
+  await run.step("Let CREATE_WORKSTAGE_FORM reach the server", {}, async () => {
     await wait(page, 3);
-    await optional("The `Form added` toast (optional: it fires BEFORE the mutation \u2014 trap 7)", async () => {
-      await assertPageContains(page, `Form added`, DEFAULT_TIMEOUT);
-    });
-    await soft.run("The add-form modal closed and the Forms tab's `Add` is back on screen (UI only: it closes on the optimistic result \u2014 trap 6)", async () => {
-      await assertFromJavascript(page, `if (document.getElementById('adhoc-form')) return false;
+  });
+  await run.step("The `Form added` toast (optional: it fires BEFORE the mutation \u2014 trap 7)", {allow: 'ignore'}, async () => {
+    await assertPageContains(page, `Form added`, DEFAULT_TIMEOUT);
+  });
+  await run.step("The add-form modal closed and the Forms tab's `Add` is back on screen (UI only: it closes on the optimistic result \u2014 trap 6)", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `if (document.getElementById('adhoc-form')) return false;
 return [...document.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add');`, 30000);
-    });
-    await optional("SENTINEL (optional): before any reload, the Forms tab shows the new card (what the add wrote to the page's cache)", async () => {
-      await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
+  });
+  await run.step("SENTINEL (optional): before any reload, the Forms tab shows the new card (what the add wrote to the page's cache)", {allow: 'ignore'}, async () => {
+    await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
 const p = byId || [...document.querySelectorAll('[role="tabpanel"]')]
@@ -108,9 +127,9 @@ const pick = sessionStorage.getItem('__dd364_pick');
 if (!pick) return false;
 return [...p.querySelectorAll('[class*="mantine-Title-root"]')]
   .filter(t => (t.textContent || '').trim() === pick).length === 1;`, 20000);
-    });
-    await soft.run("\u2b50 SERVER: exactly ONE more form than at the premise, and exactly one named what this run picked \u2014 asked over /graphql", async () => {
-      await assertFromJavascript(page, `const K = "__dd364_server", F = K + ':inflight', T = K + ':at';
+  });
+  await run.step("\u2b50 SERVER: exactly ONE more form than at the premise, and exactly one named what this run picked \u2014 asked over /graphql", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `const K = "__dd364_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
   let ok = false;
@@ -132,19 +151,28 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 60000);
-    });
-    // Navigate to the add-form work order (reload: the persisted cache holds no refused optimistic add)
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`);
-    // Let the detail view begin rendering
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
+    await assertFromJavascript(page, `['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));
+return true;`, 15000);
+  });
+  await run.step("Navigate to the add-form work order (reload: the persisted cache holds no refused optimistic add)", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+  });
+  await run.step("Let the detail view begin rendering", {}, async () => {
     await wait(page, 2);
-    // Test work order detail rendered
+  });
+  await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
-    // Reopen the Forms tab
-    await el(page, `//*[@role="tab"][contains(normalize-space(.), "Form")]`).click({ timeout: 30000 });
-    // Let the form cards render
+  });
+  await run.step("Reopen the Forms tab", {}, async () => {
+    await click(page, `//*[@role="tab"][contains(normalize-space(.), "Form")]`, 30000);
+  });
+  await run.step("Let the form cards render", {}, async () => {
     await wait(page, 2);
-    await optional("SENTINEL (optional): after the reload, WITHOUT a resync, the Forms tab shows the new card \u2014 locally it did not: the page drew the cached work order and sent no read (trace 2026-09-15)", async () => {
-      await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
+  });
+  await run.step("SENTINEL (optional): after the reload, WITHOUT a resync, the Forms tab shows the new card \u2014 locally it did not: the page drew the cached work order and sent no read (trace 2026-09-15)", {allow: 'ignore'}, async () => {
+    await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
 const p = byId || [...document.querySelectorAll('[role="tabpanel"]')]
@@ -154,13 +182,15 @@ const pick = sessionStorage.getItem('__dd364_pick');
 if (!pick) return false;
 return [...p.querySelectorAll('[class*="mantine-Title-root"]')]
   .filter(t => (t.textContent || '').trim() === pick).length === 1;`, 10000);
-    });
-    // Press the page's ⟳ resync (`ResyncButton` beside `Data synced on` → refetch)
-    await el(page, `//p[starts-with(normalize-space(.), "Data synced on")]/following-sibling::button[1]`).click({ timeout: 30000 });
-    // Let the refetch land
+  });
+  await run.step("Press the page's \u27f3 resync (`ResyncButton` beside `Data synced on` \u2192 refetch)", {}, async () => {
+    await click(page, `//p[starts-with(normalize-space(.), "Data synced on")]/following-sibling::button[1]`, 30000);
+  });
+  await run.step("Let the refetch land", {}, async () => {
     await wait(page, 4);
-    await soft.run("\u2b50 After a RELOAD the Forms tab shows exactly one card titled with the picked form (after the page's \u27f3 resync)", async () => {
-      await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
+  });
+  await run.step("\u2b50 After a RELOAD the Forms tab shows exactly one card titled with the picked form (after the page's \u27f3 resync)", {allow: 'soft'}, async () => {
+    await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 const byId = tabEl && tabEl.getAttribute('aria-controls')
   ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;
 const p = byId || [...document.querySelectorAll('[role="tabpanel"]')]
@@ -170,16 +200,8 @@ const pick = sessionStorage.getItem('__dd364_pick');
 if (!pick) return false;
 return [...p.querySelectorAll('[class*="mantine-Title-root"]')]
   .filter(t => (t.textContent || '').trim() === pick).length === 1;`, 30000);
-    });
-  } finally {
-    // steps Datadog marks alwaysExecute: cleanup that runs even after a failure
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // Remove the server read's sessionStorage keys
-    await assertFromJavascript(page, `['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));
-return true;`, 15000);
-    // CLEANUP (server): find the ONE form this run attached — an id new since the premise, named the pick
+  });
+  await run.step("CLEANUP (server): find the ONE form this run attached \u2014 an id new since the premise, named the pick", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd364_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -206,10 +228,12 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 60000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // CLEANUP: delete THAT form over /graphql (`deleteWorkStageForm` — mobile has no remove; owner 2026-09-15). One shot; refuses an id the stage held before this run
+  });
+  await run.step("CLEANUP: delete THAT form over /graphql (`deleteWorkStageForm` \u2014 mobile has no remove; owner 2026-09-15). One shot; refuses an id the stage held before this run", {always: true}, async () => {
     await assertFromJavascript(page, `const id = sessionStorage.getItem('__dd364_new');
 const ids = JSON.parse(sessionStorage.getItem('__dd364_before_ids') || 'null');
 if (!id || sessionStorage.getItem('__dd364_deleted')) return true;   // nothing of this run's to delete, or already sent
@@ -219,9 +243,11 @@ window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
   headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
   body: JSON.stringify({ query: 'mutation($id: ID!) { deleteWorkStageForm(id: $id) }', variables: { id } }) });
 return true;`, 15000);
-    // Let the delete reach the server
+  });
+  await run.step("Let the delete reach the server", {always: true}, async () => {
     await wait(page, 3);
-    // ⭐ CLEANED (server): the stage's form ids are exactly the premise's
+  });
+  await run.step("\u2b50 CLEANED (server): the stage's form ids are exactly the premise's", {always: true}, async () => {
     await assertFromJavascript(page, `const K = "__dd364_server", F = K + ':inflight', T = K + ':at';
 const raw = sessionStorage.getItem(K);
 if (raw) {
@@ -245,12 +271,14 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
 }
 return false;`, 60000);
-    // Remove the server read's sessionStorage keys
+  });
+  await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd364_server', '__dd364_server:inflight', '__dd364_server:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-    // Remove this test's sessionStorage keys
+  });
+  await run.step("Remove this test's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `["__dd364_before", "__dd364_pick", "__dd364_before_ids", "__dd364_new", "__dd364_deleted"].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
-  }
-  soft.check();
+  });
+  run.finish();
 }
