@@ -1,4 +1,5 @@
 .env
+.env.bak*
 .venv/
 dd_tests/
 dd_tests_copy/
@@ -9,8 +10,8 @@ __pycache__/
 .coverage
 .DS_Store
 .json
-# local Playwright replays of the Datadog tests (Mobile/dd_scripts_mobile/local_run.py)
 Mobile/local_runs/
-
-# Node tooling (npm install at the repo root; package.json)
 node_modules/
+e2e/results/
+e2e/playwright-report/
+e2e/test-results/

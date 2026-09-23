@@ -60,7 +60,7 @@ The standing rules to carry into the repo (step 2) are:
       fails with a clear message.
 
 ### 2 · Rules into the repo (about 1 hour)
-- [x] `CLAUDE.md` at the root: the standing rules above, the six-step loop from `test_authoring.md` (read the
+- [x] `AGENTS.md` at the root (read automatically by Claude Code, Codex and other agents): the standing rules above, the six-step loop from `test_authoring.md` (read the
       component → build → static checks → local replay → `verify.py` → wire), and where each kind of fact
       lives. AI assistants read this file automatically, so the rules apply to everyone's sessions, not one.
 - [x] `CONTRIBUTING.md`: the loop walked through with a real example (`MOB.331`), the commands and what each

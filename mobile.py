@@ -7,7 +7,7 @@
 
 It adds nothing but names: every command runs the existing script, from its own folder, with the same
 arguments, and exits with its exit code. Anything that bills Datadog runs says so, with the count, before it
-starts — see CLAUDE.md: a Datadog run needs a go-ahead first.
+starts — see AGENTS.md: a Datadog run needs a go-ahead first.
 """
 import os
 import subprocess
@@ -53,7 +53,7 @@ def usage():
     print(f"  {'command':<{w}}  {'Datadog runs':<13} does")
     for name, (_argv, cost, does) in COMMANDS.items():
         print(f"  {name:<{w}}  {cost:<13} {does}")
-    print("\nAnything above 0 needs a go-ahead first (CLAUDE.md).")
+    print("\nAnything above 0 needs a go-ahead first (AGENTS.md).")
     return 2
 
 

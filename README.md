@@ -1,8 +1,11 @@
 # MentorAPM Datadog tests
 
-Datadog Synthetics browser tests for the **MentorAPM mobile app** (`dev.mentorapm.com/apm-mobile`), and the
-tooling that keeps them trustworthy: 145 tests in 24 suites covering every mobile route, scheduled weekly
-on Datadog.
+Browser tests for the **MentorAPM mobile app** (`dev.mentorapm.com/apm-mobile`), and the tooling that keeps
+them trustworthy: 145 tests in 24 suites covering every mobile route.
+
+⛔ **Datadog is paused and the tests are moving to Playwright** (2026-09-22). The tests still live as Datadog
+JSON in `Mobile/dd_tests_mobile/`, which is what the converter reads; the Playwright port is in `e2e/` and is
+meant to run from CircleCI after each dev deploy. See `Mobile/testing_checklist.md` ▶ #37.
 
 Writing a test is the easy part, and an AI assistant can draft one. The point of this repo is the checks
 around it. Every test is replayed locally before it spends a Datadog run. Every JavaScript assertion is
@@ -33,7 +36,7 @@ Before that, you need:
 
 ## Before you change anything
 
-Read **[CLAUDE.md](CLAUDE.md)**. It holds the rules that keep these tests from damaging shared data or
+Read **[AGENTS.md](AGENTS.md)**. It holds the rules that keep these tests from damaging shared data or
 spending the run budget, and it applies whether you work by hand or with an AI assistant. Then
 **[CONTRIBUTING.md](CONTRIBUTING.md)** walks through adding a test.
 
@@ -52,5 +55,6 @@ is free; `verify.py`, `dd_tools.py run` and a live schedule are not.
 | `mobile.py` | One entry point onto the tooling, with each command's Datadog cost |
 | `Mobile/dd_scripts_mobile/` | Tooling: `build_*.py` generate tests; `preflight.py`, `local_run.py`, `verify.py`, `dd_tools.py`, `suite_plan.py` |
 | `Mobile/dd_tests_mobile/` | The tests as JSON, which is **the source of truth** pushed to Datadog |
-| `legacy/` | The repo's original bulk download/edit tool, kept for full backups |
+| `e2e/` | The Playwright (TypeScript) port: `npm test` in that folder. Self-contained, so it can move into MentorTwo |
+| `legacy/` | The repo's original bulk download/edit tool, plus `backup_all.py` and full backups of every Datadog test |
 | `repo_migration.md` | The plan for making this repo easier for others to use |

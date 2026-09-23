@@ -1,0 +1,15 @@
+{
+  "name": "mentorapm-mobile-e2e",
+  "private": true,
+  "description": "Playwright tests for the MentorAPM mobile app. Self-contained: this folder can move into MentorTwo as-is.",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^26.6.2",
+    "dotenv": "^17.2.3",
+    "typescript": "^5.9.3"
+  }
+}

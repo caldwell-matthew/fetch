@@ -1,6 +1,6 @@
 # Adding a test
 
-Read [CLAUDE.md](CLAUDE.md) first: its rules decide what a test may touch and when a Datadog run is allowed.
+Read [AGENTS.md](AGENTS.md) first: its rules decide what a test may touch and when a Datadog run is allowed.
 This page walks through the loop with a real example, and ends with a glossary of the repo's vocabulary.
 
 ## The worked example: `MOB.331_Work_GenInfo_Value_Modal`
@@ -50,6 +50,8 @@ run `preflight.py`.
 | `push <test …>` | `dd_tools.py push` | uploads the named tests (never all by default) | 0 |
 | `verify <test>` | `verify.py` | pushes the test and a one-child scratch suite, and runs it | 2 (3 red) |
 | `run <suite>` | `dd_tools.py run` | runs a whole suite (prints the exact cost first) | 1 + its tests |
+| — | `to_playwright.py <suite>` | converts a suite's JSON into `e2e/` as Playwright TypeScript | 0 |
+| — | `cd e2e && npm test` | runs the converted suites in local Chromium (the direction of travel — ▶ #37) | 0 |
 | `pass [--dry-run]` | `full_pass.py` | every scheduled suite once, in the schedule's safe order, waiting out Datadog's retries and checking fixtures between suites | ≈158 |
 
 ## Glossary

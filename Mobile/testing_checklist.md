@@ -51,13 +51,13 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 
 | | |
 |---|---|
-| Status | **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
+| Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The JSON in `dd_tests_mobile/` stays the source the conversion reads. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
 | Tests | **145 leaf tests · 24 suites** · 5033 steps · 139 subtest slots (+ `MOB.999_Verify_Scratch`, a harness; `MOB.978_DIAG_WorkList_Probe` and `MOB.977_DIAG_Condition_Form_Schema_Race`, diagnostics; `MOB.PDF_Upload_Recording`, which exists only on Datadog — never delete it) |
 | Local ↔ remote | every local test matches Datadog by content — `preflight.py sync` compares step names and subtest ids (it prints the first 5). `MOB.711` is archived locally only |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
 | Rows | 176 `[x]` · 13 `[~]` · 0 `[ ]` · 33 `[-]` — 222 rows. Counts describe *this file*, not the app |
-| Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra |
-| Scheduling | Manual today. On-demand runs go one at a time: the concurrency cap is **1**, because each parallel slot above it bills monthly (test_authoring, trap 1). **Owner's plan: weekly Datadog runs** (▶ OPEN WORK #37) |
+| Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
+| Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
 ### Suites — children, and what they leave behind
 
@@ -133,14 +133,14 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#37** the weekly schedule.
+1. **#37** the move to Playwright, run from CircleCI.
 2. Re-verify `MOB.967` once bugs §34 is fixed (🟡 BLOCKED).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
-| **37** | **Weekly schedule on Datadog's own scheduler** (owner, 2026-09-17: weekly, native — no script; plan **1,000 runs/month** — overage bills extra; dev is up at weekends). ⛔ **All Datadog testing is paused** (manager, 2026-09-18, over the bill): nothing runs or goes live until it's cleared. Each suite runs once a week in its own ONE-HOUR slot (`tick_every = 3600` inside an `options.scheduling` window): the 10 read-only suites share Sat 18:00 Pacific, the 12 data-changing ones follow two hours apart through Sun 18:00, Session last at Sun 20:00. **158 runs a pass, ≈ 750/month with retries.** Slots live in `suite_plan.SLOTS`; `build_module_suites.py` writes them; `push` now sends `status`; `preflight.py schedule` refuses slots under 2h apart, a live leaf, and a live schedule before the day numbering is confirmed; `sync` now compares status and schedule. MOB.967 stays paused (bugs §34). ⚠️ A test's windows must all share one time of day (Datadog: `All start times should be equal`). **Steps:** (1) `schedule_probe.py` — live since Thu 2026-09-17 20:21, one window 21:00–22:00 on day numbers 5/6/7. **Day numbering confirmed: Monday = 1** (Datadog gave its next run as "1d from now" on Thursday evening, so 5 = Friday). ⏳ Still measuring runs per window and the minute they fire (Fri/Sat/Sun nights); pause it after Sunday. (2) ✔ tooling. (3) one manual full pass (~160 runs) to re-measure `954`/`955`/`959`/`960`/`961`/`966`/`968`/`981`. (4) `SCHEDULE_ON = True`, rebuild, push | in progress · awaiting the probe |
+| **37** | **Run the suites automatically — moving from Datadog to Playwright + CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **The plan:** convert the JSON to Playwright (TypeScript) with `to_playwright.py`, faithfully at first — every `wait` kept, so a red is a real difference — then run the suites from a CircleCI job that starts after `composer_deploy` finishes on `development`. Tests live in `e2e/` here for now, self-contained so they can move into MentorTwo later. **Done:** the converter; `e2e/` scaffold (config, Datadog step semantics in `support/dd.ts`, globals from `.env`); `MOB.954` converted and green locally, 8/8 in 7.9 min. **Left:** convert the other 23 suites; the CircleCI job (smoke after each deploy, full pass nightly or weekly) with Slack/email reporting and RUM blocked so test sessions are not billed as users; a `fixtures.ts` holding the record names, ids and `DD SYNTHETIC` markers; tighten the 1,179 fixed waits suite by suite, measured either side; decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`). **Not portable:** `MOB.600`'s photo picker — it cannot be driven outside Datadog either | in progress |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still

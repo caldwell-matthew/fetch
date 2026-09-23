@@ -1,8 +1,14 @@
 # Working in this repo
 
+⛔ **Datadog is paused** (the owner's manager, 2026-09-18, over the bill) and the suites are **being converted to
+Playwright**, to run from CircleCI after each dev deploy (`Mobile/testing_checklist.md` ▶ #37). Run nothing on
+Datadog and set nothing live until the owner says it is cleared. Everything below still applies: the Playwright
+tests hit the same shared data on dev, and CI minutes cost money too.
+
 Datadog Synthetics tests for the MentorAPM mobile app. The tests run against **shared** data on
 `dev.mentorapm.com`, and every Datadog run **bills**. These rules come from the owner. Each one exists because
-breaking it once cost data, runs or trust. They apply to people and AI assistants alike.
+breaking it once cost data, runs or trust. They apply to people and AI assistants alike — Claude Code, Codex
+and other agents all read this file by name.
 
 ## Hard rules
 

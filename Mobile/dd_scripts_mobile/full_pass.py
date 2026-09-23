@@ -7,7 +7,7 @@
 
 WHEN
   The weekly schedule (suite_plan.SLOTS) runs the suites on its own. A manual pass is for measuring after big
-  changes, or before switching the schedule on. 🛑 It bills ≈158 runs: get the owner's go-ahead first (CLAUDE.md).
+  changes, or before switching the schedule on. 🛑 It bills ≈158 runs: get the owner's go-ahead first (AGENTS.md).
 
 THE ORDER IS THE SCHEDULE'S, AND FOR THE SAME REASON (trap 1)
   Stage 1  the READ-ONLY suites, in their schedule slots' batches (≤ READ_ONLY_BATCH together; each batch
