@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.420_Menu_Transaction_Log.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.420_Menu_Transaction_Log.json by to_playwright.py — do not edit by hand yet.
 // MOB.420_Menu_Transaction_Log
 
 import { Page } from '@playwright/test';

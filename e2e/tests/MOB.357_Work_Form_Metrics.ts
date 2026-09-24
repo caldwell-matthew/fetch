@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.357_Work_Form_Metrics.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.357_Work_Form_Metrics.json by to_playwright.py — do not edit by hand yet.
 // MOB.357_Work_Form_Metrics
 
 import { Page } from '@playwright/test';

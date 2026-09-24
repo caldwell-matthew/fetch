@@ -1,6 +1,6 @@
 """Compare every generated Playwright test with the Datadog JSON it came from — 0 runs.
 
-    ../../.venv/bin/python check_conversion.py
+    ../../../.venv/bin/python check_conversion.py
 
 Checks, per step and in order: the kind (the two flags), the timeout, and the step's own values
 (locator, typed text, asserted string, JS code). A difference here is a silent change in what the
@@ -9,7 +9,7 @@ test proves, which is exactly how the alwaysExecute bugs got in.
 import json, glob, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.join(HERE, "..", "..")
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
 TESTS = os.path.join(HERE, "..", "dd_tests_mobile")
 E2E = os.path.join(REPO, "e2e", "tests")
 SUITES_TS = os.path.join(REPO, "e2e", "suites")

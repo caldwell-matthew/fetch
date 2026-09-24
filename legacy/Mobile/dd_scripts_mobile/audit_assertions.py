@@ -38,9 +38,9 @@ WHAT IT LOOKS FOR
                    none a defect. Trap 21 is about ABSENCE checks, which VACUOUS-ABSENCE covers.)
 
 USAGE
-    ./.venv/bin/python Mobile/dd_scripts_mobile/audit_assertions.py            # ranked report
-    ./.venv/bin/python Mobile/dd_scripts_mobile/audit_assertions.py --json     # machine-readable
-    ./.venv/bin/python Mobile/dd_scripts_mobile/audit_assertions.py MOB.348    # one test
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/audit_assertions.py            # ranked report
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/audit_assertions.py --json     # machine-readable
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/audit_assertions.py MOB.348    # one test
 
 Exit 1 if any HIGH-severity suspect is found, so it can gate a rebuild.
 """

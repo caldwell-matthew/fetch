@@ -6,16 +6,16 @@ problem shows up before a billed run does. Datadog stays the final word: its bro
 location and timing differ, and a local pass does not update any RUN STATUS.
 
 USAGE (from dd_scripts_mobile/, with the repo venv)
-    ../../.venv/bin/python local_run.py MOB.721                  # headless, tablet, login prepended
-    ../../.venv/bin/python local_run.py MOB.721 --headed         # watch it
-    ../../.venv/bin/python local_run.py MOB.975 --device mobile_small
-    ../../.venv/bin/python local_run.py MOB.320 --max-timeout 20 # cap step timeouts while iterating
-    ../../.venv/bin/python local_run.py MOB.721 --headed --slow-mo 400   # WATCH it, slowed down
-    ../../.venv/bin/python local_run.py MOB.721 --trace          # then replay the timeline:
-    ../../.venv/bin/python -m playwright show-trace ../local_runs/<test>/trace.zip
-    ../../.venv/bin/python local_run.py MOB.721 --live           # headless, and Mobile/local_runs/live.png
+    ../../../.venv/bin/python local_run.py MOB.721                  # headless, tablet, login prepended
+    ../../../.venv/bin/python local_run.py MOB.721 --headed         # watch it
+    ../../../.venv/bin/python local_run.py MOB.975 --device mobile_small
+    ../../../.venv/bin/python local_run.py MOB.320 --max-timeout 20 # cap step timeouts while iterating
+    ../../../.venv/bin/python local_run.py MOB.721 --headed --slow-mo 400   # WATCH it, slowed down
+    ../../../.venv/bin/python local_run.py MOB.721 --trace          # then replay the timeline:
+    ../../../.venv/bin/python -m playwright show-trace ../local_runs/<test>/trace.zip
+    ../../../.venv/bin/python local_run.py MOB.721 --live           # headless, and legacy/Mobile/local_runs/live.png
                                                                  # rewritten every step (VS Code's image tab does not reload it - watch with --headed)
-    ../../.venv/bin/python local_run.py MOB.975 --device large_phone   # 430x932, LOCAL ONLY (see DEVICES)
+    ../../../.venv/bin/python local_run.py MOB.975 --device large_phone   # 430x932, LOCAL ONLY (see DEVICES)
 
 WHAT IT REPLAYS, WITH DATADOG'S RULES
     goToUrl · wait · click · typeText · pressKey · assertPageContains · assertPageLacks ·
@@ -34,10 +34,10 @@ WHAT IT REPLAYS, WITH DATADOG'S RULES
 
 UPLOADS WITH A STAND-IN FILE
     uploadFiles - Datadog's bytes live in its storage (trap 12), so a local replay sets a stand-in
-    of the same name on the step's <input type=file>: `Mobile/local_fixtures/<name>` when present,
+    of the same name on the step's <input type=file>: `legacy/Mobile/local_fixtures/<name>` when present,
     else a generated file by extension (a valid 64x64 PNG/JPEG-named PNG, a one-page PDF, text).
     It really uploads to the dev server, as a Datadog run does. The step is named "(local stand-in)".
-    Failure screenshots go to Mobile/local_runs/<test>/ (gitignored).
+    Failure screenshots go to legacy/Mobile/local_runs/<test>/ (gitignored).
 
 ONE REPLAY AT A TIME
     Replays share the dev fixtures, so each takes `local_runs/.replay.lock` for its browser session
@@ -430,7 +430,7 @@ def main():
                     help="default: the test's own device_ids (tablet unless _Phone_)")
     ap.add_argument("--headed", action="store_true", help="show the browser")
     ap.add_argument("--live", action="store_true",
-                    help="headless, rewriting Mobile/local_runs/live.png after every step (VS Code's image tab does not reload it; watch with --headed)")
+                    help="headless, rewriting legacy/Mobile/local_runs/live.png after every step (VS Code's image tab does not reload it; watch with --headed)")
     ap.add_argument("--no-login", action="store_true", help="do not prepend MOB.000's login steps")
     ap.add_argument("--max-timeout", type=float, default=None, help="cap every step timeout (seconds)")
     ap.add_argument("--slow-mo", type=int, default=0, help="pause N ms between browser actions (use with --headed)")
@@ -487,7 +487,7 @@ def main():
             if args.trace:
                 trace = os.path.join(shots, "trace.zip")
                 context.tracing.stop(path=trace)
-                print(f"\ntrace: ../../.venv/bin/python -m playwright show-trace {os.path.relpath(trace, HERE)}")
+                print(f"\ntrace: ../../../.venv/bin/python -m playwright show-trace {os.path.relpath(trace, HERE)}")
             browser.close()
     verdict = "PASS" if passed else "FAIL"
     if run.incomplete:

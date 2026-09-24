@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.343_Work_List_Search_Filter.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.343_Work_List_Search_Filter.json by to_playwright.py — do not edit by hand yet.
 // MOB.343_Work_List_Search_Filter
 
 import { Page } from '@playwright/test';

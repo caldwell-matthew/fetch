@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.600_Collector_Create_Asset.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.600_Collector_Create_Asset.json by to_playwright.py — do not edit by hand yet.
 // MOB.600_Collector_Create_Asset
 //
 // ⛔ THIS TEST CANNOT RUN OUTSIDE DATADOG. Steps below were recorded without an xpath, so only

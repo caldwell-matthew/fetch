@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.000_Login_(Dev).json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.000_Login_(Dev).json by to_playwright.py — do not edit by hand yet.
 // The shared login. Every suite runs it once, then its children reuse the session.
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertPageLacks, click, press, typeText, wait } from './dd';

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.122_Map_Create_Work.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.122_Map_Create_Work.json by to_playwright.py — do not edit by hand yet.
 // MOB.122_Map_Create_Work
 
 import { Page } from '@playwright/test';

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.347_Work_Asset_Status.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.347_Work_Asset_Status.json by to_playwright.py — do not edit by hand yet.
 // MOB.347_Work_Asset_Status
 
 import { Page } from '@playwright/test';

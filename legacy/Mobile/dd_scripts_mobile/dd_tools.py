@@ -1,8 +1,8 @@
 """Shared helpers for building, pushing, and running the MOB.* mobile suite.
 
 Run from the repo root with the venv python, e.g.:
-    ./.venv/bin/python Mobile/dd_scripts_mobile/dd_tools.py push MOB.914 MOB.968   # push ONLY the tests being edited (--all: a deliberate full sync)
-    ./.venv/bin/python Mobile/dd_scripts_mobile/dd_tools.py run MOB.972_AppShell_Suite
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/dd_tools.py push MOB.914 MOB.968   # push ONLY the tests being edited (--all: a deliberate full sync)
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/dd_tools.py run MOB.972_AppShell_Suite
 """
 import os, sys, json, glob, time, certifi
 from dotenv import dotenv_values
@@ -17,8 +17,8 @@ from datadog_api_client.v1.model.synthetics_test_pause_status import SyntheticsT
 
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))   # Mobile/dd_scripts
 MOBILE = os.path.dirname(SCRIPTS)                      # Mobile
-REPO = os.path.dirname(MOBILE)                         # repo root (fetch/)
-# NB: Mobile/dd_tests_mobile - the mobile suite's JSON. Named to avoid colliding with
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
+# NB: legacy/Mobile/dd_tests_mobile - the mobile suite's JSON. Named to avoid colliding with
 # legacy/dd_tests/ (legacy/fetch.py's MAIN_DIR), which .gitignore matches unanchored.
 # DD_TESTS_DIR: build into another folder (check_drift.py uses a temp copy, never the real JSON)
 TESTS = os.environ.get("DD_TESTS_DIR") or os.path.join(MOBILE, "dd_tests_mobile")
@@ -928,7 +928,7 @@ def write(t, force=None):
     So re-running a build script out of habit silently reverts working, verified state -
     which is exactly what happened once already. Opt in explicitly to overwrite:
 
-        DD_FORCE=1 ./.venv/bin/python Mobile/dd_scripts_mobile/<build script>.py
+        DD_FORCE=1 ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/<build script>.py
     """
     path = os.path.join(HERE, t["test_name"] + ".json")
     if force is None:

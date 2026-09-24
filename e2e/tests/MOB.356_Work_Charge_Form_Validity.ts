@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.356_Work_Charge_Form_Validity.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.356_Work_Charge_Form_Validity.json by to_playwright.py — do not edit by hand yet.
 // MOB.356_Work_Charge_Form_Validity
 
 import { Page } from '@playwright/test';

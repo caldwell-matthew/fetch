@@ -1,7 +1,7 @@
 # Working in this repo
 
 ⛔ **Datadog is paused** (the owner's manager, 2026-09-18, over the bill) and the suites are **being converted to
-Playwright**, to run from CircleCI after each dev deploy (`Mobile/testing_checklist.md` ▶ #37). Run nothing on
+Playwright**, to run from CircleCI after each dev deploy (`e2e/docs/testing_checklist.md` ▶ #37). Run nothing on
 Datadog and set nothing live until the owner says it is cleared. Everything below still applies: the Playwright
 tests hit the same shared data on dev, and CI minutes cost money too.
 
@@ -14,7 +14,7 @@ and other agents all read this file by name.
 
 **Data on dev**
 - **Never write a delete step unless the owner names the flow.** A delete path existing in the app does not make
-  it supported. The named flows are listed in `Mobile/test_authoring.md`, trap 2.
+  it supported. The named flows are listed in `e2e/docs/test_authoring.md`, trap 2.
 - **Only Datadog-created records may be deleted**, identified by their marker (`DD SYNTHETIC …`). Never a fixture,
   never a person's data.
 - **Never touch Pump 0102's attachments.**
@@ -37,7 +37,7 @@ and other agents all read this file by name.
   someone asks to watch.
 
 **Reporting**
-- **Describe a run from its evidence**: the failure screenshot in `Mobile/local_runs/<test>/`, the page, a probe.
+- **Describe a run from its evidence**: the failure screenshot in `legacy/Mobile/local_runs/<test>/`, the page, a probe.
   Not from step names or the source. Label anything not observed as inferred.
 - **Ask before filing a new bug** in `bugs_found.md`.
 
@@ -68,12 +68,12 @@ and other agents all read this file by name.
 | 5 | Confirm on Datadog, **after a go-ahead** | `verify.py <test>` | 2 (3 red) |
 | 6 | Wire it into its suite | `suite_plan.py` → `build_module_suites.py` → `wire_suite.py` → `dd_tools.py push <suite>` | 0 |
 
-All commands live in `Mobile/dd_scripts_mobile/` and run with `.venv/bin/python`. **The JSON in
-`Mobile/dd_tests_mobile/` is the source of truth**: fix the generator to match it, never the reverse.
+All commands live in `legacy/Mobile/dd_scripts_mobile/` and run with `.venv/bin/python`. **The JSON in
+`legacy/Mobile/dd_tests_mobile/` is the source of truth**: fix the generator to match it, never the reverse.
 
 ## Before trusting a result
 
 - `preflight.py` must end in **PREFLIGHT CLEAN** before any Datadog run.
 - A UI signal (a toast, a closed modal) is not proof that something saved. Prove writes with a server read
   (`dd_tools.server_assert`).
-- Read `Mobile/test_authoring.md`'s traps before building. Each one cost a run once.
+- Read `e2e/docs/test_authoring.md`'s traps before building. Each one cost a run once.

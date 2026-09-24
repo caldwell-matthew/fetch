@@ -23,9 +23,9 @@ HOW ONE TEST ANSWERS ALL THREE
   over three days.
 
 USAGE
-    ./.venv/bin/python Mobile/dd_scripts_mobile/schedule_probe.py create   # make it, live
-    ./.venv/bin/python Mobile/dd_scripts_mobile/schedule_probe.py report   # its runs, in Pacific time
-    ./.venv/bin/python Mobile/dd_scripts_mobile/schedule_probe.py pause    # stop it (billing stops)
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/schedule_probe.py create   # make it, live
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/schedule_probe.py report   # its runs, in Pacific time
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/schedule_probe.py pause    # stop it (billing stops)
 """
 import datetime
 import os

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.968_AssetLookup_1_Rows_Tabs_Suite.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.968_AssetLookup_1_Rows_Tabs_Suite.json by to_playwright.py — do not edit by hand yet.
 //
 // The children share ONE browser session, in order, exactly as the Datadog suite ran them
 // (they also share the fixture records, so nothing here may run in parallel — trap 1).

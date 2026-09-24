@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.913_Offline_Transaction_Queue.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.913_Offline_Transaction_Queue.json by to_playwright.py — do not edit by hand yet.
 // MOB.913_Offline_Transaction_Queue
 
 import { Page } from '@playwright/test';

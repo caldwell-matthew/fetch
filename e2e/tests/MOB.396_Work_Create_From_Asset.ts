@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.396_Work_Create_From_Asset.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.396_Work_Create_From_Asset.json by to_playwright.py — do not edit by hand yet.
 // MOB.396_Work_Create_From_Asset
 
 import { Page } from '@playwright/test';

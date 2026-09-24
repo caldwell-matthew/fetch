@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.398_Work_Assign_Stage_Modal.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.398_Work_Assign_Stage_Modal.json by to_playwright.py — do not edit by hand yet.
 // MOB.398_Work_Assign_Stage_Modal
 
 import { Page } from '@playwright/test';

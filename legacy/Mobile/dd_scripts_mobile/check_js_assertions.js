@@ -2,7 +2,7 @@
  * check_js_assertions.js - run our `assertFromJavascript` bodies against a DOM built to match
  * the REAL component source, on the bench, before spending a Datadog run on them.
  *
- *     node Mobile/dd_scripts_mobile/check_js_assertions.js
+ *     node legacy/Mobile/dd_scripts_mobile/check_js_assertions.js
  *
  * WHY THIS EXISTS
  *   A jsassert body is the only part of a test that Datadog cannot check until it runs, and a
@@ -42,7 +42,7 @@ let JSDOM;
 const JSDOM_FROM = [
 	'jsdom',
 	...(process.env.MENTORTWO_REPO ? [path.join(process.env.MENTORTWO_REPO, 'node_modules/jsdom')] : []),
-	path.resolve(MOBILE, '../../MentorTwo/node_modules/jsdom'),
+	path.resolve(MOBILE, '../../../MentorTwo/node_modules/jsdom'),   // legacy/Mobile -> the sibling checkout
 ];
 for (const where of JSDOM_FROM) {
 	try { ({ JSDOM } = require(where)); break; } catch (e) { /* try the next */ }

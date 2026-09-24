@@ -242,7 +242,9 @@ def check_docs():
     """The drift the docs keep re-growing: a finished row left in OPEN WORK, a citation of a deleted
     checklist row, and counts that no longer match the boxes or the test JSON."""
     import re
-    mobile = os.path.join(HERE, "..")
+    # The docs moved to e2e/docs when Mobile/ became legacy/Mobile/ (2026-09-23); the tooling stayed here.
+    from dd_tools import REPO
+    mobile = os.path.join(REPO, "e2e", "docs")
     ck = open(os.path.join(mobile, "testing_checklist.md")).read()
     problems = []
     section = ck[ck.index("## ▶ OPEN WORK"):ck.index("### ⚪ NOT A GAP")]

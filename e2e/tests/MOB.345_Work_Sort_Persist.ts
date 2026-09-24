@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.345_Work_Sort_Persist.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.345_Work_Sort_Persist.json by to_playwright.py — do not edit by hand yet.
 // MOB.345_Work_Sort_Persist
 
 import { Page } from '@playwright/test';

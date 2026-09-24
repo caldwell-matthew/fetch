@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.570_AssetVerify_Asset_Cycling.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.570_AssetVerify_Asset_Cycling.json by to_playwright.py — do not edit by hand yet.
 // MOB.570_AssetVerify_Asset_Cycling
 
 import { Page } from '@playwright/test';

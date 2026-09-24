@@ -19,7 +19,7 @@ from datadog_api_client.v1.api.synthetics_api import SyntheticsApi
 
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))   # Mobile/dd_scripts
 MOBILE = os.path.dirname(SCRIPTS)                      # Mobile
-REPO = os.path.dirname(MOBILE)                         # repo root (fetch/)
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
 HERE = os.path.join(MOBILE, "dd_tests_mobile")
 # Anything that CHAINS CHILDREN needs wiring, not just files named "*Suite".
 # 🛑 `MOB.9*Suite.json` missed `MOB.999_Verify_Scratch.json`, so the scratch harness was never
@@ -73,4 +73,4 @@ if missing:
     sys.exit(1)
 
 print(f"\nWired {total_wired} subtest id(s) across {len(SUITES)} suite(s).")
-print("Now push the suite(s) you wired:  ./.venv/bin/python Mobile/dd_scripts_mobile/dd_tools.py push <suite>")
+print("Now push the suite(s) you wired:  ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/dd_tools.py push <suite>")

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.537_AssetVerify_Header_Tag.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.537_AssetVerify_Header_Tag.json by to_playwright.py — do not edit by hand yet.
 // MOB.537_AssetVerify_Header_Tag
 
 import { Page } from '@playwright/test';

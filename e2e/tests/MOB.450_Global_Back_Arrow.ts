@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.450_Global_Back_Arrow.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.450_Global_Back_Arrow.json by to_playwright.py — do not edit by hand yet.
 // MOB.450_Global_Back_Arrow
 
 import { Page } from '@playwright/test';

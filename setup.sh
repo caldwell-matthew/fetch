@@ -44,8 +44,8 @@ fi
 
 if [ "$missing" = 0 ]; then
   echo
-  echo "Ready. Try:  .venv/bin/python Mobile/dd_scripts_mobile/preflight.py"
+  echo "Ready. Try:  .venv/bin/python legacy/Mobile/dd_scripts_mobile/preflight.py"
 else
   echo
-  echo "Setup done; provide the ✗ items above, then run .venv/bin/python Mobile/dd_scripts_mobile/preflight.py"
+  echo "Setup done; provide the ✗ items above, then run .venv/bin/python legacy/Mobile/dd_scripts_mobile/preflight.py"
 fi

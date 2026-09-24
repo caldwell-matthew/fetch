@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.385_Work_Failure_Edit_Save.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.385_Work_Failure_Edit_Save.json by to_playwright.py — do not edit by hand yet.
 // MOB.385_Work_Failure_Edit_Save
 
 import { Page } from '@playwright/test';

@@ -6,7 +6,7 @@ named by name alone and silently lost 6 tests in the 2026-08-12 backup). An inde
 import datetime, json, sys
 import os
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "Mobile", "dd_scripts_mobile"))
+sys.path.insert(0, os.path.join(HERE, "Mobile", "dd_scripts_mobile"))
 import dd_tools
 
 ROOT = os.path.join(HERE, "dd_tests_backup")

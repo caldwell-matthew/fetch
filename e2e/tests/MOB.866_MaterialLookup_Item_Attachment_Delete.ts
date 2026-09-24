@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.866_MaterialLookup_Item_Attachment_Delete.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.866_MaterialLookup_Item_Attachment_Delete.json by to_playwright.py — do not edit by hand yet.
 // MOB.866_MaterialLookup_Item_Attachment_Delete
 
 import { Page } from '@playwright/test';

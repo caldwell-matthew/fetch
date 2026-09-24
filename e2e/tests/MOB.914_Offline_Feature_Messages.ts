@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.914_Offline_Feature_Messages.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.914_Offline_Feature_Messages.json by to_playwright.py — do not edit by hand yet.
 // MOB.914_Offline_Feature_Messages
 
 import { Page } from '@playwright/test';

@@ -2,7 +2,7 @@
 
 Runs `local_run.py <suite> --continue` for each suite ONE AT A TIME (the mutating suites share
 fixtures - trap 1; MOB.973 changes the session crew; MOB.975 is phone-only) and writes
-`Mobile/local_runs/timing/summary.md`: per suite and per child, local seconds and verdict.
+`legacy/Mobile/local_runs/timing/summary.md`: per suite and per child, local seconds and verdict.
 
 ⚠️ READ THE NUMBERS AS ESTIMATES
   - Local seconds are not Datadog seconds (different machine, network, browser). Compare with the
@@ -15,8 +15,8 @@ fixtures - trap 1; MOB.973 changes the session crew; MOB.975 is phone-only) and 
     readings, stock +1) and the self-restoring children restore as usual.
 
 USAGE (from dd_scripts_mobile/)
-    ../../.venv/bin/python local_timing.py                 # every suite, in order
-    ../../.venv/bin/python local_timing.py MOB.954 MOB.981 # just these
+    ../../../.venv/bin/python local_timing.py                 # every suite, in order
+    ../../../.venv/bin/python local_timing.py MOB.954 MOB.981 # just these
 """
 import os
 import re

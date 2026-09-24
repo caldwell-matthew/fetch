@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.391_Work_Add_Failure.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.391_Work_Add_Failure.json by to_playwright.py — do not edit by hand yet.
 // MOB.391_Work_Add_Failure
 
 import { Page } from '@playwright/test';

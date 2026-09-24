@@ -1,9 +1,9 @@
 """Run every scheduled suite on Datadog once, in a safe order — a manual full pass.
 
-    ../../.venv/bin/python full_pass.py --dry-run          # the plan and its cost; bills nothing
-    ../../.venv/bin/python full_pass.py                    # the pass (≈158 runs, ≈2h)
-    ../../.venv/bin/python full_pass.py --from MOB.963     # resume stage 2 at a suite
-    ../../.venv/bin/python full_pass.py --stage 1          # only the read-only stage (or --stage 2)
+    ../../../.venv/bin/python full_pass.py --dry-run          # the plan and its cost; bills nothing
+    ../../../.venv/bin/python full_pass.py                    # the pass (≈158 runs, ≈2h)
+    ../../../.venv/bin/python full_pass.py --from MOB.963     # resume stage 2 at a suite
+    ../../../.venv/bin/python full_pass.py --stage 1          # only the read-only stage (or --stage 2)
 
 WHEN
   The weekly schedule (suite_plan.SLOTS) runs the suites on its own. A manual pass is for measuring after big
@@ -28,7 +28,7 @@ THE ORDER IS THE SCHEDULE'S, AND FOR THE SAME REASON (trap 1)
   runs after it would mostly measure its damage.
 
 Before anything bills, the whole `preflight.py` must be clean. The summary is printed and saved to
-`Mobile/local_runs/passes/<time>.md` (git-ignored).
+`legacy/Mobile/local_runs/passes/<time>.md` (git-ignored).
 """
 import argparse
 import datetime

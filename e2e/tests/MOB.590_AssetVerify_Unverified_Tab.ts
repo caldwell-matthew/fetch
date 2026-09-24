@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.590_AssetVerify_Unverified_Tab.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.590_AssetVerify_Unverified_Tab.json by to_playwright.py — do not edit by hand yet.
 // MOB.590_AssetVerify_Unverified_Tab
 
 import { Page } from '@playwright/test';

@@ -23,8 +23,8 @@ THE PROBLEM THIS SOLVES — and it is a BILLING problem, not a testing one.
   ➡️ Use this to iterate cheaply, then run the real suite ONCE at the end to confirm.
 
 USAGE
-    ./.venv/bin/python Mobile/dd_scripts_mobile/verify.py MOB.622        # point + push + run
-    ./.venv/bin/python Mobile/dd_scripts_mobile/verify.py MOB.622 --no-run   # point + push only
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/verify.py MOB.622        # point + push + run
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/verify.py MOB.622 --no-run   # point + push only
 
   The scratch suite is deliberately in NO other suite and is never wired anywhere, so
   re-pointing it cannot disturb real coverage.
@@ -35,7 +35,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dd_tools import step, test, write, HERE  # noqa: E402
 
 SCRATCH = "MOB.999_Verify_Scratch"
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
 PY = os.path.join(REPO, ".venv", "bin", "python")
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))
 

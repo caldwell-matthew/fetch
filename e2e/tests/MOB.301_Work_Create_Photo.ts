@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.301_Work_Create_Photo.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.301_Work_Create_Photo.json by to_playwright.py — do not edit by hand yet.
 // MOB.301_Work_Create_Photo
 
 import { Page } from '@playwright/test';

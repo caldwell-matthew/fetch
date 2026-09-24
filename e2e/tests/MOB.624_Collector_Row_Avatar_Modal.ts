@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.624_Collector_Row_Avatar_Modal.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.624_Collector_Row_Avatar_Modal.json by to_playwright.py — do not edit by hand yet.
 // MOB.624_Collector_Row_Avatar_Modal
 
 import { Page } from '@playwright/test';

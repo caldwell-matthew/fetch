@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.740_AssetLookup_Work_History.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.740_AssetLookup_Work_History.json by to_playwright.py — do not edit by hand yet.
 // MOB.740_AssetLookup_Work_History
 
 import { Page } from '@playwright/test';

@@ -6,7 +6,7 @@ mid-run breaks it.
 
 ## Why
 
-This repo began as `fetch`, a script to bulk-download and bulk-edit Datadog tests. It is now mostly `Mobile/`: a
+This repo began as `fetch`, a script to bulk-download and bulk-edit Datadog tests. It is now mostly `legacy/Mobile/`: a
 full Datadog Synthetics suite for the MentorAPM mobile app, with 145 leaf tests, 24 suites, 123 scripts and about
 2,200 lines of docs. Writing a test is the cheap part now, because an AI assistant can generate one. What makes
 this repo worth sharing are the **guardrails** that make a generated test trustworthy:
@@ -16,7 +16,7 @@ this repo worth sharing are the **guardrails** that make a generated test trustw
 - the must-fail JS bench (`check_js_assertions.js`)
 - the stale-literal scan (`check_literals.py`)
 - the fixture resets and checks
-- the 40 traps in `Mobile/test_authoring.md`
+- the 40 traps in `e2e/docs/test_authoring.md`
 
 The migration should make those the front door.
 
@@ -24,7 +24,7 @@ The migration should make those the front door.
 
 | Problem | Where | Effect on a newcomer |
 |---|---|---|
-| Two projects in one repo | root: `fetch.py`, `test.py`, `DOCS.md`, `fetch_logo.png` (2024); `Mobile/`: the real project | The README describes only the old tool, so a newcomer starts in the wrong place |
+| Two projects in one repo | root: `fetch.py`, `test.py`, `DOCS.md`, `fetch_logo.png` (2024); `legacy/Mobile/`: the real project | The README describes only the old tool, so a newcomer starts in the wrong place |
 | Setup depends on one machine's layout | `requirements.txt` lacks Playwright; the bench finds `jsdom` in a sibling `../../MentorTwo/node_modules`; `check_literals.py` and `sweep_strings.py` default to `~/GitHub/MentorAPM/MentorTwo`; everything assumes `.venv` at the root | A fresh clone fails in places the current owner never sees |
 | The safety rules live outside the repo | the owner's standing rules are held in one person's Claude memory files | Another person, or their AI assistant, starts without them |
 | One-off migration scripts beside daily tools | `fix_crew_coupling.py`, `harden_login.py`, `patch_collector_upload.py` (`add_role_guard.py` and `add_crash_guard.py` looked like one-offs but are the maintained way to change the shared login prefix) | The toolset looks larger and riskier than it is |
@@ -68,7 +68,7 @@ The standing rules to carry into the repo (step 2) are:
 
 ### 3 · Tidy (about half a day)
 - [x] Archive the one-off migration scripts: `fix_crew_coupling.py`, `harden_login.py` and
-      `patch_collector_upload.py` are in `Mobile/dd_scripts_mobile/_archive/`, with a README saying what each
+      `patch_collector_upload.py` are in `legacy/Mobile/dd_scripts_mobile/_archive/`, with a README saying what each
       did and why it's done. **Kept:** `add_role_guard.py` and `add_crash_guard.py`, which on reading are not
       one-offs: they're the maintained way to change the shared login prefix (`test_authoring.md`, Tooling).
 - [x] One entry command: `mobile.py` at the root maps names (`preflight`, `replay`, `timing`, `bench`,

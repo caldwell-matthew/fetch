@@ -31,9 +31,9 @@ THE JOB DETAIL PAGE IS cache-only
   job list. So visiting /asset-verify first is REQUIRED, not merely an optimisation.
 
 DO NOT ASSERT THE TOAST
-  VerificationCheckbox calls toast.success BEFORE client.mutate and never awaits it
-  (bugs §11), so the toast proves only that the handler ran - not that anything
-  persisted. The counter text and the Verified-filter contents are the real signals.
+  VerificationCheckbox's toast waits for the server when online, but offline it fires at once
+  (the queue holds the mutation open), so a toast proves at most that the server answered - not
+  what it stored. The counter text and the Verified-filter contents are the real signals.
 
 FILTER STATE LEAKS BETWEEN SUBTESTS
   The Verified/Unverified/All filter persists in sessionStorage (FILTER_KEY), and a suite
@@ -159,8 +159,8 @@ write(test(
     "  falsify the resting premise every other AV test starts from.\n"
     "- The unverify click targets the Verified tab, where exactly one row exists, so the\n"
     "  locator is unambiguous without needing to know the asset's name.\n"
-    "- Asserts the counter and the tab contents, NOT the toast: the toast fires before the\n"
-    "  mutation is sent and is never awaited (bugs §11).",
+    "- Asserts the counter and the tab contents, NOT the toast: offline it fires before the\n"
+    "  mutation settles, and online it says only that the server answered.",
     open_job() + set_filter("All") + [
         step("assertPageContains", f'FIXTURE GUARD: job is at rest ("{BASELINE}")',
              {"value": BASELINE}),

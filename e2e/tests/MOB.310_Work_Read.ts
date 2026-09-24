@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.310_Work_Read.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.310_Work_Read.json by to_playwright.py — do not edit by hand yet.
 // MOB.310_Work_Read
 
 import { Page } from '@playwright/test';

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.392_Work_Add_Note.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.392_Work_Add_Note.json by to_playwright.py — do not edit by hand yet.
 // MOB.392_Work_Add_Note
 
 import { Page } from '@playwright/test';

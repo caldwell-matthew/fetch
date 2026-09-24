@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.735_AssetLookup_View_In_Map.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.735_AssetLookup_View_In_Map.json by to_playwright.py — do not edit by hand yet.
 // MOB.735_AssetLookup_View_In_Map
 
 import { Page } from '@playwright/test';

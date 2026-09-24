@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.730_AssetLookup_Proximity.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.730_AssetLookup_Proximity.json by to_playwright.py — do not edit by hand yet.
 // MOB.730_AssetLookup_Proximity
 
 import { Page } from '@playwright/test';

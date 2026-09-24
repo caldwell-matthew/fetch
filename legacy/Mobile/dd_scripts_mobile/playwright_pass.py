@@ -1,9 +1,9 @@
 """Run the converted suites under Playwright, in the schedule's safe order — 0 Datadog runs.
 
-    ../../.venv/bin/python playwright_pass.py --dry-run        # the plan
-    ../../.venv/bin/python playwright_pass.py --stage 1        # the read-only suites
-    ../../.venv/bin/python playwright_pass.py --stage 2        # the data-changing ones, one at a time
-    ../../.venv/bin/python playwright_pass.py --from MOB.963   # resume stage 2 at a suite
+    ../../../.venv/bin/python playwright_pass.py --dry-run        # the plan
+    ../../../.venv/bin/python playwright_pass.py --stage 1        # the read-only suites
+    ../../../.venv/bin/python playwright_pass.py --stage 2        # the data-changing ones, one at a time
+    ../../../.venv/bin/python playwright_pass.py --from MOB.963   # resume stage 2 at a suite
 
 WHY THIS EXISTS AND `npx playwright test` IS NOT ENOUGH
   Playwright will happily run every suite back to back. The suites share fixture records on dev, so
@@ -21,7 +21,7 @@ WHY THIS EXISTS AND `npx playwright test` IS NOT ENOUGH
   A red suite STOPS the pass (unless --keep-going): the first failure is the one worth reading, and
   the runs after it mostly measure its damage.
 
-The summary is printed and saved to `Mobile/local_runs/passes/<time>-playwright.md`, and each suite's
+The summary is printed and saved to `legacy/Mobile/local_runs/passes/<time>-playwright.md`, and each suite's
 screenshots and traces to `<time>-evidence/<suite>/` beside it (git-ignored).
 """
 import argparse
@@ -32,7 +32,7 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-E2E = os.path.join(HERE, "..", "..", "e2e")
+E2E = os.path.join(next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists()), "e2e")
 OUT = os.path.join(HERE, "..", "local_runs", "passes")
 FIXTURE_CHECKS = ["av", "work", "mob302", "mob39x"]
 

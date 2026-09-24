@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.140_Nav_Mobile_Jobs.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.140_Nav_Mobile_Jobs.json by to_playwright.py — do not edit by hand yet.
 // MOB.140_Nav_Mobile_Jobs
 
 import { Page } from '@playwright/test';

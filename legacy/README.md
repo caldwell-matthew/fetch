@@ -3,7 +3,7 @@
 A multi-purpose script to 'fetch' and 'throw' Datadog tests.
 
 > **Legacy.** This is the repo's original tool, kept for bulk download/backup of Datadog tests. The active
-> project is the mobile suite in `Mobile/` — see the root `README.md`. Its data lives beside it: downloads in
+> project is the mobile suite in `legacy/Mobile/` — see the root `README.md`. Its data lives beside it: downloads in
 > `legacy/dd_tests/`, backups in `legacy/dd_tests_backup/` (both git-ignored, local only). The kept backup is
 > `dd_tests_backup/2026-08-12_1543_pre-delete/` — every browser test in the org before the Aug 12 deletions.
 > It reads the Datadog keys from the repo-root `.env`, so it runs from anywhere (`python3 legacy/fetch.py`).

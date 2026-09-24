@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One entry point for the mobile test tooling — a map onto the scripts in Mobile/dd_scripts_mobile/.
+"""One entry point for the mobile test tooling — a map onto the scripts in legacy/Mobile/dd_scripts_mobile/.
 
     .venv/bin/python mobile.py                  # list the commands and what each costs
     .venv/bin/python mobile.py preflight        # every free check
@@ -14,14 +14,14 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SCRIPTS = os.path.join(ROOT, "Mobile", "dd_scripts_mobile")
+SCRIPTS = os.path.join(ROOT, "legacy", "Mobile", "dd_scripts_mobile")
 PY = sys.executable
 
 # name: (argv prefix, Datadog cost, what it does)
 COMMANDS = {
     "preflight": ([PY, "preflight.py"], "0", "every free check; must end in PREFLIGHT CLEAN before any Datadog run"),
     "replay":    ([PY, "local_run.py"], "0", "replay one test in local Chromium (headless); failures leave a "
-                                              "screenshot + log in Mobile/local_runs/<test>/"),
+                                              "screenshot + log in legacy/Mobile/local_runs/<test>/"),
     "timing":    ([PY, "local_timing.py"], "0", "time suites locally (all, or the ones named)"),
     "bench":     (["node", "check_js_assertions.js"], "0", "run every JavaScript assertion against its model pages"),
     "literals":  ([PY, "check_literals.py"], "0", "every string a test asserts vs the app source (needs MentorTwo)"),

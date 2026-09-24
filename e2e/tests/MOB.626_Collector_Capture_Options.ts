@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.626_Collector_Capture_Options.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.626_Collector_Capture_Options.json by to_playwright.py — do not edit by hand yet.
 // MOB.626_Collector_Capture_Options
 
 import { Page } from '@playwright/test';

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.951_Phone_Form_Branch.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.951_Phone_Form_Branch.json by to_playwright.py — do not edit by hand yet.
 // MOB.951_Phone_Form_Branch
 
 import { Page } from '@playwright/test';

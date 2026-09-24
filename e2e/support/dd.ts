@@ -184,7 +184,7 @@ export async function assertElementContent(
  * `uploadFiles` with a stand-in file of the same name.
  *
  * Datadog keeps a test's uploaded bytes in its own storage and never hands them back (trap 12), so a
- * run outside Datadog cannot use the original file. `Mobile/local_fixtures/<name>` is used when it
+ * run outside Datadog cannot use the original file. `legacy/Mobile/local_fixtures/<name>` is used when it
  * exists, otherwise a generated file of the right type — the same substitution `local_run.py` makes.
  * It really uploads to dev, as the Datadog run did.
  */
@@ -200,7 +200,7 @@ export async function uploadStandIn(
   });
 }
 
-const FIXTURES = path.join(__dirname, '..', '..', 'Mobile', 'local_fixtures');
+const FIXTURES = path.join(__dirname, '..', '..', 'legacy', 'Mobile', 'local_fixtures');
 const GENERATED = path.join(os.tmpdir(), 'mentorapm-e2e-uploads');
 
 /** A real file on disk for `name`: the repo's fixture if there is one, else a valid generated file. */

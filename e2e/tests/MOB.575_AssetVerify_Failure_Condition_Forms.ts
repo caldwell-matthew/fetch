@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.575_AssetVerify_Failure_Condition_Forms.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.575_AssetVerify_Failure_Condition_Forms.json by to_playwright.py — do not edit by hand yet.
 // MOB.575_AssetVerify_Failure_Condition_Forms
 
 import { Page } from '@playwright/test';

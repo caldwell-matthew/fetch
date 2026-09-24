@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.393_Work_Add_Form.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.393_Work_Add_Form.json by to_playwright.py — do not edit by hand yet.
 // MOB.393_Work_Add_Form
 
 import { Page } from '@playwright/test';

@@ -20,7 +20,7 @@ HOW IT WORKS
   overwritten files and reset five suites' subtest ids to PENDING-WIRE-UP, 2026-09-15.)
 
 USAGE
-    ./.venv/bin/python Mobile/dd_scripts_mobile/check_drift.py
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/check_drift.py
 
   Exit 0 = generators and JSON agree. Exit 1 = drift; the report says exactly what would be
   lost. **A LOSS is the serious case** — an ADD usually means the JSON was patched by hand on
@@ -33,7 +33,7 @@ import json, glob, os, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOBILE = os.path.dirname(HERE)
-REPO = os.path.dirname(MOBILE)
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
 TESTS = os.path.join(MOBILE, "dd_tests_mobile")
 PY = os.path.join(REPO, ".venv", "bin", "python")
 

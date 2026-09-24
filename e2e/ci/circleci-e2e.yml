@@ -65,10 +65,10 @@ jobs:
           name: Every suite, in the safe order
           # Stops at the first red (the first failure is the one worth reading). Fixture checks run
           # before each data-changing suite and after the last.
-          command: .venv/bin/python Mobile/dd_scripts_mobile/playwright_pass.py
+          command: .venv/bin/python legacy/Mobile/dd_scripts_mobile/playwright_pass.py
           no_output_timeout: 30m
       - store_artifacts:
-          path: Mobile/local_runs/passes
+          path: legacy/Mobile/local_runs/passes
           destination: passes
 
 workflows:

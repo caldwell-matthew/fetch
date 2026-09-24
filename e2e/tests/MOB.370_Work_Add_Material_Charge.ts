@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.370_Work_Add_Material_Charge.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.370_Work_Add_Material_Charge.json by to_playwright.py — do not edit by hand yet.
 // MOB.370_Work_Add_Material_Charge
 
 import { Page } from '@playwright/test';

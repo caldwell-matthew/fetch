@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.121_Map_Controls.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.121_Map_Controls.json by to_playwright.py — do not edit by hand yet.
 // MOB.121_Map_Controls
 
 import { Page } from '@playwright/test';

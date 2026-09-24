@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.341_Work_Map_Toggle.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.341_Work_Map_Toggle.json by to_playwright.py — do not edit by hand yet.
 // MOB.341_Work_Map_Toggle
 
 import { Page } from '@playwright/test';

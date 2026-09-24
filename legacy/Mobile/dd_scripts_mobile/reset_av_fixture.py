@@ -41,9 +41,9 @@ SAFETY
     read-back disagrees.
 
 USAGE
-    ./.venv/bin/python Mobile/dd_scripts_mobile/reset_av_fixture.py            # dry run
-    ./.venv/bin/python Mobile/dd_scripts_mobile/reset_av_fixture.py --apply
-    ./.venv/bin/python Mobile/dd_scripts_mobile/reset_av_fixture.py --check    # read-back only
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/reset_av_fixture.py            # dry run
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/reset_av_fixture.py --apply
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/reset_av_fixture.py --check    # read-back only
 
 CREDENTIALS — NOTHING NEW TO STORE
   ⭐ `DATA_DOG_EMAIL` and `DATA_DOG_PASSWORD` are **not secure** globals (measured
@@ -65,7 +65,7 @@ import urllib.request
 from dotenv import dotenv_values
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.dirname(os.path.dirname(HERE))
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
 ORIGIN = "https://dev.mentorapm.com"
 ENVIRONMENT = "development"
 

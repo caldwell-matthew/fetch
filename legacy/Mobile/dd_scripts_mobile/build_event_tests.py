@@ -8,9 +8,10 @@ WHY THIS SCREEN NEEDED A DIFFERENT PROOF STRATEGY THAN EVERY OTHER TEST HERE
       toast.success('Event readings captured.');        // fires unconditionally
       client.writeQuery({ ...assetEventReadingHistory }) // hand-written LOCAL cache entry
 
-  So the toast, the "N of M recorded recently" counter, and the reading appearing next to its
-  reading type ALL happen whether or not the server ever accepted the mutation. That is trap 6
-  and bugs_found.md 11 in the same function.
+  Offline, the toast, the "N of M recorded recently" counter, and the reading appearing next to
+  its reading type ALL happen before the server has seen anything (the queue holds the mutation
+  open); online they wait for it (`EventReadings/index.tsx`, since 2026-08-25). Either way the
+  cache write is the app's own record, not the server's - trap 6.
 
   AND A RELOAD DOES NOT FIX IT - THIS IS THE PART THAT MATTERS.
     The Apollo cache is PERSISTED to IndexedDB (`persistCache` + LocalForage,
@@ -159,10 +160,9 @@ write(test(
     "`MOB.550` Capture event readings (meter readings) on an asset.\n"
     "- ⚠️ **LEAVES RESIDUE**: `CREATE_EVENT` creates a record per leg and mobile is\n"
     "  delete-free. Same accepted trade-off as MOB.600 / MOB.300.\n"
-    "- **Every UI signal on this screen is fake.** `onSubmit` fires `client.mutate` without\n"
-    "  awaiting it, then unconditionally shows the toast and hand-writes the reading into the\n"
-    "  Apollo cache with `writeQuery`. Toast, counter and rendered value all appear even if\n"
-    "  the server rejected the mutation (trap 6, `bugs_found.md` §11).\n"
+    "- **No UI signal on this screen is proof.** Offline, the toast, the counter and the\n"
+    "  rendered value all appear before the server has seen anything; online they wait for it,\n"
+    "  but the value shown is still the app's own `writeFragment`, not a read-back (trap 6).\n"
     "- **A reload cannot fix that here.** The cache is persisted to IndexedDB\n"
     "  (`persistCache` + LocalForage), so within one run \"stored\" and \"cached locally\" are\n"
     "  indistinguishable.\n"

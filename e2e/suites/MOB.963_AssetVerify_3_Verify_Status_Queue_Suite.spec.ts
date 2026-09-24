@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.963_AssetVerify_3_Verify_Status_Queue_Suite.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.963_AssetVerify_3_Verify_Status_Queue_Suite.json by to_playwright.py — do not edit by hand yet.
 //
 // The children share ONE browser session, in order, exactly as the Datadog suite ran them
 // (they also share the fixture records, so nothing here may run in parallel — trap 1).

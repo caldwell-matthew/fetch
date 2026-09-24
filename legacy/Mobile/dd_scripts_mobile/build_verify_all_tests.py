@@ -24,9 +24,9 @@ WHY TWO TESTS AND NOT ONE
   never re-rendered would still pass MOB.511.
 
 THE COUNTER IS THE SIGNAL, NOT THE TOAST
-  `toast.success` fires before the mutation and is never awaited (bugs §11), so it says only
-  that the handler ran. The counter text, the server read and the list's own filter are the
-  proofs here.
+  `toast.success` says only that the server answered (online) or that the change was queued
+  (offline, where it fires at once). The counter text, the server read and the list's own filter
+  are the proofs here.
 
 THE SECOND CHECKBOX IS NAMED, NOT COUNTED
   Both rows carry a checkbox, so `(//input[@type="checkbox"])[2]` would depend on the sort

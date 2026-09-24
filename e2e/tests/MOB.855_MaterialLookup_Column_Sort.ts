@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.855_MaterialLookup_Column_Sort.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.855_MaterialLookup_Column_Sort.json by to_playwright.py — do not edit by hand yet.
 // MOB.855_MaterialLookup_Column_Sort
 
 import { Page } from '@playwright/test';

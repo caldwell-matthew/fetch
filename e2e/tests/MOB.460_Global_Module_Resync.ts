@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.460_Global_Module_Resync.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.460_Global_Module_Resync.json by to_playwright.py — do not edit by hand yet.
 // MOB.460_Global_Module_Resync
 
 import { Page } from '@playwright/test';

@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.912_Offline_Connection_Screens.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.912_Offline_Connection_Screens.json by to_playwright.py — do not edit by hand yet.
 // MOB.912_Offline_Connection_Screens
 
 import { Page } from '@playwright/test';

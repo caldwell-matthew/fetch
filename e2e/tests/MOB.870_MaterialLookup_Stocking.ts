@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.870_MaterialLookup_Stocking.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.870_MaterialLookup_Stocking.json by to_playwright.py — do not edit by hand yet.
 // MOB.870_MaterialLookup_Stocking
 
 import { Page } from '@playwright/test';

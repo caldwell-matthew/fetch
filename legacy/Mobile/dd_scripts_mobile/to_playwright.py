@@ -1,8 +1,8 @@
 """Convert the Datadog test JSON into Playwright (TypeScript) — 0 Datadog runs.
 
-    ../../.venv/bin/python to_playwright.py --list            # what would be written
-    ../../.venv/bin/python to_playwright.py MOB.954           # one suite and its children
-    ../../.venv/bin/python to_playwright.py --all             # every suite
+    ../../../.venv/bin/python to_playwright.py --list            # what would be written
+    ../../../.venv/bin/python to_playwright.py MOB.954           # one suite and its children
+    ../../../.venv/bin/python to_playwright.py --all             # every suite
 
 WHAT IT WRITES (under `e2e/`, which is self-contained so it can move into MentorTwo later)
     e2e/tests/<MOB.nnn>_<name>.ts   one exported function per LEAF test, its steps in order
@@ -28,7 +28,7 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(HERE, "..", "..")
+ROOT = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
 TESTS = os.path.join(HERE, "..", "dd_tests_mobile")
 E2E = os.path.join(ROOT, "e2e")
 LOGIN_TEST = "MOB.000"
@@ -165,7 +165,7 @@ def write_leaf(test_name, details, out_dir):
     unportable = []
     body, used, variables = convert_steps(details["steps"], "  ", unportable)
     locs = locals_of(details)
-    lines = [f"// Generated from Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
+    lines = [f"// Generated from legacy/Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
              f"// {details.get('name') or test_name}"]
     if unportable:
         lines += ["//",
@@ -196,7 +196,7 @@ def write_suite(sid, details, children, out_dir, skip=()):
     """A suite -> one spec: log in once, then each child as its own test() in order."""
     name = details.get("name") or f"MOB.{sid}"
     device = "mobile_small" if "_Phone_" in name else "tablet"
-    lines = [f"// Generated from Mobile/dd_tests_mobile/{name}.json by to_playwright.py — do not edit by hand yet.",
+    lines = [f"// Generated from legacy/Mobile/dd_tests_mobile/{name}.json by to_playwright.py — do not edit by hand yet.",
              "//",
              "// The children share ONE browser session, in order, exactly as the Datadog suite ran them",
              "// (they also share the fixture records, so nothing here may run in parallel — trap 1).",
@@ -234,7 +234,7 @@ def write_login(out_dir):
     test_name, details = load(LOGIN_TEST)
     body, used, variables = convert_steps(details["steps"], "  ")
     imports = sorted(set(list(h for h in used if h in HELPERS) + ["Sequence"]))
-    lines = [f"// Generated from Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
+    lines = [f"// Generated from legacy/Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
              "// The shared login. Every suite runs it once, then its children reuse the session.",
              "import { Page } from '@playwright/test';",
              f"import {{ {', '.join(imports)} }} from './dd';",

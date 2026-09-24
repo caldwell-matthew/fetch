@@ -17,8 +17,8 @@ on the `<svg>`. And the label was not to be relied on.
 **2 · Check the fixture over the API, not by assumption.** The fixture work order's `desc` (Stage Notes) holds
 `DATADOG FIXTURE` and its `problemDesc` is empty, which is exactly the pair needed.
 
-**3 · Build it.** `Mobile/dd_scripts_mobile/build_value_modal_test.py` writes
-`Mobile/dd_tests_mobile/MOB.331_…json`. The reasoning lives in the build script's docstring, so the next person
+**3 · Build it.** `legacy/Mobile/dd_scripts_mobile/build_value_modal_test.py` writes
+`legacy/Mobile/dd_tests_mobile/MOB.331_…json`. The reasoning lives in the build script's docstring, so the next person
 knows why it's built the way it is.
 
 **4 · Replay locally, and read the failure's screenshot.** The first replay failed: the arrow was not where
@@ -37,12 +37,12 @@ run `preflight.py`.
 ## Commands
 
 `.venv/bin/python mobile.py` lists them all with their Datadog cost. Each is a name for a script in
-`Mobile/dd_scripts_mobile/`, which you can also run directly:
+`legacy/Mobile/dd_scripts_mobile/`, which you can also run directly:
 
 | `mobile.py …` | Script | Does | Datadog runs |
 |---|---|---|---|
 | `preflight [check …]` | `preflight.py` | every free check (wiring, sync, drift, literals, bench, locals, fixtures, docs, schedule) | 0 |
-| `replay <test>` | `local_run.py` | replays a test in local Chromium; failures leave a screenshot + log in `Mobile/local_runs/<test>/` | 0 |
+| `replay <test>` | `local_run.py` | replays a test in local Chromium; failures leave a screenshot + log in `legacy/Mobile/local_runs/<test>/` | 0 |
 | `timing [suite …]` | `local_timing.py` | times suites locally | 0 |
 | `literals` · `sweep` | `check_literals.py` · `sweep_strings.py` | strings the tests assert vs the app source · app strings no test asserts | 0 |
 | `suites` | `build_module_suites.py` + `wire_suite.py` | rebuilds the suites from `suite_plan.py` and re-wires their child ids | 0 |

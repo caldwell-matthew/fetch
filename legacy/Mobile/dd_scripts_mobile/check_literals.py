@@ -53,15 +53,15 @@ THE THREE BUCKETS - only the first is a finding
             correctly absent from source (`Pump 0102`, `DATADOG MOBILE JOB`, ...).
 
 SELF-TEST
-    ./.venv/bin/python Mobile/dd_scripts_mobile/check_literals.py --self-test
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/check_literals.py --self-test
   Replays the 2026-09-02 radius rename against the current suite and requires it to be
   reported. 🛑 Run this after ANY change to the matching rules - both defects above were found
   by it, not by reading the code.
 
 USAGE
-    ./.venv/bin/python Mobile/dd_scripts_mobile/check_literals.py
-    ./.venv/bin/python Mobile/dd_scripts_mobile/check_literals.py --ref origin/development
-    ./.venv/bin/python Mobile/dd_scripts_mobile/check_literals.py --all   # show COMPOSED too
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/check_literals.py
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/check_literals.py --ref origin/development
+    ./.venv/bin/python legacy/Mobile/dd_scripts_mobile/check_literals.py --all   # show COMPOSED too
 
   Exit 0 = every literal accounted for. Exit 1 = at least one MISSING.
 

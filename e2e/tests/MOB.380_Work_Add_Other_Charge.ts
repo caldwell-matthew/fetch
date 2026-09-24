@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.380_Work_Add_Other_Charge.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.380_Work_Add_Other_Charge.json by to_playwright.py — do not edit by hand yet.
 // MOB.380_Work_Add_Other_Charge
 
 import { Page } from '@playwright/test';

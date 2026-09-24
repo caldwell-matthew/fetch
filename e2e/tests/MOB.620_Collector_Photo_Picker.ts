@@ -1,4 +1,4 @@
-// Generated from Mobile/dd_tests_mobile/MOB.620_Collector_Photo_Picker.json by to_playwright.py — do not edit by hand yet.
+// Generated from legacy/Mobile/dd_tests_mobile/MOB.620_Collector_Photo_Picker.json by to_playwright.py — do not edit by hand yet.
 // MOB.620_Collector_Photo_Picker
 
 import { Page } from '@playwright/test';
