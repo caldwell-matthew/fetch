@@ -8,7 +8,7 @@
 #   e2e_smoke  after every dev deploy. READ-ONLY suites only, so it can never damage the shared
 #              fixtures, and short enough to report back while the deploy is still fresh.
 #   e2e_full   nightly (or weekly). Every suite in the safe order, with the fixture checks between
-#              the data-changing ones — that ordering is `playwright_pass.py`, which is Python, so this
+#              the data-changing ones — that ordering is `mobile/tools/playwright_pass.py`, which is Python, so this
 #              job needs Python as well as Node.
 #
 # Neither job gates the deploy: dev is already serving the build when they start. A red is a report,
@@ -41,7 +41,7 @@ jobs:
           command: |
             cd e2e
             # the config's own reporters: list to the log, JUnit to results/junit.xml, and HTML
-            npx playwright test suites/MOB.954* suites/MOB.961* suites/MOB.968* suites/MOB.975*
+            npx playwright test mobile/suites/MOB.954* mobile/suites/MOB.961* mobile/suites/MOB.968* mobile/suites/MOB.975*
       - store_test_results:
           path: e2e/results/junit.xml
       - store_artifacts:
@@ -65,10 +65,10 @@ jobs:
           name: Every suite, in the safe order
           # Stops at the first red (the first failure is the one worth reading). Fixture checks run
           # before each data-changing suite and after the last.
-          command: .venv/bin/python legacy/Mobile/dd_scripts_mobile/playwright_pass.py
+          command: .venv/bin/python e2e/mobile/tools/playwright_pass.py
           no_output_timeout: 30m
       - store_artifacts:
-          path: legacy/Mobile/local_runs/passes
+          path: e2e/results/passes
           destination: passes
 
 workflows:

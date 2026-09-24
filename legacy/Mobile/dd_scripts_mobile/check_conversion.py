@@ -1,6 +1,11 @@
 """Compare every generated Playwright test with the Datadog JSON it came from — 0 runs.
 
-    ../../../.venv/bin/python check_conversion.py
+RETIRED 2026-09-23. The conversion ran for the last time on that date: e2e/mobile/tests and e2e/mobile/suites
+are the source now and are edited directly. This stays only as the record of how they were made, and
+goes when legacy/ does. Re-running it would overwrite every edit made since.
+
+
+    .venv/bin/python tools/check_conversion.py
 
 Checks, per step and in order: the kind (the two flags), the timeout, and the step's own values
 (locator, typed text, asserted string, JS code). A difference here is a silent change in what the
@@ -9,11 +14,14 @@ test proves, which is exactly how the alwaysExecute bugs got in.
 import json, glob, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
-TESTS = os.path.join(HERE, "..", "dd_tests_mobile")
-E2E = os.path.join(REPO, "e2e", "tests")
-SUITES_TS = os.path.join(REPO, "e2e", "suites")
-sys.path.insert(0, HERE)
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())
+# The Datadog-era sources this reads: the tests' JSON and the suite plan. They stay in legacy/ until the
+# tests are written natively in e2e/; nothing new is added there.
+LEGACY = os.path.join(REPO, "legacy", "Mobile", "dd_scripts_mobile")
+TESTS = os.path.join(REPO, "legacy", "Mobile", "dd_tests_mobile")
+E2E = os.path.join(REPO, "e2e", "mobile", "tests")
+SUITES_TS = os.path.join(REPO, "e2e", "mobile", "suites")
+sys.path.insert(0, LEGACY)
 
 def want_opts(s):
     o = []

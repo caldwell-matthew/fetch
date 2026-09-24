@@ -1,0 +1,350 @@
+{
+  "_about": "The suites, what each one does to dev's shared data, and the order a pass runs them in. Read by mobile/tools/playwright_pass.py and source_coverage.py. `spec` is relative to e2e/. Data-changing suites run one at a time in `order`; Session (MOB.973) last. `held` suites are not run.",
+  "suites": [
+    {
+      "id": "MOB.953",
+      "spec": "mobile/suites/MOB.953_WorkOrders_1_List_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.150",
+        "MOB.300",
+        "MOB.301",
+        "MOB.340",
+        "MOB.341",
+        "MOB.343",
+        "MOB.344",
+        "MOB.342",
+        "MOB.345"
+      ],
+      "about": "`/work`: the list renders, search, sort, map toggle, status ring, row navigation; MOB.300 creates a work order (residue) and MOB.301 opens the insert form's photo picker.",
+      "order": 4
+    },
+    {
+      "id": "MOB.954",
+      "spec": "mobile/suites/MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.310",
+        "MOB.330",
+        "MOB.331",
+        "MOB.393",
+        "MOB.394",
+        "MOB.399",
+        "MOB.348",
+        "MOB.349"
+      ],
+      "about": "`/work/:workStageId` read-only: open, tabs, General Info's value arrow, the add-form picker, permits, warranties, MapLink, record cycling."
+    },
+    {
+      "id": "MOB.981",
+      "spec": "mobile/suites/MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.357",
+        "MOB.356",
+        "MOB.351",
+        "MOB.398",
+        "MOB.911",
+        "MOB.912"
+      ],
+      "about": "`/work/:workStageId` read-only: the charge forms and their ESTIMATES section, form metrics, the assign modal, and the offline screens.\n- Split from MOB.954 at 485s local (~580-970s on Datadog, against the ~1071s ceiling — Appendix F)."
+    },
+    {
+      "id": "MOB.955",
+      "spec": "mobile/suites/MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.347",
+        "MOB.389",
+        "MOB.387",
+        "MOB.741",
+        "MOB.731",
+        "MOB.358"
+      ],
+      "about": "`/work/:workStageId` read-only: the Assets tab and its status controls, the condition edit prefill, lookups, attachments, proximity radius, the asset location form.\n- MOB.358 LAST: it expands an asset row, which needs the Asset schema cached (bugs §45)."
+    },
+    {
+      "id": "MOB.956",
+      "spec": "mobile/suites/MOB.956_WorkOrders_5_Records_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.350",
+        "MOB.360",
+        "MOB.370",
+        "MOB.380",
+        "MOB.390",
+        "MOB.391",
+        "MOB.392",
+        "MOB.361"
+      ],
+      "about": "`/work/:workStageId` records on fixture EYRpYJ9QYdQ1JFF10JtB0Q: the four charges (residue), a condition and a failure (self-cleaning; red while bugs §42 is open), a note (residue) and a note edited then deleted (self-cleaning).",
+      "order": 6
+    },
+    {
+      "id": "MOB.957",
+      "spec": "mobile/suites/MOB.957_WorkOrders_6_Status_Field_Edits_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.320",
+        "MOB.395",
+        "MOB.388",
+        "MOB.386",
+        "MOB.385"
+      ],
+      "about": "Self-restoring edits on fixture EYRpYJ9QYdQ1JFF10JtB0Q: the status walk, General Info, an attribute, a condition and a failure `Edit Item` (the two saves red while bugs §42 is open).\n- MOB.320 FIRST: it restores `Ready` `always`.",
+      "order": 8
+    },
+    {
+      "id": "MOB.958",
+      "spec": "mobile/suites/MOB.958_WorkOrders_7_Assets_Location_Edits_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.352",
+        "MOB.353",
+        "MOB.354",
+        "MOB.359"
+      ],
+      "about": "Self-restoring and self-cleaning writes on fixture EYRpYJ9QYdQ1JFF10JtB0Q: Edit Location, an asset link's status, an asset link added then removed, the asset location form.",
+      "order": 10
+    },
+    {
+      "id": "MOB.959",
+      "spec": "mobile/suites/MOB.959_WorkOrders_8_Stage_Writes_Create_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.396",
+        "MOB.397",
+        "MOB.302",
+        "MOB.363",
+        "MOB.365",
+        "MOB.364"
+      ],
+      "about": "Work orders created from an asset and as follow-up work (residue), `Copy to asset` (self-cleaning), and writes on work order `20260910-16`: a photo uploaded then deleted, a reassignment restored, a form attached then deleted.\n- MOB.364 LAST on `20260910-16`.",
+      "order": 12
+    },
+    {
+      "id": "MOB.960",
+      "spec": "mobile/suites/MOB.960_WorkOrders_9_Forms_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.355",
+        "MOB.134",
+        "MOB.135"
+      ],
+      "about": "`/work/:workStageId/form/:formId`: the form renders; MOB.134 fills an integer field and clears it (self-restoring); MOB.135 opens the Inspection form's signature pad and closes it untouched (read-only).",
+      "order": 14
+    },
+    {
+      "id": "MOB.961",
+      "spec": "mobile/suites/MOB.961_AssetVerify_1_Jobs_List_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.140",
+        "MOB.530",
+        "MOB.560",
+        "MOB.580",
+        "MOB.810",
+        "MOB.535"
+      ],
+      "about": "`/asset-verify`: the job list renders, search/filter/sort, counts and badges, sort persistence and sort ordering.\n- MOB.810 is a JOB-LIST test (`sessionStorage['mobile-MobileJob-sort']`), not an Asset Lookup one; it sat in MOB.969 until 2026-09-15.\n- MOB.535 LAST: it picks its own sort values and ends on `RESTORE: clear the persisted sort`, so the suite leaves the job list unsorted whatever MOB.810 left behind."
+    },
+    {
+      "id": "MOB.962",
+      "spec": "mobile/suites/MOB.962_AssetVerify_2_Job_Assets_Read_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.500",
+        "MOB.520",
+        "MOB.585",
+        "MOB.531",
+        "MOB.547",
+        "MOB.551"
+      ],
+      "about": "`/asset-verify/:jobId` read-only on job Z0EVwQcdJZhMURcBFkp0E0: the asset list, tabs, map toggle, asset search, photo tag search, reading history."
+    },
+    {
+      "id": "MOB.963",
+      "spec": "mobile/suites/MOB.963_AssetVerify_3_Verify_Status_Queue_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.510",
+        "MOB.590",
+        "MOB.913",
+        "MOB.536",
+        "MOB.511",
+        "MOB.512"
+      ],
+      "about": "Self-restoring on job Z0EVwQcdJZhMURcBFkp0E0: verify and unverify, the Unverified tab, the offline transaction queue, the job status menu, and verifying EVERY asset.\n- MOB.511 and MOB.512 LAST, in that order: they leave the job `2 out of 2` and COMPLETED until their restore legs run, and MOB.500/510/590 guard on `0 out of 2` while MOB.530/560 expect READY.\n- MOB.536 before them: a failed status restore can drop the job from the crew's list. `reset_av_fixture.py --apply` is the 0-run fallback for either.",
+      "order": 16
+    },
+    {
+      "id": "MOB.964",
+      "spec": "mobile/suites/MOB.964_AssetVerify_4_Asset_Detail_Read_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.570",
+        "MOB.575",
+        "MOB.546"
+      ],
+      "about": "`/asset-verify/:jobId/asset/:verificationId` read-only: cycling, the failure and condition forms, attachments."
+    },
+    {
+      "id": "MOB.965",
+      "spec": "mobile/suites/MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.537",
+        "MOB.545",
+        "MOB.550"
+      ],
+      "about": "`/asset-verify/:jobId/asset/:verificationId` writes: the Tag ID round trip and an attribute edit (self-restoring), event readings (residue).",
+      "order": 18
+    },
+    {
+      "id": "MOB.966",
+      "spec": "mobile/suites/MOB.966_AssetCollector_1_Capture_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.160",
+        "MOB.620",
+        "MOB.621",
+        "MOB.622",
+        "MOB.626",
+        "MOB.629",
+        "MOB.610",
+        "MOB.624",
+        "MOB.625"
+      ],
+      "about": "`/asset-collector`: the route, the photo picker and carousel (never submitted), capture options, the form's Location row (stubbed geolocation, captured and cleared, never submitted), search, the row avatar modal, sort."
+    },
+    {
+      "id": "MOB.967",
+      "spec": "mobile/suites/MOB.967_AssetCollector_2_Saved_Asset_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.600",
+        "MOB.623",
+        "MOB.627",
+        "MOB.628"
+      ],
+      "about": "Writes on `DD SYNTHETIC MOBILE` assets: create an asset (red while bugs §34 is open), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag).\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.\n- 🛑 A LOCAL REPLAY OF MOB.600 IS A FALSE NEGATIVE: it cannot drive the photo picker, so it collects photo-free, which persists, and its server proof passes. Only Datadog exercises §34.",
+      "held": "MOB.600's photo-picker step was recorded without an xpath; it cannot run outside Datadog"
+    },
+    {
+      "id": "MOB.968",
+      "spec": "mobile/suites/MOB.968_AssetLookup_1_Rows_Tabs_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.100",
+        "MOB.700",
+        "MOB.750",
+        "MOB.720",
+        "MOB.721",
+        "MOB.914",
+        "MOB.740",
+        "MOB.735",
+        "MOB.730"
+      ],
+      "about": "`/asset-lookup` read-only: search, the tag lookup menu, readings (and their empty state), offline messages, work history, View in Map, Near Me."
+    },
+    {
+      "id": "MOB.969",
+      "spec": "mobile/suites/MOB.969_AssetLookup_2_Filters_Sort_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.800",
+        "MOB.805",
+        "MOB.806",
+        "MOB.807",
+        "MOB.820"
+      ],
+      "about": "`/asset-lookup`: the filter builder, its edit and multi-value branches, and search-vs-filter. Read-only — every write on this route is MOB.980.\n- ⚠️ THE NAME SAYS `Sort` AND NOTHING HERE SORTS. MOB.810 moved to MOB.961 on 2026-09-15 — it sorts the MOBILE JOB list (`sessionStorage['mobile-MobileJob-sort']`), not this one. The name is kept because `push` matches on NAME, so renaming would create a second Datadog test and orphan this one (the duplicate hazard that cost MOB.551 and MOB.624 a stray copy each). Rename in the Datadog UI if it ever matters."
+    },
+    {
+      "id": "MOB.980",
+      "spec": "mobile/suites/MOB.980_AssetLookup_3_Edits_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.710",
+        "MOB.712",
+        "MOB.722"
+      ],
+      "about": "`/asset-lookup` writes: a field edit on `Pump 0102` (self-restoring), a System created and a reading captured on a `DD SYNTHETIC MOBILE` asset (residue).\n- Separate from MOB.969: the filter/search children leave a term in `asset_lookup_query`, and a search typed on top of it reads `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).",
+      "order": 20
+    },
+    {
+      "id": "MOB.970",
+      "spec": "mobile/suites/MOB.970_MaterialLookup_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.110",
+        "MOB.850",
+        "MOB.860",
+        "MOB.870",
+        "MOB.855",
+        "MOB.865",
+        "MOB.866"
+      ],
+      "about": "`/material-lookup`: the storeroom list, column sort, attachments (read-only), a cycle count (+1/−1) and stocking (residue: +1 quantity).",
+      "order": 22
+    },
+    {
+      "id": "MOB.971",
+      "spec": "mobile/suites/MOB.971_Map_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.120",
+        "MOB.121",
+        "MOB.123",
+        "MOB.122"
+      ],
+      "about": "`/map`: controls and Switch Map (read-only), then a work order created from the map (residue).\n- MOB.122 LAST.",
+      "order": 24
+    },
+    {
+      "id": "MOB.972",
+      "spec": "mobile/suites/MOB.972_AppShell_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.180",
+        "MOB.900",
+        "MOB.910",
+        "MOB.170",
+        "MOB.171",
+        "MOB.130",
+        "MOB.131",
+        "MOB.132",
+        "MOB.400",
+        "MOB.410",
+        "MOB.420",
+        "MOB.430",
+        "MOB.450",
+        "MOB.460",
+        "MOB.470"
+      ],
+      "about": "Every route's shell: Home, the online and offline guards, Dev Logs, the Transaction Log, the hamburger menu, the back arrow, header status icons.\n- Writes: MOB.131 verifies and un-verifies an asset on the AV fixture job; MOB.131 before MOB.132, whose search reads those entries.",
+      "order": 26
+    },
+    {
+      "id": "MOB.973",
+      "spec": "mobile/suites/MOB.973_Session_RunAlone_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.210",
+        "MOB.220"
+      ],
+      "about": "Role gating and crew scoping. 🛑 RUN ALONE — it changes the session's crew, which every other suite reads.",
+      "order": 28
+    },
+    {
+      "id": "MOB.975",
+      "spec": "mobile/suites/MOB.975_Phone_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.951",
+        "MOB.952"
+      ],
+      "about": "Phone width (`chrome.mobile_small`): the form's phone branch, the header and list."
+    }
+  ]
+}

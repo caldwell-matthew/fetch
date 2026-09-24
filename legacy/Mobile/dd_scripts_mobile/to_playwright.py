@@ -1,8 +1,13 @@
 """Convert the Datadog test JSON into Playwright (TypeScript) — 0 Datadog runs.
 
-    ../../../.venv/bin/python to_playwright.py --list            # what would be written
-    ../../../.venv/bin/python to_playwright.py MOB.954           # one suite and its children
-    ../../../.venv/bin/python to_playwright.py --all             # every suite
+RETIRED 2026-09-23. The conversion ran for the last time on that date: e2e/mobile/tests and e2e/mobile/suites
+are the source now and are edited directly. This stays only as the record of how they were made, and
+goes when legacy/ does. Re-running it would overwrite every edit made since.
+
+
+    .venv/bin/python tools/to_playwright.py --list            # what would be written
+    .venv/bin/python tools/to_playwright.py MOB.954           # one suite and its children
+    .venv/bin/python tools/to_playwright.py --all             # every suite
 
 WHAT IT WRITES (under `e2e/`, which is self-contained so it can move into MentorTwo later)
     e2e/tests/<MOB.nnn>_<name>.ts   one exported function per LEAF test, its steps in order
@@ -28,12 +33,16 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())  # repo root, wherever this folder lives
-TESTS = os.path.join(HERE, "..", "dd_tests_mobile")
-E2E = os.path.join(ROOT, "e2e")
+REPO = next(str(d) for d in __import__("pathlib").Path(__file__).resolve().parents if (d / "AGENTS.md").exists())
+# The Datadog-era sources this reads: the tests' JSON and the suite plan. They stay in legacy/ until the
+# tests are written natively in e2e/; nothing new is added there.
+LEGACY = os.path.join(REPO, "legacy", "Mobile", "dd_scripts_mobile")
+TESTS = os.path.join(REPO, "legacy", "Mobile", "dd_tests_mobile")
+ROOT = REPO
+E2E = os.path.join(ROOT, "e2e", "mobile")        # the mobile suite; e2e/ also holds desktop
 LOGIN_TEST = "MOB.000"
 
-sys.path.insert(0, HERE)
+sys.path.insert(0, LEGACY)
 from suite_plan import SUITES, suite_name  # noqa: E402
 
 
@@ -165,7 +174,7 @@ def write_leaf(test_name, details, out_dir):
     unportable = []
     body, used, variables = convert_steps(details["steps"], "  ", unportable)
     locs = locals_of(details)
-    lines = [f"// Generated from legacy/Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
+    lines = [f"// Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/{test_name}.json. This file is the source now: edit it directly.",
              f"// {details.get('name') or test_name}"]
     if unportable:
         lines += ["//",
@@ -176,11 +185,11 @@ def write_leaf(test_name, details, out_dir):
     lines += [""]
     imports = sorted(h for h in used if h in HELPERS) + ["Sequence"]
     lines += ["import { Page } from '@playwright/test';",
-              f"import {{ {', '.join(sorted(set(imports)))} }} from '../support/dd';"]
+              f"import {{ {', '.join(sorted(set(imports)))} }} from '../../support/dd';"]
     if variables - set(locs):
-        lines += ["import { globals } from '../support/env';"]
+        lines += ["import { globals } from '../../support/env';"]
     if locs:
-        lines += ["import { runId } from '../support/env';"]
+        lines += ["import { runId } from '../../support/env';"]
     lines += ["", f"export async function {fn_name(test_name)}(page: Page): Promise<void> {{"]
     for name, (kind, n) in locs.items():
         lines += [f"  const {name} = runId('{kind}', {n});" if kind != "literal" else f"  const {name} = {ts(n)};"]
@@ -196,12 +205,12 @@ def write_suite(sid, details, children, out_dir, skip=()):
     """A suite -> one spec: log in once, then each child as its own test() in order."""
     name = details.get("name") or f"MOB.{sid}"
     device = "mobile_small" if "_Phone_" in name else "tablet"
-    lines = [f"// Generated from legacy/Mobile/dd_tests_mobile/{name}.json by to_playwright.py — do not edit by hand yet.",
+    lines = [f"// Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/{name}.json. This file is the source now: edit it directly.",
              "//",
              "// The children share ONE browser session, in order, exactly as the Datadog suite ran them",
              "// (they also share the fixture records, so nothing here may run in parallel — trap 1).",
              "import { test, Browser, Page } from '@playwright/test';",
-             "import { DEVICES } from '../playwright.config';",
+             "import { DEVICES } from '../../playwright.config';",
              "import { login } from '../support/login';"]
     for child, child_name in children:
         lines += [f"import {{ {fn_name(child_name)} }} from '../tests/{child_name}';"]
@@ -234,11 +243,11 @@ def write_login(out_dir):
     test_name, details = load(LOGIN_TEST)
     body, used, variables = convert_steps(details["steps"], "  ")
     imports = sorted(set(list(h for h in used if h in HELPERS) + ["Sequence"]))
-    lines = [f"// Generated from legacy/Mobile/dd_tests_mobile/{test_name}.json by to_playwright.py — do not edit by hand yet.",
+    lines = [f"// Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/{test_name}.json. This file is the source now: edit it directly.",
              "// The shared login. Every suite runs it once, then its children reuse the session.",
              "import { Page } from '@playwright/test';",
-             f"import {{ {', '.join(imports)} }} from './dd';",
-             "import { globals } from './env';", "",
+             f"import {{ {', '.join(imports)} }} from '../../support/dd';",
+             "import { globals } from '../../support/env';", "",
              "export async function login(page: Page): Promise<void> {"]
     for v in sorted(variables):
         lines += [f"  const {v} = globals.{v};"]

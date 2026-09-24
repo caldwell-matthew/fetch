@@ -1,60 +1,46 @@
-# MentorAPM Datadog tests
+# MentorAPM end-to-end tests
 
-Browser tests for the **MentorAPM mobile app** (`dev.mentorapm.com/apm-mobile`), and the tooling that keeps
-them trustworthy: 145 tests in 24 suites covering every mobile route.
+Playwright (TypeScript) tests for the **MentorAPM apps** on `dev.mentorapm.com`, and the tooling that keeps
+them trustworthy. The mobile app is covered today — 23 suites, 135 tests, every mobile route — and the desktop
+app is next.
 
-⛔ **Datadog is paused and the tests are moving to Playwright** (2026-09-22). The tests still live as Datadog
-JSON in `legacy/Mobile/dd_tests_mobile/`, which is what the converter reads; the Playwright port is in `e2e/` and is
-meant to run from CircleCI after each dev deploy. See `e2e/docs/testing_checklist.md` ▶ #37.
-
-Writing a test is the easy part, and an AI assistant can draft one. The point of this repo is the checks
-around it. Every test is replayed locally before it spends a Datadog run. Every JavaScript assertion is
-proven against a model page that must also make it fail. Every string a test looks for is checked against
-the app's source. And shared test data is verified to be back at rest.
+Writing a test is the easy part, and an AI assistant can draft one. What makes a test worth trusting is the work
+around it: every write proven with a server read rather than a toast, the shared test data checked to be at rest
+before a suite that changes it, and a record of what each suite actually proves and what it doesn't.
 
 ## Five-minute start
 
 ```bash
-./setup.sh                           # venv, packages, Chromium, jsdom
-.venv/bin/python mobile.py           # the commands, and what each costs in Datadog runs
-.venv/bin/python mobile.py preflight # every free check; ends in PREFLIGHT CLEAN
-.venv/bin/python mobile.py replay MOB.310   # replay one test locally (0 Datadog runs)
+./setup.sh                                             # venv, Playwright, Chromium
+.venv/bin/python e2e/mobile/tools/fixtures.py          # are dev's shared test records at rest? (read-only)
+cd e2e && npx playwright test mobile/suites/MOB.975*   # run one suite: the phone suite, read-only, ~2 min
 ```
 
 Before that, you need:
 
-- **Datadog keys** in a `.env` at the repo root (never committed):
+- A **`.env`** at the repo root (never committed) with the test account and the dev URL:
   ```
-  DD_API="…"
-  DD_APP="…"
+  DATA_DOG_EMAIL="…"
+  DATA_DOG_PASSWORD="…"
+  MOBDEV="https://dev.mentorapm.com/apm-mobile/"
   ```
-  The test account's login is read from Datadog's global variables with these keys. Nothing else to store.
-- **A MentorTwo checkout** (the app's source), for the checks that read it. By default it's expected beside
-  this repo at `~/GitHub/MentorAPM/MentorTwo`; elsewhere, `export MENTORTWO_REPO=/path/to/MentorTwo`. Run
-  `git fetch origin development` in it before the source checks.
+- A **MentorTwo checkout** (the app's source), for reading components and for the source-coverage map. By
+  default it's expected beside this repo at `~/GitHub/MentorAPM/MentorTwo`; elsewhere,
+  `export MENTORTWO_REPO=/path/to/MentorTwo`.
 - Python 3.12+, Node 18+, git.
 
 ## Before you change anything
 
-Read **[AGENTS.md](AGENTS.md)**. It holds the rules that keep these tests from damaging shared data or
-spending the run budget, and it applies whether you work by hand or with an AI assistant. Then
-**[CONTRIBUTING.md](CONTRIBUTING.md)** walks through adding a test.
-
-⚠️ **A Datadog run costs money** (a suite bills one run per test in it). Everything under "Five-minute start"
-is free; `verify.py`, `dd_tools.py run` and a live schedule are not.
+Read **[AGENTS.md](AGENTS.md)**. The tests change **shared data on dev**, and its rules keep them from damaging
+it; they apply whether you work by hand or with an AI assistant. Then **[CONTRIBUTING.md](CONTRIBUTING.md)**
+walks through adding a test.
 
 ## Where things live
 
 | Path | What |
 |---|---|
-| `e2e/docs/testing_checklist.md` | What's covered, what's proven on Datadog, and the open work. **Start here for status.** |
-| `e2e/docs/test_authoring.md` | How to build and prove a test: the loop, fixtures, tooling, and 40 traps that each cost a run once |
-| `e2e/docs/coverage.md` | What a green run of each suite actually proves |
-| `e2e/docs/bugs_found.md` | Real product bugs the tests found |
-| `e2e/docs/cleanup_spec.md` | Test residue, cleanup, and resetting the Asset Verify fixture |
-| `mobile.py` | One entry point onto the tooling, with each command's Datadog cost |
-| `legacy/Mobile/dd_scripts_mobile/` | Tooling: `build_*.py` generate tests; `preflight.py`, `local_run.py`, `verify.py`, `dd_tools.py`, `suite_plan.py` |
-| `legacy/Mobile/dd_tests_mobile/` | The tests as JSON, which is **the source of truth** pushed to Datadog |
-| `e2e/` | The Playwright (TypeScript) port: `npm test` in that folder. Self-contained, so it can move into MentorTwo |
-| `legacy/` | The repo's original bulk download/edit tool, plus `backup_all.py` and full backups of every Datadog test |
+| [`e2e/`](e2e/README.md) | **Everything in use.** Shared Playwright config and helpers, one folder per app. Moves into MentorTwo later |
+| [`e2e/mobile/`](e2e/mobile/README.md) | The mobile suite: status, tests, suites, tools, and `docs/` — **start with its README for status** |
+| `e2e/mobile/docs/testing_checklist.md` | What's covered, route by route, and the open work |
+| `legacy/` | The Datadog era, kept for reference and deletable: the Datadog tests and their tooling, the original bulk download tool, and full backups of every Datadog test. Nothing in `e2e/` depends on it |
 | `repo_migration.md` | The plan for making this repo easier for others to use |

@@ -1,7 +1,9 @@
 # Adding a test
 
-Read [AGENTS.md](AGENTS.md) first: its rules decide what a test may touch and when a Datadog run is allowed.
-This page walks through the loop with a real example, and ends with a glossary of the repo's vocabulary.
+Read [AGENTS.md](AGENTS.md) first: its rules decide what a test may touch on dev. This page walks through the loop
+with a real example, lists the commands, and ends with a glossary of the repo's vocabulary.
+
+The TypeScript in `e2e/<app>/tests/` and `e2e/<app>/suites/` is the source: edit it directly.
 
 ## The worked example: `MOB.331_Work_GenInfo_Value_Modal`
 
@@ -11,63 +13,53 @@ value in a modal. The test should prove that.
 **1 · Read the component, not the screen.** `DetailPage/utils/MultiLineLabel.tsx` returns nothing when the value
 is empty, and its click handler is on the icon's `<svg>`, not the button around it (whose `aria-label` is a
 misleading `Settings`). Reading it first decided three things before any code existed. The test needed a field
-**with** a value and a field **without** one, so one check proves both directions. The click had to be dispatched
-on the `<svg>`. And the label was not to be relied on.
+**with** a value and a field **without** one, so one check proves both directions. The click had to land on the
+`<svg>`. And the label was not to be relied on.
 
 **2 · Check the fixture over the API, not by assumption.** The fixture work order's `desc` (Stage Notes) holds
 `DATADOG FIXTURE` and its `problemDesc` is empty, which is exactly the pair needed.
 
-**3 · Build it.** `legacy/Mobile/dd_scripts_mobile/build_value_modal_test.py` writes
-`legacy/Mobile/dd_tests_mobile/MOB.331_…json`. The reasoning lives in the build script's docstring, so the next person
-knows why it's built the way it is.
+**3 · Write it** in `e2e/mobile/tests/MOB.331_Work_GenInfo_Value_Modal.ts`, and call it from its suite
+(`e2e/mobile/suites/MOB.954_…spec.ts`, after `MOB.330`). Say why it's built this way in a comment in the test, so
+the next person knows.
 
-**4 · Replay locally, and read the failure's screenshot.** The first replay failed: the arrow was not where
-the test looked. `FormFieldContainer` puts a label's right-hand section *beside* the input's wrapper, not inside
-it (now trap 36). Fixed, and the replay passed. Cost so far: 0 Datadog runs.
+**4 · Run it locally, and read the failure's screenshot.** The first run failed: the arrow was not where the test
+looked. `FormFieldContainer` puts a label's right-hand section *beside* the input's wrapper, not inside it (now
+trap 36). Fixed, and it passed:
 
-**5 · Put every new JavaScript check on the bench**, with cases that must fail
-(`check_js_assertions.js`): the arrow drawn beside the empty field too, missing beside the full one, the modal
-showing the label instead of the value. The bench caught a mistake in its own model page too. A button with no
-`type` inside a form submits the form, which the real Mantine button doesn't.
+```bash
+cd e2e && npx tsc --noEmit && npx playwright test mobile/suites/MOB.954*
+```
 
-**6 · Confirm on Datadog, after a go-ahead:** `verify.py MOB.331`, 2 runs. Then wire it into its suite
-(`suite_plan.py`, `MOB.954`, after `MOB.330`) and push the suite. Then update `testing_checklist.md` in place and
-run `preflight.py`.
+**5 · Update the docs in place** — the route's row in `testing_checklist.md`, and what the suite proves in
+`coverage.md` — then run `.venv/bin/python e2e/mobile/tools/check_docs.py`.
 
 ## Commands
 
-`.venv/bin/python mobile.py` lists them all with their Datadog cost. Each is a name for a script in
-`legacy/Mobile/dd_scripts_mobile/`, which you can also run directly:
+Run from the repo root unless noted. None of them costs anything but time; all of them use shared data on dev.
 
-| `mobile.py …` | Script | Does | Datadog runs |
-|---|---|---|---|
-| `preflight [check …]` | `preflight.py` | every free check (wiring, sync, drift, literals, bench, locals, fixtures, docs, schedule) | 0 |
-| `replay <test>` | `local_run.py` | replays a test in local Chromium; failures leave a screenshot + log in `legacy/Mobile/local_runs/<test>/` | 0 |
-| `timing [suite …]` | `local_timing.py` | times suites locally | 0 |
-| `literals` · `sweep` | `check_literals.py` · `sweep_strings.py` | strings the tests assert vs the app source · app strings no test asserts | 0 |
-| `suites` | `build_module_suites.py` + `wire_suite.py` | rebuilds the suites from `suite_plan.py` and re-wires their child ids | 0 |
-| `reset-av [--check \| --apply]` | `reset_av_fixture.py` | reads back / restores the Asset Verify fixture job | 0 |
-| `push <test …>` | `dd_tools.py push` | uploads the named tests (never all by default) | 0 |
-| `verify <test>` | `verify.py` | pushes the test and a one-child scratch suite, and runs it | 2 (3 red) |
-| `run <suite>` | `dd_tools.py run` | runs a whole suite (prints the exact cost first) | 1 + its tests |
-| — | `to_playwright.py <suite>` | converts a suite's JSON into `e2e/` as Playwright TypeScript | 0 |
-| — | `cd e2e && npm test` | runs the converted suites in local Chromium (the direction of travel — ▶ #37) | 0 |
-| `pass [--dry-run]` | `full_pass.py` | every scheduled suite once, in the schedule's safe order, waiting out Datadog's retries and checking fixtures between suites | ≈158 |
+| Command | Does |
+|---|---|
+| `cd e2e && npx playwright test mobile/suites/MOB.9xx*` | runs one suite locally (headless); failures leave a screenshot and trace in `e2e/results/` |
+| `.venv/bin/python e2e/mobile/tools/playwright_pass.py [--dry-run \| --stage 1 \| --stage 2]` | a full pass in the safe order: read-only suites, then each data-changing suite alone with the fixture checks between |
+| `.venv/bin/python e2e/mobile/tools/fixtures.py` | are the shared fixture records on dev at rest? (read-only) |
+| `.venv/bin/python e2e/mobile/tools/reset_av_fixture.py [--check \| --apply]` | reads back / restores the Asset Verify fixture job |
+| `.venv/bin/python e2e/mobile/tools/cleanup_residue.py [--apply]` | lists / prunes the records tests created and cannot remove themselves |
+| `.venv/bin/python e2e/mobile/tools/check_docs.py` | do the docs still match the tests? |
+| `.venv/bin/python e2e/mobile/tools/source_coverage.py [--write]` | which app files the tests touch → `e2e/mobile/docs/source_coverage.md` |
 
 ## Glossary
 
 | Term | Meaning |
 |---|---|
-| **fixture** | A record on dev that tests rely on being in a known state: the fixture work order `EYRpYJ9QYdQ1JFF10JtB0Q`, the Asset Verify job `DATADOG MOBILE JOB`, Pump 0102. `preflight.py` checks they are at rest. |
-| **leaf / child** | A single test (`MOB.331`). It has no login of its own; it runs inside a suite. |
-| **suite** | A test that logs in once and runs its children in order (`MOB.954_…_Suite`). Membership lives only in `suite_plan.py`. |
-| **wire** | Fill a suite's child ids from Datadog (`wire_suite.py`) after its membership changes. |
-| **verify** | Run one test on Datadog through the scratch suite `MOB.999`, 2 runs. |
+| **fixture** | A record on dev that tests rely on being in a known state: the fixture work order `EYRpYJ9QYdQ1JFF10JtB0Q`, the Asset Verify job `DATADOG MOBILE JOB`, Pump 0102. `fixtures.py` checks they are at rest. |
+| **test / child** | One test (`MOB.331`), an exported function in `tests/`. It has no login of its own; it runs inside a suite. |
+| **suite** | A spec in `suites/` that logs in once and runs its children in order in one session. Listed, with whether it writes, in `tools/suites.json`. |
 | **read-only / writes** | Whether a suite changes data on dev. Suites that write never overlap with anything. |
+| **pass** | Every suite once, in the safe order, via `playwright_pass.py`. |
 | **residue** | Records a test creates and cannot remove (e.g. a work order, until bugs §41 is fixed). |
 | **self-restoring** | A test that puts what it changed back, on steps that run even after a failure. |
-| **`soft` / `optional` / `always`** | Step flags: fail the test but keep going / may fail without failing the test / runs even after a failure. |
+| **`always` / `allow: 'soft'` / `allow: 'ignore'`** | Step options in the converted tests: runs even after a failure / fails the test but keeps going / may fail without failing the test. |
 | **server read** | Asking `/graphql` directly whether a write happened, because the UI can say "saved" when it didn't. |
 | **trap** | A numbered lesson in `test_authoring.md`: a way a test once passed or failed for the wrong reason. |
-| **slot** | A suite's one-hour weekly window in the Datadog schedule (`suite_plan.SLOTS`). |
 | **§N / #N** | A bug in `bugs_found.md` / an OPEN WORK row in `testing_checklist.md`. |
