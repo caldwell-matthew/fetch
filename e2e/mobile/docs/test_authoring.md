@@ -190,6 +190,15 @@ alongside a mutating tablet suite.
   selected row, so the guard is that the only checked row is ours.
 - `MOB.866` — both deletes are on the storeroom item's own uploads (owner 2026-09-15); the server
   step proves the item holds exactly one attachment and stashes its id for the guard.
+- **Add an asset to a work order from a map card** (▶ #78) — remove the ONE `workstageasset` link this run
+  added, on a protected fixture work order (owner 2026-09-23). The test reads the stage's assets first, adds
+  one, proves it over `/graphql`, removes exactly that link, and proves the stage is back to what it read.
+- **Attachment types** (▶ #85: several files at once, HEIC, video, and the other AT rows) — delete only what
+  THIS run uploaded, on the records the attachment tests already use, never `Pump 0102` (owner 2026-09-23).
+
+**Not a delete, and decided the same day:** the map's change-asset popup (`Replace existing assets` — "cannot
+be undone") is opened and cancelled, never confirmed; the map's drawing tools may **create** work orders and
+assets, marked `DD SYNTHETIC MOBILE`, left as residue for `cleanup_residue.py` (owner 2026-09-23).
 
 Read the server before trusting a delete: `Copy to asset` *links* the same attachment, and
 `destroy` deletes the S3 file when exactly one reference is left. `MOB.302`'s guard (same step as
@@ -467,3 +476,29 @@ times should be equal`). `retry.interval` is MILLISECONDS (our `300` is 0.3s). L
 test body — it has its own endpoint, which `push` now calls. Scheduling is per test and nothing orders
 them, so suites that share fixtures are kept apart by slot (`suite_plan.SLOTS`, `preflight.py
 schedule`). Only suites are scheduled: a live leaf that is also a suite child bills twice.
+
+**41 · The persisted cache is written a moment AFTER it changes.** The mobile app keeps its Apollo cache in
+IndexedDB (`persistCache`, `apollo-cache-persist`), and the write is debounced. A test that reloads the instant a
+change lands reloads from the OLD cache, and the change looks lost: `MOB.927` saw a synced note vanish after a
+reload one second after the sync — and survive the same reload fifteen seconds later (measured 2026-09-23; a
+false bug nearly filed). Before reloading to check that something persisted, wait for it:
+`persistedCacheHas(page, needle)` in `e2e/mobile/support/session.ts`.
+
+**42 · The map opens a card on a TOUCH, and only for an icon it drew.** `Map/MapGL/index.tsx:99` selects features
+on `touchend` alone — a mouse click on the canvas does nothing, so a test that taps the map needs a context with
+`hasTouch` (`freshSession(browser, { touch: true })`) and `page.touchscreen.tap`. "View in Map" opens the card by
+itself (`Map/index.tsx:139-186`), but only for an asset whose icon is RENDERED, looked up on a source event: Pump
+0102's spot is covered by Tank 0040's icon at every zoom, so Pump 0102's card never opens, and even Tank 0040's
+sometimes does not (the icon drawn after the last event). `MOB.929` waits, then taps just below the purple marker.
+
+**43 · The operation name the app SENDS is not always its generated document's name.** The add-asset mutation is
+`ADD_ASSET_TO_WORKSTAGEDocument` in the source and goes out as `MOBILE_WORK_ADD_ASSET` (measured 2026-09-23). A
+route that matches on the generated name never fires — a guard built that way guards nothing. Match a mutation
+on its FIELD in the query text (`addWorkStageAssetLink`), and assert the route was hit.
+
+**44 · Some screens read the Asset schema from the cache ONLY, and crash without it (bugs §45).** A work order's Assets tab
+(`WorkOrders/components/Assets/index.tsx:42`, `readQuery`) and Asset Lookup before its query answers
+(`AssetLookup/index.tsx:86,349`) hand `undefined` to `AssetLookupDetails`, whose `fields.map` throws: "Something
+went wrong … reading 'map'". A FRESH browser that opens a work order directly and expands an asset hits it every
+time. Before that, open Asset Lookup and wait for `persistedCacheHas(page, '_info({\\"schema\\":\\"Asset\\"})')`
+(trap 41), then load the work order (`MOB.929`'s removal).

@@ -1,10 +1,9 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.600_Collector_Create_Asset.json. This file is the source now: edit it directly.
 // MOB.600_Collector_Create_Asset
 //
-// ⛔ THIS TEST CANNOT RUN OUTSIDE DATADOG. Steps below were recorded without an xpath, so only
-//    Datadog's own multiLocator can find their element. Its suite marks it `fixme`, so it is
-//    reported as skipped and never as a pass:
-//      - Open the photo picker ("Add Asset Photo"): step has no xpath locator
+// Red by design while bugs §34 is open: the asset is created and shown locally, but the collect never reaches
+// the server, so the last step (the SERVER PROOF, a soft step) fails. The suite expects exactly that failure
+// and no other; when §34 is fixed this test goes green on its own.
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, uploadStandIn, wait } from '../../support/dd';
@@ -46,7 +45,11 @@ export async function mob600(page: Page): Promise<void> {
   await run.step("Pick Actuator Tools", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Actuator Tools")]`, DEFAULT_TIMEOUT);
   });
-  // ⛔ NOT PORTABLE — Open the photo picker ("Add Asset Photo"): step has no xpath locator
+  // Datadog recorded this click on the button's label with its own locator only, so it never ported. The
+  // button is unique in the new-asset form while no capture menu is open (the same locator as MOB.626).
+  await run.step("Open the photo picker (\"Add Asset Photo\")", {}, async () => {
+    await click(page, `//button[normalize-space(.)="Add Asset Photo"]`, DEFAULT_TIMEOUT);
+  });
   await run.step("Reveal the hidden gallery file input (useFileDialog appends it to <body>)", {}, async () => {
     await assertFromJavascript(page, `const inputs = [...document.querySelectorAll('input[type="file"]')];
 const el = inputs.find(i => !i.capture);

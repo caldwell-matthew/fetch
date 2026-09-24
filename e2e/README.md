@@ -6,7 +6,7 @@ request that changes a screen can change its test.
 
 | App | Folder | Status |
 |---|---|---|
-| **Mobile** (`/apm-mobile`) | [`mobile/`](mobile/README.md) | ✅ 23 suites, 135 tests pass against dev · 1 suite held |
+| **Mobile** (`/apm-mobile`) | [`mobile/`](mobile/README.md) | ✅ 24 suites, 139 tests pass against dev (one pins a bug, red by design) |
 | **Desktop** | `desktop/` — not started | Next |
 
 Each app has its own tests, suites, docs and tools; what they share lives here.

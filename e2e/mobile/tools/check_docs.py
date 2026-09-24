@@ -57,8 +57,10 @@ def check():
     if want not in ck:
         problems.append(f"the checklist's Rows line should read: {want}")
 
-    n_tests, n_suites, n_steps, n_children = counts()
-    line = f"**{n_tests} tests · {n_suites} suites** · {n_steps:,} steps · {n_children} suite children"
+    n_tests, n_suites, _steps, n_children = counts()
+    # Steps are not counted: only the converted tests are written as `run.step` calls, so a step count would
+    # ignore every test written natively in Playwright.
+    line = f"**{n_tests} tests · {n_suites} suites** · {n_children} suite children"
     for name, want in (("testing_checklist.md", line), ("coverage.md", line)):
         if want not in open(os.path.join(DOCS, name)).read():
             problems.append(f"{name}'s test counts should read: {want}")

@@ -16,7 +16,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
   state the fact directly. This is what is wrong now, not a history.
 - **Numbers are never reused or renumbered** (other docs cite them). Gaps are expected: §1–§4,
-  §4b, §4c, §5–§9, §14–§17, §19–§21, §23, §24, §26, §27, §36. Dead code is not filed.
+  §4b, §4c, §5–§9, §14–§17, §19–§21, §23, §24, §26, §27, §36, §47. Dead code is not filed.
 - File a finding the day it is found. A finding that lives only in a generator comment is lost.
 
 ## Index
@@ -41,9 +41,11 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — **reproduced by `MOB.977_DIAG_Condition_Form_Schema_Race`**, which is red when the bug is gone |
 | 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:76-88` looks the new tag up in the pre-create list |
-| 45 | Expanding an asset row on a work order's Assets tab can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema; `AssetLookupDetails/index.tsx:43` maps it unguarded |
+| 45 | Expanding an asset row on a work order's Assets tab — or in Asset Lookup before its schema answers — can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema, `AssetLookup/index.tsx:86,351` an unanswered one; `AssetLookupDetails/index.tsx:43` maps it unguarded |
 | 46 | A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated` | Runtime | ❌ `GeneralInfo.tsx:61,77-85`; `InsertForm/utils/index.ts:150-161` copies every `allowUpdate` field, dirty or not |
-| 47 | `Add asset to job` re-offers assets already on the job once you submit a search | Source | ❌ low–medium · `AssetLookup/index.tsx:171` — `jobId: '??'` |
+| 48 | `Item added` is shown for a save the server refused | Runtime | ❌ low–medium · `ui/NewItemForm.tsx:89` · `MOB.923` pins it |
+| 49 | `Extend session` succeeds but tells the user `The operation was aborted.` | Runtime | ❌ medium · `Layout/Auth.tsx:38-58` · `MOB.925` pins it |
+| 50 | "Add to Work" from a map card offers only the first 50 of the crew's work stages, ignores typing, and offers stages that already hold the asset | Runtime + Source | ❌ medium · `InsertForm/schemas.ts:27-40` |
 
 ## §11 · `Form added` toast fires before the mutation
 
@@ -459,6 +461,14 @@ schema — a gate alone would wait on a schema nothing had asked for. `MOB.358` 
 geolocate control, and `AssetGeolocate` renders nothing without the schema, so that is its exposure. Inside
 `MOB.955` it runs last, after `MOB.347` opens the Assets tab — whether that loads the schema is not measured.
 
+**Asset Lookup has the same hole.** It does query the schema (`AssetLookup/index.tsx:86`), but renders
+`AssetLookupDetails` with `schema={s.data?._info.fields}` (`:349-352`) whether or not that query has answered. A row
+expanded before it answers crashes the same way. **Runtime:** once, 2026-09-23, in `MOB.929`'s development runs
+(a fresh session, Asset Lookup → search → expand at once); not reproduced on demand. The same guard in
+`AssetLookupDetails` (`fields ?? []`, or render nothing until the fields exist) fixes both.
+**Tests (continued):** `MOB.929`'s removal opens Asset Lookup in its fresh browser and waits for the schema in the
+persisted cache before loading the work order (`test_authoring.md` trap 44).
+
 ## §46 · A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated`
 
 `GeneralInfo.updateRecord` builds its mutation variables with `sanitizeValues(fields, values, 'UPDATE')`
@@ -491,27 +501,71 @@ optimistic `update()`, surfacing the server's message on rejection.
 toast. The fixture work order's project reference has since been cleared so `MOB.395` can exercise the edit
 path, so **MOB.395 no longer covers this finding** — reproduce it on any work order that still has a project.
 
-## §47 · `Add asset to job` re-offers assets already on the job once you submit a search
+## §48 · `Item added` is shown for a save the server refused
 
-The search form's `refetch` hardcodes the job id instead of passing the one it was given
-(`client/mobile/components/AssetLookup/index.tsx`):
+`WorkOrders/components/ui/NewItemForm.tsx:79-90`
 
 ```js
-line  95  useQuery  jobLookup: { query: searchText, jobId: props.jobId }   // the real job
-line 171  refetch   jobLookup: { query: _text,      jobId: '??' }          // a literal '??'
+addToCollection({ ..., done: closeModal, formData: values })
+  .then(() => { toast.success('Item added'); closeModal(); });
 ```
 
-`jobId` is what tells the server to leave out the assets a job already has
-(`server/src/graphql/modules/asset/asset/resolver/asset.ts:73` — `whereNotIn ... mobilejobasset WHERE
-jobId = :jobId UNION ... workstageasset`). With `'??'` nothing matches, so nothing is excluded.
+`addToCollection` (`WorkOrders/utils/addToCollection.ts`) awaits two cache reads, then calls `apolloClient.mutate(…)`
+**without awaiting it** and returns. So the `.then` — and "Item added" — runs as soon as the mutation is SENT, before
+the server answers. When the server refuses, the user is shown "Item added" and the server's error toast together,
+and the optimistic item then disappears.
 
-**Reachable:** `AssetVerification/NewAssetForm` renders Asset Lookup with `jobId`, which is the *add
-assets to a mobile job* picker. Typing in its search box and submitting brings back assets that are
-already on the job, so a user can add the same asset twice. The standalone `/asset-lookup` page passes
-no `jobId`, so `MOB.820` cannot see this.
+**Runtime (`MOB.923`):** a job note refused by the server (the refusal made in the browser, so dev never received
+it) showed "Item added", then the error, then the note vanished; the server held no new note.
+**Reach:** confirmed for job notes. The same form adds equipment, labor, material and other charges — likely the
+same, not yet run. **Severity:** low–medium — only a refused save exposes it, but then the user is told both things.
+**Same mistake as §11**, in the shared form rather than `AdHocForm`.
 
-**Severity:** low–medium — no error is shown, and the result looks like a normal list.
+## §49 · `Extend session` succeeds but tells the user `The operation was aborted.`
 
-**History:** this was the second half of §20. Its first half (the submit discarding structured filters)
-was fixed in `02b17aa82e`, 2026-09-17; this line was left as it was.
+`Layout/Auth.tsx`:
 
+```js
+:38  const handleReauthenticated = async () => { await getSess(); };          // the prompt awaits this
+:57  onData(...) { if (event === 'UPDATE' || event === 'REFRESH') getSess()… } // the session subscription
+```
+
+When the password is accepted, the server re-issues the session and pushes a `sessionUpdate` **`REFRESH`** over the
+websocket at the same moment. The re-auth's own `getSess()` and the subscription's run together; the first one's
+promise is rejected with an `AbortError` (inferred: Apollo 4 rejects a lazy query's earlier `execute` when it is
+called again — one request is sent, not two). `SessionReauthentication.submitPassword` treats that as a failure: it
+shows `The operation was aborted.` and the prompt stays open.
+
+**Runtime (`MOB.925`):** after "Extend session" the server's `expiresAt` moved on (the session WAS extended), while
+the prompt showed the error. The trace: `/login/reauth/password` 200 → `GET_SESSION` sent → websocket `REFRESH`
+within the same ~50ms → the error. The test reaches the prompt by moving the browser's clock; the race does not
+involve the clock. **Severity:** medium — every successful extension tells the user it failed; they may retry or
+log out. **Fix:** don't let the subscription's refetch reject the awaited one (ignore `AbortError` in
+`handleReauthenticated`, or skip the subscription's `getSess` while a re-auth is in flight).
+
+## §50 · "Add to Work" from a map card cannot reach most work orders
+
+An asset's map card → `Add to Work` opens `AddAssetToWorkInsertForm`
+(`WorkOrders/components/InsertForm/index.tsx:347-399`), whose only choice is the work stage. Its `loadOptions`
+(`WorkOrders/components/InsertForm/schemas.ts:27-40`, read on `origin/development@6367f4980b`):
+
+- sends `MOBILE_WORK_ORDERS` with `crew: '<SESSION>'` and no `page` — that query is fixed at `limit: 50`, sorted by
+  `displayName` (`WorkOrders/queries/index.gql.ts:264-265`), so only the **first page** is ever offered;
+- ignores `inputText`, so typing a work order's name filters those 50 on the client at best and never asks the server
+  for the rest;
+- filters with `o.assets?.find((a) => a.id === formValues.assetId.id)`, comparing a work-stage **asset link's** id
+  with the **asset's** id — they never match, so a stage that already holds the asset is still offered;
+- labels each option with the stage's `name` alone (`desc` goes to `_info`), so stages with the same name look the same.
+
+**Runtime (2026-09-23, local, `MOB.929` development and `mobile/probe/picker_order_probe.spec.ts`):** the test account's
+crew has **452** work stages; the picker listed 50. Work order `20260910-16` sorts onto page 9 and could not be
+picked by scrolling or by typing. Seven of the 50 options read `☢️ Datadog Test` with nothing to tell them apart.
+The link-id comparison is Source only — not driven to a duplicate add.
+**User-visible effect:** a user on a crew with more than 50 work stages can add an asset from the map only to the
+50 that sort first. The work order they want is usually missing, and nothing says the list is cut short.
+**Severity:** medium — the feature is new to mobile (2026-09-21), and on real crews it mostly can't be used.
+**Fix:** pass `inputText` to the server (a name/number search) and page with `fetchMore`, or use the lookup the
+other record pickers use; compare `a.assetId.id` with the asset's id; show the work order's number or
+description next to the stage name.
+**Tests:** `MOB.929` works around it — it links to a test-made work order on the first page, picked by its place
+in the list, and a route aborts any add for another stage.

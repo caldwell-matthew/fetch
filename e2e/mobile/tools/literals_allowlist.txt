@@ -1,0 +1,138 @@
+# Literals that check_literals.py must NOT report as MISSING.
+#
+# 🛑 FIXTURE DATA ONLY. Every line here is a string that lives in the dev DATABASE and is
+# therefore correctly absent from client/mobile and client/src.
+#
+# ⚠️ NEVER allowlist a UI string to silence this check. A UI string that has gone missing is
+# the entire finding - that is how MOB.730/731/974 sat broken for two weeks, one of them
+# passing vacuously. If you are tempted, the right move is to fix the test or delete it.
+#
+# Adding a line is a claim: "this is data, not UI, and no rename in the app can affect it."
+# One entry per line. `#` starts a comment. Matching is exact, after `{{ ... }}` is stripped.
+
+# ---- work order fixtures ------------------------------------------------------------------
+Datadog Test                    # the workflow MOB.300/122/396/397 create against
+DD SYNTHETIC MOBILE {{ RUNID }} # MOB.600's per-run asset name; RUNID is a Datadog variable
+DD SYNTHETIC MOBILE             # the same marker as a prefix - MOB.623 selects MOB.600's residue by it
+
+# ---- mobile job / asset verification fixtures ---------------------------------------------
+DATADOG MOBILE JOB              # the crew's fixture job - the FIXTURE GUARD in 12 tests
+
+# ---- charge lookup values (ELMO) ----------------------------------------------------------
+AC Adapter                      # MOB.350 equipment
+Account Executive               # MOB.360 craft
+0000-0000 Diaphragm Pump        # MOB.370 material item
+Actuator Tools                  # MOB.600 asset type
+
+# ---- condition / failure lookup values ----------------------------------------------------
+Mounting/Support                # MOB.390 inspection element
+BELT (R-L1)                     # MOB.391 failure component
+MISSED                          # MOB.391 failure cause
+
+# ---- material lookup fixtures -------------------------------------------------------------
+Central Storeroom               # MOB.850/860/870 storeroom, and MOB.370's location
+000-000-000 Adamantium          # the cycle-count / stocking fixture item
+Error Correction                # MOB.860 adjustment reason
+
+# ---- asset-verification fixture assets ----------------------------------------------------
+Tank 0000                       # the fixture job's first asset (7 tests)
+A/C Motor 0002                  # its second - MOB.570's wrap-around and MOB.580's ordering
+Structural                      # MOB.390 inspection group
+
+# ---- values a self-restoring test writes and reads back ------------------------------------
+# These are asserted because a PREVIOUS run wrote them. They are data by construction.
+DATADOG FIXTURE                 # MOB.395 / MOB.710 restore the description to this
+DECEMBER 2002                   # MOB.545's baseline "Year Of Manufacture"
+
+# ---- values injected by a test's own stub --------------------------------------------------
+# MOB.358 stubs Mapbox reverse-geocoding; these are the stub's response, not app text.
+Illinois
+United States
+
+# ---- ids the app COMPOSES at runtime -------------------------------------------------------
+# `formatSortValue` builds a SortValue id as `${column.id}_${dir}` (`ui/SortDropdown.tsx:22`),
+# so the id never appears as a literal in source. MOB.580's DIAG reads it back out of
+# sessionStorage, which is the only place it exists.
+name_ASC
+name_DESC
+
+# ---- a term deliberately chosen to match NOTHING -------------------------------------------
+# `MOB.547` types this to prove the empty-results branch; `MOB.820` uses the same shape for
+# assets. It must never appear in the app - that is the whole point of it.
+ZZZZ-NO-SUCH-TAG
+'ZZZZ-NO-SUCH-TAG'
+
+# ---- tag names, which are ORG DATA the tests search for ------------------------------------
+# MOB.547 types these into the tag picker to prove the create button's exclusive-or. They are
+# rows in the `tags` table (16 of them on dev, read through the API), not app strings. If one is
+# renamed the test fails at its assertion, which is the correct place to find out.
+Battery Pack
+Custom
+Batter
+cUSTOM
+# The create option renders the term inside single quotes (`+ Create Tag 'Batter'`),
+# so the asserted string carries them and is scanned in that form.
+'Batter'
+# MOB.389's probe terms: a name no asset carries, and the fixture asset `Pump 0102`
+# case-swapped. Neither is app text - they are what the test TYPES.
+ZZZZ-NO-SUCH-ASSET
+pUMP 0102
+# MOB.625's test-owned sessionStorage stash key (like MOB.132's) - not app text.
+__dd625_prevJobSort
+# MOB.388: the fixture work order's string attribute (DB data, read over the API).
+Heater Hz
+# MOB.302: its dedicated asset (owner-created) and its test-owned sessionStorage keys.
+Bypass Valve 0001
+__dd302_srcId
+__dd302_srcName
+# MOB.390/391: their test-owned sessionStorage key (the original record count).
+__dd39x_origCount
+# MOB.392: the note body it types, counted back by its server proof (test data, not app text).
+This is a note - DD SYNTHETIC MOBILE
+# MOB.721: its zero-readings fixture asset (stored as `⚡ Building 0000`, DB data).
+Building 0000
+EYRpYJ9QYdQ1JFF10JtB0Q
+# MOB.510: the AV fixture job's id, sent as a /graphql variable in its server reads (DB data).
+Z0EVwQcdJZhMURcBFkp0E0
+# MOB.361: the marker note it types, edits and deletes (test data, not app text).
+DD SYNTHETIC MOBILE 361
+DD SYNTHETIC MOBILE 361 NOTE
+DD SYNTHETIC MOBILE 361 EDITED
+# MOB.385: the fixture work order's one permanent failure (its id, read over the API).
+YxYAgs5xtV5pQJFopUw5xN
+# MOB.866: the fixture storeroom item's and material item's ids (000-000-000 Adamantium, read over the API 2026-09-15).
+4lZMQZsNNdJ95hoYhd4gYt
+pJodNZlMY8Aw08g9hZE8NE
+# MOB.363/364/365: their shared work stage `20260910-16` and, for MOB.363, its asset ⚡ Tank 0000 (ids read over the API 2026-09-15).
+xohY0klBZktB9VBRxc8k4J
+8khYtoBRVNNs5d9cEt8NdY
+# MOB.365: the stage's 8 crews at rest and its target crew `Account Executive` (role ids, read over the API 2026-09-15).
+l4Jlk4ExMY005JZAF8hclQ
+cc5MgMoo1h9VJBZtB4ZNFR
+1ck5xMQ4IMV0BgRx0xsUdk
+5Ylk1wIhslMR8lsg8NAQxA
+kkBtBwZoBlpcw84F4F9B8s
+BVM9Bxkpox9BlEYd8sp0NR
+cQVVNJU5cFEU9RwIhw0Aps
+kx5sw1dVUFMYFs0UA08Z5M
+thtNo1Nd9th9FRNNoAN5Il
+# MOB.352: the fixture work order's rest address, which it writes back (DB data, read over the API 2026-09-15).
+230 North Alexander Street, New Orleans, LA 70119
+# MOB.353: the fixture's `Pump 0102` work-stage-asset link id (DB data, read over the API 2026-09-15).
+AE09h8JhBBhMtd1wIs98lQ
+# MOB.354/359: `Pump 0102`'s and `Bypass Valve 0001`'s asset ids (DB data, read over the API 2026-09-15),
+# and MOB.354's test-owned stash of the persisted Asset Lookup query.
+oB5BUN1Es1Jctw8FVYwYBh
+wFRo1MMwoAMkdxA4hVpIhB
+__dd354_prevQuery
+# MOB.359: Pump 0102's rest address fields (DB data) and the marker city its Mapbox stub answers (test data).
+230 North Alexander Street
+North Alexander Street
+New Orleans
+Metairie
+# MOB.629: the Location row's text as the app composes it from MOB.358's STUBBED geocode —
+# test data the stub supplies (`1600` + `Main Street`, `Chicago`, `US-IL`, `60601`), not app text.
+1600 Main Street, Chicago, IL, 60601
+# MOB.622: two MentorLens tags' `desc` values (DB data on the tags table, read over /graphql 2026-09-17).
+Used in MentorLens for thermographic analysis
+Used in MentorLens for condition assessment

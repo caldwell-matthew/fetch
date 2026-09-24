@@ -1,7 +1,7 @@
 # MentorAPM end-to-end tests
 
 Playwright (TypeScript) tests for the **MentorAPM apps** on `dev.mentorapm.com`, and the tooling that keeps
-them trustworthy. The mobile app is covered today — 23 suites, 135 tests, every mobile route — and the desktop
+them trustworthy. The mobile app is covered today — 24 suites, 139 tests, every mobile route — and the desktop
 app is next.
 
 Writing a test is the easy part, and an AI assistant can draft one. What makes a test worth trusting is the work

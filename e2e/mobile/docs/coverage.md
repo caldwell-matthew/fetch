@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**139 tests · 24 suites** · 4,441 steps · 139 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**148 tests · 27 suites** · 148 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -280,7 +280,7 @@ selected above` once the form holds a photo, and offline the wand's and `Add Ass
 bugs §35) · `MOB.625` list sort on our own rows against the server's order and `localeCompare`, and `Collected By Me` as a
 filter (sentinels carry bugs §38).
 
-#### `MOB.967_AssetCollector_2_Saved_Asset_Suite` — 4 children · writes (residue: a photo, an org tag) · Datadog: held out (bugs §34)
+#### `MOB.967_AssetCollector_2_Saved_Asset_Suite` — 4 children · writes (residue: a photo, an org tag) · `MOB.600` red by design until bugs §34 is fixed
 **Writes on `DD SYNTHETIC MOBILE` assets.**
 
 `MOB.600` create an asset with a real photo — 🛑 red on Datadog: the server never receives it (bugs §34); its server proof
@@ -368,12 +368,12 @@ exists only on Datadog — never delete it.
 schedule. The owner decides the order.*
 
 1. **A dedicated bugs §42 repro** — deep-link the fixture without visiting `/work` first; nothing detects §42 today.
-2. **`MOB.967` on Datadog** once bugs §34 is fixed — until then `MOB.600`'s create is unproven there.
+2. **`MOB.600` goes green by itself when bugs §34 is fixed** — its suite expects only that failure; until then the create is unproven on the server.
 3. **The weekly schedule** (#37) — turns capability into detection.
 4. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), bugs §41 (residue), a second
    work-order shape (estimate rows, a required form field, a second list status).
 
-⏸️ A local-only Playwright tier (#43 — genuinely offline, network errors, file choosers, the re-auth
-clock) is deferred by the owner.
+Genuinely offline, network errors, file choosers, the re-auth clock and the map canvas were out of Datadog's
+reach; with Playwright they are open work (▶ #80, #84, #86).
 
 *Details: `testing_checklist.md` → ▶ OPEN WORK.*

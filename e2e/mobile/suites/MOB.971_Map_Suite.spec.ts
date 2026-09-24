@@ -9,6 +9,7 @@ import { mob120 } from '../tests/MOB.120_Nav_Map';
 import { mob121 } from '../tests/MOB.121_Map_Controls';
 import { mob123 } from '../tests/MOB.123_Map_Switch_Map';
 import { mob122 } from '../tests/MOB.122_Map_Create_Work';
+import { mob929 } from '../tests/MOB.929_Map_Card_Add_Asset_To_Work';
 
 test.describe.serial('MOB.971_Map_Suite', () => {
   let page: Page;
@@ -37,6 +38,10 @@ test.describe.serial('MOB.971_Map_Suite', () => {
 
   test('MOB.122_Map_Create_Work', async () => {
     await mob122(page);
+  });
+
+  test('MOB.929_Map_Card_Add_Asset_To_Work', async ({ browser }) => {
+    await mob929(browser);
   });
 
 });

@@ -51,11 +51,11 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 
 | | |
 |---|---|
-| Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The JSON in `dd_tests_mobile/` stays the source the conversion reads. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
-| Tests | **139 tests · 24 suites** · 4,441 steps · 139 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
+| Tests | **148 tests · 27 suites** · 148 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 176 `[x]` · 13 `[~]` · 1 `[ ]` · 33 `[-]` — 223 rows. Counts describe *this file*, not the app |
+| Rows | 183 `[x]` · 13 `[~]` · 1 `[ ]` · 32 `[-]` — 229 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -80,7 +80,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Asset Verify | `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` | 570 575 546 | read-only | 166s | 199–332s | 263s |
 | Asset Verify | `MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite` | 537 545 550 | writes | 340s | 408–680s | 438s |
 | Asset Collector | `MOB.966_AssetCollector_1_Capture_Suite` | 160 620 621 622 626 629 610 624 625 | read-only | 261s | 313–522s | 356s (before the 09-17 changes) |
-| Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s | held out — bugs §34 |
+| Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s | runs under Playwright: `MOB.600` red on its §34 server proof, expected by the suite; the other three pass |
 | Asset Lookup | `MOB.968_AssetLookup_1_Rows_Tabs_Suite` | 100 700 750 720 721 914 740 735 730 | read-only | 213s | 256–426s | 324s (before the 09-17 changes) |
 | Asset Lookup | `MOB.969_AssetLookup_2_Filters_Sort_Suite` | 800 805 806 807 820 | read-only | 185s | 222–370s | 307s |
 | Asset Lookup | `MOB.980_AssetLookup_3_Edits_Suite` | 710 712 722 | writes | 109s | 131–218s | 179s |
@@ -114,7 +114,7 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 | read-only, together (cap 10 then) | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
 | writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 739s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
 | alone | `973` 215s | ✅ · current build · 2026-09-16 |
-| held out | `967` | 🛑 not run — its `MOB.600` is red on Datadog while bugs §34 is open (confirmed 2026-09-15). A LOCAL replay of `MOB.600` is a false negative: it cannot drive the photo picker |
+| Playwright | `967` | ✅ 4/4 as intended — `MOB.600` red on its §34 SERVER PROOF alone (the suite expects exactly that failure), `623` `627` `628` green |
 
 - **The `READY` rest state is proven on Datadog (2026-09-17).** `MOB.963` ran green as a whole at 739s with all six children — `510`, `590`, `913`, `536` and the new `511`/`512` — and the fixture read back at rest afterwards. `MOB.530` and `MOB.560` were verified individually (2 runs each); their suite `MOB.961` has not re-run since, so its ✅ is per-test for those two.
 - ⚠️ `956` and `957` pass their bugs §42 sentinels NOT because §42 is fixed (its forms are unchanged on `9d80ad499c`): their children wait for `/work`'s prefetch, which loads `WorkStageCondition`/`WorkStageFailure` (`prefetchData.ts:26-36`) before the form opens. §42 still hits a user who opens a work order before that prefetch — `MOB.977_DIAG_Condition_Form_Schema_Race` is the test that reproduces it, deliberately outside the schedule.
@@ -133,15 +133,22 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#37** the move to Playwright, run from CircleCI.
-2. Re-verify `MOB.967` once bugs §34 is fixed (🟡 BLOCKED).
+1. **#80** the rest of the error states — where users' bad days happen and the tests are blind.
+2. **#84**, **#78** the map canvas.
+3. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
-| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. `MOB.967` is held: `MOB.600`'s photo-picker step was recorded without an xpath and cannot run outside Datadog. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); block Datadog RUM inside the tests so their sessions are not billed as users; tighten the 1,179 fixed waits suite by suite, measured either side; port the JS-assertion bench and the literals check to read the TypeScript; decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **78** | **Add an asset to a work order from a map card.** `Map/Card/CardHeader.tsx:127` renders `AddAssetToWorkInsertForm` ("Add Asset to Work Order", form `#add-asset-to-workorder-insert-form`), which calls `addAssetToWorkStage` for a picked work stage. New to mobile on 2026-09-21; before that the form was imported only by its Jest test. It WRITES (a `workstageasset` link), so the test needs an owner-named way back: remove the link it added, on a fixture work order, proven over `/graphql`. `MOB.122` already opens the card, so the route there is known | open |
+| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); block Datadog RUM inside the tests so their sessions are not billed as users; tighten the 1,179 fixed waits suite by suite, measured either side; decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **78** | **Add an asset to a work order from a map card — built, not yet stable.** `MOB.929` (in `MOB.971`, after `MOB.122`) runs in its own touch browser: Asset Lookup → Tank 0040 → "View in Map" → the card (by itself, or a tap — trap 42) → "Add to Work" (retried: it does nothing until the card's asset record loads, `CardHeader.tsx:122`) → a stage → submit, proven over `/graphql`, then removes exactly that link (MOB.354's path, trap 44 first). **Target:** the picker offers only the first 50 of the crew's 452 stages and ignores typing (bugs §50), so the fixtures (20260910-16 is on page 9) can't be picked; it links to the first test-made work order on that page (`DD SYNTHETIC MOBILE`, the test account's, fixtures refused by id), picked by index, and a route aborts any add for another stage (trap 43). **State (2026-09-23):** 2 of the last 4 runs green. One failed at the removal browser's login (password field emptied), leaving the link, which the next run's premise caught. `mobile/probe/mob929_leftover.spec.ts` removes such a leftover (run with `E2E_PROBE=1`); none is left now. **Left:** make the removal survive a failed login (retry it, or re-check leftovers at the start), then 3 green runs in a row and a full `MOB.971` pass | in progress |
+| **80** | **Error states, via network interception — the rest.** Done in `MOB.982`: the startup session failure (`MOB.920`), the Condition/Failure form-load error (`MOB.921`), refused saves (`MOB.923`, `MOB.924`). Left: the tag lookup's `No results found for tag number`, and `Asset not found.` on a map card (with #84) | open |
+| **84** | **The map canvas.** Datadog could only click page elements; Playwright can click the map. (a) the change-asset popup — tap a feature, prove both options and the warning, **cancel** (owner: never confirm); (b) the drawing tools — create a work order and an asset by marker, lasso, line and polygon, marked `DD SYNTHETIC MOBILE`, proven over `/graphql`, left as residue (owner 2026-09-23) | open |
+| **85** | **Attachment types** — several files at once, HEIC, video, document, nameplate, custom (the AT rows, deferred until 2026-09-23). Upload each on the records the attachment tests already use, prove it on the server, delete only this run's uploads (trap 2) | open |
+| **86** | **Upload interruption and retry** — abort an upload midway (network interception) and prove it resumes (tus); answer the first upload with a 401 and prove the retry after the token refresh | open |
+| **87** | **Finish the partial rows** that are now reachable: the search bar on every module that has one (proven on the mobile job list only), and anything else marked `[~]` that was partial only because of Datadog | open |
+| **89** | **Tighten the 1,179 fixed waits** into waits for a condition, suite by suite, timed before and after; a full pass is about 2 hours today | open |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -169,7 +176,6 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | Dev Logs' `Error:` column · its `No logs found.` | a log entry carrying an error · a session with no log entries | fixture |
 | An AV job asset's `An asset standard needs to exist…`, `A failure profile need to exist…` and `No asset attributes found.` | an asset on a fixture job with no asset standard, failure profile or attributes — both of `DATADOG MOBILE JOB`'s assets have all three | fixture |
 | `Your organization has not configured their map settings.` (`Map/index.tsx:405`) | an org without map settings | fixture |
-| **#43 — a local-only Playwright tier** for what Datadog cannot do: genuinely offline (`context.set_offline`), network interception for error states, file choosers, clock control (`SessionReauthentication`). Outside the weekly Datadog schedule | ⏸️ deferred by the owner — may revisit | decision |
 
 ### ⚪ NOT A GAP
 
@@ -191,8 +197,8 @@ both) · real device GPS ·
 
 Upload **transport** (tus resume, unauthorized retry, `UploadStatusIcon`) · camera / barcode ·
 map canvas drawing and what only a marker tap opens (the work map card's `Address:`) · native shell · the browser genuinely offline (the offline shell page).
-**Within reach of a local Playwright tier** (#43, ⏸️ deferred): genuinely offline, network-error states, the
-capture file choosers, the session re-auth clock, and the **startup-error banner** (`Layout/Auth.tsx:163`, `role="alert"` + `Reload page`) — its seven messages each fire only when a startup promise rejects (session load, log cleanup, queue restore, cache reset, the build-number check, clearing queues when unauthenticated) or a session event's refresh fails, before any Datadog step can act. Expo/native shell, map canvas and tus stay out. The
+**Out of Datadog's reach, and open work now that the suite is Playwright** (▶ #80, #84, #86): genuinely
+offline, network-error states, the capture file choosers, the session re-auth clock, and the **startup-error banner** (`Layout/Auth.tsx:163`, `role="alert"` + `Reload page`) — its seven messages each fire only when a startup promise rejects (session load, log cleanup, queue restore, cache reset, the build-number check, clearing queues when unauthenticated) or a session event's refresh fails, before a test's first step can act. The map canvas and tus uploads are in reach too; the Expo/native shell is not. The
 queue's link classes in isolation are a **Jest** job, being done outside this suite; the queue end
 to end is `MOB.913`.
 
@@ -209,11 +215,8 @@ MentorTwo.
 | 4 | **which app files the tests touch** | `e2e/mobile/tools/source_coverage.py --write` → `source_coverage.md` |
 | 5 | **`bugs_found.md` vs the served code** | re-read each open row's named source line on `origin/development`; a fixed row is **deleted** and its citations reworded |
 | 6 | **latest result per suite** | 📊 RUN STATUS (trap 25) |
-
-**Not yet ported from the Datadog era** (they read the old JSON; the originals are in `legacy/`): the
-**stale-literal scan** (every asserted string still exists in the app), the **JavaScript-assertion bench** (every
-JS step proven against a page that must make it fail), and the **rendered-string sweep** (UI text no test
-asserts — `source_coverage.py` now covers the same ground per file).
+| 7 | **every JavaScript assertion on the bench** — each proven against a modelled page, including pages that must make it FAIL | `node e2e/mobile/tools/check_js_assertions.js` (needs `npm install` in `e2e/` once) |
+| 8 | **stale-literal scan** — every string a test asserts still exists in the app | `e2e/mobile/tools/check_literals.py` (`--self-test` after a change to it) |
 
 **Other hygiene:**
 - 🧹 **Residue** — `e2e/mobile/tools/cleanup_residue.py` (dry run by default): test-created work orders, notes and
@@ -224,6 +227,7 @@ asserts — `source_coverage.py` now covers the same ground per file).
 
 ## T1.1 Offline & the transaction queue
 
+- [x] **Really offline** (the page's network cut): a note saved offline shows at once, is NOT on the server, reaches the server when the connection returns, stays on the device, and survives a reload once persisted *(MOB.927 — deleted again with MOB.361's named flow)*
 - [x] Mutate while offline → the operations are HELD, not failed *(MOB.913)* — a browser `offline` event closes the queue; pending reads **2** (one verify click also queues the status recompute), and still 2 after 6s
 - [x] Reconnect → the queue drains *(MOB.913)* — `online` → the indicator clears and, after a reload, the server has the verify
 - [x] Queue survives an app reload *(MOB.913)* — reloaded while held; `PersistedQueueLink` re-sent it from IndexedDB on startup
@@ -250,11 +254,13 @@ asserts — `source_coverage.py` now covers the same ground per file).
 
 ## T1.3 Session, auth & crew
 
+- [x] The session is about to expire → `Your session is about to expire` with Password and `Extend session`, 5 minutes before `expiresAt`; extending really extends it on the server *(MOB.925 — the browser's clock jumped 15 hours)* · 🐞 the prompt then says `The operation was aborted.` (bugs §49, pinned)
+- [x] The server says the session is gone (`Invalid or expired session`) → the user is sent to the mobile login *(MOB.926 — answered in the browser)*
+- [x] The session fails to load at startup → the banner `Session could not be loaded.` with `Reload page`, and the reload recovers *(MOB.920 — failure made in the browser)*. The banner's six other messages fire only when browser storage fails, which cannot be faked without breaking the app
 - [x] Login via `/login/sso` environment picker *(MOB.000)*
 - [x] Switch crew and revert, Admin → Operator → Admin *(MOB.200)*
 - [x] Crew switcher opens and dismisses without mutating *(MOB.430)*
 - [x] Log out, including the "Take Me Back" escape hatch *(MOB.440)*
-- [-] Session/JWT expiry — needs a backend-issued short-lived token
 - [x] Role permissions gate menu items *(MOB.210)* — `Admin (0000)` hides `Work Orders` and every tile; restores to `Admin`
 - [x] Crew switch changes the visible work/mobile-job set *(MOB.220)*
 
@@ -358,6 +364,8 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 ### Tabs, records and forms
 
+- [x] The Condition and Failure add forms, when their schema cannot load → `Unable to load form. Close and reopen to retry.` *(MOB.921 — work order opened directly in a fresh browser, schema failed in the browser)*
+- [x] A save the server refuses → the server's message is shown, the item does not stay, nothing reaches the server *(MOB.923 note, MOB.924 form)* · 🐞 both also show a success toast: `Item added` (bugs §48), `Form added` (bugs §11) — each test pins its bug
 - [x] Assign follow-up work *(MOB.397)*
 - [x] Detail tabs render and switch *(MOB.330)*
 - [x] General Info — edit a field *(MOB.395)* · self-restoring (`DATADOG FIXTURE`)
@@ -413,6 +421,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 *`AssetVerification/Job.tsx` — each row expands into `AssetLookupDetails`*
 
+- [x] `Add Existing Asset` never offers an asset the job already has — in its first list, and after a submitted search *(MOB.928, read-only)*. The search's refetch sends `jobId: '??'`, but the lookup also filters the job's own assets out in the browser, so nothing reaches the user
 - [x] From a Mobile Job asset *(MOB.396)*
 - [x] Verify · moves to the Verified tab · counter increments · unverify decrements *(MOB.510)*
 - [x] Unverified tab shows the asset; Verified tab empty at rest *(MOB.500)*

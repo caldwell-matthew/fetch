@@ -158,7 +158,8 @@
         "MOB.585",
         "MOB.531",
         "MOB.547",
-        "MOB.551"
+        "MOB.551",
+        "MOB.928"
       ],
       "about": "`/asset-verify/:jobId` read-only on job Z0EVwQcdJZhMURcBFkp0E0: the asset list, tabs, map toggle, asset search, photo tag search, reading history."
     },
@@ -228,7 +229,7 @@
         "MOB.628"
       ],
       "about": "Writes on `DD SYNTHETIC MOBILE` assets: create an asset (red while bugs §34 is open), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag).\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.\n- 🛑 A LOCAL REPLAY OF MOB.600 IS A FALSE NEGATIVE: it cannot drive the photo picker, so it collects photo-free, which persists, and its server proof passes. Only Datadog exercises §34.",
-      "held": "MOB.600's photo-picker step was recorded without an xpath; it cannot run outside Datadog"
+      "order": 27
     },
     {
       "id": "MOB.968",
@@ -296,7 +297,8 @@
         "MOB.120",
         "MOB.121",
         "MOB.123",
-        "MOB.122"
+        "MOB.122",
+        "MOB.929"
       ],
       "about": "`/map`: controls and Switch Map (read-only), then a work order created from the map (residue).\n- MOB.122 LAST.",
       "order": 24
@@ -345,6 +347,39 @@
         "MOB.952"
       ],
       "about": "Phone width (`chrome.mobile_small`): the form's phone branch, the header and list."
+    },
+    {
+      "id": "MOB.982",
+      "spec": "mobile/suites/MOB.982_Resilience_1_Error_States_Suite.spec.ts",
+      "writes": true,
+      "order": 25,
+      "children": [
+        "MOB.920",
+        "MOB.921",
+        "MOB.923",
+        "MOB.924"
+      ],
+      "about": "What the user sees when the server fails: startup session, form schemas, a refused note, a refused form — pins bugs §11 and §48. Failures are made in the browser; built to write nothing."
+    },
+    {
+      "id": "MOB.983",
+      "spec": "mobile/suites/MOB.983_Resilience_2_Session_Suite.spec.ts",
+      "writes": false,
+      "children": [
+        "MOB.925",
+        "MOB.926"
+      ],
+      "about": "The session ending: the expiry prompt via the browser's clock (bugs §49 pin), and the server saying the session is gone. Changes no data."
+    },
+    {
+      "id": "MOB.984",
+      "spec": "mobile/suites/MOB.984_Resilience_3_Offline_Suite.spec.ts",
+      "writes": true,
+      "order": 25.5,
+      "children": [
+        "MOB.927"
+      ],
+      "about": "Really offline: a note saved offline is queued, reaches the server on reconnect, survives a reload; deleted again with MOB.361's named flow."
     }
   ]
 }
