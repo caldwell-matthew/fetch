@@ -11,42 +11,42 @@ config and step helpers are one level up in `e2e/`.
 
 | | Suites | Tests | Result |
 |---|---|---|---|
-| Read-only | 10 | 60 | ✅ all pass — one run, 48 min |
-| Data-changing, one at a time with the fixture checks between them | 13 | 75 | ✅ all pass — ≈ 80 min; the fixtures read back at rest after the last |
+| Read-only | 10 | 60 | ✅ all pass — one run, 48 min (before the waits were trimmed; per suite below) |
+| Data-changing, one at a time with the fixture checks between them | 13 | 75 | ✅ all pass — ≈ 80 min before the waits were trimmed; the fixtures read back at rest after the last |
 | Data-changing, bug pin | 1 (`MOB.967`) | 8 | ✅ as intended — `MOB.600` red on bugs §34 alone, the others green |
 
 What those tests prove, route by route, is in [`docs/coverage.md`](docs/coverage.md); what is left to cover is in
-[`docs/testing_checklist.md`](docs/testing_checklist.md) (198 of the 207 automatable rows automated, 8 partial, 1 open).
+[`docs/testing_checklist.md`](docs/testing_checklist.md) (199 of the 207 automatable rows automated, 8 partial, none open).
 The docs are copies of `legacy/Mobile/`'s for now — see [`docs/README.md`](docs/README.md).
 
 ### Per suite
 
-| Suite | Writes? | Tests | Local time |
+| Suite | Writes? | Tests | Local time (before → after trimming the waits, 2026-09-24) |
 |---|---|---|---|
-| `MOB.953` Work orders · list | ✏️ | 9 | 8.3 min |
-| `MOB.954` Work orders · detail, open tabs | | 8 | 7.9 min |
-| `MOB.955` Work orders · detail, assets and records | | 6 | |
-| `MOB.956` Work orders · records (charges, conditions, failures, notes) | ✏️ | 8 | 11.1 min |
-| `MOB.957` Work orders · status and field edits | ✏️ | 5 | 9.9 min |
-| `MOB.958` Work orders · assets and location edits | ✏️ | 4 | 3.7 min |
-| `MOB.959` Work orders · stage writes and creates | ✏️ | 6 | 10.3 min |
-| `MOB.960` Work orders · forms | ✏️ | 3 | 4.8 min |
-| `MOB.981` Work orders · charges and offline | | 6 | |
-| `MOB.961` Asset Verify · jobs list | | 6 | |
-| `MOB.962` Asset Verify · job assets | | 7 | 2.3 min |
-| `MOB.963` Asset Verify · verify, status and queue | ✏️ | 6 | 10.5 min |
-| `MOB.964` Asset Verify · asset detail | | 3 | |
-| `MOB.965` Asset Verify · asset detail edits | ✏️ | 3 | 5.7 min |
-| `MOB.966` Asset Collector · capture | | 9 | |
-| `MOB.968` Asset Lookup · rows and tabs | | 9 | |
-| `MOB.969` Asset Lookup · filters and sort | | 5 | 3.0 min |
-| `MOB.980` Asset Lookup · edits | ✏️ | 3 | 1.9 min |
-| `MOB.970` Material Lookup | ✏️ | 7 | 4.3 min |
-| `MOB.971` Map (`MOB.930` is `fixme` — checklist #84) | ✏️ | 7 | 4.7 min |
-| `MOB.972` App shell (header, menu, home) | ✏️ | 15 | 4.0 min |
-| `MOB.967` Asset Collector · saved asset | ✏️ | 8 | 5.5 min without `MOB.936` |
-| `MOB.973` Session — runs alone, last | ✏️ | 2 | 2.7 min |
-| `MOB.975` Phone (320×550) | | 2 | |
+| `MOB.953` Work orders · list | ✏️ | 9 | 10.9 → 8.3 min |
+| `MOB.954` Work orders · detail, open tabs | | 8 | 7.4 → 5.8 min |
+| `MOB.955` Work orders · detail, assets and records | | 6 | 6.5 → 6.1 min |
+| `MOB.956` Work orders · records (charges, conditions, failures, notes) | ✏️ | 8 | 11.3 → 8.0 min |
+| `MOB.957` Work orders · status and field edits | ✏️ | 5 | 9.3 → 7.2 min |
+| `MOB.958` Work orders · assets and location edits | ✏️ | 4 | 3.6 → 2.1 min |
+| `MOB.959` Work orders · stage writes and creates | ✏️ | 6 | 14.4 → 11.5 min |
+| `MOB.960` Work orders · forms | ✏️ | 3 | 4.5 → 4.5 min |
+| `MOB.981` Work orders · charges and offline | | 6 | 7.1 → 6.2 min |
+| `MOB.961` Asset Verify · jobs list | | 6 | 4.0 → 1.9 min |
+| `MOB.962` Asset Verify · job assets | | 7 | 5.4 → 2.3 min |
+| `MOB.963` Asset Verify · verify, status and queue | ✏️ | 6 | 10.5 → 6.2 min |
+| `MOB.964` Asset Verify · asset detail | | 3 | 2.8 → 1.5 min |
+| `MOB.965` Asset Verify · asset detail edits | ✏️ | 3 | 5.7 → 2.6 min |
+| `MOB.966` Asset Collector · capture | | 9 | 4.7 → 2.9 min |
+| `MOB.968` Asset Lookup · rows and tabs | | 9 | 3.6 → 2.4 min |
+| `MOB.969` Asset Lookup · filters and sort | | 5 | 3.0 → 2.7 min |
+| `MOB.980` Asset Lookup · edits | ✏️ | 3 | 1.8 → 1.1 min |
+| `MOB.970` Material Lookup | ✏️ | 7 | 4.4 → 2.8 min |
+| `MOB.971` Map | ✏️ | 7 | 4.7 → 3.9 min without `MOB.930` · 6.4 min with it |
+| `MOB.972` App shell (header, menu, home) | ✏️ | 15 | 4.0 → 3.5 min |
+| `MOB.967` Asset Collector · saved asset | ✏️ | 8 | 5.7 → 3.0 min |
+| `MOB.973` Session — runs alone, last | ✏️ | 2 | 2.7 → 1.8 min |
+| `MOB.975` Phone (320×550) | | 2 | 2.0 → 1.8 min |
 | `MOB.982` Resilience · error states (network interception) | ✏️ | 6 | 2.4 min |
 | `MOB.983` Resilience · session expiry | | 2 | |
 | `MOB.984` Resilience · offline note | ✏️ | 1 | |
@@ -68,9 +68,7 @@ The read-only suites ran as one batch, so they have a combined time rather than 
 | | |
 |---|---|
 | **CircleCI** | Draft in `ci/circleci-e2e.yml`: read-only smoke after every dev deploy, full pass nightly. Needs: can CircleCI reach dev; which context holds the login; where results go (Slack, email) |
-| **Block Datadog RUM in the tests** | A Playwright run is a real browser session, so RUM would bill it as a user and mix it into real-user data. One `context.route` in the suite setup |
 | **`fixtures.ts`** | Record names, ids and `DD SYNTHETIC` markers in one file, not spread through the tests |
-| **Tighten the waits** | 1,088 fixed `wait` steps are kept from Datadog. `mobile/tools/tighten_waits.py` removes the ones a polling check makes redundant and swaps the prefetch sleeps for a wait on the app's loading bars, one suite at a time (checklist #89) |
 | **Rewrite `docs/test_authoring.md`** | Its traps still hold, but its loop describes building Datadog JSON; the loop above replaces it |
 | **Move into MentorTwo** | So a pull request that changes a component can change its test |
 | **Retire Datadog** | Its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`; the values are in the repo-root `.env` |

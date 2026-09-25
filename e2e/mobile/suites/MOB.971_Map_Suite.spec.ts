@@ -46,9 +46,8 @@ test.describe.serial('MOB.971_Map_Suite', () => {
     await mob929(browser);
   });
 
-  // A work stage's card opens only when a work layer is shown, and every one is off for the test account; turning one
-  // on saves the account's map settings on the server — the owner's call (checklist #84).
-  test.fixme('MOB.930_Map_Card_Change_Asset_Cancel', async ({ browser }) => {
+  // Switches the account's `My Work: Ready` map layer on and back off (owner, 2026-09-24) — see the test's top.
+  test('MOB.930_Map_Card_Change_Asset_Cancel', async ({ browser }) => {
     await mob930(browser);
   });
 

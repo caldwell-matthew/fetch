@@ -9,9 +9,6 @@ export async function mob220(page: Page): Promise<void> {
   await run.step("Navigate to the mobile job list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the job list", {}, async () => {
-    await wait(page, 25);
-  });
   await run.step("Baseline: \"DATADOG MOBILE JOB\" is visible under Admin", {}, async () => {
     await assertPageContains(page, `DATADOG MOBILE JOB`, DEFAULT_TIMEOUT);
   });
@@ -20,9 +17,6 @@ export async function mob220(page: Page): Promise<void> {
   });
   await run.step("Click Switch Crews", {}, async () => {
     await click(page, `//button[.//div[normalize-space(.)="Switch Crews"]]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the crew list", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Select Admin 0100", {}, async () => {
     await click(page, `//label[contains(normalize-space(.), "0100")]`, DEFAULT_TIMEOUT);
@@ -47,9 +41,6 @@ export async function mob220(page: Page): Promise<void> {
   });
   await run.step("Click Switch Crews", {}, async () => {
     await click(page, `//button[.//div[normalize-space(.)="Switch Crews"]]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the crew list", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Select Admin (restore)", {}, async () => {
     await click(page, `//label[normalize-space(.)="Admin"]`, DEFAULT_TIMEOUT);

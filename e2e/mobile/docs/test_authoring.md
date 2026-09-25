@@ -143,7 +143,7 @@ login-bearing test asserts the role right after login.
 | `server_assert(name, key, query, variables, predicate, soft=, always=)` | ⭐ **the server read** — one self-refreshing step POSTs a same-origin `/graphql` query and judges `data` with a JS predicate, then clears its `sessionStorage` keys. A predicate compares what the SERVER stores: the enum `NotCompleted`, not the badge's `Not Completed` |
 | `av_job_gate(job_id)` | **the** way into an AV job — clicks the row, gates on the asset ROWS, polls |
 | `work_cache_warm(wait=30)` | visits `/work`, asserts only that the page mounted, then waits blind — warms the work lookup cache before deep-linking a work order (`MOB.134`, `347`, `348`, `351`–`359`, `363`–`365`, `911`); proves no readiness. Anything that acts on the `/work` list, or needs its downloads finished, uses `work_list_gate` instead: the per-stage downloads outrun a blind wait (86s measured, see below). No hand-rolled blind 20s `/work` warm-up is left — the last seven (`MOB.302`, `389`, `393`, `394`, `397`, `398`, `399`) switched to `work_list_gate(require_row=False)` 2026-09-17 |
-| `work_list_gate(wait=20, require_row=True)` | readiness for `/work` — use it before ANY interaction on the list page, not just where `loadedAll` gates a control. The per-stage detail downloads ran 86s locally on 2026-09-16 (304 `/graphql` requests; residue work orders grow it every pass, bugs §41), and a Datadog click taken during them timed out (`MOB.301`). `LOADEDALL 3/3` therefore waits up to 180s. `require_row=True` when the test needs a work order on the list; `require_row=False` when it only needs `/work` settled — e.g. to warm the lookups before opening the fixture |
+| `work_list_gate(wait=20, require_row=True)` | readiness for `/work` — use it before ANY interaction on the list page, not just where `loadedAll` gates a control. The per-stage detail downloads ran 86s locally on 2026-09-16 (304 `/graphql` requests; residue work orders grow it every pass until pruned), and a Datadog click taken during them timed out (`MOB.301`). `LOADEDALL 3/3` therefore waits up to 180s. `require_row=True` when the test needs a work order on the list; `require_row=False` when it only needs `/work` settled — e.g. to warm the lookups before opening the fixture |
 | `work_view_ensure(to)` | switch Scheduled ↔ List only if the item is present (it exists only for a `SCHEDULED` role); persists across a suite — restore `always` |
 | `open_filters_drawer()` | the Filters drawer with the re-click gate; gate on `Add Filter`, never the trigger |
 | `pick_option(url, select_id, label, value)` | a Mantine Select option: open, GATE on the option being VISIBLE (re-opens the select if the click was lost), then pick by exact text. Re-clicks only if the option is STILL hidden 2.5s after the first poll, so a dropdown animating open is never clicked shut. Never click an option after a fixed wait — `MOB.800` failed exactly that way on Datadog under load (2026-09-16) |
@@ -522,3 +522,17 @@ for its own — and keeps the `DD SYNTHETIC MOBILE` prefix so `cleanup_residue.p
 **48 · A failed final check hides the first failure.** An `expect` in `finally` that fails replaces the error that
 got there. Check the end state AFTER the `try`, and in a `catch` add what was left behind to the original message
 (`MOB.933`–`MOB.935`).
+
+**49 · A fixed `wait` is for a step that cannot wait for itself.** Every `assert…` helper and `click` polls until its
+timeout, so a sleep in front of a positive check only adds time. Keep one before `assertPageLacks` or an
+`assertFromJavascript` that can pass at once (a check that something did NOT happen), before typing into a form that
+re-renders, and before a server read. Wait for the app's prefetch with `waitForPrefetch` (`support/prefetch.ts`, the
+app's own loading bars), not a sleep — on the work list pass `ignore: WORKSTAGE_DOWNLOADS`, or it waits minutes for
+every assigned stage's details. `tools/tighten_waits.py <suite>` applies both rules to a converted suite: 1,088 waits
+went to 559 and a full local pass from 140 to 100 min (2026-09-24), every suite green twice after.
+
+**50 · A list read returns ONE page — 500 rows by default.** `workStages(crew: "<SESSION>")` with no `params` returns
+the first 500; the test crew passed 500 stages with residue on 2026-09-24, and `fixtures.py` then read the fixture
+work order (at 501) as "not in the crew's list" when it was. Pass `params: { limit: 1000 }` (a limit of 5000 silently
+comes back as 500) and compare `pageInfo.totalCount` with the rows read. The residue keeps growing until
+`cleanup_residue.py --apply` runs.

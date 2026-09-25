@@ -369,10 +369,10 @@ schedule. The owner decides the order.*
 1. **A dedicated bugs §42 repro** — deep-link the fixture without visiting `/work` first; nothing detects §42 today.
 2. **`MOB.600` goes green by itself when bugs §34 is fixed** — its suite expects only that failure; until then the create is unproven on the server.
 3. **The weekly schedule** (#37) — turns capability into detection.
-4. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), bugs §41 (residue), a second
+4. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), pruning the residue (`cleanup_residue.py --apply`), a second
    work-order shape (estimate rows, a required form field, a second list status).
 
 Genuinely offline, network errors, file choosers, the re-auth clock, the map canvas and the tus transport were out
-of Datadog's reach; Playwright covers them now, except the map card's change-asset popup (▶ #84).
+of Datadog's reach; Playwright covers them now.
 
 *Details: `testing_checklist.md` → ▶ OPEN WORK.*

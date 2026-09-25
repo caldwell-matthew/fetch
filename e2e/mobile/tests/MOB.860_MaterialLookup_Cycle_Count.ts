@@ -21,14 +21,8 @@ return counted && !overlay;`, 60000);
   await run.step("Open the storeroom dropdown", {}, async () => {
     await click(page, `//*[@id="storeroomLocationId"]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for storeroom options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick Central Storeroom", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Central Storeroom")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the material list to load", {}, async () => {
-    await wait(page, 8);
   });
   await run.step("Focus the material search", {}, async () => {
     await click(page, `//input[@placeholder="Search for material items by name"]`, DEFAULT_TIMEOUT);
@@ -45,9 +39,6 @@ return counted && !overlay;`, 60000);
   await run.step("Open the stock adjustment for 000-000-000 Adamantium", {}, async () => {
     await click(page, `//tr[contains(normalize-space(.), "000-000-000 Adamantium")]//button[.//*[@data-icon="arrow-up-right-from-square" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-up-right-from-square ")]]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the stock adjustment modal", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The adjustment modal opened", {}, async () => {
     await assertPageContains(page, `Current Quantity`, DEFAULT_TIMEOUT);
   });
@@ -56,9 +47,6 @@ return counted && !overlay;`, 60000);
   });
   await run.step("Open the reason lookup", {}, async () => {
     await click(page, `//*[@id="reason"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for reason options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick reason \"Error Correction\"", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Error Correction")]`, DEFAULT_TIMEOUT);
@@ -78,9 +66,6 @@ return counted && !overlay;`, 60000);
   await run.step("Open the stock adjustment for 000-000-000 Adamantium", {}, async () => {
     await click(page, `//tr[contains(normalize-space(.), "000-000-000 Adamantium")]//button[.//*[@data-icon="arrow-up-right-from-square" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-up-right-from-square ")]]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the stock adjustment modal", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The adjustment modal opened", {}, async () => {
     await assertPageContains(page, `Current Quantity`, DEFAULT_TIMEOUT);
   });
@@ -89,9 +74,6 @@ return counted && !overlay;`, 60000);
   });
   await run.step("Open the reason lookup", {}, async () => {
     await click(page, `//*[@id="reason"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for reason options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick reason \"Error Correction\"", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Error Correction")]`, DEFAULT_TIMEOUT);

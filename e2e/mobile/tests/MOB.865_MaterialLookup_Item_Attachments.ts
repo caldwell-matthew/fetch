@@ -9,9 +9,6 @@ export async function mob865(page: Page): Promise<void> {
   await run.step("Navigate to material lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/material-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 6);
-  });
   await run.step("Test the \"Material Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Material Lookup")]`, `Material Lookup`, 30000);
   });
@@ -24,14 +21,8 @@ return counted && !overlay;`, 60000);
   await run.step("Open the storeroom dropdown", {}, async () => {
     await click(page, `//*[@id="storeroomLocationId"]`, 30000);
   });
-  await run.step("Wait for storeroom options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick Central Storeroom", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Central Storeroom")]`, 30000);
-  });
-  await run.step("Wait for the material list to load", {}, async () => {
-    await wait(page, 8);
   });
   await run.step("Focus the material search", {}, async () => {
     await click(page, `//input[@placeholder="Search for material items by name"]`, 30000);
@@ -78,9 +69,6 @@ return false;`, 30000);
   });
   await run.step("Open the item modal for 000-000-000 Adamantium (the row's action icon)", {}, async () => {
     await click(page, `//tr[contains(normalize-space(.), "000-000-000 Adamantium")]//button[.//*[@data-icon="arrow-up-right-from-square" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-up-right-from-square ")]]`, 30000);
-  });
-  await run.step("Wait for the item modal", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("The modal opened on the Quantity Adjustment view", {}, async () => {
     await assertPageContains(page, `Current Quantity`, 30000);

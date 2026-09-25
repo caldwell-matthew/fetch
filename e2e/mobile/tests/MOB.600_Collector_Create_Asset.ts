@@ -15,17 +15,11 @@ export async function mob600(page: Page): Promise<void> {
   await run.step("Navigate to the asset collector", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the collector to load its lookup cache", {}, async () => {
-    await wait(page, 15);
-  });
   await run.step("Test the collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the new-asset form (affixed + button)", {}, async () => {
     await click(page, `//div[contains(concat(" ", normalize-space(@class), " "), " mantine-Affix-root ")]//button`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the form to mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Test the new-asset form opened", {}, async () => {
     await assertElementPresent(page, `//button[@form="asset-collector"]`, DEFAULT_TIMEOUT);
@@ -38,9 +32,6 @@ export async function mob600(page: Page): Promise<void> {
   });
   await run.step("Focus the asset type lookup", {}, async () => {
     await click(page, `//*[@id="typeId"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for asset type options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick Actuator Tools", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Actuator Tools")]`, DEFAULT_TIMEOUT);
@@ -68,9 +59,6 @@ return true;
   await run.step("\u2b50 The photo-source modal closed ITSELF once the file arrived \u2014 `onDialogChange` calls `close()` (2026-09). Nothing clicks an X: closing early unmounted the component and destroyed the very <input> the upload needs", {}, async () => {
     await assertPageLacks(page, `Select Photo Source`, 30000);
   });
-  await run.step("Wait for the modal to close", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Submit the new asset", {}, async () => {
     await click(page, `//button[@form="asset-collector"]`, DEFAULT_TIMEOUT);
   });
@@ -83,9 +71,6 @@ return true;
   await run.step("Test the form closed (affixed + button is back)", {}, async () => {
     await assertElementPresent(page, `//div[contains(concat(" ", normalize-space(@class), " "), " mantine-Affix-root ")]//button`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the collected list to refresh", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("PROOF OF CREATION: this run's asset is in the collected list", {}, async () => {
     await assertPageContains(page, `DD SYNTHETIC MOBILE ${RUNID}`, DEFAULT_TIMEOUT);
   });
@@ -94,9 +79,6 @@ return true;
   });
   await run.step("SERVER PROOF: navigate to Asset Lookup (its search is a network-only query)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 5);
   });
   await run.step("Focus the search input", {}, async () => {
     await click(page, `//input[@name="asset-search"]`, 30000);

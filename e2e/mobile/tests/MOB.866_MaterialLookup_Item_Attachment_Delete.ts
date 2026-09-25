@@ -58,14 +58,8 @@ return counted && !overlay;`, 60000);
   await run.step("Open the storeroom dropdown", {}, async () => {
     await click(page, `//*[@id="storeroomLocationId"]`, 30000);
   });
-  await run.step("Wait for storeroom options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick Central Storeroom", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Central Storeroom")]`, 30000);
-  });
-  await run.step("Wait for the material list to load", {}, async () => {
-    await wait(page, 8);
   });
   await run.step("Focus the material search", {}, async () => {
     await click(page, `//input[@placeholder="Search for material items by name"]`, 30000);

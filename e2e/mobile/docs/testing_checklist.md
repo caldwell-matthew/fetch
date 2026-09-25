@@ -55,7 +55,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Tests | **156 tests · 27 suites** · 156 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 198 `[x]` · 8 `[~]` · 1 `[ ]` · 25 `[-]` — 232 rows. Counts describe *this file*, not the app |
+| Rows | 199 `[x]` · 8 `[~]` · 0 `[ ]` · 25 `[-]` — 232 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -133,17 +133,15 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#84** the map card's change-asset popup — built, waiting on an owner decision about a work layer.
-2. **#89** the fixed waits.
-3. **#37** CircleCI (held by the owner for later).
+1. **#90** why the work-order suites are still slow.
+2. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
-| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); block Datadog RUM inside the tests so their sessions are not billed as users; tighten the fixed waits (▶ #89); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **84** | **The map card's change-asset popup.** `MOB.930` (in `MOB.971`, `test.fixme`) opens a work stage's card from the work order's "View in Map", then `Change Asset` → both choices and the warning → Back → **Cancel** (owner: never confirm), every mutation stopped in the browser and the stage's links proven unchanged. It cannot reach the card on dev: a work stage's card opens only by that auto-open, which needs the stage drawn (work layers are not tappable — `interactiveLayerIds: []`), and every `My Work` / `Status` layer is off for the test account (`mobile/probe/map_layers_probe.spec.ts`). Switching one on saves the account's map settings on the server (`UPDATE_USER_MAP_SETTINGS`). **Owner decision:** switch `My Work: Ready` on for the test account, or let the test switch it on and back off. (The drawing tools are done — mobile has only the point tool, `MOB.932`.) | open — decision |
-| **89** | **Tighten the fixed waits** — 1,088 `wait` steps kept from Datadog, about 85 min of sleep. `tools/tighten_waits.py <suite>` removes a wait only where the next step is a positive check that polls anyway, and replaces the prefetch sleeps with `waitForPrefetch` (`support/prefetch.ts` — the app's own loading bars); every other wait stays. Per suite: time it, `--apply`, two green runs, or put it back. **Done:** `MOB.962` 5.4 → 2.3 min. **Left:** the other read-only suites, then the data-changing ones (one at a time, fixtures checked between) | in progress |
+| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **90** | **Why the work-order suites are still slow.** After the waits were trimmed they gained least — 71.4 → 57.6 min over `MOB.953`–`MOB.960` and `MOB.981` (19%; `MOB.960` 4.5 → 4.5), about 58% of a full pass — and only about 2 min of fixed sleep is left in them, so the time is the app: suspected, each test reloading `/work`, waiting out its prefetch and reopening the fixture work order; saves proven over `/graphql`; checks sitting out a timeout before a fallback step. **Next:** time `MOB.960` and `MOB.959` step by step, then fix the biggest costs (e.g. load a shared page once per suite) — every suite green twice after, as for the waits | open |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -158,7 +156,7 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | Add a NEW / EXISTING asset to the job · Add Work | `reset_av_fixture.py` can put the fixture back for 0 runs (`cleanup_spec.md` §4). The owner accepts the **run → reset** chore and Add Work's residue, then these three get built. (The two verify tests left this row: the status recompute means they undo themselves — `MOB.511`/`MOB.512`) | decision |
 | Re-verify `MOB.967_AssetCollector_2_Saved_Asset_Suite` (5 runs) | bugs §34 fixed — until then its `MOB.600` is red on Datadog; a local replay cannot show it | backend |
 | The collector's `Location` **applied** to a created asset — extend `MOB.600` | a green `MOB.600` (bugs §34). `MOB.629` covers the capture; this half is `createAsset` writing the address and GIS onto the new asset, and `assetTypeHasGeometry` dropping GIS for a type with no geometry — prove both over `/graphql` with `MOB.629`'s stubs | backend |
-| Pruning work-order residue | bugs §41 — `deleteWorkOrders` rolls back on every test-created work order. `cleanup_residue.py --apply` resumes once fixed | backend |
+| Pruning work-order residue | `deleteWorkOrders` now clears every table that points at a stage (`server/…/workStage/delete/cleanUpStages.ts`, on `development` since 2026-09-17), so `cleanup_residue.py --apply` should work again; its first run is the proof. Owner decision: when to run it (it deletes the test-made records) | decision |
 | `MOB.357`'s non-zero path | a form template with a **required field**; every card reads `0 of 0` | fixture |
 | `MOB.342` exclusion leg | a second status in the crew's list — read the legend before asking | fixture |
 | `MOB.351`'s estimate rows | an estimate on the fixture work order | fixture |
@@ -190,7 +188,7 @@ both) · real device GPS ·
 ### 🔴 HARNESS — needs a different tool
 
 `UploadStatusIcon` · camera / barcode · native shell · the browser genuinely offline (the offline shell page).
-**Out of Datadog's reach, and now in Playwright's** (▶ #84 for what is left): genuinely
+**Out of Datadog's reach, and now in Playwright's**: genuinely
 offline, network-error states, the capture file choosers, the session re-auth clock, and the **startup-error banner** (`Layout/Auth.tsx:163`, `role="alert"` + `Reload page`) — its seven messages each fire only when a startup promise rejects (session load, log cleanup, queue restore, cache reset, the build-number check, clearing queues when unauthenticated) or a session event's refresh fails, before a test's first step can act. The map canvas and tus uploads are in reach too; the Expo/native shell is not. The
 queue's link classes in isolation are a **Jest** job, being done outside this suite; the queue end
 to end is `MOB.913`.
@@ -540,7 +538,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Geocoder search → suggestion → fly + popup *(MOB.122)* — the popup's `Latitude`/`Longitude`
 - [x] Create a work order from the map *(MOB.122)*
 - [x] Feature sheet for an asset, reached by router state *(MOB.735)*
-- [ ] The change-asset popup on a work stage's card *(MOB.930, fixme)* — ▶ #84: no work layer is shown for the test account
+- [x] The change-asset popup on a work stage's card *(MOB.930)* — the work order's "View in Map" opens the stage's card once `My Work: Ready` is shown; `Change Asset` → the question, the warning, both choices, each choice's Add/Replace and Use Map → Back → **Cancel**, every other mutation stopped and the stage's links proven unchanged. The test switches the layer on for the account and always back off, the account's shown layers proven as before over `/graphql` (owner, 2026-09-24)
 - [x] Add an existing asset to a work order from a map card *(MOB.929)* — Tank 0040's card → `Add to Work` → a test-made work order (the picker reaches only the first 50 stages, bugs §50), proven over `/graphql`, and exactly that link removed
 - [x] `Asset not found.` on an asset's map card *(MOB.931)* — the card's `GET_MOBILE_ASSET` answered with no asset in the browser
 - [x] Create a work order and an asset at a dropped point *(MOB.932)* · residue — the point tool is mobile's only drawing tool (no lasso, line or polygon: `mapDrawControl.ts:68-73`); both proven over `/graphql` at the point's coordinates, and a route stops any location update for an asset that is not the run's
@@ -588,7 +586,7 @@ where a client-side filter rejects it (`MOB.741`).
 
 | Item | Why |
 |---|---|
-| **Add Work** from Asset Lookup / AV detail | a permanent work order through `MOB.300`'s form; the only new behaviour is `defaultAsset`. Its residue cannot be pruned until bugs §41 |
+| **Add Work** from Asset Lookup / AV detail | a permanent work order through `MOB.300`'s form; the only new behaviour is `defaultAsset`. Its residue is pruned by `cleanup_residue.py` |
 | **Add new / existing asset** to a job | grows the fixture job and breaks the `out of 2` assertions |
 
 `reset_av_fixture.py` puts all three back (`cleanup_spec.md` §4); what remains is the owner's
@@ -642,7 +640,7 @@ Runtime ≈ explicit `wait` seconds + ~1s per step.
   `assertPageLacks`, before `goToUrl`, and `av_list_gate`'s 25s (two absence checks depend on it).
 - No fixed 20s `/work` warm-up is left: the last seven switched to `work_list_gate(require_row=False)` 2026-09-17.
 - `work_list_gate` warms a per-session cache — gate on the first leg only. Its `LOADEDALL 3/3` polls up to 180s:
-  every listed stage's detail downloads first (86s locally on a cold session, measured 2026-09-16; it grows with residue, bugs §41).
+  every listed stage's detail downloads first (86s locally on a cold session, measured 2026-09-16; it grows with residue until `cleanup_residue.py` prunes it).
 - Screenshots are on for every step; keep them on assertions.
 - Independent read-only suites can run in parallel (`dd_tools.run` takes several names; with the cap at 1 they queue, one after another); never
   the writing ones (trap 1).

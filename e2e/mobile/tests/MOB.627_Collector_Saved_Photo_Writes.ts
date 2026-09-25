@@ -11,9 +11,6 @@ export async function mob627(page: Page): Promise<void> {
   await run.step("Navigate to the asset collector", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the collector to load its lookup cache", {}, async () => {
-    await wait(page, 15);
-  });
   await run.step("The collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 30000);
   });
@@ -67,14 +64,8 @@ return true;`, 15000);
   await run.step("Expand that row by its chevron", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
   });
-  await run.step("Let the detail panel mount", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("Switch to the \"Photos\" tab", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[@role="tab"][normalize-space(.)="Photos"]`, 30000);
-  });
-  await run.step("Let the Photos panel mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("The \"Photos\" tab is active", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[@role="tab"][normalize-space(.)="Photos"][@data-active]`, 30000);
@@ -396,9 +387,6 @@ if (!g) return false;
 g.click();
 return true;`, 30000);
   });
-  await run.step("Let the menu dropdown render", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Click \"Set as Avatar\" (no restore \u2014 our own upload on a marker asset)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Set as Avatar"])[1]`, 30000);
   });
@@ -457,9 +445,6 @@ const g = last.querySelector('[aria-label="Settings"]');
 if (!g) return false;
 g.click();
 return true;`, 30000);
-  });
-  await run.step("Let the menu dropdown render", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Click \"Delete Photo\"", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Delete Photo"])[1]`, 30000);

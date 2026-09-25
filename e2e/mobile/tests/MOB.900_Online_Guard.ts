@@ -11,9 +11,6 @@ export async function mob900(page: Page): Promise<void> {
   await run.step("Navigate to mobile home", {}, async () => {
     await page.goto(`${MOBDEV}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the home screen render", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("POSITIVE ANCHOR: the home screen actually rendered", {}, async () => {
     await assertPageContains(page, `Welcome,`, 60000);
   });

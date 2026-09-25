@@ -9,9 +9,6 @@ export async function mob171(page: Page): Promise<void> {
   await run.step("Navigate to the Dev Logs screen", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/logz`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page render", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The Developer Logs heading rendered", {}, async () => {
     await assertPageContains(page, `Developer Logs`, 60000);
   });
@@ -44,9 +41,6 @@ return empty !== entries;`, 30000);
   });
   await run.step("Open the log-level select (leg 1 \u2014 change it)", {}, async () => {
     await click(page, `//input[@class and not(@type="checkbox")][ancestor::*[contains(@class,"mantine-Select")]]`, 30000);
-  });
-  await run.step("Let the options render", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Choose \"verbose\"", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-option ")][normalize-space(.)="verbose"]`, 30000);

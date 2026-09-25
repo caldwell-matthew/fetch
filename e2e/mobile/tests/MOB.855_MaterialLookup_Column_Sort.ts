@@ -9,17 +9,11 @@ export async function mob855(page: Page): Promise<void> {
   await run.step("Navigate to material lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/material-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 6);
-  });
   await run.step("Test the \"Material Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Material Lookup")]`, `Material Lookup`, 30000);
   });
   await run.step("Open the storeroom dropdown", {}, async () => {
     await click(page, `//*[@id="storeroomLocationId"]`, 30000);
-  });
-  await run.step("Wait for storeroom options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick Central Storeroom", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Central Storeroom")]`, 30000);

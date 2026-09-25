@@ -16,7 +16,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
   state the fact directly. This is what is wrong now, not a history.
 - **Numbers are never reused or renumbered** (other docs cite them). Gaps are expected: §1–§4,
-  §4b, §4c, §5–§9, §14–§17, §19–§21, §23, §24, §26, §27, §36, §47. Dead code is not filed.
+  §4b, §4c, §5–§9, §14–§17, §19–§21, §23, §24, §26, §27, §30, §36, §41, §47. Dead code is not filed.
 - File a finding the day it is found. A finding that lives only in a generator comment is lost.
 
 ## Index
@@ -27,7 +27,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 25 | How the crew's work list is populated | Reference | not a bug — the four server rules the checklist cites |
 | 28 | The offline geolocate message sits behind a `disabled` element's `onClick` | Source + Runtime | ❌ `GeolocateButton.tsx:94` |
 | 29 | A Mapbox failure makes Geolocate fail silently | Source | ❌ `reverseGeocode` has no `ok` check or `catch` |
-| 30 | The offline queue's link classes have no Jest tests | Source | ⚠️ Synthetics half covered by `MOB.913`; Jest being done elsewhere |
 | 31 | A deploy takes over a running session silently and deletes its cache | Source | ❌ no `controllerchange` handler in `client` |
 | 32 | Work-stage Docs upload gated on `asset.create` | Source | ❌ `Attachments.tsx:126` |
 | 33 | Material Lookup shows at most 500 items under a label counting all | Runtime | ❌ 996 items, 500 rows |
@@ -37,10 +36,9 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 38 | The collector's sort is saved under the AV job list's key | Runtime + Source | ❌ `MOB.625` sentinels it |
 | 39 | A record-field `includes` filter is saved with no value | Runtime + API + Source | ❌ `MOB.807` sentinels it |
 | 40 | **A rejected add or edit looks saved** — the server's refusal is swallowed | API + Source | 🛑 `addToCollection` / `updateCollectionRecord` |
-| 41 | **A work order whose workflow copied stage certifications or event readings cannot be deleted** | Runtime + Source | ❌ `delete/index.ts:55-79` omits `workstagecertification` and `workstageeventreading`; `tedious` hides the FK reason |
 | 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — **reproduced by `MOB.977_DIAG_Condition_Form_Schema_Race`**, which is red when the bug is gone |
 | 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
-| 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:76-88` looks the new tag up in the pre-create list |
+| 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:77-89` → `handleTagAssign` `:51-52` looks the new tag up in the pre-create list — still on `f208805e08`; `MOB.627`'s sentinel red 2026-09-24 |
 | 45 | Expanding an asset row on a work order's Assets tab — or in Asset Lookup before its schema answers — can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema, `AssetLookup/index.tsx:86,351` an unanswered one; `AssetLookupDetails/index.tsx:43` maps it unguarded |
 | 46 | A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated` | Runtime | ❌ `GeneralInfo.tsx:61,77-85`; `InsertForm/utils/index.ts:150-161` copies every `allowUpdate` field, dirty or not |
 | 48 | `Item added` is shown for a save the server refused | Runtime | ❌ low–medium · `ui/NewItemForm.tsx:89` · `MOB.923` pins it |
@@ -124,17 +122,6 @@ fires: the user taps Geolocate and nothing happens. The geolocation error path l
 **Fix:** check `q.ok`, `try/catch`, and on failure still call `onResult` with the coordinates and
 a null address, plus a toast.
 
-## §30 · The offline queue's link classes have no Jest tests
-
-`client/mobile/graphql/links/__jest__` holds only `UploadLink` and `TusUnauthorizedRetry`.
-`QueueLink`, `PersistedQueueLink`, `SerializeLink`, `ErrorLink` and `workers/` have none — the
-offline-first queue, the feature whose failure loses user work.
-
-**Synthetics half: covered by `MOB.913`.** In a browser the queue gates on the window
-`online`/`offline` events (`gateQueueLinkOnNetworkChange`), so a dispatched `offline` holds a real
-mutation; `MOB.913` proves it held, counted, listed, drained, and replayed from IndexedDB after a
-reload. **Jest half: being done outside this suite.** Delete this entry when it lands.
-
 ## §31 · A deploy takes over a running session silently — and deletes the cache it was using
 
 `workers/sw.js`: `skipWaiting()` in `install`, `clients.claim()` in `activate` after
@@ -146,7 +133,7 @@ So a mid-session deploy swaps the worker under the open page, which keeps runnin
 Only the new version is precached, so a route chunk the old page lazy-loads later must come from
 the network under its old filename — if the deploy does not keep old assets served, the user gets
 a chunk-load error mid-task with no explanation. `skipWaiting` is a legitimate choice; the
-**silence** is the risk. It also interacts with the offline queue (§30).
+**silence** is the risk. It also interacts with the offline queue (`graphql/links/`).
 
 Navigations are network-first with a cached offline shell (`/apm-mobile/?offlineShell=1`) falling
 back to a hard-coded *"You are offline"* page — unreachable from Synthetics, where the browser
@@ -298,47 +285,6 @@ form closes, the card flashes in and disappears, nothing says why.
 fixture lacks and prove it after a reload; the charge tests and `MOB.392` count their records
 across a reload.
 
-## §41 · A work order whose workflow copied stage certifications or event readings cannot be deleted — `deleteWorkOrders` rolls back
-
-`deleteWorkOrders(ids)` → `Work.removeWorkById` (`server/src/controllers/work/work/delete/index.ts`),
-the mutation desktop uses. For every test-created work order tried (oldest, middle and newest) it
-returns `null` with
-
-```
-Unexpected error value: "1 rows were not deleted. DELETE FROM workstagelog … DELETE FROM workstage …
-DELETE FROM worknote … DELETE FROM [work] WHERE id = @p19 AND org = @p20 - "
-```
-
-— the batch of `DELETE`s and, after ` - `, no driver reason. The transaction rolls back (re-read over
-the API). **Not mobile-specific**: it applies to any work order, from desktop or mobile, whose workflow
-copied the rows below.
-
-**Two defects combine.**
-1. **The driver's reason is discarded.** A foreign-key violation returns two server errors (547 and the
-   statement-terminated notice). `tedious` 19.2.1 replaces multiple errors with
-   `new AggregateError(this.errors)` (`node_modules/tedious/lib/token/handler.js:295-298`), which carries
-   no `message`. Knex sets the message to `sql + ' - ' + err.message`, so it ends in `" - "` with nothing
-   after it, and `String(error)` leaves the real reasons unread in `err.errors`. This is also why the FK
-   branch in `queryErrorHandler.ts:28-31` never matches.
-2. **The batch does not clear two tables that point at the stage.** `delete/index.ts:55-79` deletes
-   `workstagelog`, `workstageasset`, `workstageattribute`, `workstageassignment`, `channelmessage`,
-   `workstagerolebox`, the four `workstageestimated*`, `workstagejobnote`, `userchannel`,
-   `workstagepermit`, then `workstage`, `worknote` and `[work]`. It names neither
-   **`workstagecertification`** (copied from the workflow at creation) nor **`workstageeventreading`**
-   (copied at creation since the mobile job event-reading work). Every foreign key pointing at
-   `work`/`workstage` is `NO_ACTION` — there are no cascades — and the batch predates both tables.
-
-**Impact.** Deleting such a work order fails the same way from desktop. Test residue cannot be pruned:
-196 marked work orders as of 2026-09-15, and `cleanup_residue.py` reports the deletable set but the
-mutation refuses these.
-**Fix.** (a) Unwrap `AggregateError.errors` where `removeWorkById` catches, so the driver's reason
-survives. (b) Add `workstageeventreading` and `workstagecertification` to the batch — both are setup
-copied from the workflow at creation, not work records. (c) `deleteAttachments` calls `deleteFromS3`
-(`delete/index.ts:142`) *before* the batch, so a rollback still loses the S3 object — delete from S3
-only after `trx.commit()`. Rows that hold genuine work records (actual labor, material, equipment) and
-follow-up work orders are a policy question, not residue, and should be refused with a clear message
-rather than cascaded.
-
 ## §42 · A condition or failure form's first Submit after a page load does nothing — its schema is built before it loads
 
 `ConditionForm` (`WorkOrders/components/Conditions/Form.tsx:88`) passes `schemaData?._info?.fields ?? []`
@@ -416,9 +362,9 @@ each has an optional sentinel, "still on screen once the menu has closed", red w
 ## §44 · Creating a tag on a saved photo never attaches it
 
 On a photo already saved to a record, the tag editor's `+ Create Tag '…'` runs `handleTagCreate`
-(`ui/PhotoCarousel/Tags/index.tsx:76-88`): it merges the new tag into the tag list with `updateQuery`,
-sends `CREATE_TAG`, then — with no `onTagModify` (the saved-photo branch) — calls
-`handleTagAssign(attachmentId, tagId)`. `handleTagAssign` (`:49-53`) looks the id up in `tagOptions`,
+(`ui/PhotoCarousel/Tags/index.tsx:77-89`): it gives the new tag an id (`uid()`), merges it into the tag list with
+`updateQuery`, sends `CREATE_TAG`, then — with no `onTagModify` (the saved-photo branch) — calls
+`handleTagAssign(attachmentId, tagId)`. `handleTagAssign` (`:49-52`) looks the id up in `tagOptions`,
 the array from the render before `updateQuery` merged the new tag, finds nothing, and returns before
 `ADD_TAG_TO_ATTACHMENT`. The unsaved-photo branch (`onTagModify`, `MOB.622`) passes the new tag object
 directly and is not affected.

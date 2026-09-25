@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove the fixed waits that only precede a check which polls anyway (checklist #89).
+"""Remove the fixed waits that only precede a check which polls anyway.
 
 A converted test sleeps (`await wait(page, N)`) before most steps — Datadog's habit. Where the NEXT step is a
 positive check that polls until its own timeout, the sleep adds nothing but time:

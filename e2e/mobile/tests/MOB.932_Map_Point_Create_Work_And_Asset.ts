@@ -1,4 +1,4 @@
-// MOB.932_Map_Point_Create_Work_And_Asset — written for Playwright (not converted from Datadog). ▶ checklist #84 (b).
+// MOB.932_Map_Point_Create_Work_And_Asset — written for Playwright (not converted from Datadog).
 //
 // The mobile map's one drawing tool is the POINT (`mentor-map/src/overlay/mapDrawControl.ts:68-73`: `point: true`,
 // and `displayControlsDefault: !isMobile` hides the rest; `DrawControls.tsx:41` "Only displaying draw_point right

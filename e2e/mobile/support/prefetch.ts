@@ -1,5 +1,5 @@
 /**
- * Wait for the app's own prefetch to finish, instead of sleeping for it (checklist #89).
+ * Wait for the app's own prefetch to finish, instead of sleeping for it.
  *
  * The work list and the Asset Verification job list draw every stage of their prefetch as a `LoadingProgress` bar
  * (`ui/LoadingProgress.tsx`, a Mantine `Progress`): "Retrieving assigned work", "N workstages found", the lookup and

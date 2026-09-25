@@ -9,14 +9,8 @@ export async function mob210(page: Page): Promise<void> {
   await run.step("Navigate to the mobile home page", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the app shell", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the menu", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Role is now \"Admin\"", {}, async () => {
     await assertPageContains(page, `Admin`, DEFAULT_TIMEOUT);
@@ -39,9 +33,6 @@ export async function mob210(page: Page): Promise<void> {
   await run.step("Click Switch Crews", {}, async () => {
     await click(page, `//button[.//div[normalize-space(.)="Switch Crews"]]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the crew list", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Select Admin 0000", {}, async () => {
     await click(page, `//label[contains(normalize-space(.), "0000")]`, DEFAULT_TIMEOUT);
   });
@@ -54,14 +45,8 @@ export async function mob210(page: Page): Promise<void> {
   await run.step("Navigate to the mobile home page", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the app shell", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the menu", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Role is now \"0000\"", {}, async () => {
     await assertPageContains(page, `0000`, DEFAULT_TIMEOUT);
@@ -84,9 +69,6 @@ export async function mob210(page: Page): Promise<void> {
   await run.step("Click Switch Crews", {}, async () => {
     await click(page, `//button[.//div[normalize-space(.)="Switch Crews"]]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the crew list", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Select Admin (restore)", {}, async () => {
     await click(page, `//label[normalize-space(.)="Admin"]`, DEFAULT_TIMEOUT);
   });
@@ -99,14 +81,8 @@ export async function mob210(page: Page): Promise<void> {
   await run.step("Navigate to the mobile home page", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the app shell", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the menu", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Role is now \"Admin\"", {}, async () => {
     await assertPageContains(page, `Admin`, DEFAULT_TIMEOUT);

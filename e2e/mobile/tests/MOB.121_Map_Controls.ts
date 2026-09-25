@@ -9,9 +9,6 @@ export async function mob121(page: Page): Promise<void> {
   await run.step("Navigate to the mobile map", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the map begin initialising", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Test the \"Map\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Map")]`, `Map`, 30000);
   });
@@ -23,9 +20,6 @@ export async function mob121(page: Page): Promise<void> {
   });
   await run.step("Switch the basemap to Satellite", {}, async () => {
     await click(page, `//button[@data-tooltip-content="Satellite"]`, 30000);
-  });
-  await run.step("Let the style load", {}, async () => {
-    await wait(page, 6);
   });
   await run.step("PROOF: the style changed \u2014 the control now offers \"Street\"", {}, async () => {
     await assertElementPresent(page, `//button[@data-tooltip-content="Street"]`, 30000);
@@ -44,9 +38,6 @@ export async function mob121(page: Page): Promise<void> {
   });
   await run.step("Open the Layers panel", {}, async () => {
     await click(page, `//div[contains(concat(" ", normalize-space(@class), " "), " layers-title ")]`, 30000);
-  });
-  await run.step("Wait for the layers modal", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("PROOF: the Layers modal opened", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]`, 30000);

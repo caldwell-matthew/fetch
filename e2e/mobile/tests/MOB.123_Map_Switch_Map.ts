@@ -9,9 +9,6 @@ export async function mob123(page: Page): Promise<void> {
   await run.step("Navigate to the mobile map", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the map begin initialising", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Test the \"Map\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Map")]`, `Map`, 30000);
   });
@@ -89,9 +86,6 @@ return !!b && !b.disabled;`, 60000);
   await run.step("SWITCH: click `Switch Map`", {}, async () => {
     await click(page, `//button[@aria-label="Switch Map"]`, 30000);
   });
-  await run.step("Let the picker open", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the map dropdown", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][.//*[contains(normalize-space(.), "Select a map")]]//input[not(@type="hidden")]`, 30000);
   });
@@ -108,9 +102,6 @@ return true;`, 30000);
   });
   await run.step("Pick that map", {}, async () => {
     await click(page, `(//*[@role="listbox"]//*[@role="option"][not(@aria-selected="true")])[1]`, 30000);
-  });
-  await run.step("Let the map remount on the new map id", {}, async () => {
-    await wait(page, 5);
   });
   await run.step("SWITCHED: the Mapbox canvas rendered again", {}, async () => {
     await assertElementPresent(page, `//canvas[contains(@class,"mapboxgl-canvas")]`, 60000);

@@ -3,6 +3,7 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
+import { waitForPrefetch } from '../support/prefetch';
 
 export async function mob460(page: Page): Promise<void> {
   const run = new Sequence();
@@ -10,7 +11,7 @@ export async function mob460(page: Page): Promise<void> {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Wait for the job list and its prefetch", {}, async () => {
-    await wait(page, 30);
+    await waitForPrefetch(page);
   });
   await run.step("Baseline: the prefetch has settled", {}, async () => {
     await assertPageLacks(page, `Fetching data for lookups`, DEFAULT_TIMEOUT);

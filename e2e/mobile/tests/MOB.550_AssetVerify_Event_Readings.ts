@@ -3,20 +3,18 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
+import { waitForPrefetch } from '../support/prefetch';
 
 export async function mob550(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
   });
   await run.step("Wait for the lookup prefetch and batched detail downloads", {}, async () => {
-    await wait(page, 25);
+    await waitForPrefetch(page);
   });
   await run.step("Test the job list rendered", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Mobile Job(s)"]`, DEFAULT_TIMEOUT);
@@ -33,26 +31,17 @@ export async function mob550(page: Page): Promise<void> {
   await run.step("Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "DATADOG MOBILE JOB")]`, 30000);
   });
-  await run.step("Wait for the job detail to render", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("ASSET LIST GUARD: the job's asset rows have rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]`, 60000);
   });
   await run.step("Open Tank 0000's full-page detail", {}, async () => {
     await click(page, `(//span[contains(normalize-space(.), "Tank 0000")])[last()]`, 30000);
   });
-  await run.step("Wait for the asset detail route", {}, async () => {
-    await wait(page, 6);
-  });
   await run.step("The full-page asset detail rendered", {}, async () => {
     await assertPageContains(page, `Asset Type:`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the Event Readings tab", {}, async () => {
     await click(page, `//*[@role="tab"][contains(normalize-space(.), "Event Readings")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the Event Readings panel", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("FIELD GUARD: the readings form rendered", {}, async () => {
     await assertElementPresent(page, `(//form[@id="av-event-readings"]//input)[1]`, DEFAULT_TIMEOUT);

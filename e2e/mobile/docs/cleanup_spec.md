@@ -33,7 +33,7 @@ them and added more — recount over `/graphql` or with a dry run before any pru
 
 | residue | created by (suite) | marker | removal | state |
 |---|---|---|---|---|
-| **Work orders** (~4 per full pass) | `MOB.300` (`953`) · `122` (`971`) · `396` · `397` (`959`) | `problemDesc` starts `DD SYNTHETIC MOBILE`, created by the test account | `deleteWorkOrders` → `removeWorkById` (whole work + stages, one transaction; refuses any with charges, schedule entries, conditions or failures) | 🛑 **blocked** — every call rolls back (bugs §41). 196 carry the marker (created 2026-08-05 → 09-10; measured 2026-09-15); newest 10 kept for the work-list tests |
+| **Work orders** (~4 per full pass) | `MOB.300` (`953`) · `122` (`971`) · `396` · `397` (`959`) | `problemDesc` starts `DD SYNTHETIC MOBILE`, created by the test account | `deleteWorkOrders` → `removeWorkById` (whole work + stages, one transaction; refuses any with charges, schedule entries, conditions or failures) | ready to resume — every call rolled back until `cleanUpStages.ts` (on `development` since 2026-09-17) cleared the tables that point at a stage; the first `--apply` proves it. 196 carry the marker (created 2026-08-05 → 09-10; measured 2026-09-15); newest 10 kept for the work-list tests |
 | **Charges** ×4 on the fixture WO | `MOB.350` equipment `AC Adapter` · `360` labor `Dev Eloper` · `370` material `0000-0000 Diaphragm Pump` · `380` other (`956`) | qty 1 | `reverseWorkCharge` **adds** a negated counter-transaction — reversal doubles the rows | ⏸️ **excluded** (owner). Accepted debt: +4 per run, permanent — 78 equipment · 52 labor · 45 material · 35 other on the fixture (measured 2026-09-15) |
 | **Note** | `MOB.392` (`956`) | body `This is a note - DD SYNTHETIC MOBILE` | `deleteWorkStageJobNotes(ids)` | 4 on the fixture (measured 2026-09-15) — a prune keeps the newest 1 |
 | **Asset + attachment** | `MOB.600` (+ `MOB.623` adds photos) (`967`, held out while bugs §34 is open) | name `DD SYNTHETIC MOBILE <8 digits>`, desc `Created by Datadog Synthetics - safe to delete` | `deleteAssets(ids)` (gated `ASSET UPDATE`) · `removeAttachment` | newest 4 kept (`MOB.623`/`625` select them by prefix) — nothing to prune today. A kept asset can hold `MOB.712`'s System link and `MOB.722`'s readings; not yet checked whether `deleteAssets` refuses one with events. `MOB.627`/`628` add and delete their own photo/PDF and set the avatar on the newest one — nothing left when green |
@@ -61,7 +61,7 @@ tests; the photo tests `MOB.620`/`621`/`622`/`626`/`301` (local reducer, never s
   Every candidate work is checked against the fixtures' parent work ids and every stage it
   holds; the run aborts if a never-touch id is anywhere in the plan.
 - **Deletes in batches of 5, stops on the first error**, and re-plans from the server every run,
-  so it resumes cleanly once §41 is fixed.
+  so it resumes cleanly after an error.
 - **Reports a count per category** — a category that drops to zero usually means a test stopped
   writing.
 - Auth as the `Admin` test account (role exactly `Admin`). ⚠️ Never call logout, and do not run
@@ -92,14 +92,14 @@ because nothing in the app unlinks or deletes an asset:
 | verify status update on the job list | same act, list-side assertion | same |
 | add a NEW asset to the job | `Asset` + `MobileJobAsset` (+ attachment) | `deleteMobileJobAssets` · `deleteAssets` |
 | add an EXISTING asset (`Pump 0102`) | a `MobileJobAsset` link | `deleteMobileJobAssets` |
-| Add Work from Asset Lookup / AV detail | a work order | `deleteWorkOrders` — blocked by §41 |
+| Add Work from Asset Lookup / AV detail | a work order | `deleteWorkOrders` (`cleanup_residue.py`) |
 
 They go in `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` as the **last** children (verifying the second asset flips the
 job), and the two add-asset tests make a `MOB.963` run **run → reset**. A forgotten reset fails the
 next run at its first fixture guard. The reset is idempotent.
 
 **Open owner decisions:** accept the run → reset chore for the add-asset tests; accept Add Work's
-residue until §41 is fixed. Then build: the two verify tests (no reset chore — they undo
+residue (pruned by `cleanup_residue.py`). Then build: the two verify tests (no reset chore — they undo
 themselves) → the two add-asset tests → Add Work.
 
 ## 5 · Session over plain HTTP

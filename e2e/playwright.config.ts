@@ -16,6 +16,16 @@ export const DEVICES = {
   mobile_small: { width: 320, height: 550 },
 };
 
+/**
+ * Datadog RUM stays out of every test browser. The app's page loads Datadog's RUM script and records EVERY session
+ * with a full replay (`server/src/views/mobile.ejs:22-44`: sessionSampleRate and sessionReplaySampleRate 100), so a
+ * test browser would be reported — and billed — as a real user, and mixed into real-user data, locally and in CI.
+ * The names never resolve: the script does not load, and the page's own `window.DD_RUM &&` guard skips the rest.
+ * `mobile/probe/rum_blocked_probe.spec.ts` proves it.
+ */
+export const RUM_HOSTS = ['datadoghq-browser-agent.com', 'browser-intake-datadoghq.com'];
+const NO_RUM = `--host-resolver-rules=${RUM_HOSTS.flatMap((h) => [`MAP ${h} ~NOTFOUND`, `MAP *.${h} ~NOTFOUND`]).join(', ')}`;
+
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.ts',
@@ -41,5 +51,6 @@ export default defineConfig({
     video: 'off',
     actionTimeout: 60_000,
     navigationTimeout: 60_000,
+    launchOptions: { args: [NO_RUM] },
   },
 });

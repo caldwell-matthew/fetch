@@ -56,17 +56,11 @@ return n === 6;`, 30000);
   await run.step("Click the \"Work Orders\" tile", {}, async () => {
     await click(page, `//img[@alt="icon for Work Orders url"]`, 30000);
   });
-  await run.step("Let the work route mount", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("PROOF: the tile navigated to Work Orders", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Navigate to back to the home page", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let home re-render", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("RESTORED: back on Home with its tiles", {}, async () => {
     await assertElementPresent(page, `//img[@alt="icon for Work Orders url"]`, 30000);

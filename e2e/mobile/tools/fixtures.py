@@ -42,8 +42,15 @@ def check_work():
     # the fixture references one, no General Info save on it can succeed and MOB.395 is red whatever it types.
     w = s.graphql("query($id: ID!) { workStage(id: $id) { status project { id name } } }",
                   {"id": WO_FIXTURE})["workStage"]
-    crew = s.graphql("query($crew: String) { workStages(crew: $crew) { edges { id } } }",
-                     {"crew": "<SESSION>"})["workStages"]["edges"]
+    # The whole list, not the default page: its limit is 500, and the crew passed 500 stages with residue on
+    # 2026-09-24 — the fixture sat at 501 and read as "not in the list" when it was. A limit of 5000 silently comes
+    # back as 500, so 1000 it is, and a longer list stops the check rather than misreading it.
+    page = s.graphql("query($crew: String) { workStages(crew: $crew, params: { limit: 1000 }) "
+                     "{ edges { id } pageInfo { totalCount } } }", {"crew": "<SESSION>"})["workStages"]
+    crew = page["edges"]
+    if page["pageInfo"]["totalCount"] > len(crew):
+        return False, (f"the crew's list has {page['pageInfo']['totalCount']} stages, more than one read of "
+                       f"{len(crew)} — prune the residue (cleanup_residue.py) or page this check")
     listed = any(e["id"] == WO_FIXTURE for e in crew)
     proj = w["project"]
     ok = w["status"] == "Ready" and listed and proj is None

@@ -279,6 +279,7 @@ export class Sequence {
     body: () => Promise<void>,
   ): Promise<void> {
     if (this.failure && !opts.always) return;
+    const t0 = Date.now();
     try {
       await body();
     } catch (err) {
@@ -292,6 +293,10 @@ export class Sequence {
       } else {
         this.failure = err;
       }
+    } finally {
+      // `E2E_STEP_TIMES=1`: where a test's time goes (checklist #90).
+      const ms = Date.now() - t0;
+      if (process.env.E2E_STEP_TIMES && ms >= 1000) console.log(`  [step ${(ms / 1000).toFixed(1)}s] ${what.slice(0, 110)}`);
     }
   }
 

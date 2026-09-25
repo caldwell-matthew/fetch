@@ -30,9 +30,6 @@ export async function mob470(page: Page): Promise<void> {
   await run.step("Open the header menu", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, 30000);
   });
-  await run.step("Wait for the menu", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("VERSION: the menu renders a version item", {}, async () => {
     await assertPageContains(page, `Version: `, DEFAULT_TIMEOUT);
   });
@@ -72,9 +69,6 @@ return true;`, 15000);
   });
   await run.step("Click the crew label beside the logo", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mobile-crew ")]`, 30000);
-  });
-  await run.step("Wait for the RoleSelection modal", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("PROOF: the crew shortcut opens the same RoleSelection modal as the menu", {}, async () => {
     await assertPageContains(page, `Submit`, DEFAULT_TIMEOUT);
