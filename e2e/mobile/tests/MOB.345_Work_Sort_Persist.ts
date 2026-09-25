@@ -3,20 +3,18 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob345(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
-    await wait(page, 20);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
@@ -91,17 +89,11 @@ return new Set(o).size === o.length;`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, 30000);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick \"Created At \u25b2\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Created At ▲"]`, 30000);

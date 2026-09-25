@@ -9,9 +9,6 @@ export async function mob912(page: Page): Promise<void> {
   await run.step("Navigate to the home screen", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let home render", {}, async () => {
-    await wait(page, 4);
-  });
   await run.step("GATE: the home screen rendered", {}, async () => {
     await assertPageContains(page, `Welcome,`, 60000);
   });
@@ -73,9 +70,6 @@ return true;`, 15000);
   });
   await run.step("Navigate to the fixture work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

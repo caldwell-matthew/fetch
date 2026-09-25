@@ -9,9 +9,6 @@ export async function mob610(page: Page): Promise<void> {
   await run.step("Navigate to the collector", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page mount", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The Collector page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Collector")]`, `Collector`, 60000);
   });

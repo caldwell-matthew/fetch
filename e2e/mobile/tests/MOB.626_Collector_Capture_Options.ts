@@ -9,9 +9,6 @@ export async function mob626(page: Page): Promise<void> {
   await run.step("Navigate to the asset collector", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the collector to load its lookup cache", {}, async () => {
-    await wait(page, 15);
-  });
   await run.step("The collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 30000);
   });
@@ -176,9 +173,6 @@ const b = svg && svg.closest('button, [role="button"], .mantine-ActionIcon-root'
 if (!b) return false;
 b.click();
 return true;`, 30000);
-  });
-  await run.step("Let the popover open", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("\u2b50 OFFLINE: the wand's popover reads `This feature requires an internet connection.`", {}, async () => {
     await assertPageContains(page, `This feature requires an internet connection.`, 20000);

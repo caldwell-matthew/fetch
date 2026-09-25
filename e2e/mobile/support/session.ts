@@ -18,14 +18,26 @@ export async function freshSession(
   browser: Browser,
   opts: { device?: keyof typeof DEVICES; clock?: boolean; touch?: boolean } = {},
 ): Promise<Page> {
-  // `touch`: the map selects features on touchend only (`Map/MapGL/index.tsx:99`) — a mouse click never opens a card.
-  const context = await browser.newContext({ viewport: DEVICES[opts.device ?? 'tablet'], hasTouch: !!opts.touch });
-  const page = await context.newPage();
-  // The clock must be installed before the app's first script runs; time still flows normally until a test
-  // fast-forwards it.
-  if (opts.clock) await page.clock.install();
-  await login(page);
-  return page;
+  // A login sometimes fails on the SSO form — the password field emptied under the typing (2026-09-23), the
+  // `development` environment button never appearing (3 of about 12 fresh logins, 2026-09-24) — a failure of the
+  // environment, not of the test. One more try, in a new browser: a test's cleanup runs through here too, and a
+  // failed login there leaves its data behind.
+  for (let attempt = 1; ; attempt++) {
+    // `touch`: the map selects features on touchend only (`Map/MapGL/index.tsx:99`) — a mouse click never opens a card.
+    const context = await browser.newContext({ viewport: DEVICES[opts.device ?? 'tablet'], hasTouch: !!opts.touch });
+    const page = await context.newPage();
+    // The clock must be installed before the app's first script runs; time still flows normally until a test
+    // fast-forwards it.
+    if (opts.clock) await page.clock.install();
+    try {
+      await login(page);
+      return page;
+    } catch (err) {
+      await context.close();
+      if (attempt >= 2) throw err;
+      console.log(`  (login failed, retrying in a new browser) ${(err as Error)?.message ?? err}`);
+    }
+  }
 }
 
 /** Ask `/graphql` directly, with the page's own session — the server's answer, not the UI's. */

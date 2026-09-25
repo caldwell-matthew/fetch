@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**148 tests · 27 suites** · 148 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**156 tests · 27 suites** · 156 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -83,13 +83,13 @@ conditions, failures, work-order asset links, attachments and photo tags; it cre
 
 | record | create | update | delete |
 |---|---|---|---|
-| Work order | ✅ `MOB.300` · `122` · `396` · `397` | ✅ status `MOB.320` · General Info `395` (⚠️ only because the fixture carries **no project** — bugs §46: the form resubmits every field, so a project with no account blocks any save, and the toast still says `Record Updated`) · attributes `388` · Edit Location `352` | — |
+| Work order | ✅ `MOB.300` · `122` · `396` · `397` · at a dropped map point `932` | ✅ status `MOB.320` · General Info `395` (⚠️ only because the fixture carries **no project** — bugs §46: the form resubmits every field, so a project with no account blocks any save, and the toast still says `Record Updated`) · attributes `388` · Edit Location `352` | — |
 | Charges ×4 | ✅ `MOB.350`–`380` | — | — |
 | Notes | ✅ `MOB.392` | ✅ `MOB.361`, its own note | ✅ `MOB.361`, its own note |
 | Conditions | ✅ `MOB.390` ¹ | ✅ `Edit Item` `MOB.386` ¹ | ✅ `MOB.390`, its own card |
 | Failures | ✅ `MOB.391` ¹ | ✅ `Edit Item` `MOB.385` ¹ | ✅ `MOB.391`, its own card |
-| Assets on a work order | ✅ Assets tab add `MOB.354` | ✅ `Mark as …` `MOB.353` · location form submit `359` | ✅ `MOB.354`, its own link |
-| Attachments | ✅ one photo `MOB.363` · ⛔ **AT** beyond it | ✅ `Copy to asset` `MOB.302` | ✅ `MOB.363`, its own upload |
+| Assets on a work order | ✅ Assets tab add `MOB.354` · from a map card `929` | ✅ `Mark as …` `MOB.353` · location form submit `359` | ✅ `MOB.354`, `MOB.929`, each its own link |
+| Attachments | ✅ one photo `MOB.363` · several types at once `MOB.933` · resumed after a cut `MOB.934` | ✅ `Copy to asset` `MOB.302` | ✅ `MOB.363`, `MOB.933`–`935`, their own uploads |
 | Forms | ✅ attach `MOB.364` (the test then deletes it over `/graphql`) | ✅ fill `MOB.134` · signature `[-]` | — |
 | Assignment | — | ✅ reassign `MOB.365` | — |
 
@@ -109,9 +109,9 @@ reproduces §42.
 
 | record | create | update | delete |
 |---|---|---|---|
-| Asset | 🟠 `MOB.600` (bugs §34) | ✅ fields `MOB.710` · ✅ create a System `MOB.712` · ⛔ `Get Description` (AI route) | — |
-| Photos | ✅ upload to an existing asset `MOB.623` | ✅ rotate `MOB.623` · `Set as Avatar` `627` · tags add/remove `627` · 🟠 tag **create** `627` — red on bugs §44, the created tag never attaches (its sentinel is `optional`) | ✅ `MOB.627`, its own upload |
-| Docs | ✅ one PDF `MOB.628` · ⛔ **AT** beyond it | — | ✅ `MOB.628`, its own file |
+| Asset | 🟠 `MOB.600` (bugs §34) · ✅ at a dropped map point `MOB.932` | ✅ fields `MOB.710` · ✅ create a System `MOB.712` · ✅ `Get Description`, the AI answered in the browser `MOB.935` | — |
+| Photos | ✅ upload to an existing asset `MOB.623` · a HEIC `936` | ✅ rotate `MOB.623` · `Set as Avatar` `627` · tags add/remove `627` · 🟠 tag **create** `627` — red on bugs §44, the created tag never attaches (its sentinel is `optional`) | ✅ `MOB.627`, its own upload |
+| Docs | ✅ one PDF `MOB.628` · PDF, text and video at once `MOB.933` | — | ✅ `MOB.628`, `MOB.933`, `MOB.934`, their own files |
 | Readings on Asset Lookup | ✅ `MOB.722` | — | — |
 
 **`/material-lookup` · `/map` · every route's header**
@@ -354,9 +354,8 @@ exists only on Datadog — never delete it.
 | **The queue's link classes in isolation** (`SerializeLink` ordering, `ErrorLink`) | a **Jest** job, being done outside this suite; `MOB.913` covers the queue end to end in a browser |
 | **The browser genuinely offline** | Synthetics cannot cut the network — the offline shell page and a real fetch failure are unreachable. The window event and the `onLine` override reach everything else |
 | **Camera capture** | each button opens a native file dialog Datadog cannot dismiss |
-| **The `tus` transport** | resume and unauthorized-retry need a transfer interrupted mid-flight |
 | **The native shell bridge** | Expo shell only (`window.ReactNativeWebView`) |
-| **Real GPS · map canvas drawing** | features are hit-tested via `queryRenderedFeatures`, no DOM |
+| **Real GPS** | a browser has none; geolocation is stubbed where a test needs a position |
 | **Delete controls** | never fired except the owner-named flows (trap 2) |
 | **Session/JWT expiry** | cookie-authenticated; a browser step cannot expire it |
 
@@ -373,7 +372,7 @@ schedule. The owner decides the order.*
 4. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), bugs §41 (residue), a second
    work-order shape (estimate rows, a required form field, a second list status).
 
-Genuinely offline, network errors, file choosers, the re-auth clock and the map canvas were out of Datadog's
-reach; with Playwright they are open work (▶ #80, #84, #86).
+Genuinely offline, network errors, file choosers, the re-auth clock, the map canvas and the tus transport were out
+of Datadog's reach; Playwright covers them now, except the map card's change-asset popup (▶ #84).
 
 *Details: `testing_checklist.md` → ▶ OPEN WORK.*

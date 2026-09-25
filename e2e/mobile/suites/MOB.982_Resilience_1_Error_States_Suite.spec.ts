@@ -11,6 +11,8 @@ import { test } from '@playwright/test';
 import { freshSession } from '../support/session';
 import { mob920 } from '../tests/MOB.920_Startup_Session_Load_Fails';
 import { mob921 } from '../tests/MOB.921_Record_Form_Load_Fails';
+import { mob922 } from '../tests/MOB.922_Tag_Lookup_Outcomes';
+import { mob931 } from '../tests/MOB.931_Map_Card_Asset_Not_Found';
 import { mob923 } from '../tests/MOB.923_Note_Save_Rejected';
 import { mob924 } from '../tests/MOB.924_Form_Attach_Rejected';
 
@@ -28,6 +30,24 @@ test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
     const page = await freshSession(browser);
     try {
       await mob921(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.922_Tag_Lookup_Outcomes', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob922(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.931_Map_Card_Asset_Not_Found', async ({ browser }) => {
+    const page = await freshSession(browser, { touch: true });
+    try {
+      await mob931(page);
     } finally {
       await page.context().close();
     }

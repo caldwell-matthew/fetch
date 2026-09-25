@@ -3,20 +3,18 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob391(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
-    await wait(page, 20);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
@@ -46,9 +44,6 @@ return Date.now() - since >= 10000;`, 360000);
   });
   await run.step("Navigate to the fixture work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -82,17 +77,11 @@ return true;`, 30000);
   await run.step("Focus the asset lookup", {}, async () => {
     await click(page, `//*[@id="assetId"]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for asset options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick Pump 0102", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Pump 0102")]`, DEFAULT_TIMEOUT);
   });
   await run.step("Focus the failure type lookup", {}, async () => {
     await click(page, `//*[@id="failureTypeId"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for failure type options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick BELT (R-L1)", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "BELT (R-L1)")]`, DEFAULT_TIMEOUT);
@@ -100,17 +89,11 @@ return true;`, 30000);
   await run.step("Focus the repair type lookup", {}, async () => {
     await click(page, `//*[@id="repairTypeId"]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for repair type options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick ADJUST", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "ADJUST")]`, DEFAULT_TIMEOUT);
   });
   await run.step("Focus the root cause type lookup", {}, async () => {
     await click(page, `//*[@id="rootCauseTypeId"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for root cause type options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick TIME", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "TIME")]`, DEFAULT_TIMEOUT);
@@ -133,9 +116,6 @@ return !!b && b.type === 'submit';`, 30000);
   });
   await run.step("Navigate to the fixture work order (reload: the server's answer)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -225,9 +205,6 @@ return true;`, 30000);
   });
   await run.step("Navigate to the fixture work order (reload: after the delete)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

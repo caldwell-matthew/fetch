@@ -9,6 +9,10 @@ import { mob600 } from '../tests/MOB.600_Collector_Create_Asset';
 import { mob623 } from '../tests/MOB.623_Collector_Saved_Photo_Menu';
 import { mob627 } from '../tests/MOB.627_Collector_Saved_Photo_Writes';
 import { mob628 } from '../tests/MOB.628_Collector_Document_Add_Delete';
+import { mob933 } from '../tests/MOB.933_Collector_Several_File_Types';
+import { mob934 } from '../tests/MOB.934_Collector_Upload_Interrupted';
+import { mob935 } from '../tests/MOB.935_Collector_Get_Description_Online';
+import { mob936 } from '../tests/MOB.936_Collector_HEIC_Photo';
 
 test.describe.serial('MOB.967_AssetCollector_2_Saved_Asset_Suite', () => {
   let page: Page;
@@ -48,6 +52,23 @@ test.describe.serial('MOB.967_AssetCollector_2_Saved_Asset_Suite', () => {
 
   test('MOB.628_Collector_Document_Add_Delete', async () => {
     await mob628(page);
+  });
+
+  test('MOB.933_Collector_Several_File_Types', async () => {
+    await mob933(page);
+  });
+
+  test('MOB.934_Collector_Upload_Interrupted', async () => {
+    await mob934(page);
+  });
+
+  test('MOB.935_Collector_Get_Description_Online', async () => {
+    await mob935(page);
+  });
+
+  test('MOB.936_Collector_HEIC_Photo', async () => {
+    const { naturalWidth } = await mob936(page);
+    console.log(`MOB.936: the HEIC slide's naturalWidth = ${naturalWidth}`);
   });
 
 });

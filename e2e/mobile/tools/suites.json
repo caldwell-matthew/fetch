@@ -226,9 +226,13 @@
         "MOB.600",
         "MOB.623",
         "MOB.627",
-        "MOB.628"
+        "MOB.628",
+        "MOB.933",
+        "MOB.934",
+        "MOB.935",
+        "MOB.936"
       ],
-      "about": "Writes on `DD SYNTHETIC MOBILE` assets: create an asset (red while bugs §34 is open), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag).\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.\n- 🛑 A LOCAL REPLAY OF MOB.600 IS A FALSE NEGATIVE: it cannot drive the photo picker, so it collects photo-free, which persists, and its server proof passes. Only Datadog exercises §34.",
+      "about": "Writes on `DD SYNTHETIC MOBILE` assets: create an asset (red while bugs §34 is open), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag), then several file types at once, an upload cut off and refused, `Get Description` with the AI answered in the browser, and a HEIC photo — each deleting only its own uploads.\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.\n- 🛑 A LOCAL REPLAY OF MOB.600 IS A FALSE NEGATIVE: it cannot drive the photo picker, so it collects photo-free, which persists, and its server proof passes. Only Datadog exercises §34.",
       "order": 27
     },
     {
@@ -298,9 +302,11 @@
         "MOB.121",
         "MOB.123",
         "MOB.122",
-        "MOB.929"
+        "MOB.929",
+        "MOB.930",
+        "MOB.932"
       ],
-      "about": "`/map`: controls and Switch Map (read-only), then a work order created from the map (residue).\n- MOB.122 LAST.",
+      "about": "`/map`: controls and Switch Map (read-only), a work order created from the map (residue), then three tests in their own touch browsers: an asset linked to a test-made work order from its map card and that link removed (MOB.929), the change-asset popup opened and cancelled (MOB.930, fixme until a work layer can be shown — checklist #84), and a dropped point turned into a work order and an asset (MOB.932, residue).\n- MOB.122 before MOB.929: it makes the work order MOB.929 links to.",
       "order": 24
     },
     {
@@ -356,10 +362,12 @@
       "children": [
         "MOB.920",
         "MOB.921",
+        "MOB.922",
+        "MOB.931",
         "MOB.923",
         "MOB.924"
       ],
-      "about": "What the user sees when the server fails: startup session, form schemas, a refused note, a refused form — pins bugs §11 and §48. Failures are made in the browser; built to write nothing."
+      "about": "What the user sees when the server fails: startup session, form schemas, the tag lookup's AI answers, an asset gone from a map card, a refused note, a refused form — pins bugs §11 and §48. Failures are made in the browser; built to write nothing."
     },
     {
       "id": "MOB.983",

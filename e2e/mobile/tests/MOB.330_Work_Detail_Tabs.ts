@@ -21,17 +21,11 @@ export async function mob330(page: Page): Promise<void> {
   await run.step("Switch to the second tab", {}, async () => {
     await click(page, `(//*[@role="tab"])[2]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the panel to mount", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Test the second tab is now active", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[2][@data-active]`, DEFAULT_TIMEOUT);
   });
   await run.step("Switch back to the first tab", {}, async () => {
     await click(page, `(//*[@role="tab"])[1]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the panel to mount", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test the first tab is active again", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[1][@data-active]`, DEFAULT_TIMEOUT);

@@ -9,9 +9,6 @@ export async function mob622(page: Page): Promise<void> {
   await run.step("Navigate to the asset collector", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the collector to load its lookup cache", {}, async () => {
-    await wait(page, 15);
-  });
   await run.step("The collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 30000);
   });
@@ -96,9 +93,6 @@ return true;
   await run.step("\u2b50 The picker closed ITSELF after photo 2 \u2014 `onDialogChange` calls `close()`", {}, async () => {
     await assertPageLacks(page, `Select Photo Source`, 30000);
   });
-  await run.step("Let the reducer take photo 2", {}, async () => {
-    await wait(page, 4);
-  });
   await run.step("The button still reads \"Add More Photos\" (a second photo landed)", {}, async () => {
     await assertElementPresent(page, `//button[normalize-space(.)="Add More Photos"]`, 30000);
   });
@@ -136,9 +130,6 @@ const g = [...f.querySelectorAll('[aria-label="Settings"]')];
 if (!g.length) return false;
 g[g.length - 1].click();
 return true;`, 30000);
-  });
-  await run.step("Let the menu dropdown render", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("\"View in Fullscreen\" is offered", {}, async () => {
     await assertPageContains(page, `View in Fullscreen`, 30000);
@@ -191,9 +182,6 @@ const b = [...f.querySelectorAll('*')]
 if (!b.length) return false;
 b[b.length - 1].click();
 return true;`, 30000);
-  });
-  await run.step("Let the tag modal mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("The tag editor opened \u2014 its heading rendered once the tags query resolved", {}, async () => {
     await assertPageContains(page, `Edit Attachment Tags`, 30000);

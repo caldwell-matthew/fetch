@@ -9,9 +9,6 @@ export async function mob721(page: Page): Promise<void> {
   await run.step("Navigate to Asset Lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
   });
@@ -32,9 +29,6 @@ export async function mob721(page: Page): Promise<void> {
   });
   await run.step("Expand Building 0000's row by its chevron (never the avatar \u2014 bugs \u00a735)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Building 0000")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
-  });
-  await run.step("Let the detail panel mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Open its \"Readings\" tab", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Building 0000")]])[1]//*[@role="tab"][normalize-space(.)="Readings"]`, 30000);

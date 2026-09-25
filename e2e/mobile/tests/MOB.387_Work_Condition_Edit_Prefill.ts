@@ -9,9 +9,6 @@ export async function mob387(page: Page): Promise<void> {
   await run.step("Navigate to the fixture work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
   });
@@ -68,14 +65,8 @@ if (!g) return false;
 g.click();
 return true;`, 30000);
   });
-  await run.step("Let the menu open", {}, async () => {
-    await wait(page, 1);
-  });
   await run.step("Click `Edit Item`", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Edit Item"])[1]`, 30000);
-  });
-  await run.step("Let the edit form mount (it loads the WorkStageCondition schema)", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("The condition form opened", {}, async () => {
     await assertElementPresent(page, `//form[@id="work-condition-form"]`, 30000);
@@ -97,9 +88,6 @@ return Object.keys(want).every(k => got[k] === want[k]);`, 30000);
   });
   await run.step("Navigate to the fixture work order (reload)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

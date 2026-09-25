@@ -3,14 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob302(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to Asset Lookup (premise)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 5);
   });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
@@ -32,9 +30,6 @@ export async function mob302(page: Page): Promise<void> {
   });
   await run.step("Expand Bypass Valve 0001's row by its chevron (never the avatar \u2014 bugs \u00a735)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Bypass Valve 0001")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
-  });
-  await run.step("Let the detail panel mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Open its \"Photos\" tab", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Bypass Valve 0001")]])[1]//*[@role="tab"][normalize-space(.)="Photos"]`, 30000);
@@ -61,14 +56,11 @@ return slides.length === 0 && labels.includes('Add Photo');`, 30000);
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
-    await wait(page, 20);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
@@ -98,9 +90,6 @@ return Date.now() - since >= 10000;`, 360000);
   });
   await run.step("Navigate to the copy-to-asset work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -185,9 +174,6 @@ return (m.textContent || '').includes('Copy attachment ' + srcName)
   await run.step("Navigate to Asset Lookup (proof)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
   });
@@ -208,9 +194,6 @@ return (m.textContent || '').includes('Copy attachment ' + srcName)
   });
   await run.step("Expand Bypass Valve 0001's row by its chevron (never the avatar \u2014 bugs \u00a735)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Bypass Valve 0001")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
-  });
-  await run.step("Let the detail panel mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Open its \"Photos\" tab", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Bypass Valve 0001")]])[1]//*[@role="tab"][normalize-space(.)="Photos"]`, 30000);
@@ -264,14 +247,8 @@ if (!g) return false;
 g.click();
 return true;`, 30000);
   });
-  await run.step("Let the menu open", {}, async () => {
-    await wait(page, 1);
-  });
   await run.step("Click `Delete Photo` \u2014 on the ASSET (unlinks its association row only)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Delete Photo"])[1]`, 30000);
-  });
-  await run.step("Let the confirmation open", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Confirm: \"Yes\"", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][.//*[contains(normalize-space(.), "Are you sure you want to delete this image?")]]//button[normalize-space(.)="Yes"]`, 30000);
@@ -281,9 +258,6 @@ return true;`, 30000);
   });
   await run.step("Navigate to Asset Lookup (after the delete)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 5);
   });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
@@ -305,9 +279,6 @@ return true;`, 30000);
   });
   await run.step("Expand Bypass Valve 0001's row by its chevron (never the avatar \u2014 bugs \u00a735)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Bypass Valve 0001")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
-  });
-  await run.step("Let the detail panel mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Open its \"Photos\" tab", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "Bypass Valve 0001")]])[1]//*[@role="tab"][normalize-space(.)="Photos"]`, 30000);
@@ -334,14 +305,11 @@ return slides.length === 0 && labels.includes('Add Photo');`, 30000);
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
-    await wait(page, 20);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
@@ -371,9 +339,6 @@ return Date.now() - since >= 10000;`, 360000);
   });
   await run.step("Navigate to the copy-to-asset work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/RcdI0xcpc8NBV8VoRNNBYM`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

@@ -3,26 +3,21 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertFromJavascript, assertPageContains, assertPageLacks, click, uploadStandIn, wait } from '../../support/dd';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob363(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Let the lookup prefetch run", {}, async () => {
-    await wait(page, 30);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Navigate to the attachment work order (20260910-16)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -172,9 +167,6 @@ return JSON.stringify(got) === JSON.stringify(["View in Fullscreen", "Copy to as
   });
   await run.step("Click `Delete Photo` (NEVER `Copy to asset`)", {}, async () => {
     await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Delete Photo"])[1]`, 30000);
-  });
-  await run.step("Let the confirmation open", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Confirm: \"Yes\"", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][.//*[contains(normalize-space(.), "Are you sure you want to delete this image?")]]//button[normalize-space(.)="Yes"]`, 30000);

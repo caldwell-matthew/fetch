@@ -3,20 +3,18 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, typeText, wait } from '../../support/dd';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob370(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
-    await wait(page, 20);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
@@ -46,9 +44,6 @@ return Date.now() - since >= 10000;`, 360000);
   });
   await run.step("Navigate to the fixture work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -83,9 +78,6 @@ return true;`, 30000);
   await run.step("Type into the storeroom location lookup to load options", {}, async () => {
     await typeText(page, `//*[@id="storeroomLocationId"]`, `Central Storeroom`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for storeroom location options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick the Central Storeroom storeroom location option", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Central Storeroom")]`, DEFAULT_TIMEOUT);
   });
@@ -95,17 +87,11 @@ return true;`, 30000);
   await run.step("Type into the material item lookup to load options", {}, async () => {
     await typeText(page, `//*[@id="materialItemId"]`, `0000-0000 Diaphragm Pump`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for material item options", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Pick the 0000-0000 Diaphragm Pump material item option", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "0000-0000 Diaphragm Pump")]`, DEFAULT_TIMEOUT);
   });
   await run.step("Focus the material charge type lookup", {}, async () => {
     await click(page, `//*[@id="type"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for material charge type options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick the Return material charge type option", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Return")]`, DEFAULT_TIMEOUT);
@@ -130,9 +116,6 @@ return true;`, 30000);
   });
   await run.step("Navigate to the fixture work order (reload: the server's answer)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

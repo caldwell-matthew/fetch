@@ -3,26 +3,21 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, wait } from '../../support/dd';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob364(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Let the lookup prefetch run", {}, async () => {
-    await wait(page, 30);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Navigate to the add-form work order (20260910-16)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -61,14 +56,8 @@ return true;`, 15000);
   await run.step("Open the Forms tab", {}, async () => {
     await click(page, `//*[@role="tab"][contains(normalize-space(.), "Form")]`, 30000);
   });
-  await run.step("Let the form cards render", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the add-form modal (\"Add\")", {}, async () => {
     await click(page, `//button[normalize-space(.)="Add"]`, 30000);
-  });
-  await run.step("Wait for the modal", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("The form picker rendered in the modal", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@id="formId"]`, 30000);
@@ -158,9 +147,6 @@ return true;`, 15000);
   });
   await run.step("Navigate to the add-form work order (reload: the persisted cache holds no refused optimistic add)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
-  });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

@@ -9,23 +9,14 @@ export async function mob810(page: Page): Promise<void> {
   await run.step("Navigate to the mobile job list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page begin loading", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 40000);
-  });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("The Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the sort options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick \"Created At \u25b2\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Created At ▲"]`, DEFAULT_TIMEOUT);
@@ -61,17 +52,11 @@ return JSON.parse(raw).label === 'Created At ▲';`, 40000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 40000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("The Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the sort options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick \"Created At \u25bc\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Created At ▼"]`, DEFAULT_TIMEOUT);

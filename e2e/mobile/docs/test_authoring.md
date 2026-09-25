@@ -190,10 +190,11 @@ alongside a mutating tablet suite.
   selected row, so the guard is that the only checked row is ours.
 - `MOB.866` — both deletes are on the storeroom item's own uploads (owner 2026-09-15); the server
   step proves the item holds exactly one attachment and stashes its id for the guard.
-- **Add an asset to a work order from a map card** (▶ #78) — remove the ONE `workstageasset` link this run
-  added, on a protected fixture work order (owner 2026-09-23). The test reads the stage's assets first, adds
-  one, proves it over `/graphql`, removes exactly that link, and proves the stage is back to what it read.
-- **Attachment types** (▶ #85: several files at once, HEIC, video, and the other AT rows) — delete only what
+- **Add an asset to a work order from a map card** (`MOB.929`) — remove the ONE `workstageasset` link this run
+  added (owner 2026-09-23). The picker cannot reach the fixtures (bugs §50), so the link goes on a test-made work
+  order; the test reads the stage's assets first, adds one, proves it over `/graphql`, removes exactly that link,
+  and proves the stage is back to what it read.
+- **Attachment types** (`MOB.933`–`MOB.936`) — delete only what
   THIS run uploaded, on the records the attachment tests already use, never `Pump 0102` (owner 2026-09-23).
 
 **Not a delete, and decided the same day:** the map's change-asset popup (`Replace existing assets` — "cannot
@@ -502,3 +503,22 @@ on its FIELD in the query text (`addWorkStageAssetLink`), and assert the route w
 went wrong … reading 'map'". A FRESH browser that opens a work order directly and expands an asset hits it every
 time. Before that, open Asset Lookup and wait for `persistedCacheHas(page, '_info({\\"schema\\":\\"Asset\\"})')`
 (trap 41), then load the work order (`MOB.929`'s removal).
+
+**45 · Playwright's failure screenshot is of ITS page, not yours.** A test that opens its own browser
+(`freshSession`) or runs on a suite's shared page fails with a screenshot and `error-context.md` of the unused `page`
+fixture — a blank or home screen that says nothing. Such a test catches its own failure, saves
+`page.screenshot({ path: 'results/MOB.9xx-failure.png' })`, and rethrows (`MOB.930`, `MOB.933`–`MOB.935`).
+
+**46 · A test-made record's NAME is an interface.** Older tests pick "the first collected row containing
+`DD SYNTHETIC MOBILE`" and then require exactly `DD SYNTHETIC MOBILE <8 digits>`. `MOB.932`'s map asset
+(`DD SYNTHETIC MOBILE MAP <8 digits>`) sorts first and would have turned them red; they now skip `… MAP` rows, and
+new tests match `/DD SYNTHETIC MOBILE \d{8}/`. A new kind of test-made record gets a name no existing selector takes
+for its own — and keeps the `DD SYNTHETIC MOBILE` prefix so `cleanup_residue.py` prunes it.
+
+**47 · A video is not a photo in the carousel.** Its slide is a `Play <file name>` button over its preview
+(`ui/PhotoCarousel/Video.tsx:38-51`) — no `<img>` carries its attachment id — and its menu says `Delete Video`, not
+`Delete Photo`. Find it by its file name (`MOB.933`).
+
+**48 · A failed final check hides the first failure.** An `expect` in `finally` that fails replaces the error that
+got there. Check the end state AFTER the `try`, and in a `catch` add what was left behind to the original message
+(`MOB.933`–`MOB.935`).

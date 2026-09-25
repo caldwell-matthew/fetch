@@ -9,9 +9,6 @@ export async function mob731(page: Page): Promise<void> {
   await run.step("Navigate to asset lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page mount", {}, async () => {
-    await wait(page, 4);
-  });
   await run.step("GATE: the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 60000);
   });

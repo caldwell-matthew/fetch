@@ -9,9 +9,6 @@ export async function mob806(page: Page): Promise<void> {
   await run.step("Navigate to asset lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page begin loading", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
   });
@@ -131,9 +128,6 @@ return false;`, 30000);
   });
   await run.step("Pick Operator = \"includes\" (the MULTI-value branch)", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="includes"]`, 30000);
-  });
-  await run.step("Let the value input swap", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("The `TagsInput` rendered", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Type and press Enter..."]`, 30000);

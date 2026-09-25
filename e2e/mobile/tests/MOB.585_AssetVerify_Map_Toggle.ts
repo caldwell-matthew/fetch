@@ -3,20 +3,18 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
+import { waitForPrefetch } from '../support/prefetch';
 
 export async function mob585(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
   });
   await run.step("Wait for the lookup prefetch and batched detail downloads", {}, async () => {
-    await wait(page, 25);
+    await waitForPrefetch(page);
   });
   await run.step("Test the job list rendered", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Mobile Job(s)"]`, DEFAULT_TIMEOUT);
@@ -32,9 +30,6 @@ export async function mob585(page: Page): Promise<void> {
   });
   await run.step("Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "DATADOG MOBILE JOB")]`, 30000);
-  });
-  await run.step("Wait for the job detail to render", {}, async () => {
-    await wait(page, 5);
   });
   await run.step("ASSET LIST GUARD: the job's asset rows have rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]`, 60000);

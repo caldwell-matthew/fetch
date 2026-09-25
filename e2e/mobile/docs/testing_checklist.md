@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
-| Tests | **148 tests · 27 suites** · 148 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **156 tests · 27 suites** · 156 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 183 `[x]` · 13 `[~]` · 1 `[ ]` · 32 `[-]` — 229 rows. Counts describe *this file*, not the app |
+| Rows | 198 `[x]` · 8 `[~]` · 1 `[ ]` · 25 `[-]` — 232 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -133,22 +133,17 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#80** the rest of the error states — where users' bad days happen and the tests are blind.
-2. **#84**, **#78** the map canvas.
+1. **#84** the map card's change-asset popup — built, waiting on an owner decision about a work layer.
+2. **#89** the fixed waits.
 3. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
-| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); block Datadog RUM inside the tests so their sessions are not billed as users; tighten the 1,179 fixed waits suite by suite, measured either side; decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **78** | **Add an asset to a work order from a map card — built, not yet stable.** `MOB.929` (in `MOB.971`, after `MOB.122`) runs in its own touch browser: Asset Lookup → Tank 0040 → "View in Map" → the card (by itself, or a tap — trap 42) → "Add to Work" (retried: it does nothing until the card's asset record loads, `CardHeader.tsx:122`) → a stage → submit, proven over `/graphql`, then removes exactly that link (MOB.354's path, trap 44 first). **Target:** the picker offers only the first 50 of the crew's 452 stages and ignores typing (bugs §50), so the fixtures (20260910-16 is on page 9) can't be picked; it links to the first test-made work order on that page (`DD SYNTHETIC MOBILE`, the test account's, fixtures refused by id), picked by index, and a route aborts any add for another stage (trap 43). **State (2026-09-23):** 2 of the last 4 runs green. One failed at the removal browser's login (password field emptied), leaving the link, which the next run's premise caught. `mobile/probe/mob929_leftover.spec.ts` removes such a leftover (run with `E2E_PROBE=1`); none is left now. **Left:** make the removal survive a failed login (retry it, or re-check leftovers at the start), then 3 green runs in a row and a full `MOB.971` pass | in progress |
-| **80** | **Error states, via network interception — the rest.** Done in `MOB.982`: the startup session failure (`MOB.920`), the Condition/Failure form-load error (`MOB.921`), refused saves (`MOB.923`, `MOB.924`). Left: the tag lookup's `No results found for tag number`, and `Asset not found.` on a map card (with #84) | open |
-| **84** | **The map canvas.** Datadog could only click page elements; Playwright can click the map. (a) the change-asset popup — tap a feature, prove both options and the warning, **cancel** (owner: never confirm); (b) the drawing tools — create a work order and an asset by marker, lasso, line and polygon, marked `DD SYNTHETIC MOBILE`, proven over `/graphql`, left as residue (owner 2026-09-23) | open |
-| **85** | **Attachment types** — several files at once, HEIC, video, document, nameplate, custom (the AT rows, deferred until 2026-09-23). Upload each on the records the attachment tests already use, prove it on the server, delete only this run's uploads (trap 2) | open |
-| **86** | **Upload interruption and retry** — abort an upload midway (network interception) and prove it resumes (tus); answer the first upload with a 401 and prove the retry after the token refresh | open |
-| **87** | **Finish the partial rows** that are now reachable: the search bar on every module that has one (proven on the mobile job list only), and anything else marked `[~]` that was partial only because of Datadog | open |
-| **89** | **Tighten the 1,179 fixed waits** into waits for a condition, suite by suite, timed before and after; a full pass is about 2 hours today | open |
+| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); block Datadog RUM inside the tests so their sessions are not billed as users; tighten the fixed waits (▶ #89); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **84** | **The map card's change-asset popup.** `MOB.930` (in `MOB.971`, `test.fixme`) opens a work stage's card from the work order's "View in Map", then `Change Asset` → both choices and the warning → Back → **Cancel** (owner: never confirm), every mutation stopped in the browser and the stage's links proven unchanged. It cannot reach the card on dev: a work stage's card opens only by that auto-open, which needs the stage drawn (work layers are not tappable — `interactiveLayerIds: []`), and every `My Work` / `Status` layer is off for the test account (`mobile/probe/map_layers_probe.spec.ts`). Switching one on saves the account's map settings on the server (`UPDATE_USER_MAP_SETTINGS`). **Owner decision:** switch `My Work: Ready` on for the test account, or let the test switch it on and back off. (The drawing tools are done — mobile has only the point tool, `MOB.932`.) | open — decision |
+| **89** | **Tighten the fixed waits** — 1,088 `wait` steps kept from Datadog, about 85 min of sleep. `tools/tighten_waits.py <suite>` removes a wait only where the next step is a positive check that polls anyway, and replaces the prefetch sleeps with `waitForPrefetch` (`support/prefetch.ts` — the app's own loading bars); every other wait stays. Per suite: time it, `--apply`, two green runs, or put it back. **Done:** `MOB.962` 5.4 → 2.3 min. **Left:** the other read-only suites, then the data-changing ones (one at a time, fixtures checked between) | in progress |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -168,7 +163,6 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | `MOB.342` exclusion leg | a second status in the crew's list — read the legend before asking | fixture |
 | `MOB.351`'s estimate rows | an estimate on the fixture work order | fixture |
 | Session/JWT expiry | cookie-authenticated; a client cannot expire it | backend |
-| **AT** — attachment types beyond PNG | ⏸️ deferred by the owner, do not re-raise | fixture |
 | Trial-mode tile disabling | a trial org | fixture |
 | Drawing + saving a signature (`MOB.135`'s write half) | owner decision: it signs the fixture's `🔎 Inspection` form. Strokes are canvas pointer events (`react-signature-canvas`), and the restore — saving `null` back through `updateSignature`, as `Clear` does — is untested | decision |
 | Asset Type on the AV detail — characterization test | owner decision: it now renders as plain text; pin that or not | decision |
@@ -195,9 +189,8 @@ both) · real device GPS ·
 
 ### 🔴 HARNESS — needs a different tool
 
-Upload **transport** (tus resume, unauthorized retry, `UploadStatusIcon`) · camera / barcode ·
-map canvas drawing and what only a marker tap opens (the work map card's `Address:`) · native shell · the browser genuinely offline (the offline shell page).
-**Out of Datadog's reach, and open work now that the suite is Playwright** (▶ #80, #84, #86): genuinely
+`UploadStatusIcon` · camera / barcode · native shell · the browser genuinely offline (the offline shell page).
+**Out of Datadog's reach, and now in Playwright's** (▶ #84 for what is left): genuinely
 offline, network-error states, the capture file choosers, the session re-auth clock, and the **startup-error banner** (`Layout/Auth.tsx:163`, `role="alert"` + `Reload page`) — its seven messages each fire only when a startup promise rejects (session load, log cleanup, queue restore, cache reset, the build-number check, clearing queues when unauthenticated) or a session event's refresh fails, before a test's first step can act. The map canvas and tus uploads are in reach too; the Expo/native shell is not. The
 queue's link classes in isolation are a **Jest** job, being done outside this suite; the queue end
 to end is `MOB.913`.
@@ -245,12 +238,12 @@ MentorTwo.
 - [x] Work-stage attachments panel and its image filter *(MOB.741)* — an image through `Add File` is rejected with a toast, zero residue
 - [x] Add a photo to an EXISTING asset through the panel's `Add Photo` *(MOB.623)* · residue — polls for the `blob:` preview to become a server URL
 - [x] `PhotoMenu` on a saved photo *(MOB.623)* — the five items exactly and in order; `Rotate Image` ×4 with the src read back (self-restoring at 360°)
-- [~] `Set as Avatar` · `Get Description` · `Delete Photo` — asserted present *(MOB.623)*; `Set as Avatar` and `Delete Photo` clicked on the run's own upload *(MOB.627)*; `Get Description` clicked only offline, for its connection message *(MOB.914)* — never online (AI route)
+- [x] `Set as Avatar` · `Get Description` · `Delete Photo` — asserted present *(MOB.623)*; `Set as Avatar` and `Delete Photo` clicked on the run's own upload *(MOB.627)*; `Get Description` offline, its connection message *(MOB.914)*, and online on the run's own photo *(MOB.935)* — the AI's answer made in the browser (no AI call), appended to the Description with `Submit` enabled, closed unsent and the description proven unchanged
 - [-] Upload status icon reflects in-flight uploads — Expo shell only
-- [-] Upload resumes after interruption (tus)
-- [-] Unauthorized upload retries after token refresh
+- [x] Upload resumes after interruption (tus) *(MOB.934)* — the first `PATCH /tus` cut off in the browser, tus sends it again, the file reaches the server (then deleted)
+- [x] An upload that cannot finish *(MOB.934)* — every `PATCH` cut off: `Upload failed. The file was not saved.`, no `CREATE_PENDING_ATTACHMENTS`; a `401` on `POST /tus`: the same toast, not retried. There is no token-refresh-then-retry in the app (`graphql/links/UploadLink.ts:111`, 401 is not retried)
 - [-] Capture from camera (photo/video/HEIC) — native file dialog; asserted, never clicked *(MOB.620)*
-- [~] **AT** — all attachment types (Reusable blocks)
+- [x] **AT** — all attachment types (Reusable blocks) — see AT below
 
 ## T1.3 Session, auth & crew
 
@@ -415,7 +408,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Job count · statuses · asset count · legend arithmetic *(MOB.560)*
 - [x] **SB** search bar *(MOB.530)*
 - [x] Mobile Jobs *(MOB.140)* — page title; `Find Mobile Job(s)` check is critical (Appendix D)
-- [~] **SB** — proven on the mobile job list *(MOB.530)*; other modules rely on that instance
+- [x] **SB** — every module's own search, each driving its list to zero with a term nothing matches and back: Work Orders *(MOB.343)* · Asset Collector *(MOB.610)* · an AV job's assets *(MOB.531)* · Transaction Log *(MOB.132)* · Material Lookup *(MOB.850)*; Asset Lookup's server search finds `Pump 0102` *(MOB.700)*
 
 ## `/asset-verify/:jobId` — a mobile job's asset list
 
@@ -448,7 +441,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Header `Tag ID` and its edit button *(MOB.537)* · self-restoring — `None` (A/C Motor) and `0000` (Tank); `0000` → `DD-TAG-EDIT` → back, each proved after a reload; `Desc:`
 - [x] Event Readings — capture *(MOB.550)* · residue
 - [x] Full-page `Attachments` tab (Photos/Docs segmented) *(MOB.546)* — one live panel, Photos↔Docs biconditional
-- [~] Attachments — **AT**
+- [x] Attachments — **AT** (the attachment types are proven on the collector's saved asset, the same `DetailPage/Attachments` — `MOB.933`–`MOB.936`)
 - [-] Editing Asset Type on the AV detail — renders as plain text
 
 ## `/asset-collector` — Asset Collector / Lens
@@ -470,7 +463,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - 🟡 The collector's sort re-sorts the AV job list — bugs §38, `MOB.625` sentinels it
 - [x] Row avatar modal *(MOB.624)* — opens without expanding the row; Photos↔Docs; `Done` closes. Clicks inside toggle the row behind (bugs §35), sentinelled
 - [x] Edit asset fields *(MOB.710)*
-- [-] Multiple attachments · HEIC · video — **AT**
+- [x] Several files at once · a document · a video · HEIC refused by Docs *(MOB.933)* — one pick of a PDF, a text file, an MP4 and a HEIC: `1 image file(s) were ignored.`, the other three on the server, the PDF and text file as rows, the video in the carousel (`Play <name>`, `Delete Video`); all three deleted
 - [x] A MentorLens tag's description *(MOB.622)* — the `?` beside `Lens: Thermography`, then `Lens: Condition Assessment`, opens a modal with exactly THAT tag's desc (recorded as it appears), which closes itself after 3s; each `?` is clicked from JS on the icon and both cards are read back unchecked — the card's own click would assign the tag
 - [x] `Set as Avatar` **writes** *(MOB.627)* — on the run's own upload to a `DD SYNTHETIC MOBILE` asset, `asset.avatar.id` proved over `/graphql`; deleting that photo then clears the avatar on the server (`soft`)
 - [x] Add, remove and create tags on a **saved** photo *(MOB.627)* · residue — the existing `Test Tag` added and removed, proved on the attachment; `+ Create Tag` leaves exactly one `DD SYNTHETIC MOBILE <RUNID>` org tag (one per run, permanent). The created tag does not reach the photo — an `optional` sentinel, red while bugs §44 is open
@@ -492,8 +485,9 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The route renders and titles itself *(MOB.100)*
 - [x] General Info — edit a field *(MOB.710)* — the per-field pencil, all three entry points
 - [x] Alphanumeric lookup *(MOB.700)* — server-side `CONTAINS`
+- [x] Tag Lookup's photo → AI outcomes *(MOB.922)* — the AI's three answers made in the browser: `No tag found in that image.`, `Tag was not legible, try again with a clearer image.`, and a read tag no asset has: `Captured tag …`, `No results found for tag number …`, its X restoring the list
 - [x] Card caret and tab strip *(MOB.700)*
-- [~] `Get Description` (MentorLens) — present in the menu *(MOB.623)*; offline, its connection message *(MOB.914)*; never clicked online (AI route)
+- [x] `Get Description` (MentorLens) — present in the menu *(MOB.623)*; offline, its connection message *(MOB.914)*; online, the AI answered in the browser *(MOB.935)*
 - [x] Readings and Work History tabs offline — `OFFLINE_FEATURE_MESSAGE`; on an asset with readings, `Add reading types` offline opens it in a popover, not the add-types modal *(MOB.914)*
 - [x] `Tag Lookup` menu *(MOB.750)* — exactly `Scan Barcode` then `Alphanumeric`
 - [x] `Alphanumeric`'s browser branch *(MOB.750)* — one file dialog, `capture=environment`, images, one file; nothing uploaded
@@ -546,9 +540,10 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Geocoder search → suggestion → fly + popup *(MOB.122)* — the popup's `Latitude`/`Longitude`
 - [x] Create a work order from the map *(MOB.122)*
 - [x] Feature sheet for an asset, reached by router state *(MOB.735)*
-- [-] Add asset to work order — `ChangeAssetPopup` needs a tap on a rendered feature
-- [ ] Add an existing asset to a work order from a map card — `AddAssetToWorkInsertForm`, opened from the card header (`Map/Card/CardHeader.tsx:127`) since the 2026-09-21 rework. The same card `MOB.122` already reaches to create work (▶ #78)
-- [-] Create asset / work order by lasso · marker · line · polygon
+- [ ] The change-asset popup on a work stage's card *(MOB.930, fixme)* — ▶ #84: no work layer is shown for the test account
+- [x] Add an existing asset to a work order from a map card *(MOB.929)* — Tank 0040's card → `Add to Work` → a test-made work order (the picker reaches only the first 50 stages, bugs §50), proven over `/graphql`, and exactly that link removed
+- [x] `Asset not found.` on an asset's map card *(MOB.931)* — the card's `GET_MOBILE_ASSET` answered with no asset in the browser
+- [x] Create a work order and an asset at a dropped point *(MOB.932)* · residue — the point tool is mobile's only drawing tool (no lasso, line or polygon: `mapDrawControl.ts:68-73`); both proven over `/graphql` at the point's coordinates, and a route stops any location update for an asset that is not the run's
 - [-] Get directions · street view — leave the app
 
 ## `/transactions` — Transaction Log
@@ -584,8 +579,9 @@ where a client-side filter rejects it (`MOB.741`).
 
 - [x] Photo — `MOB.600` (attached) · `MOB.621` (unsent)
 - [x] Image rejected by the Docs-tab filter — `MOB.741`
-- [-] Video · HEIC · Document · Nameplate · Custom — ⏸️ deferred by the owner
-- [-] Multiple attachments at once — the step carries the one file it was authored with
+- [x] Video · Document · several at once · HEIC refused by the Docs tab — `MOB.933`
+- [x] Nameplate — the AI's `NAME_PLATE` description of a photo, `Get Description` — `MOB.935`
+- [x] HEIC through `Add Photo` — `MOB.936`: taken and stored as `image/heic`, then deleted. A browser cannot show it: the slide's image has `naturalWidth` 0 (the server serves the file as it is). ("Custom" is not a mobile attachment type)
 - [-] Capture from camera — native dialog
 
 # Appendix A — Blocked on the AV reset decision
@@ -613,7 +609,6 @@ The Mobile/Tablet halves of "Web / Mobile / Tablet" items are not extra `device_
 | Area | Why |
 |---|---|
 | The browser genuinely offline | Synthetics cannot cut the network. What the app **reads** is reachable: `useNetwork` (window events — `MOB.910`), the queue's gate (window events — `MOB.913`), `navigator.onLine` (an own getter in a step — `MOB.912`) |
-| Upload resume / tus retry | requires interrupting a transfer |
 | Camera capture · barcode | device camera / native dialog; tag scan also calls OpenAI |
 | Native shell bridge | Expo only |
 | Map **canvas** interactions | features are hit-tested via `queryRenderedFeatures`, no DOM. Canvas, geocoder, style/layers/zoom are reachable |

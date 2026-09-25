@@ -9,9 +9,6 @@ export async function mob741(page: Page): Promise<void> {
   await run.step("Navigate to asset lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the page to mount", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
   });
@@ -27,17 +24,11 @@ export async function mob741(page: Page): Promise<void> {
   await run.step("Submit the search (Enter \u2014 there is no search button)", {}, async () => {
     await press(page, `Enter`);
   });
-  await run.step("Wait for the search results", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("RESULT GUARD: a result row for Pump 0102 rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1][contains(., "Pump 0102")]`, 60000);
   });
   await run.step("Expand the first result", {}, async () => {
     await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`, 30000);
-  });
-  await run.step("Wait for the detail panel to mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Open the \"Work History\" tab", {}, async () => {
     await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[@role="tab"][normalize-space(.)="Work History"]`, 60000);
@@ -59,9 +50,6 @@ export async function mob741(page: Page): Promise<void> {
   });
   await run.step("Open the \"Attachments\" tab", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attachments"]`, 30000);
-  });
-  await run.step("Let WorkStageAttachments mount", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("\"Attachments\" is the active tab", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//*[@role="tab"][normalize-space(.)="Attachments"][@data-active="true"]`, 30000);

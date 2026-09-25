@@ -95,9 +95,6 @@ return now === 'Not Completed';`, 30000);
   await run.step("Navigate to the fixture work order (reload: the server's status)", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
   });

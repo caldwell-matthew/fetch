@@ -88,7 +88,10 @@ export async function click(page: Page, xpath: string, timeout = DEFAULT_TIMEOUT
  * why the tests click the field and select its contents first. `fill()` would replace the value in
  * one event: fine for a plain input, wrong for a field whose filter reacts to each keystroke.
  */
-export async function typeText(page: Page, xpath: string, value: string, timeout = DEFAULT_TIMEOUT): Promise<void> {
+/** `secret`: a failure reports the lengths only — the error lands in logs and reports (it once printed the password). */
+export async function typeText(
+  page: Page, xpath: string, value: string, timeout = DEFAULT_TIMEOUT, opts: { secret?: boolean } = {},
+): Promise<void> {
   const locator = await one(page, xpath, timeout);
   await poll(`Type into ${xpath}`, timeout, async () => {
     await locator.focus({ timeout: Math.min(5_000, timeout) });
@@ -97,7 +100,9 @@ export async function typeText(page: Page, xpath: string, value: string, timeout
     await locator.pressSequentially(value);
     const got = await locator.inputValue().catch(() => null);
     if (got !== null && !got.includes(value)) {
-      throw new Error(`the field holds ${JSON.stringify(got)} after typing ${JSON.stringify(value)}`);
+      throw new Error(opts.secret
+        ? `the field holds ${got.length} characters after typing ${value.length}`
+        : `the field holds ${JSON.stringify(got)} after typing ${JSON.stringify(value)}`);
     }
   });
 }

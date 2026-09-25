@@ -1,4 +1,4 @@
-// MOB.929_Map_Card_Add_Asset_To_Work — written for Playwright (not converted from Datadog). ▶ checklist #78.
+// MOB.929_Map_Card_Add_Asset_To_Work — written for Playwright (not converted from Datadog).
 //
 // An asset's card on the map offers "Add to Work" (`Map/Card/CardHeader.tsx:122`), which opens "Add Asset to Work
 // Order" (`AddAssetToWorkInsertForm`) and links the asset to a picked work stage. New to mobile on 2026-09-21.
@@ -19,6 +19,7 @@
 // Owner, 2026-09-23 (trap 2): the test adds ONE link and removes exactly that link. Removal is MOB.354's path: the
 // link's gear → `Delete Item` → `Yes`.
 import { Browser, expect, Page, Request } from '@playwright/test';
+import { openAssetCard } from '../support/map';
 import { appUrl, FIXTURE_WO, FORMS_WO, freshSession, persistedCacheHas, serverRead } from '../support/session';
 
 const ASSET = 'Tank 0040';
@@ -93,39 +94,23 @@ export async function mob929(browser: Browser): Promise<void> {
 async function addAndRemove(page: Page, browser: Browser): Promise<void> {
   const me = (await serverRead(page, '{ session { me { id } } }')).session.me.id;
   const stages: Stage[] = (await serverRead(page, PICKER_STAGES)).workStages.edges;
-  const index = stages.findIndex((s) => !NEVER.has(s.id) && s.workId?.createdBy?.id === me
-    && (s.workId.problemDesc ?? '').trim().startsWith(MARKER));
-  expect(index, `PREMISE: the picker's first page holds a work order the tests made ("${MARKER}" — MOB.122 makes one)`)
-    .toBeGreaterThanOrEqual(0);
+  // The first test-made work order on the page that does not link the asset yet. One that does holds a run's
+  // leftover (its removal failed) — skipped, not failed on: `cleanup_residue.py` prunes that work order whole.
+  let index = -1;
+  let beforeLinks: Link[] = [];
+  for (const [i, s] of stages.entries()) {
+    if (NEVER.has(s.id) || s.workId?.createdBy?.id !== me || !(s.workId.problemDesc ?? '').trim().startsWith(MARKER)) continue;
+    beforeLinks = await links(page, s.id);
+    if (!beforeLinks.some((l) => l.assetId.name === ASSET)) { index = i; break; }
+  }
+  expect(index, `PREMISE: the picker's first page holds a work order the tests made ("${MARKER}" — MOB.122 makes one)`
+    + ` that does not link ${ASSET}`).toBeGreaterThanOrEqual(0);
   const target = stages[index];
-
-  const beforeLinks = await links(page, target.id);
-  expect(beforeLinks.map((l) => l.assetId.name), `PREMISE: the work order does not link ${ASSET}`).not.toContain(ASSET);
   const before = new Set(beforeLinks.map((l) => l.id));
 
   try {
-    // Asset Lookup → Tank 0040 → View in Map
-    await page.goto(appUrl('asset-lookup'), { waitUntil: 'load' });
-    const search = page.locator('input[name="asset-search"]');
-    await expect(search).toBeVisible({ timeout: 60_000 });
-    await search.fill(ASSET);
-    await search.press('Enter');
-    const result = page.locator('.mantine-Accordion-item').filter({ hasText: ASSET }).first();
-    await expect(result, `a result row for ${ASSET}`).toBeVisible({ timeout: 60_000 });
-    await result.locator('.mantine-Accordion-control').click();
-    await result.getByRole('button', { name: 'View in Map' }).click();
-
-    // the map opens Tank 0040's card by itself — or, when the icon was drawn after the map's last source event
-    // (the auto-open looks only then), a tap on the asset's spot does: just below the purple marker's tip.
-    await expect(page, 'on the map').toHaveURL(/\/map/, { timeout: 30_000 });
-    const card = page.locator('[aria-label="map-options"]');
-    try {
-      await expect(card).toBeVisible({ timeout: 20_000 });
-    } catch {
-      const pin = (await page.locator('.mapboxgl-marker').first().boundingBox())!;
-      await page.touchscreen.tap(pin.x + pin.width / 2, pin.y + pin.height + 8);
-    }
-    await expect(card, 'the asset card opened, with its options menu').toBeVisible({ timeout: 30_000 });
+    // Asset Lookup → Tank 0040 → View in Map → its card (by itself, or a tap below the marker)
+    const card = await openAssetCard(page, ASSET);
     await expect(page.getByText(ASSET, { exact: true }).first(), `the card is ${ASSET}'s`).toBeVisible();
     // "Add to Work" silently does nothing until the card's asset record has loaded (`CardHeader.tsx:122`), and the
     // menu opens before that — nothing on the card says when (General Info fills from the map's feature first). A

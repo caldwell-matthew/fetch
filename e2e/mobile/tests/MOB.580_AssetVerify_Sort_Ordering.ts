@@ -3,20 +3,18 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
+import { waitForPrefetch } from '../support/prefetch';
 
 export async function mob580(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
   });
   await run.step("Wait for the lookup prefetch and batched detail downloads", {}, async () => {
-    await wait(page, 25);
+    await waitForPrefetch(page);
   });
   await run.step("Test the job list rendered", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Mobile Job(s)"]`, DEFAULT_TIMEOUT);
@@ -33,26 +31,17 @@ export async function mob580(page: Page): Promise<void> {
   await run.step("Open \"DATADOG MOBILE JOB\" by clicking its row (not a deep link)", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "DATADOG MOBILE JOB")]`, 30000);
   });
-  await run.step("Wait for the job detail to render", {}, async () => {
-    await wait(page, 5);
-  });
   await run.step("ASSET LIST GUARD: the job's asset rows have rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]`, 60000);
   });
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("The Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick \"Name \u25b2\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Name ▲"]`, 30000);
@@ -88,17 +77,11 @@ return JSON.stringify(names) === JSON.stringify(sorted);`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("The Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick \"Name \u25bc\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Name ▼"]`, 30000);
@@ -135,17 +118,11 @@ return JSON.stringify(names) === JSON.stringify(sorted);`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("The Sort Criteria modal opened", {}, async () => {
     await assertPageContains(page, `Sort Criteria`, DEFAULT_TIMEOUT);
   });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 2);
   });
   await run.step("Pick \"Name \u25b2\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Name ▲"]`, 30000);

@@ -9,9 +9,6 @@ export async function mob800(page: Page): Promise<void> {
   await run.step("Navigate to asset lookup", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the page begin loading", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
   });
@@ -105,9 +102,6 @@ return false;`, 30000);
   await run.step("Close the Filters drawer", {}, async () => {
     await press(page, `Escape`);
   });
-  await run.step("Let the re-query start", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("PROOF: Pump 0102 is a RESULT ROW, not just a filter pill", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][contains(., "Pump 0102")]`, 30000);
   });
@@ -129,9 +123,6 @@ return false;
   });
   await run.step("Clear the matching filter (Clear all is inside the drawer)", {}, async () => {
     await click(page, `//button[normalize-space(.)="Clear all"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the unfiltered re-query", {}, async () => {
-    await wait(page, 4);
   });
   await run.step("Open the Field select", {}, async () => {
     await click(page, `//*[@id="fieldId"]`, 30000);
@@ -237,9 +228,6 @@ return false;
   });
   await run.step("Close the Filters drawer", {}, async () => {
     await press(page, `Escape`);
-  });
-  await run.step("Wait for the unfiltered re-query", {}, async () => {
-    await wait(page, 6);
   });
   await run.step("RESTORED: no filters remain", {}, async () => {
     await assertPageContains(page, `Filters (0)`, DEFAULT_TIMEOUT);

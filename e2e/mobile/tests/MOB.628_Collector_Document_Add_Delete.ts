@@ -16,13 +16,13 @@ export async function mob628(page: Page): Promise<void> {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 30000);
   });
   await run.step("FIXTURE GUARD: a \"DD SYNTHETIC MOBILE\" asset is in the collected list (MOB.600 residue)", {allow: 'soft'}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]`, 60000);
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]`, 60000);
   });
   await run.step("Stash the row's asset name (`DD SYNTHETIC MOBILE <8 digits>`) \u2014 every server read resolves the asset by it", {}, async () => {
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const c = it.querySelector('.mantine-Accordion-control');
@@ -63,22 +63,22 @@ return false;`, 45000);
 return true;`, 15000);
   });
   await run.step("Expand that row by its chevron", {}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
   });
   await run.step("Let the detail panel mount", {}, async () => {
     await wait(page, 3);
   });
   await run.step("Switch to the \"Docs\" tab", {}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[@role="tab"][normalize-space(.)="Docs"]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[@role="tab"][normalize-space(.)="Docs"]`, 30000);
   });
   await run.step("Let the Docs panel mount", {}, async () => {
     await wait(page, 3);
   });
   await run.step("The \"Docs\" tab is active", {}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[@role="tab"][normalize-space(.)="Docs"][@data-active]`, 30000);
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[@role="tab"][normalize-space(.)="Docs"][@data-active]`, 30000);
   });
   await run.step("`Add File` renders (asset.create)", {}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//button[normalize-space(.)="Add File"]`, 30000);
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//button[normalize-space(.)="Add File"]`, 30000);
   });
   await run.step("Reveal the row's hidden \"Add File\" input (accept=\"*/*\", exactly one on the page)", {}, async () => {
     await assertFromJavascript(page, `document.querySelectorAll('[data-dd-upload]')
@@ -86,7 +86,7 @@ return true;`, 15000);
 const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const hits = [...it.querySelectorAll('input[type="file"][accept="*/*"]')];
@@ -117,7 +117,7 @@ return true;`, 30000);
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const idOf = a => ((a && a.getAttribute('href') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;
@@ -173,7 +173,7 @@ return true;`, 15000);
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const idOf = a => ((a && a.getAttribute('href') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;
@@ -194,10 +194,10 @@ if (!cb.checked) cb.click();
 return cb.checked && rows.filter(r => r.cb && r.cb.checked).length === 1;`, 30000);
   });
   await run.step("The table's gear is enabled (a row is selected)", {}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//table//button[@aria-label="Menu"][not(@disabled)]`, 30000);
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//table//button[@aria-label="Menu"][not(@disabled)]`, 30000);
   });
   await run.step("Open the table's gear", {}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//table//button[@aria-label="Menu"]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//table//button[@aria-label="Menu"]`, 30000);
   });
   await run.step("Let the menu dropdown render", {}, async () => {
     await wait(page, 1);
@@ -206,7 +206,7 @@ return cb.checked && rows.filter(r => r.cb && r.cb.checked).length === 1;`, 3000
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const idOf = a => ((a && a.getAttribute('href') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;
@@ -268,7 +268,7 @@ return true;`, 15000);
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const idOf = a => ((a && a.getAttribute('href') || '').match(/\\/api\\/attachment\\/([^?/&]+)/) || [])[1] || null;
@@ -289,7 +289,7 @@ return addFile && !rows.some(r => r.id === att);`, 30000);
 return ['__dd628_name', '__dd628_before', '__dd628_file', '__dd628_att'].every(k => !sessionStorage.getItem(k));`, 15000);
   });
   await run.step("Collapse the row again", {always: true}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-chevron ")]`, 30000);
   });
   await run.step("Let the panel close", {always: true}, async () => {
     await wait(page, 2);
@@ -298,7 +298,7 @@ return ['__dd628_name', '__dd628_before', '__dd628_file', '__dd628_att'].every(k
     await assertFromJavascript(page, `const items = [...document.querySelectorAll('.mantine-Accordion-item')];
 const it = items.find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const c = it.querySelector('.mantine-Accordion-control');

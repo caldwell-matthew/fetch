@@ -4,7 +4,23 @@ import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
 import { globals } from '../../support/env';
 
+/**
+ * Log in, once more if the first try fails. The SSO form fails now and then for reasons of its own — the password field
+ * emptied under the typing (2026-09-23), the `development` environment button never appearing (about 1 fresh login in 4,
+ * 2026-09-24) — and a suite's shared login failing turns every one of its tests red before any runs (MOB.969,
+ * 2026-09-24). The retry starts over: cookies cleared, the app loaded again.
+ */
 export async function login(page: Page): Promise<void> {
+  try {
+    await loginOnce(page);
+  } catch (err) {
+    console.log(`  (login failed, trying once more) ${String((err as Error)?.message ?? err).slice(0, 160)}`);
+    await page.context().clearCookies();
+    await loginOnce(page);
+  }
+}
+
+async function loginOnce(page: Page): Promise<void> {
   const DATA_DOG_EMAIL = globals.DATA_DOG_EMAIL;
   const DATA_DOG_PASSWORD = globals.DATA_DOG_PASSWORD;
   const MOBDEV = globals.MOBDEV;
@@ -22,7 +38,7 @@ export async function login(page: Page): Promise<void> {
     await click(page, `//button[@type="submit"]`, DEFAULT_TIMEOUT);
   });
   await run.step("Type password", {}, async () => {
-    await typeText(page, `//input[@name="password"]`, `${DATA_DOG_PASSWORD}`, DEFAULT_TIMEOUT);
+    await typeText(page, `//input[@name="password"]`, `${DATA_DOG_PASSWORD}`, DEFAULT_TIMEOUT, { secret: true });
   });
   await run.step("Click \"Submit\"", {}, async () => {
     await click(page, `//button[@type="submit"]`, DEFAULT_TIMEOUT);

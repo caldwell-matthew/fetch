@@ -9,9 +9,6 @@ export async function mob952(page: Page): Promise<void> {
   await run.step("Navigate to the work list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list render", {}, async () => {
-    await wait(page, 10);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertPageContains(page, `Work Orders`, 30000);
   });

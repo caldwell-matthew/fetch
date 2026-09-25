@@ -30,10 +30,10 @@ export async function mob712(page: Page): Promise<void> {
     await press(page, `Enter`);
   });
   await run.step("RESULT GUARD: a \"DD SYNTHETIC MOBILE\" row rendered (MOB.600 residue)", {}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]`, 60000);
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]`, 60000);
   });
   await run.step("Expand that row", {}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")]`, 30000);
   });
   await run.step("Let the detail panel mount", {}, async () => {
     await wait(page, 3);
@@ -41,7 +41,7 @@ export async function mob712(page: Page): Promise<void> {
   await run.step("FIXTURE GUARD: the row's `Name` cell is exactly `DD SYNTHETIC MOBILE <8 digits>` \u2014 a throwaway asset; record the name", {}, async () => {
     await assertFromJavascript(page, `const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const cell = label => {
@@ -58,7 +58,7 @@ sessionStorage.setItem('__dd712_asset', name);
 return true;`, 30000);
   });
   await run.step("Open the General Info column picker (`table-columns`)", {}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//button[.//*[@data-icon="table-columns" or contains(concat(" ", normalize-space(@class), " "), " fa-table-columns ")]]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//button[.//*[@data-icon="table-columns" or contains(concat(" ", normalize-space(@class), " "), " fa-table-columns ")]]`, 30000);
   });
   await run.step("The column picker is open (`Find Column(s)`)", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Column(s)"]`, 30000);
@@ -84,10 +84,10 @@ return box.checked;`, 30000);
     await press(page, `Escape`);
   });
   await run.step("The `System` row now renders in General Info, with its edit pencil (`allowUpdate` and `asset.update`)", {}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//tr[.//b[normalize-space(.)="System"]]//button[.//*[@data-icon="pen-to-square" or contains(concat(" ", normalize-space(@class), " "), " fa-pen-to-square ")]]`, 30000);
+    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//tr[.//b[normalize-space(.)="System"]]//button[.//*[@data-icon="pen-to-square" or contains(concat(" ", normalize-space(@class), " "), " fa-pen-to-square ")]]`, 30000);
   });
   await run.step("Open the System edit form", {}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//tr[.//b[normalize-space(.)="System"]]//button[.//*[@data-icon="pen-to-square" or contains(concat(" ", normalize-space(@class), " "), " fa-pen-to-square ")]]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//tr[.//b[normalize-space(.)="System"]]//button[.//*[@data-icon="pen-to-square" or contains(concat(" ", normalize-space(@class), " "), " fa-pen-to-square ")]]`, 30000);
   });
   await run.step("The edit modal opened on the System lookup (`#systemId`)", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//input[@id="systemId"]`, 30000);
@@ -127,7 +127,7 @@ return hits.length === 1 && hits[0].textContent.trim() === "+ Create '" + n + "'
   await run.step("The System lookup's modal is gone and the row is still expanded (it closes whatever the server says \u2014 not proof)", {}, async () => {
     await assertFromJavascript(page, `const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const c = it.querySelector('.mantine-Accordion-control');
@@ -196,13 +196,13 @@ return true;`, 15000);
   await run.step("No System lookup modal is left open, and the marker row is still on the page", {always: true}, async () => {
     await assertFromJavascript(page, `const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 return !document.querySelector('.mantine-Modal-content #systemId');`, 15000);
   });
   await run.step("Open the General Info column picker (`table-columns`)", {always: true}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//button[.//*[@data-icon="table-columns" or contains(concat(" ", normalize-space(@class), " "), " fa-table-columns ")]]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//button[.//*[@data-icon="table-columns" or contains(concat(" ", normalize-space(@class), " "), " fa-table-columns ")]]`, 30000);
   });
   await run.step("The column picker is open (`Find Column(s)`)", {always: true}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Column(s)"]`, 30000);
@@ -231,12 +231,12 @@ keys.delete('systemId');
 return [...keys].every(k => !!cur[k] === !!before[k]);`, 30000);
   });
   await run.step("Collapse the row", {always: true}, async () => {
-    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")]`, 30000);
+    await click(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")]`, 30000);
   });
   await run.step("RESTORED: the row reports itself collapsed", {always: true}, async () => {
     await assertFromJavascript(page, `const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {
   const c = i.querySelector('.mantine-Accordion-control');
-  return c && (c.textContent || '').includes('DD SYNTHETIC MOBILE');
+  return c && /DD SYNTHETIC MOBILE \\d{8}/.test(c.textContent || '');
 });
 if (!it) return false;
 const c = it.querySelector('.mantine-Accordion-control');

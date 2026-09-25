@@ -89,14 +89,8 @@ return true;`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, 30000);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Pick \"Created At \u25b2\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Created At ▲"]`, 30000);
@@ -130,14 +124,8 @@ return n.join('\\u0000') === d.join('\\u0000');`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, 30000);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Pick \"Created At \u25bc\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Created At ▼"]`, 30000);
@@ -170,14 +158,8 @@ return n.join('\\u0000') === d.join('\\u0000');`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, 30000);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Pick \"Name \u25b2\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Name ▲"]`, 30000);
@@ -208,14 +190,8 @@ return JSON.stringify(names) === JSON.stringify(sorted);`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, 30000);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Pick \"Name \u25bc\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Name ▼"]`, 30000);
@@ -259,14 +235,8 @@ return el.value === '';`, 30000);
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
   });
-  await run.step("Wait for the sort modal", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Open the sort options", {}, async () => {
     await click(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")][contains(., "Sort Criteria")]//input[contains(concat(" ", normalize-space(@class), " "), " mantine-Select-input ")]`, 30000);
-  });
-  await run.step("Wait for the options", {}, async () => {
-    await wait(page, 1);
   });
   await run.step("Pick \"Collected By Me\"", {}, async () => {
     await click(page, `//*[@role="option"][normalize-space(.)="Collected By Me"]`, 30000);

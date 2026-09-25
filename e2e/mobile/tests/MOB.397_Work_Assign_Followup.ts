@@ -4,6 +4,7 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
 import { runId } from '../../support/env';
+import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob397(page: Page): Promise<void> {
   const RUNID = runId('numeric', 8);
@@ -11,14 +12,11 @@ export async function mob397(page: Page): Promise<void> {
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the work list begin rendering", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Wait for the workstage pages and the lookup prefetch", {}, async () => {
-    await wait(page, 20);
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("The work list rendered its search box", {}, async () => {
     await assertElementPresent(page, `//input[@placeholder="Find Workstage(s)"]`, DEFAULT_TIMEOUT);
@@ -49,17 +47,11 @@ return Date.now() - since >= 10000;`, 360000);
   await run.step("Navigate to the fixture work order", {}, async () => {
     await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Let the detail view begin rendering", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
   });
   await run.step("Open the \"Assets\" tab", {}, async () => {
     await click(page, `//*[@role="tab"][normalize-space(.)="Assets"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the panel", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("The \"Assets\" tab is active", {}, async () => {
     await assertElementPresent(page, `//*[@role="tab"][normalize-space(.)="Assets"][@data-active]`, DEFAULT_TIMEOUT);
@@ -97,23 +89,14 @@ return rows.length > 0 && rows.every(r => !!r.querySelector('[data-icon="locatio
   await run.step("Expand the first asset row (the gear menu lives in the panel)", {}, async () => {
     await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`, 30000);
   });
-  await run.step("Wait for the panel to expand", {}, async () => {
-    await wait(page, 3);
-  });
   await run.step("A collection item with a gear menu exists", {}, async () => {
     await assertElementPresent(page, `//button[@aria-label="Menu"]`, 30000);
   });
   await run.step("Open the first item's gear menu", {}, async () => {
     await click(page, `(//button[@aria-label="Menu"])[1]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the dropdown", {}, async () => {
-    await wait(page, 2);
-  });
   await run.step("Click \"Assign Follow-up Work\" (EXACT text \u2014 this menu also has \"Delete Item\")", {}, async () => {
     await click(page, `//button[contains(concat(" ", normalize-space(@class), " "), " mantine-Menu-item ")][normalize-space(.)="Assign Follow-up Work"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for the follow-up modal", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("The follow-up modal opened", {}, async () => {
     await assertPageContains(page, `Create Follow-up Work`, DEFAULT_TIMEOUT);
@@ -141,9 +124,6 @@ return ids.every(id => {
   });
   await run.step("Search for the Datadog Test workflow", {}, async () => {
     await typeText(page, `//*[@id="workflowTitleId"]`, `Datadog Test`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Wait for workflow options", {}, async () => {
-    await wait(page, 3);
   });
   await run.step("Pick the \"Datadog Test\" workflow", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Datadog Test")]`, 30000);
