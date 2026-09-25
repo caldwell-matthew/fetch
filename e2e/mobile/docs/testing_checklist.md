@@ -12,7 +12,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** |
 > | what a green run actually proves | `coverage.md` |
-> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 40 traps) |
+> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 51 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | test residue, cleanup, the AV fixture reset | `cleanup_spec.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |
@@ -28,8 +28,8 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree; `git fetch origin development` first |
-| **Last synced** | `54406b4b74` (2026-09-17) — **served**: the login page reads `DEV 2026.7.0 BUILD 92` and the deployed `mobile.2026.7.0-92.bundle.js` was read directly. Since `9d80ad499c`, 4 `client/mobile` commits, one feature (PR #4173): the **Asset Collector's create form gains a `Location` row** — a geolocate button, `No location captured.`, the captured address and coordinates, `Clear location`, and an `Asset Location` modal; `createAsset` applies it (`MOB.629` covers the capture half). `AssetGeolocate`'s modal was extracted into `AssetLocationModal`; its schema prop lost its `?.` but still sits behind `if (!schema) return null`, so the rows' geolocate control still renders only once the Asset schema is cached — the premise `MOB.354`'s and `MOB.397`'s bugs §45 gates rely on. No asserted literal moved. The sync before (`9d80ad499c`) brought the job-status recompute — the AV fixture now rests `READY` — plus the startup-error banner (🔴 — local tier only) and the tablet signature control (`MOB.135`) |
-| **Literal scan** | `check_literals.py` clean against `54406b4b74` — 2566 literals, 0 MISSING. `sweep_strings.py`: 197 JSX text strings, 135 asserted, 62 in no test |
+| **Last synced** | `9fdd47e6fc` (2026-09-25) — **served**: dev's mobile page loads `mobile.2026.7.0-123.bundle.js`. Since `54406b4b74`, 26 `client/mobile` commits, each untested until its ▶ OPEN WORK row (#91–#96): the **new work order form's `Assign to Crew`** (defaults to the user's crew, shown with `crewassignment.create`; cleared = unassigned) · **PM routes** — a stage a PM creates from a workflow that cycles its assets carries `pmRoute`, which turns on the Assets tab's status controls, and those gain an **`All` / `Active` switch** and sequence order · **mobile-only users** — a browser session whose user is `mobileOnly` is logged out to `/login?src=mobile&mobileOnly=true`, and the server refuses their browser login · **writes that wait for the server** — create work order, reassign and add-asset-to-work-order now await their mutations, with `Unable to …` toasts on failure, and `Asset verified` waits for the server when online · **the Transaction Log's 30-day retention** now purges (it purged nothing: the day count was reversed, and an `async` iterate callback stopped after the first entry) · `No permits` · the header (`green.0`, no border, no white bar under it on tablets) · `Superseded` spelled right on the status ring. Also since then, and already in the tests: Asset Lookup's search keeps the active filters (`MOB.820`), the map card's `Add to Work` picker (`MOB.929`, bugs §50). The server fixes to the estimated/workflow other-charge resolvers (rc.122) touch nothing mobile sends |
+| **Literal scan** | `check_literals.py` clean against `9fdd47e6fc` — 2371 literals, 0 MISSING. `sweep_strings.py` last ran on `54406b4b74`: 197 JSX text strings, 135 asserted, 62 in no test |
 
 ```bash
 cd ~/GitHub/MentorAPM/MentorTwo && git fetch origin development
@@ -55,7 +55,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Tests | **156 tests · 27 suites** · 156 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 199 `[x]` · 8 `[~]` · 0 `[ ]` · 25 `[-]` — 232 rows. Counts describe *this file*, not the app |
+| Rows | 199 `[x]` · 8 `[~]` · 9 `[ ]` · 25 `[-]` — 241 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -133,13 +133,24 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#37** CircleCI (held by the owner for later).
+1. **#91** the write failures the app now reports · **#92** a mobile-only user in a browser · **#93** the Transaction
+   Log's retention — all three read-only, the server's side answered in the browser.
+2. **#95** `Assign to Crew` on the create form · **#94** the Assets tab's `All` / `Active` switch — extensions of
+   `MOB.300` and `MOB.353`.
+3. **#96** two small reads.
+4. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
 | **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **91** | **Write failures the app now reports** (read-only, `MOB.982`). Four writes stopped looking saved when the server refuses them (since `54406b4b74`): create work order → `Unable to create work order.`, the form still open (`InsertForm/index.tsx:194-197`) · reassign → `Unable to assign work stage.`, the modal still open (`ReassignWork.tsx:54-57`) · add an asset to a work order → `Unable to add asset to work order.` (`InsertForm/index.tsx:363-366`) · verify an AV asset → no `Asset verified` toast (online it now waits for the server, `VerificationCheckbox.tsx:24-71`) and the box back unticked. Refuse each with a GraphQL error answered in the browser — not a network failure, which the retry link sends five more times, and re-queues until reconnected when offline (`graphql/index.tsx:61-86`) — and prove over `/graphql` that nothing changed | not started |
+| **92** | **A mobile-only user in a browser** (read-only, `MOB.982`). `GET_SESSION` answered with `me.mobileOnly: true` → the app never renders, `LOG_OUT` is sent, and the page lands on `/login?src=mobile&mobileOnly=true` showing `This user is only allowed to log into the MentorAPM using the MentorAPM Mobile Application.` with `Continue`, which returns to the login form without the parameter (`Layout/Auth.tsx:30-37,168-177`, `login/components/LoginForm.tsx:28-30,96-112`). Answer `LOG_OUT` in the browser: sent, it ends the test account's session (Session model, above) | not started |
+| **93** | **The Transaction Log's 30-day retention** (browser-only, `MOB.972` beside `MOB.131`/`132`). Seed the user's `mentor_apm_transactions` IndexedDB store with entries 31, 45 and 400 days old and one 29 days old, then reload: the startup `cleanUpLogs` (`Layout/Auth.tsx:68`, `graphql/links/LoggingLink.ts:15-30`) removes exactly the three old ones, and the Transaction Log lists the 29-day one. Build 121 removed none of them | not started |
+| **94** | **The Assets tab's `All` / `Active` switch** (`WorkOrders/components/Assets/index.tsx:72-92`) — shown wherever asset status is (the fixture's template has it; `MOB.347`). Read-only: it renders, at `All`. In `MOB.353`, while `Pump 0102` is `Completed`: `Active` hides it, `All` shows it — self-restoring as today. The sequence order (numbered assets first, then by name) needs two assets with sequences: 🟡 | not started |
+| **95** | **`Assign to Crew` on the new work order form** (`InsertForm/index.tsx:44-58,298`, shown with `crewassignment.create`). In `MOB.300` (residue as today): the field shows the session's crew, and the created stage's assignment over `/graphql` is exactly that crew. Clearing it or picking another crew is 🟡 (a decision) | not started |
+| **96** | **Two small reads.** `No permits` on a work order with none (`WorkOrders/components/Permits.tsx:12`; `MOB.394` reads the fixture's permits) · the page starts exactly where the header ends at tablet width — the white bar the header fix removed (`Layout/index.tsx:34-47`) | not started |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -166,6 +177,9 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | Dev Logs' `Error:` column · its `No logs found.` | a log entry carrying an error · a session with no log entries | fixture |
 | An AV job asset's `An asset standard needs to exist…`, `A failure profile need to exist…` and `No asset attributes found.` | an asset on a fixture job with no asset standard, failure profile or attributes — both of `DATADOG MOBILE JOB`'s assets have all three | fixture |
 | `Your organization has not configured their map settings.` (`Map/index.tsx:405`) | an org without map settings | fixture |
+| A PM route stage (`pmRoute`) — the Assets tab's status controls with no template flag (`WorkDetails.tsx:157`), the stage's assets taken from the workflow's stage asset lists, and the sequence order (▶ #94) | a stage a PM created from a workflow with `cycleWorkflowAssets` (`server/…/work/work/create/index.ts:187-198`) — desktop setup | fixture |
+| The server refusing a mobile-only user's browser login — the same notice, before any session exists (`server/…/login/utils/index.ts:125-130`) | a second test user with `mobileOnly` set (▶ #92 fakes the in-session half) | fixture |
+| `Assign to Crew` cleared (an unassigned work order) or set to another crew (created, but not added to the list: `InsertForm/index.tsx:143`) — ▶ #95's other branches | owner decision: each leaves a test work order outside the crew's list, where `fixtures.py` does not look | decision |
 
 ### ⚪ NOT A GAP
 
@@ -181,7 +195,8 @@ both) · real device GPS ·
 · `UploadLogs` (under
 `UploadStatusIcon`, Expo only) · Transaction Log column sort (`onSort` is `console.log`) · the Home summary widgets (`AssetVerificationSummary`,
 `WorkOrderSummary` — exported, never imported) · loading placeholders (`Loading history...`, `Loading form…`,
-`...loading` — transient).
+`...loading` — transient) · `Superseded` on the status ring (the crew query never returns one, bugs §25) · `fitMarkersToMap`
+(`Map/utils.ts`, imported by nothing) · the header's colour.
 
 ### 🔴 HARNESS — needs a different tool
 
@@ -250,12 +265,14 @@ MentorTwo.
 - [x] Switch crew and revert, Admin → Operator → Admin *(MOB.200)*
 - [x] Crew switcher opens and dismisses without mutating *(MOB.430)*
 - [x] Log out, including the "Take Me Back" escape hatch *(MOB.440)*
+- [ ] A mobile-only user in a browser is logged out to the mobile-only notice — ▶ #92
 - [x] Role permissions gate menu items *(MOB.210)* — `Admin (0000)` hides `Work Orders` and every tile; restores to `Admin`
 - [x] Crew switch changes the visible work/mobile-job set *(MOB.220)*
 
 ## T1.4 Responsive / viewport
 
 - [x] Tablet width (`chrome.tablet`) — all tests but the phone suite
+- [ ] The page starts where the header ends — no white bar under it — ▶ #96
 - [x] Phone form branch `#senor-work-form` renders below `availWidth` 750, the desktop panel does not *(MOB.951, in `MOB.975`)*; its image field shows `Upload Photo` exactly when the form has one
 - [x] The list's search control, the affixed create button and the burger are on screen at phone width *(MOB.952)*
 - [x] Crew switching at phone width — the burger's `Switch Crews` (the login prefix reads the role there, `MOB.975`); the header shortcut `.mobile-crew` is hidden under 450px **by design** *(MOB.952, `optional`)*. Common phones are 393–430px, so the shortcut shows only on tablets and in landscape — a product call
@@ -320,6 +337,8 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] The route renders and titles itself *(MOB.150)*
 - [x] From the Work Order module *(MOB.300)* — affixed `+` → workflow lookup → submit (a server answer: no `optimisticResponse`)
+- [ ] `Assign to Crew` on the create form defaults to the user's crew, and the stage is assigned to it — ▶ #95
+- [ ] A refused create → `Unable to create work order.`, the form still open — ▶ #91
 - [x] Photos on the insert form *(MOB.301)* — one upload lands as exactly one slide, a `blob:` URL (nothing uploaded before submit); closed with its X, never submitted
 - [x] Search bar opens; Sort Criteria modal opens *(MOB.340)* · search filters the list *(MOB.343)*
 - [x] Map view toggle *(MOB.341)*
@@ -373,6 +392,9 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Add job note *(MOB.392)* · residue — tiptap editor; proved by exactly +1 note after a reload
 - [x] Warranties tab and the warranty alert banner *(MOB.399)*; the empty state `No Warranties Found...` on `MOB.302`'s work order, whose asset has none
 - [~] Assign work stage *(MOB.398)* — opens the crew modal, proves the form, cancels
+- [ ] A refused reassign → `Unable to assign work stage.` · a refused add-asset → `Unable to add asset to work order.` — ▶ #91
+- [ ] The Assets tab's `All` / `Active` switch — ▶ #94
+- [ ] `No permits` on a work order with none — ▶ #96
 - [~] A multiline field's VALUE opens in a modal — the arrow beside it (`DetailPage/utils/MultiLineLabel.tsx`) *(MOB.331)*: on the work order's General Info, beside Stage Notes (`DATADOG FIXTURE`) and NOT beside the empty Problem Description, opening exactly the value; the form untouched. Partial: the same component on the work form, stage forms and the create form's `address`/`desc` is not driven
 - [x] `Edit Item` on a failure **saves** *(MOB.385)* · self-restoring — Repair Type `MISSED` → `REPAIR` on the first open after a page load, proved over `/graphql` on the failure's id; restored to `MISSED` `always` after a schema-priming open. 🛑 red whenever bugs §42's race is lost (locally 2 of 2) ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] Edit a job note *(MOB.361)* · self-cleaning — adds its own `DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}` note, edits it in the tiptap editor, proved over `/graphql` on that note's id
@@ -413,6 +435,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] `Add Existing Asset` never offers an asset the job already has — in its first list, and after a submitted search *(MOB.928, read-only)*. The search's refetch sends `jobId: '??'`, but the lookup also filters the job's own assets out in the browser, so nothing reaches the user
 - [x] From a Mobile Job asset *(MOB.396)*
 - [x] Verify · moves to the Verified tab · counter increments · unverify decrements *(MOB.510)*
+- [ ] A refused verify shows no `Asset verified` and the box unticks — ▶ #91
 - [x] Unverified tab shows the asset; Verified tab empty at rest *(MOB.500)*
 - [x] Verified asset does not show on Unverified *(MOB.590)* · self-restoring
 - [x] Job status menu *(MOB.536)* · self-restoring — exactly `Mark as COMPLETED`/`CANCELED` from IN PROGRESS; CANCELED shows `This verification job has been canceled.`; back to IN PROGRESS, proved after a reload
@@ -549,6 +572,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The route renders and titles itself *(MOB.130)*
 - [x] Transaction Log lists entries *(MOB.131)* — makes a verify/unverify first; the log reads `gql_log` and a fresh session has nothing
 - [x] Transaction Log search *(MOB.132, in `MOB.972`)* — filters to zero and restores the same row count
+- [ ] Entries older than 30 days are purged at startup — ▶ #93
 
 ## `/logz` — Dev Logs
 

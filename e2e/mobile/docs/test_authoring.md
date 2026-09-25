@@ -541,3 +541,14 @@ the first 500; the test crew passed 500 stages with residue on 2026-09-24, and `
 work order (at 501) as "not in the crew's list" when it was. Pass `params: { limit: 1000 }` (a limit of 5000 silently
 comes back as 500) and compare `pageInfo.totalCount` with the rows read. The residue keeps growing until
 `cleanup_residue.py --apply` runs.
+
+**51 · A status change can email people.** Moving a work stage to a status fires its **department's** work
+notifications (`server/…/statusUpdate/deptNotifications.ts`: every active user in the named role, whatever their email
+setting) and, once per stage, its forms' `SEND_NOTIFICATION` triggers (`fireFormTriggers/actions/sendAlerts.ts`). The
+fixtures sit in the `Admin` department, whose `Complete` notification ("Test Role Trigger") emailed all 14 Admin users
+every time `MOB.320` completed the fixture work order and `MOB.511`'s job completion completed `20260715-9-001`. Since
+2026-09-25 it goes to the role **`Test Notifications Only`** (`dgQh4IMBgwFgYxdVQFMcxA`), which exists only to receive it:
+**keep that role empty**, and never point it back at a role people hold. A new test that moves a stage in another
+department, or to another status, reads that department's `departmentWorkNotifications` first. The `Trigger Test` form
+template (the fixture's `⚡Trigger` form) still names `Admin` in two `SEND_NOTIFICATION` triggers: they fire on a stage
+that newly holds the form and reaches `Complete`, which no test does today.

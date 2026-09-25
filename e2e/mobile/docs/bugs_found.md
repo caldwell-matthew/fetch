@@ -10,7 +10,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | **Source** | read in the code; mechanism clear, not observed failing |
 
 **Rules for this file**
-- Every status was read against `origin/development@9d80ad499c`. Re-read a row
+- Every status was read against `origin/development@9fdd47e6fc`. Re-read a row
   before acting on it once the sync line in `testing_checklist.md` has moved on.
 - **🔧 fix pending** = a PR is open; delete the entry once it merges and the served code has it.
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
@@ -39,7 +39,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — **reproduced by `MOB.977_DIAG_Condition_Form_Schema_Race`**, which is red when the bug is gone |
 | 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:77-89` → `handleTagAssign` `:51-52` looks the new tag up in the pre-create list — still on `f208805e08`; `MOB.627`'s sentinel red 2026-09-24 |
-| 45 | Expanding an asset row on a work order's Assets tab — or in Asset Lookup before its schema answers — can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,221` passes an uncached schema, `AssetLookup/index.tsx:86,351` an unanswered one; `AssetLookupDetails/index.tsx:43` maps it unguarded |
+| 45 | Expanding an asset row on a work order's Assets tab — or in Asset Lookup before its schema answers — can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,231-233` passes an uncached schema, `AssetLookup/index.tsx:86,351` an unanswered one; `AssetLookupDetails/index.tsx:43` maps it unguarded |
 | 46 | A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated` | Runtime | ❌ `GeneralInfo.tsx:61,77-85`; `InsertForm/utils/index.ts:150-161` copies every `allowUpdate` field, dirty or not |
 | 48 | `Item added` is shown for a save the server refused | Runtime | ❌ low–medium · `ui/NewItemForm.tsx:89` · `MOB.923` pins it |
 | 49 | `Extend session` succeeds but tells the user `The operation was aborted.` | Runtime | ❌ medium · `Layout/Auth.tsx:38-58` · `MOB.925` pins it |
@@ -384,7 +384,7 @@ optional sentinel, "the CREATED tag reached our photo", is red while §44 is ope
 
 The Assets tab reads the Asset schema from the cache only — `apolloClient.readQuery(GET_SCHEMA, { schema:
 'Asset' })` (`WorkOrders/components/Assets/index.tsx:42-45`) — and passes `schemaQuery?._info?.fields`
-to each row's `AssetLookupDetails` (`:221`). `/work` fetches that schema only when a listed work stage's mobile
+to each row's `AssetLookupDetails` (`:231-233`). `/work` fetches that schema only when a listed work stage's mobile
 template has an `ASSETS` section (`WorkOrders/utils/prefetchData.ts:74`, behind the `PREFETCHED_WORK_DATA`
 guard at `:142-143`) — the fixture stage has none, so on a cold cache the prop is `undefined`, and `AssetLookupDetails` calls `fields.map` without a
 guard (`AssetLookup/AssetLookupDetails/index.tsx:43`). The ErrorBoundary replaces the page.
