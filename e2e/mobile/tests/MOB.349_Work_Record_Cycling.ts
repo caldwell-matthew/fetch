@@ -3,6 +3,7 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, click, wait } from '../../support/dd';
+import { waitForPrefetch } from '../support/prefetch';
 
 export async function mob349(page: Page): Promise<void> {
   const run = new Sequence();
@@ -11,6 +12,11 @@ export async function mob349(page: Page): Promise<void> {
   });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
+  });
+  // Cycling opens the next and previous work orders, whose pages render from the list's per-stage downloads — so
+  // wait for ALL of them here, rather than count on an earlier test in the suite having waited (2026-09-24).
+  await run.step("Every assigned stage's details downloaded (the cycled-to work orders render from them)", {}, async () => {
+    await waitForPrefetch(page, { timeout: 360_000 });
   });
   await run.step("ROW GATE: at least one work order rendered", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Paper-root ")][contains(., "Description:")])[1]`, 120000);

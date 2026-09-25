@@ -133,15 +133,13 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#90** why the work-order suites are still slow.
-2. **#37** CircleCI (held by the owner for later).
+1. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
 | **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **90** | **Why the work-order suites are still slow.** After the waits were trimmed they gained least — 71.4 → 57.6 min over `MOB.953`–`MOB.960` and `MOB.981` (19%; `MOB.960` 4.5 → 4.5), about 58% of a full pass — and only about 2 min of fixed sleep is left in them, so the time is the app: suspected, each test reloading `/work`, waiting out its prefetch and reopening the fixture work order; saves proven over `/graphql`; checks sitting out a timeout before a fallback step. **Next:** time `MOB.960` and `MOB.959` step by step, then fix the biggest costs (e.g. load a shared page once per suite) — every suite green twice after, as for the waits | open |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still

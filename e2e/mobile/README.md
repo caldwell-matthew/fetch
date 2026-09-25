@@ -24,14 +24,14 @@ The docs are copies of `legacy/Mobile/`'s for now — see [`docs/README.md`](doc
 | Suite | Writes? | Tests | Local time (before → after trimming the waits, 2026-09-24) |
 |---|---|---|---|
 | `MOB.953` Work orders · list | ✏️ | 9 | 10.9 → 8.3 min |
-| `MOB.954` Work orders · detail, open tabs | | 8 | 7.4 → 5.8 min |
-| `MOB.955` Work orders · detail, assets and records | | 6 | 6.5 → 6.1 min |
-| `MOB.956` Work orders · records (charges, conditions, failures, notes) | ✏️ | 8 | 11.3 → 8.0 min |
-| `MOB.957` Work orders · status and field edits | ✏️ | 5 | 9.3 → 7.2 min |
+| `MOB.954` Work orders · detail, open tabs | | 8 | 7.4 → 4.8 min |
+| `MOB.955` Work orders · detail, assets and records | | 6 | 6.5 → 3.0 min |
+| `MOB.956` Work orders · records (charges, conditions, failures, notes) | ✏️ | 8 | 11.3 → 6.5 min |
+| `MOB.957` Work orders · status and field edits | ✏️ | 5 | 9.3 → 4.1 min |
 | `MOB.958` Work orders · assets and location edits | ✏️ | 4 | 3.6 → 2.1 min |
-| `MOB.959` Work orders · stage writes and creates | ✏️ | 6 | 14.4 → 11.5 min |
-| `MOB.960` Work orders · forms | ✏️ | 3 | 4.5 → 4.5 min |
-| `MOB.981` Work orders · charges and offline | | 6 | 7.1 → 6.2 min |
+| `MOB.959` Work orders · stage writes and creates | ✏️ | 6 | 14.4 → 8.9 min |
+| `MOB.960` Work orders · forms | ✏️ | 3 | 4.5 → 1.7 min |
+| `MOB.981` Work orders · charges and offline | | 6 | 7.1 → 3.5 min |
 | `MOB.961` Asset Verify · jobs list | | 6 | 4.0 → 1.9 min |
 | `MOB.962` Asset Verify · job assets | | 7 | 5.4 → 2.3 min |
 | `MOB.963` Asset Verify · verify, status and queue | ✏️ | 6 | 10.5 → 6.2 min |

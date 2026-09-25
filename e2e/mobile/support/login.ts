@@ -46,14 +46,13 @@ async function loginOnce(page: Page): Promise<void> {
   await run.step("Choose the \"development\" environment", {}, async () => {
     await click(page, `(//button[contains(concat(" ", normalize-space(@class), " "), " enviroment-button ")][contains(concat(" ", normalize-space(@class), " "), " enviroment-btn--active ")][.//p[normalize-space(.)="development"]])[1]`, DEFAULT_TIMEOUT);
   });
-  await run.step("Wait for the app shell to mount after the env redirect", {}, async () => {
-    await wait(page, 10);
+  // No fixed sleep for the shell: wait for its menu button (an ErrorBoundary crash never renders one), then the
+  // crash guard — which reads the page once the app is up, not before.
+  await run.step("Test authenticated mobile shell rendered", {}, async () => {
+    await assertElementPresent(page, `//button[@aria-label="Toggle navigation"]`, 120000);
   });
   await run.step("CRASH GUARD (boot): the ErrorBoundary has NOT replaced the app \u2014 no \"Something went wrong.\"", {}, async () => {
     await assertPageLacks(page, `Something went wrong.`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Test authenticated mobile shell rendered", {}, async () => {
-    await assertElementPresent(page, `//button[@aria-label="Toggle navigation"]`, 120000);
   });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);

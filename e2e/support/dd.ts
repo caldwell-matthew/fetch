@@ -294,7 +294,7 @@ export class Sequence {
         this.failure = err;
       }
     } finally {
-      // `E2E_STEP_TIMES=1`: where a test's time goes (checklist #90).
+      // `E2E_STEP_TIMES=1`: print each step that takes a second or more — where a test's time goes.
       const ms = Date.now() - t0;
       if (process.env.E2E_STEP_TIMES && ms >= 1000) console.log(`  [step ${(ms / 1000).toFixed(1)}s] ${what.slice(0, 110)}`);
     }
