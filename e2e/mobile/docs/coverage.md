@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**156 tests · 27 suites** · 156 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**163 tests · 27 suites** · 163 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -136,7 +136,8 @@ suite's local time against a ~1071s ceiling (Appendix F); `MOB.959` and `MOB.953
 **The work-order LIST: create, search, sort, map toggle, status ring, row navigation.**
 
 `MOB.150` the route renders · `MOB.300` create (the create form has no `optimisticResponse`, so its modal closing is a
-server answer) · `MOB.301` a photo in the create form (a local `blob:`, discarded unsent) · `MOB.340` search/sort ·
+server answer; `Assign to Crew` shows the session's crew, the create sends it as `roleId`, and the new stage holds it —
+over `/graphql`) · `MOB.301` a photo in the create form (a local `blob:`, discarded unsent) · `MOB.340` search/sort ·
 `MOB.341` map toggle · `MOB.343` search filters · `MOB.344` row navigation · `MOB.342` status ring and legend ·
 `MOB.345` sort applied, persisted and really reversed — narrowed by a search first, and every row rendered in both
 directions must come out reversed, so a row paging in mid-test cannot fail it.
@@ -144,7 +145,7 @@ directions must come out reversed, so a row paging in mid-test cannot fail it.
 #### `MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite` — 8 children · read-only · Datadog 294s (its 7-child version)
 **The work-order detail screen opened, its tabs, and the records behind them.**
 
-`MOB.310` read · `MOB.330` tabs · `MOB.331` General Info's value arrow — beside Stage Notes (`DATADOG FIXTURE`), absent beside the empty Problem Description, and opening exactly the value · `MOB.393` the add-form picker (nothing attached) · `MOB.394` permits · `MOB.399`
+`MOB.310` read · `MOB.330` tabs · `MOB.331` General Info's value arrow — beside Stage Notes (`DATADOG FIXTURE`), absent beside the empty Problem Description, and opening exactly the value · `MOB.393` the add-form picker (nothing attached) · `MOB.394` permits, and `No permits` on `20260910-16` · `MOB.399`
 warranties (and the empty state on MOB.302's work order) · `MOB.348` globe menu and LocationForm · `MOB.349` record
 cycling.
 
@@ -161,7 +162,7 @@ each paired with its online control.
 #### `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` — 6 children · read-only · Datadog 351s
 **The Assets tab, the record forms opened unsaved, attachments and proximity.**
 
-`MOB.347` Assets tab (🛑 `Mark as …` asserted, never clicked — `MOB.353` writes it) · `MOB.389` the Condition/Failure
+`MOB.347` Assets tab (🛑 `Mark as …` asserted, never clicked — `MOB.353` writes it; the `All` / `Active` switch renders at `All`) · `MOB.389` the Condition/Failure
 asset lookups ignore case · `MOB.387` `Edit Item` opens the condition form filled with its card's six values, closed
 unsaved; the card's `Stress Decision Score:`/`Notes:` rows and the failure table's `Discovery Code` · `MOB.741` the
 work-stage attachment panel and its image filter · `MOB.731` Near Me's radius · `MOB.358` the asset location form, online
@@ -196,7 +197,8 @@ they no longer reproduce bugs §42 (the schemas are cached before the form opens
 
 `MOB.352` `Edit Location` saves a marker address and x/y, proved over `/graphql`; the fixed rest values are typed back
 `always`, with a `/graphql` backstop · `MOB.353` `Mark as …` on `Pump 0102`'s link, `Active` → `Completed` → `Active`,
-each over `/graphql` (the badge is written to the cache before the mutation) · `MOB.354` `Bypass Valve 0001` linked
+each over `/graphql` (the badge is written to the cache before the mutation); while `Completed`, the `Active` switch
+hides the row and `All` brings it back · `MOB.354` `Bypass Valve 0001` linked
 through `Add Existing Asset` and that link removed (trap 2); `Pump 0102`'s link, the condition and failure ids and the
 stage's location proved untouched · `MOB.359` the asset location form submits `Pump 0102`'s address, city and postal code
 from a stubbed geocode, `Include GIS` off so lat/long are proved unchanged, restored `always`.
@@ -332,7 +334,7 @@ reading per run).
 |---|---|---|---|
 | `MOB.970_MaterialLookup_Suite` | 7 · writes | 368s | `MOB.110` the route · `MOB.850` storeroom read and search · `MOB.860` cycle count `+1`/`-1` (self-restoring by construction — neither leg reads the quantity back) · `MOB.870` stocking (**one-way**) · `MOB.855` column sort really reorders, `N matches` vs rows (bugs §33) · `MOB.865` the Photos/Docs segments — the storeroom item's editable attachments above the material item's read-only ones — and the row avatar modal · `MOB.866` uploads a photo and a PDF to the storeroom item and deletes both, each end over `/graphql`, the material item's own attachments proved unchanged |
 | `MOB.971_Map_Suite` | 4 · writes (residue: a work order) | 156s | `MOB.120` the route · `MOB.121` map controls (style, the layers panel and its heading, zoom — not 2D/3D or Home) · `MOB.123` the `Switch Map` picker (a real switch and back, read from `mobile-map-id`) · `MOB.122` a work order created from the map, last |
-| `MOB.972_AppShell_Suite` | 15 · writes (`MOB.131` verifies and un-verifies an AV asset) | 378s | `MOB.180` Home tiles · `MOB.900` a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run · `MOB.910` the offline UI · `MOB.170` route and `MOB.171` Dev Logs · `MOB.130` route and `MOB.131`/`132` the Transaction Log · the hamburger menu, resync, back arrow, header status icons, crew modal dismissal and its always-shown offline description (`MOB.400` `410` `420` `430` `450` `460` `470` — **not** `MOB.440`, which logs out and is standalone). 🛑 Route checks are shallow by design: the route resolved and titled itself, not that its data loaded — each module's suites cover that |
+| `MOB.972_AppShell_Suite` | 16 · writes (`MOB.131` verifies and un-verifies an AV asset) | 378s | `MOB.180` Home tiles · `MOB.900` a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run · `MOB.910` the offline UI · `MOB.170` route and `MOB.171` Dev Logs · `MOB.130` route and `MOB.131`/`132` the Transaction Log · `MOB.942` its 30-day retention, in its own browser · the hamburger menu, resync, back arrow, header status icons (and no gap under the header), crew modal dismissal and its always-shown offline description (`MOB.400` `410` `420` `430` `450` `460` `470` — **not** `MOB.440`, which logs out and is standalone). 🛑 Route checks are shallow by design: the route resolved and titled itself, not that its data loaded — each module's suites cover that |
 | `MOB.973_Session_RunAlone_Suite` | 2 · writes · **run alone** | 215s | ⭐ `MOB.210` permission gating of the menu · `MOB.220` crew scoping changes the visible job set. ⚠️ never run concurrently — mutates the session crew |
 | `MOB.975_Phone_Suite` | 2 · read-only · `chrome.mobile_small` | 129s | `MOB.951` a work form renders its MOBILE branch (`#senor-work-form`, below `availWidth` 750) and not the desktop one, with its image field's `Upload Photo` exactly when the form has one · `MOB.952` the affixed `+`, the list's search and the burger at phone width; the header crew shortcut is hidden under 450px by design |
 

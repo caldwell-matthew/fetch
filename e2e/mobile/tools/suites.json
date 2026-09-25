@@ -322,6 +322,7 @@
         "MOB.130",
         "MOB.131",
         "MOB.132",
+        "MOB.942",
         "MOB.400",
         "MOB.410",
         "MOB.420",
@@ -330,7 +331,7 @@
         "MOB.460",
         "MOB.470"
       ],
-      "about": "Every route's shell: Home, the online and offline guards, Dev Logs, the Transaction Log, the hamburger menu, the back arrow, header status icons.\n- Writes: MOB.131 verifies and un-verifies an asset on the AV fixture job; MOB.131 before MOB.132, whose search reads those entries.",
+      "about": "Every route's shell: Home, the online and offline guards, Dev Logs, the Transaction Log and its 30-day retention, the hamburger menu, the back arrow, header status icons.\n- Writes: MOB.131 verifies and un-verifies an asset on the AV fixture job; MOB.131 before MOB.132, whose search reads those entries.",
       "order": 26
     },
     {
@@ -363,11 +364,17 @@
         "MOB.920",
         "MOB.921",
         "MOB.922",
+        "MOB.943",
         "MOB.931",
+        "MOB.937",
+        "MOB.938",
+        "MOB.939",
+        "MOB.940",
+        "MOB.941",
         "MOB.923",
         "MOB.924"
       ],
-      "about": "What the user sees when the server fails: startup session, form schemas, the tag lookup's AI answers, an asset gone from a map card, a refused note, a refused form — pins bugs §11 and §48. Failures are made in the browser; built to write nothing."
+      "about": "What the user sees when the server fails: startup session, form schemas, the tag lookup's AI answers and its filters, an asset gone from a map card, four refused saves that now say so (create work order, reassign, add to work, verify), a mobile-only user in a browser, a refused note, a refused form — pins bugs §11, §48, §51, §52 and §53. Failures are made in the browser; built to write nothing."
     },
     {
       "id": "MOB.983",

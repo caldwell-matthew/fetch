@@ -24,7 +24,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | § | Finding | Evidence | Status |
 |---|---|---|---|
 | 11 | `Form added` toast fires before the mutation | Source | ❌ low · `AdHocForm.tsx:49` |
-| 25 | How the crew's work list is populated | Reference | not a bug — the four server rules the checklist cites |
 | 28 | The offline geolocate message sits behind a `disabled` element's `onClick` | Source + Runtime | ❌ `GeolocateButton.tsx:94` |
 | 29 | A Mapbox failure makes Geolocate fail silently | Source | ❌ `reverseGeocode` has no `ok` check or `catch` |
 | 31 | A deploy takes over a running session silently and deletes its cache | Source | ❌ no `controllerchange` handler in `client` |
@@ -32,7 +31,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 33 | Material Lookup shows at most 500 items under a label counting all | Runtime | ❌ 996 items, 500 rows |
 | 34 | **Collecting an asset WITH a photo from a browser never reaches the server** | Runtime + Source | 🛑 `MOB.600`'s server proof is red until fixed |
 | 35 | Clicks inside the row-avatar modal toggle the row behind it | Runtime + Source | ❌ `MOB.624` sentinels it |
-| 37 | Asset Lookup's `Scan Barcode` does nothing in a browser | Runtime + Source | ❌ `MOB.750` sentinels it |
 | 38 | The collector's sort is saved under the AV job list's key | Runtime + Source | ❌ `MOB.625` sentinels it |
 | 39 | A record-field `includes` filter is saved with no value | Runtime + API + Source | ❌ `MOB.807` sentinels it |
 | 40 | **A rejected add or edit looks saved** — the server's refusal is swallowed | API + Source | 🛑 `addToCollection` / `updateCollectionRecord` |
@@ -44,6 +42,10 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 48 | `Item added` is shown for a save the server refused | Runtime | ❌ low–medium · `ui/NewItemForm.tsx:89` · `MOB.923` pins it |
 | 49 | `Extend session` succeeds but tells the user `The operation was aborted.` | Runtime | ❌ medium · `Layout/Auth.tsx:38-58` · `MOB.925` pins it |
 | 50 | "Add to Work" from a map card offers only the first 50 of the crew's work stages, ignores typing, and offers stages that already hold the asset | Runtime + Source | ❌ medium · `InsertForm/schemas.ts:27-40` |
+| 51 | Asset Lookup's Tag Lookup ignores the active filters — on the capture and on its X — while the pill still counts them | Runtime + Source | ❌ medium · `AssetLookup/index.tsx:194-198,226-229` · `MOB.943` pins it |
+| 52 | A verify the server refused leaves the asset's box ticked | Runtime + Source | ❌ medium · `AssetVerification/VerificationCheckbox.tsx:17` · `MOB.940` pins it |
+| 53 | **A verify the server refused still changes the job's status** | Runtime + Source | ❌ medium–high · `VerificationCheckbox.tsx:40-66` · `MOB.940` pins it |
+| 54 | A HEIC photo added from a browser is stored as it is and shows as a broken image | Runtime + Source | ❌ low–medium · `ui/PhotoCarousel/AddPhotoOptions.tsx:55` · `MOB.936` records it |
 
 ## §11 · `Form added` toast fires before the mutation
 
@@ -186,13 +188,10 @@ that browser branch.
 `!window.ReactNativeWebView`; reserve `thumbnails` for the shell.
 **Tests.** `MOB.600` ends with a `network-only` Asset Lookup search for its own name — red until
 fixed. It is `soft`, so `MOB.967`'s later children still run. **Never make it `optional`.** `MOB.967` is held out of the Datadog passes while this is open — it would spend 5 runs a pass re-confirming it.
-🛑 **A LOCAL REPLAY CANNOT EXERCISE THIS, AND PASSES.** `local_run.py` cannot resolve the
-`Open the photo picker ("Add Asset Photo")` step — it is a recorded-element click with no
-`userLocator`, so there is no xpath to follow — and the `uploadFiles` step that follows never
-finds its input. No photo is attached, the asset is created photo-free, and, per **Scope** above,
-that path persists: the server proof then PASSES. Measured 2026-09-15 — local `MOB.967` red on
-the picker with a green server proof, Datadog `MOB.600` green on the picker with a red server
-proof (2 runs). ➡️ **Only a Datadog run can confirm or clear this finding.**
+**Playwright reproduces it** (the old Datadog local replay could not attach the photo, and passed). `MOB.967` pins it:
+`MOB.600` attaches a real photo, and its SERVER PROOF is the one expected failure. Re-checked 2026-09-25 on
+`9fdd47e6fc`: `createAsset.ts` and `UploadLink.ts` unchanged since build 92, and the asset `MOB.600` collected at
+~17:52 UTC never reached the server — the newest `DD SYNTHETIC MOBILE <8 digits>` asset there is from 2026-09-15.
 
 ## §35 · Every click inside the row-avatar modal toggles the accordion row behind it
 
@@ -208,20 +207,6 @@ nothing inside the modal does.
 the same component the same way — unmeasured.
 **Fix:** `onClick={e => e.stopPropagation()}` on the modal content, or lift the modal out of the
 control. **Tests:** `MOB.624` restores the row; its `optional` sentinel flips when fixed.
-
-## §37 · Asset Lookup's `Scan Barcode` does nothing in a browser
-
-`AssetLookup/TagLookup/index.tsx`: `Scan Barcode` calls `launchScanner()` →
-`callNative({ type: 'LAUNCH_CAMERA' })` with no browser branch; outside the shell nothing is sent
-and the promise never settles (§34's mechanism). The menu closes; nothing else happens, and a
-never-settled promise plus a `BARCODE_SCAN_RESULTS` listener leak per tap.
-
-The item beside it, `Alphanumeric`, checks `window.ReactNativeWebView` and falls back to a file
-dialog; the collector's `CaptureTagIcon.tsx:38` offers `Scan Barcode` only inside the shell.
-Asset Lookup is the one place it is offered where it cannot work.
-**Fix:** render it only when `window.ReactNativeWebView` exists, or add a browser branch.
-**Tests:** `MOB.750`'s `optional` sentinel; when fixed, its menu assertion becomes `Alphanumeric`
-alone.
 
 ## §38 · The collector's sort is saved under the Asset Verification job list's key
 
@@ -515,3 +500,85 @@ other record pickers use; compare `a.assetId.id` with the asset's id; show the w
 description next to the stage name.
 **Tests:** `MOB.929` works around it — it links to a test-made work order on the first page, picked by its place
 in the list, and a route aborts any add for another stage.
+
+## §51 · Asset Lookup's Tag Lookup ignores the active filters
+
+`AssetLookup/index.tsx` (read on `origin/development@9fdd47e6fc`) builds the list's query from `props.query` and the
+saved filters (`query`, from `useFilterState('asset_lookup')`) in three places — the first load (`:95-97`), paging
+(`:137-139`) and the search box (`:171-173`, fixed in `02b17aa82e`). The Tag Lookup's two refetches still pass
+`props.query` alone:
+
+- on a captured tag, `params: buildParams(1, [...(props.query ?? []), { column: 'tagNumber', … }])` (`:194-198`);
+- on the tag header's X, `params: buildParams(1, [...(props.query ?? [])])` (`:226-229`).
+
+So a tag search runs over every asset, and clearing it shows the whole list — while the filter chip and
+`Filters (1)` stay on screen as if they applied.
+
+**Runtime (2026-09-25, local, `mobile/probe/tag_lookup_filter_probe.spec.ts`, read-only; the AI's tag answered in the
+browser):** a `Name contains ZZZZ-NO-SUCH-ASSET` filter → 0 rows, the request carried the name condition. A captured tag
+`0` → the request carried only `tagNumber CONTAINS 0`, and `89 results for tag number 0` listed under the chip. The
+tag's X → the request carried no condition at all, and the full list came back with `Filters (1)` still showing
+(screenshots `results/probe-tag-2-captured.png`, `probe-tag-3-cleared.png`).
+**User-visible effect:** a user who has narrowed the list (a type, a site) and then reads a tag gets matches from
+everywhere, labelled as if filtered; after the X they see unfiltered assets under a filter that says otherwise.
+**Severity:** medium — the same inconsistency the search box had, on the path a technician uses in the field.
+**Fix:** pass `[...(props.query || query || [])]` in both refetches, as the other three do.
+**Tests:** `MOB.943` (in `MOB.982`) pins it: the suite expects exactly these two symptoms and goes green by itself
+when both are fixed. `MOB.922` drives the tag lookup with no filter set, so it cannot see it.
+
+## §52 · A verify the server refused leaves the asset's box ticked
+
+`AssetVerification/VerificationCheckbox.tsx:17` renders the box with `defaultChecked={verified}` — uncontrolled. A tap
+flips it in the DOM; the mutation's optimistic answer marks the asset verified in the cache; when the server refuses,
+Apollo rolls the cache back — `verified` is `false` again — but an uncontrolled box never reads its prop again, so it
+stays ticked.
+
+**Runtime (2026-09-25, local, `MOB.940`, 2 runs of 2; the verify refused in the browser):** after the refusal toast,
+`⚡ Tank 0000`'s box was still ticked while the job's counter read `0 out of 2 Assets Verified` and `0%`
+(`results/MOB.940-after-refusal.png`), and the server held the asset unverified.
+**User-visible effect:** the row says verified and the counter says it isn't; a user who trusts the tick moves on,
+and the asset is never verified.
+**Severity:** medium — it needs a refusal (a permission, a validation, a server fault), but then it misleads silently.
+**Fix:** control the box — `checked={verified}` — so it follows the cache, rollback included.
+**Tests:** `MOB.940` (in `MOB.982`) pins it: the suite expects exactly this symptom and §53's, and goes green by
+itself when both are fixed.
+
+## §53 · A verify the server refused still changes the job's status
+
+The same mutation's `update` (`VerificationCheckbox.tsx:40-66`) recomputes the job's status from the cached verified
+count and, when it changes, sends `UPDATE_MOBILE_JOB_STATUS` (field `updateMobileJob`) straight away. Apollo runs
+`update` for the **optimistic** answer too — before the server has said anything — so the status write goes out
+whether or not the verify is accepted. It is a separate mutation, so the rollback of the verify does not undo it.
+
+**Runtime (2026-09-25, local, `MOB.940`):** the verify of one of `DATADOG MOBILE JOB`'s two assets was refused in the
+browser, and nothing else was: afterwards the server held **0 of 2 verified and the job `IN_PROGRESS`**
+(`fixtures.py`: `status is IN_PROGRESS, want READY`). `reset_av_fixture.py` put it back to `READY`. The second run
+refused the status write too, and counted it: sent once.
+**User-visible effect:** a job whose assets were never verified shows as in progress — or, verifying the last asset,
+`COMPLETED` — to everyone, on the device and the desktop, and stays so.
+**Severity:** medium–high — it writes wrong data to the server, and nothing on the device shows it happened.
+**Fix:** send the status change only after the verify succeeds (from the `mutate` promise, or skip it when the
+`update` is optimistic); or let the server recompute the status as part of `updateMobileJobAsset`.
+**Tests:** `MOB.940` pins it, refusing the status write in the browser as well, so the test never changes the
+fixture. Trap 52 in `test_authoring.md` is the lesson for other refusal tests.
+
+## §54 · A HEIC photo added from a browser shows as a broken image
+
+A saved asset's Photos → `Add Photo` takes any `image/*` (`ui/PhotoCarousel/AddPhotoOptions.tsx:55-56`), so an
+iPhone's HEIC gets in. In a browser the file is tus-uploaded as it is — no thumbnail, no conversion
+(`DetailPage/utils/uploadPhoto.ts:86-111`) — and the server stores and serves it as `image/heic`. The carousel shows
+it with an `<img>` on `/api/attachment/<id>`, which Chrome cannot decode.
+
+**Runtime (2026-09-25, local, `MOB.936`, a real 96×96 HEIC made with macOS `sips`):** the server held the upload as
+`image/heic`; the slide showed only a broken-image icon and its file name (`results/MOB.936-slide.png`), the image's
+`naturalWidth` 0 (also 0 on 2026-09-24). The test deletes its upload.
+**Reach:** Chrome, Edge and Firefox, and Android's WebView, cannot show HEIC — the desktop app included, wherever it
+shows these attachments. Safari and iOS's WKWebView can, so the uploader on an iPhone may see it fine (inferred, not
+measured). Whether the native app's gallery hands the web layer HEIC or JPEG is not known here.
+**User-visible effect:** a photo taken on an iPhone and added from a browser is stored, but most people who open it
+see a broken image.
+**Severity:** low–medium.
+**Fix:** convert HEIC to JPEG before upload (in the browser, or on the server when it stores an image), or refuse
+`image/heic` in the picker with a message, as the Docs tab refuses images.
+**Tests:** `MOB.936` (in `MOB.967`) logs the width and does not assert it; when this is fixed, assert it above 0.
+

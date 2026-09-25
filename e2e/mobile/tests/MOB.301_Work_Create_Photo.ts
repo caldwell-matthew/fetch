@@ -25,22 +25,10 @@ export async function mob301(page: Page): Promise<void> {
   await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
   });
-  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
-    await assertPageLacks(page, `workstages downloaded`, 360000);
-  });
-  await run.step("LOADEDALL: start the idle clock", {}, async () => {
-    await assertFromJavascript(page, `sessionStorage.removeItem('__dd_worklist_idle_since');
-return true;`, DEFAULT_TIMEOUT);
-  });
-  await run.step("LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)", {}, async () => {
-    await assertFromJavascript(page, `const K = '__dd_worklist_idle_since';
-if (document.querySelector('.mantine-Progress-root')) {
-  sessionStorage.removeItem(K);
-  return false;
-}
-const since = Number(sessionStorage.getItem(K)) || 0;
-if (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }
-return Date.now() - since >= 10000;`, 360000);
+  // Not every stage's download: the create button works while they run (the app gates only sorting and the prefetch
+  // on `loadedAll`, `WorkOrders/index.tsx:70-164`); MOB.937 clicks it there. Waiting for them cost minutes (trap 49).
+  await run.step("The lookup prefetch finished (not every stage's download)", {}, async () => {
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Open the create-work-order form (affixed + button)", {}, async () => {
     await click(page, `//div[contains(concat(" ", normalize-space(@class), " "), " mantine-Affix-root ")]//button`, 30000);

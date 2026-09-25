@@ -1,7 +1,11 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.470_Header_Status_Icons.json. This file is the source now: edit it directly.
 // MOB.470_Header_Status_Icons
+//
+// Also: the page starts exactly where the header ends. The header is 50px, and Mantine's own offset could drift from
+// it and leave a white bar under the header on tablets, until the main area was given the header's height as its top
+// padding (`Layout/index.tsx:34-47`, 2026-09-21).
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, click, press, wait } from '../../support/dd';
 
 export async function mob470(page: Page): Promise<void> {
@@ -81,6 +85,15 @@ return true;`, 15000);
   });
   await run.step("RESTORED: back on Home with the header intact", {always: true}, async () => {
     await assertElementPresent(page, `//*[@data-icon="wifi" or contains(concat(" ", normalize-space(@class), " "), " fa-wifi ")]`, 30000);
+  });
+  await run.step("The page starts exactly where the header ends \u2014 no bar between them", {}, async () => {
+    const gap = await page.evaluate(() => {
+      const header = document.querySelector('.mantine-AppShell-header')!.getBoundingClientRect();
+      const first = document.querySelector('.mantine-AppShell-main')!.firstElementChild!.getBoundingClientRect();
+      return { headerBottom: header.bottom, pageTop: first.top };
+    });
+    expect(Math.abs(gap.pageTop - gap.headerBottom), `header ends at ${gap.headerBottom}px, the page starts at ${gap.pageTop}px`)
+      .toBeLessThanOrEqual(1);
   });
   run.finish();
 }

@@ -1,13 +1,13 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.000_Login_(Dev).json. This file is the source now: edit it directly.
 // The shared login. Every suite runs it once, then its children reuse the session.
-import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
+import { expect, Page } from '@playwright/test';
+import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertPageLacks, click, press, typeText } from '../../support/dd';
 import { globals } from '../../support/env';
 
 /**
  * Log in, once more if the first try fails. The SSO form fails now and then for reasons of its own — the password field
- * emptied under the typing (2026-09-23), the `development` environment button never appearing (about 1 fresh login in 4,
- * 2026-09-24) — and a suite's shared login failing turns every one of its tests red before any runs (MOB.969,
+ * emptied under the typing (2026-09-23), the `development` environment button never appearing (about 1 fresh login in 4
+ * on 2026-09-24; 0 of 52 in `probe/login_env_probe.spec.ts` on 2026-09-25, so not filed as a bug) — and a suite's shared login failing turns every one of its tests red before any runs (MOB.969,
  * 2026-09-24). The retry starts over: cookies cleared, the app loaded again.
  */
 export async function login(page: Page): Promise<void> {
@@ -28,11 +28,17 @@ async function loginOnce(page: Page): Promise<void> {
   await run.step("Navigate to mobile app", {}, async () => {
     await page.goto(`${MOBDEV}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
-  await run.step("Wait for the SSO login form to hydrate", {}, async () => {
-    await wait(page, 5);
-  });
-  await run.step("Type email", {}, async () => {
-    await typeText(page, `//input[@name="email"]`, `${DATA_DOG_EMAIL}`, DEFAULT_TIMEOUT);
+  // No fixed sleep for the form (it was 5s): the login page is rendered in the browser, so its email field exists only
+  // once React has mounted it. A re-render can still wipe what was typed, so the value is checked EXACTLY and, if
+  // wrong, filled again whole — `typeText` appends on a retry and checks only that the value is contained.
+  await run.step("Type email — into the mounted form, checked exactly", {}, async () => {
+    const email = page.locator('input[name="email"]');
+    await expect(email).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(async () => {
+      await email.fill(DATA_DOG_EMAIL);
+      await page.waitForTimeout(300); // a re-render inside this window would empty it — the check below sees that
+      expect(await email.inputValue(), 'the email field holds exactly the email').toBe(DATA_DOG_EMAIL);
+    }).toPass({ timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Click \"Next\"", {}, async () => {
     await click(page, `//button[@type="submit"]`, DEFAULT_TIMEOUT);

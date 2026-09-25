@@ -64,6 +64,9 @@ tests; the photo tests `MOB.620`/`621`/`622`/`626`/`301` (local reducer, never s
   so it resumes cleanly after an error.
 - **Reports a count per category** — a category that drops to zero usually means a test stopped
   writing.
+- **Org `SMCT2` only** (owner, 2026-09-25). The deletes go through GraphQL, and the server scopes each one to the
+  session's org (`org = session.me.org.id`); the script refuses to plan unless that org is exactly `SMCT2`, and
+  re-reads it before every delete batch.
 - Auth as the `Admin` test account (role exactly `Admin`). ⚠️ Never call logout, and do not run
   while a suite is running — a logout anywhere kills an in-flight suite.
 - **Local, not a Datadog API test**: a billed run per cleanup, triggered by hand either way.

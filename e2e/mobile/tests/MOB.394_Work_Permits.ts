@@ -1,7 +1,10 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.394_Work_Permits.json. This file is the source now: edit it directly.
 // MOB.394_Work_Permits
+//
+// Then a work order with no permits — `20260910-16` (FORMS_WO) — whose Permits tab now says `No permits`
+// (`WorkOrders/components/Permits.tsx:12`, 2026-09-17; it was an empty panel).
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
@@ -47,6 +50,11 @@ return t.indexOf('Status:') !== -1
     && t.indexOf('Expiration Date:') !== -1
     && t.indexOf('Approved By:') !== -1;
 `, DEFAULT_TIMEOUT);
+  });
+  await run.step("A work order with no permits \u2014 20260910-16 \u2014 says `No permits` on its Permits tab", {}, async () => {
+    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.getByRole('tab', { name: 'Permits', exact: true }).click({ timeout: 60_000 });
+    await expect(page.getByRole('tabpanel'), 'the panel holds only the empty state').toHaveText('No permits', { timeout: 30_000 });
   });
   run.finish();
 }

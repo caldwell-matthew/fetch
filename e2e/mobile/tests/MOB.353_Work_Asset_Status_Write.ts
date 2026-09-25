@@ -1,7 +1,11 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.353_Work_Asset_Status_Write.json. This file is the source now: edit it directly.
 // MOB.353_Work_Asset_Status_Write
+//
+// While Pump 0102 is `Completed`, the test also drives the Assets tab's `All` / `Active` switch (since 2026-09-21,
+// `WorkOrders/components/Assets/index.tsx:72-92`): `Active` lists only assets with no status or `Active`, so the row goes;
+// `All` brings it back. The switch is set back to `All` `always` — the restore below needs the row on screen.
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, press, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
@@ -137,6 +141,20 @@ return false;`, 45000);
   await run.step("Remove the server read's sessionStorage keys", {always: true}, async () => {
     await assertFromJavascript(page, `['__dd353_link', '__dd353_link:inflight', '__dd353_link:at'].forEach(k => sessionStorage.removeItem(k));
 return true;`, 15000);
+  });
+  const assetRows = () => page.getByRole('tabpanel').locator('.mantine-Accordion-item');
+  const segment = (name: string) => page.getByRole('tabpanel').locator('.mantine-SegmentedControl-root label', { hasText: new RegExp(`^${name}$`) });
+  await run.step("Escape the status menu before the switch", {}, async () => {
+    await press(page, `Escape`);
+    await expect(page.getByRole('menu')).toHaveCount(0, { timeout: 10_000 });
+  });
+  await run.step("`Active` hides the `Completed` Pump 0102 \u2014 the tab lists no row", {}, async () => {
+    await segment('Active').click();
+    await expect(assetRows(), 'no asset is still to be worked').toHaveCount(0, { timeout: 15_000 });
+  });
+  await run.step("`All` shows Pump 0102 again (always: the restore needs the row)", {always: true}, async () => {
+    await segment('All').click();
+    await expect(assetRows().filter({ hasText: 'Pump 0102' }), 'Pump 0102 is listed again').toHaveCount(1, { timeout: 15_000 });
   });
   await run.step("Escape any open menu first", {always: true}, async () => {
     await press(page, `Escape`);

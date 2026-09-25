@@ -5,7 +5,7 @@
 // nothing was intercepted. Each test gets a fresh browser: two need an empty cache, and a failed startup must not
 // poison the next test's session.
 //
-// Classed as data-changing (tools/suites.json) although it is built to write nothing: two tests submit saves,
+// Classed as data-changing (tools/suites.json) although it is built to write nothing: several tests submit saves,
 // and if an interception ever missed, that save would reach dev. Running it alone keeps such a slip visible.
 import { test } from '@playwright/test';
 import { freshSession } from '../support/session';
@@ -15,6 +15,12 @@ import { mob922 } from '../tests/MOB.922_Tag_Lookup_Outcomes';
 import { mob931 } from '../tests/MOB.931_Map_Card_Asset_Not_Found';
 import { mob923 } from '../tests/MOB.923_Note_Save_Rejected';
 import { mob924 } from '../tests/MOB.924_Form_Attach_Rejected';
+import { mob937 } from '../tests/MOB.937_Work_Create_Refused';
+import { mob938 } from '../tests/MOB.938_Work_Reassign_Refused';
+import { mob939 } from '../tests/MOB.939_Map_Add_To_Work_Refused';
+import { mob940 } from '../tests/MOB.940_AssetVerify_Verify_Refused';
+import { mob941 } from '../tests/MOB.941_Mobile_Only_Browser';
+import { mob943 } from '../tests/MOB.943_AssetLookup_Tag_Keeps_Filters';
 
 test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
   test('MOB.920_Startup_Session_Load_Fails', async ({ browser }) => {
@@ -44,10 +50,86 @@ test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
     }
   });
 
+  // Bugs §51 pin: the Tag Lookup's capture and its X drop the active filters. Those symptoms — and only those — are
+  // EXPECTED; when §51 is fixed nothing is thrown and the test is green.
+  test('MOB.943_AssetLookup_Tag_Keeps_Filters', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      const { captureDropsFilter, clearDropsFilter } = await mob943(page);
+      const symptoms = [
+        captureDropsFilter && 'bugs §51: a captured tag searched without the active filter',
+        clearDropsFilter && "bugs §51: the tag's X re-listed without the active filter",
+      ].filter(Boolean);
+      if (symptoms.length) {
+        test.fail(true, symptoms.join('; '));
+        throw new Error(symptoms.join('; '));
+      }
+    } finally {
+      await page.context().close();
+    }
+  });
+
   test('MOB.931_Map_Card_Asset_Not_Found', async ({ browser }) => {
     const page = await freshSession(browser, { touch: true });
     try {
       await mob931(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  // #91: four saves that now wait for the server, each refused in the browser.
+  test('MOB.937_Work_Create_Refused', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob937(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.938_Work_Reassign_Refused', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob938(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.939_Map_Add_To_Work_Refused', async ({ browser }) => {
+    const page = await freshSession(browser, { touch: true });
+    try {
+      await mob939(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  // Bugs §52 and §53 pin: a refused verify leaves the box ticked (§52), and the app sends the job's status for it (§53 —
+  // refused in the browser too, so dev is never changed). Those symptoms — and only those — are EXPECTED; every other
+  // assertion must hold. When both are fixed nothing is thrown and the test is green.
+  test('MOB.940_AssetVerify_Verify_Refused', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      const { boxStillTicked, statusWrites } = await mob940(page);
+      const symptoms = [
+        boxStillTicked && 'bugs §52: the refused asset\'s box stays ticked',
+        statusWrites > 0 && `bugs §53: the app sent the job's status (${statusWrites}×) for a verify the server refused`,
+      ].filter(Boolean);
+      if (symptoms.length) {
+        test.fail(true, symptoms.join('; '));
+        throw new Error(symptoms.join('; '));
+      }
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.941_Mobile_Only_Browser', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob941(page);
     } finally {
       await page.context().close();
     }

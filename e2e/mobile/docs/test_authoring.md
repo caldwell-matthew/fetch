@@ -143,7 +143,7 @@ login-bearing test asserts the role right after login.
 | `server_assert(name, key, query, variables, predicate, soft=, always=)` | ⭐ **the server read** — one self-refreshing step POSTs a same-origin `/graphql` query and judges `data` with a JS predicate, then clears its `sessionStorage` keys. A predicate compares what the SERVER stores: the enum `NotCompleted`, not the badge's `Not Completed` |
 | `av_job_gate(job_id)` | **the** way into an AV job — clicks the row, gates on the asset ROWS, polls |
 | `work_cache_warm(wait=30)` | visits `/work`, asserts only that the page mounted, then waits blind — warms the work lookup cache before deep-linking a work order (`MOB.134`, `347`, `348`, `351`–`359`, `363`–`365`, `911`); proves no readiness. Anything that acts on the `/work` list, or needs its downloads finished, uses `work_list_gate` instead: the per-stage downloads outrun a blind wait (86s measured, see below). No hand-rolled blind 20s `/work` warm-up is left — the last seven (`MOB.302`, `389`, `393`, `394`, `397`, `398`, `399`) switched to `work_list_gate(require_row=False)` 2026-09-17 |
-| `work_list_gate(wait=20, require_row=True)` | readiness for `/work` — use it before ANY interaction on the list page, not just where `loadedAll` gates a control. The per-stage detail downloads ran 86s locally on 2026-09-16 (304 `/graphql` requests; residue work orders grow it every pass until pruned), and a Datadog click taken during them timed out (`MOB.301`). `LOADEDALL 3/3` therefore waits up to 180s — only where the test clicks on the list or opens other work orders (trap 49). `require_row=True` when the test needs a work order on the list; `require_row=False` when it only needs `/work` settled — e.g. to warm the lookups before opening the fixture |
+| `work_list_gate(wait=20, require_row=True)` | readiness for `/work` — use it before a test's first interaction on the list page. The per-stage detail downloads ran 86s locally on 2026-09-16 (304 `/graphql` requests; residue work orders grow it every pass until pruned), and a Datadog click taken during them timed out (`MOB.301`). `LOADEDALL 3/3` therefore waits up to 180s — only where the test clicks on the list or opens other work orders (trap 49). `require_row=True` when the test needs a work order on the list; `require_row=False` when it only needs `/work` settled — e.g. to warm the lookups before opening the fixture |
 | `work_view_ensure(to)` | switch Scheduled ↔ List only if the item is present (it exists only for a `SCHEDULED` role); persists across a suite — restore `always` |
 | `open_filters_drawer()` | the Filters drawer with the re-click gate; gate on `Add Filter`, never the trigger |
 | `pick_option(url, select_id, label, value)` | a Mantine Select option: open, GATE on the option being VISIBLE (re-opens the select if the click was lost), then pick by exact text. Re-clicks only if the option is STILL hidden 2.5s after the first poll, so a dropdown animating open is never clicked shut. Never click an option after a fixed wait — `MOB.800` failed exactly that way on Datadog under load (2026-09-16) |
@@ -495,7 +495,8 @@ sometimes does not (the icon drawn after the last event). `MOB.929` waits, then 
 **43 · The operation name the app SENDS is not always its generated document's name.** The add-asset mutation is
 `ADD_ASSET_TO_WORKSTAGEDocument` in the source and goes out as `MOBILE_WORK_ADD_ASSET` (measured 2026-09-23). A
 route that matches on the generated name never fires — a guard built that way guards nothing. Match a mutation
-on its FIELD in the query text (`addWorkStageAssetLink`), and assert the route was hit.
+on its FIELD in the query text (`addWorkStageAssetLink`) — `failOperation(page, { field: … })` in `support/network.ts`
+does — and assert the route was hit.
 
 **44 · Some screens read the Asset schema from the cache ONLY, and crash without it (bugs §45).** A work order's Assets tab
 (`WorkOrders/components/Assets/index.tsx:42`, `readQuery`) and Asset Lookup before its query answers
@@ -530,17 +531,19 @@ re-renders, and before a server read. Wait for the app's prefetch with `waitForP
 app's own loading bars), not a sleep — on the work list pass `ignore: WORKSTAGE_DOWNLOADS`, or it waits minutes for
 every assigned stage's details. `tools/tighten_waits.py <suite>` applies both rules to a converted suite: 1,088 waits
 went to 559 and a full local pass from 140 to 100 min (2026-09-24), every suite green twice after.
-The work list's full-download gate (`LOADEDALL 3/3` and its 10s idle check) is only for a test that works ON the
-list or opens work orders other than the fixture: they render from those downloads. A test that leaves the list for
-the fixture waits for the lookups only — the full wait cost 141s in `MOB.135` with 502 stages, and grows with the
-residue. `MOB.349` (record cycling) waits for every download itself; `MOB.397` keeps its gate (`NEEDS_ALL_DOWNLOADS`
+The work list's full-download gate (`LOADEDALL 3/3` and its 10s idle check) is only for a test that opens work
+orders other than the fixture: they render from those downloads. The list's own controls work while the downloads
+run — the app gates only sorting and the prefetch on `loadedAll` (`WorkOrders/index.tsx:70-164`) — so `MOB.300`,
+`MOB.301` and `MOB.937` click the create button after the lookups alone (2026-09-25). A test that leaves the list for
+the fixture waits for the lookups only — the full wait cost 141s in `MOB.135` with 502 stages, and it grows: the crew's list gains about 29 `Ready`
+stages a day from dev's scheduled PM job ("Application Job" — 487 of 504 on 2026-09-25), far more than test residue. `MOB.349` (record cycling) waits for every download itself; `MOB.397` keeps its gate (`NEEDS_ALL_DOWNLOADS`
 in the tool). With that and the login's 10s sleep replaced by a wait for the shell, the pass went to 83 min.
 
 **50 · A list read returns ONE page — 500 rows by default.** `workStages(crew: "<SESSION>")` with no `params` returns
-the first 500; the test crew passed 500 stages with residue on 2026-09-24, and `fixtures.py` then read the fixture
+the first 500; the test crew passed 500 stages on 2026-09-24, and `fixtures.py` then read the fixture
 work order (at 501) as "not in the crew's list" when it was. Pass `params: { limit: 1000 }` (a limit of 5000 silently
-comes back as 500) and compare `pageInfo.totalCount` with the rows read. The residue keeps growing until
-`cleanup_residue.py --apply` runs.
+comes back as 500) and compare `pageInfo.totalCount` with the rows read. The list keeps growing — about 29 stages a
+day from dev's scheduled PM job, whatever the cleanup does (trap 49) — so it will pass 1000 too.
 
 **51 · A status change can email people.** Moving a work stage to a status fires its **department's** work
 notifications (`server/…/statusUpdate/deptNotifications.ts`: every active user in the named role, whatever their email
@@ -552,3 +555,11 @@ every time `MOB.320` completed the fixture work order and `MOB.511`'s job comple
 department, or to another status, reads that department's `departmentWorkNotifications` first. The `Trigger Test` form
 template (the fixture's `⚡Trigger` form) still names `Admin` in two `SEND_NOTIFICATION` triggers: they fire on a stage
 that newly holds the form and reaches `Complete`, which no test does today.
+
+**52 · Refusing one mutation does not make a test read-only.** A mutation's `update` runs on its optimistic answer
+too, before the server has said anything, and some send writes of their own from there. `VerificationCheckbox`
+(`AssetVerification/VerificationCheckbox.tsx:40-66`) sends `UPDATE_MOBILE_JOB_STATUS` from its `update`: `MOB.940`
+refused the verify in the browser, and its first run still moved the fixture job to `IN_PROGRESS` on dev (2026-09-25).
+Before calling a refusal test read-only, read the mutation's `update` and `onCompleted` for further `mutate` calls,
+refuse those too, and assert over `/graphql` that nothing changed — `watchOperations` (`support/network.ts`) shows
+what the page actually sent.

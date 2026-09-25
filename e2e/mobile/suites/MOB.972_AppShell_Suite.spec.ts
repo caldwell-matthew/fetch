@@ -13,6 +13,8 @@ import { mob171 } from '../tests/MOB.171_DevLogs_Contents';
 import { mob130 } from '../tests/MOB.130_Nav_Transaction_Log';
 import { mob131 } from '../tests/MOB.131_Transaction_Log_Contents';
 import { mob132 } from '../tests/MOB.132_TransactionLog_Search';
+import { mob942 } from '../tests/MOB.942_TransactionLog_Retention';
+import { freshSession } from '../support/session';
 import { mob400 } from '../tests/MOB.400_Menu_Open_Close';
 import { mob410 } from '../tests/MOB.410_Menu_Resync';
 import { mob420 } from '../tests/MOB.420_Menu_Transaction_Log';
@@ -64,6 +66,16 @@ test.describe.serial('MOB.972_AppShell_Suite', () => {
 
   test('MOB.132_TransactionLog_Search', async () => {
     await mob132(page);
+  });
+
+  // Its own browser: it writes entries into the browser's transaction store, which the shared session must not hold.
+  test('MOB.942_TransactionLog_Retention', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      await mob942(own);
+    } finally {
+      await own.context().close();
+    }
   });
 
   test('MOB.400_Menu_Open_Close', async () => {

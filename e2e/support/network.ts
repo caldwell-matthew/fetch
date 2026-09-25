@@ -11,8 +11,11 @@
 import { Page, Route } from '@playwright/test';
 
 type Match = {
-  /** The GraphQL operation, as the app names it (`GET_SCHEMA`, `CREATE_WORKSTAGE_FORM`, …). */
-  operation: string;
+  /** The GraphQL operation, as the app SENDS it (`GET_SCHEMA`, `CREATE_WORKSTAGE_FORM`, …). */
+  operation?: string;
+  /** Or the root field in the query text (`createWork`) — for a mutation, the safer match: the name the app sends is
+   *  not always its generated document's (trap 43). */
+  field?: string;
   /** Only when these variables match, e.g. `{ schema: 'WorkStageCondition' }`. Other calls pass through. */
   variables?: Record<string, unknown>;
 };
@@ -39,7 +42,10 @@ function matches(route: Route, m: Match): boolean {
   } catch {
     return false;
   }
-  if (!body || body.operationName !== m.operation) return false;
+  if (!body) return false;
+  if (m.operation !== undefined && body.operationName !== m.operation) return false;
+  if (m.field !== undefined && !new RegExp(`\\b${m.field}\\s*\\(`).test((body as { query?: string }).query ?? '')) return false;
+  if (m.operation === undefined && m.field === undefined) return false;
   if (!m.variables) return true;
   return Object.entries(m.variables).every(([k, v]) => JSON.stringify(body!.variables?.[k]) === JSON.stringify(v));
 }

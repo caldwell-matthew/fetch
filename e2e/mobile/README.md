@@ -6,8 +6,9 @@ config and step helpers are one level up in `e2e/`.
 
 ## Status
 
-**Every suite passes locally against dev: 24 suites, 139 tests** — one of them red by design (below). Datadog is paused (▶ checklist
-#37); these tests are its replacement.
+**27 suites, 163 tests.** The last full local pass (2026-09-24, 83 min) had every suite green — 24 suites, 139 tests,
+one of them red by design (below); the tests added since have each passed on their own and in their suites, not yet in
+a full pass. Datadog is paused (▶ checklist #37); these tests are its replacement.
 
 | | Suites | Tests | Result |
 |---|---|---|---|
@@ -16,14 +17,14 @@ config and step helpers are one level up in `e2e/`.
 | Data-changing, bug pin | 1 (`MOB.967`) | 8 | ✅ as intended — `MOB.600` red on bugs §34 alone, the others green |
 
 What those tests prove, route by route, is in [`docs/coverage.md`](docs/coverage.md); what is left to cover is in
-[`docs/testing_checklist.md`](docs/testing_checklist.md) (199 of the 207 automatable rows automated, 8 partial, none open).
+[`docs/testing_checklist.md`](docs/testing_checklist.md) (208 of the 216 automatable rows automated, 8 partial, none open).
 The docs are copies of `legacy/Mobile/`'s for now — see [`docs/README.md`](docs/README.md).
 
 ### Per suite
 
 | Suite | Writes? | Tests | Local time (before → after trimming the waits, 2026-09-24) |
 |---|---|---|---|
-| `MOB.953` Work orders · list | ✏️ | 9 | 10.9 → 8.3 min |
+| `MOB.953` Work orders · list | ✏️ | 9 | 10.9 → 7.0 min |
 | `MOB.954` Work orders · detail, open tabs | | 8 | 7.4 → 4.8 min |
 | `MOB.955` Work orders · detail, assets and records | | 6 | 6.5 → 3.0 min |
 | `MOB.956` Work orders · records (charges, conditions, failures, notes) | ✏️ | 8 | 11.3 → 6.5 min |

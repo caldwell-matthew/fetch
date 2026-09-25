@@ -1,7 +1,7 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.347_Work_Asset_Status.json. This file is the source now: edit it directly.
 // MOB.347_Work_Asset_Status
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, press, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
@@ -33,6 +33,11 @@ export async function mob347(page: Page): Promise<void> {
   });
   await run.step("FIXTURE GUARD: an asset row shows \"Progress:\" \u2014 showAssetStatus is ON", {}, async () => {
     await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Text-root ")][starts-with(normalize-space(.), "Progress:")]`, 60000);
+  });
+  await run.step("The `All` / `Active` switch renders, set to `All` (`Assets/index.tsx:84-92`, shown with asset status)", {}, async () => {
+    const root = page.getByRole('tabpanel').locator('.mantine-SegmentedControl-root');
+    await expect(root.locator('label'), 'exactly All then Active').toHaveText(['All', 'Active'], { timeout: 30_000 });
+    await expect(root.locator('input:checked'), 'All is selected').toHaveValue('All');
   });
   await run.step("The progress badge shows one of the five real status labels", {}, async () => {
     await assertFromJavascript(page, `const ok = ['No Status','Active','Completed','Not Completed','Canceled'];

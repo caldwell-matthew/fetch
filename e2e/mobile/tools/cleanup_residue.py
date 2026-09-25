@@ -12,8 +12,10 @@ WHAT IT PRUNES (query by marker, delete by id - §3)
              conditions or failures.
   notes      job notes on the fixture work order whose text carries the marker (MOB.392),
              newest KEEP_NOTES kept. `deleteWorkStageJobNotes(ids)`.
-  assets     `DD SYNTHETIC MOBILE …` assets (MOB.600), newest KEEP_ASSETS kept - MOB.623 and
-             MOB.625 select these rows by the prefix. `deleteAssets(ids)`.
+  assets     `DD SYNTHETIC MOBILE …` assets, newest KEEP_ASSETS kept OF EACH KIND: MOB.600's
+             (`DD SYNTHETIC MOBILE <8 digits>`, which MOB.623/625/627/628/933-936 select) and MOB.932's
+             (`DD SYNTHETIC MOBILE MAP …`, which those tests skip) - kept together, four map assets could
+             crowd out every MOB.600 one. `deleteAssets(ids)`.
   leftovers  a MOB.390 `Pump Body` condition / MOB.391 `BELT·ADJUST·TIME` failure a failed run
              left behind (their premise refuses to run over one). `deleteWorkStage{Conditions,Failures}`.
 REPORTED, NEVER TOUCHED
@@ -25,6 +27,13 @@ REPORTED, NEVER TOUCHED
   carries the marker, so a marker query returns it. Every candidate work is checked against
   the fixtures' parent work ids AND against every stage it holds, and the run aborts if a
   never-touch id is anywhere in the plan. The role must be exactly `Admin` (§3).
+
+🛑 ONE ORG ONLY - `SMCT2` ("SMCT W Plant 0", the dev test org; owner, 2026-09-25):
+  The script sends GraphQL, not SQL, so it cannot add a `WHERE org` itself. The server already puts one on every
+  delete it uses - `org = session.me.org.id` (`server/src/controllers/work/work/delete/index.ts:12-16`,
+  `asset/asset/delete/index.ts:9`, `common/delete/index.ts:8-14`) - so the org deleted from is the SESSION's. The
+  script therefore refuses to plan unless the session's org is exactly `SMCT2`, and re-reads it before EVERY delete
+  batch: a session that changed org mid-run stops the run before the next request.
 
 USAGE
     python3 cleanup_residue.py            # dry run: counts + the exact plan, changes nothing
@@ -38,12 +47,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from reset_av_fixture import Session, credentials  # noqa: E402
 
 MARKER = "DD SYNTHETIC MOBILE"
+ORG = "SMCT2"  # the only org this script may delete from (see the docstring)
 KEEP_WORKS, KEEP_NOTES, KEEP_ASSETS = 10, 1, 4
 BATCH = 5
 FIXTURE_STAGES = {"EYRpYJ9QYdQ1JFF10JtB0Q": "the main fixture work order",
                   "RcdI0xcpc8NBV8VoRNNBYM": "MOB.302's work order",
                   "xohY0klBZktB9VBRxc8k4J": "MOB.363/364/365's work order (20260910-16)"}
 NEVER_ASSETS = {"Pump 0102", "Bypass Valve 0001", "⚡ Tank 0000", "A/C Motor 0002"}
+
+
+def require_org(s):
+    """Stop unless the session deletes in exactly ORG — the server scopes every delete to the session's org."""
+    me = s.graphql("{ session { me { org { id name } } } }")["session"]["me"]
+    org = (me.get("org") or {}).get("id")
+    if org != ORG:
+        raise SystemExit(f"REFUSE: the session's org is {org!r}, not {ORG!r} — nothing deleted")
+    return me["org"]
 
 
 def contains(col, limit=1000):
@@ -56,6 +75,7 @@ def newest_first(rows):
 
 
 def plan(s):
+    require_org(s)
     me = s.graphql("{ session { me { id name role { name } } } }")["session"]["me"]
     role = me["role"]["name"]
     if role != "Admin":
@@ -94,7 +114,8 @@ def plan(s):
     assets = s.graphql("query($p: TableQuery) { assets(params: $p) { edges { id name createdAt } } }",
                        {"p": contains("name")})["assets"]["edges"]
     assets = newest_first([a for a in assets if a["name"].startswith(MARKER) and a["name"] not in NEVER_ASSETS])
-    del_assets = assets[KEEP_ASSETS:]
+    is_map = lambda a: a["name"].startswith(MARKER + " MAP")
+    del_assets = [a for a in assets if is_map(a)][KEEP_ASSETS:] + [a for a in assets if not is_map(a)][KEEP_ASSETS:]
 
     # --- MOB.390/391 leftovers --------------------------------------------------------------
     w = s.graphql("""query($id: ID!) { workStage(id: $id) {
@@ -130,7 +151,7 @@ def report(p):
     print(f"  works     {len(works):4} carry the marker · keep newest {KEEP_WORKS} · DELETE {len(dw)}"
           + (f" (oldest {dw[-1]['createdAt'][:10]}, newest {dw[0]['createdAt'][:10]})" if dw else ""))
     print(f"  notes     {len(notes):4} on the fixture · keep newest {KEEP_NOTES} · DELETE {len(dn)}")
-    print(f"  assets    {len(assets):4} DD SYNTHETIC assets · keep newest {KEEP_ASSETS} · DELETE {len(da)}")
+    print(f"  assets    {len(assets):4} DD SYNTHETIC assets · keep newest {KEEP_ASSETS} of each kind (MOB.600's, the map's) · DELETE {len(da)}")
     print(f"  leftovers DELETE {len(p['cond'])} Pump Body condition(s), {len(p['fail'])} BELT/ADJUST/TIME failure(s)")
     print(f"  charges   {p['charges']} on the fixture — NOT touched (§2)")
     print("  readings  MOB.550's carry no marker — NOT touched")
@@ -159,11 +180,13 @@ def apply(s, p):
         done, refused = 0, []
         for i in range(0, len(ids), BATCH):
             chunk = ids[i:i + BATCH]
+            require_org(s)  # before EVERY batch: the session still deletes in SMCT2
             try:
                 r = s.graphql(f"mutation($ids: [ID!]!) {{ {mut}(ids: $ids) }}", {"ids": chunk})
                 done += r[mut] or 0
             except SystemExit as batch_error:
                 for one in chunk:
+                    require_org(s)
                     try:
                         r = s.graphql(f"mutation($ids: [ID!]!) {{ {mut}(ids: $ids) }}", {"ids": [one]})
                         done += r[mut] or 0
@@ -181,6 +204,8 @@ def main():
     ap.add_argument("--apply", action="store_true", help="delete what the dry run lists")
     args = ap.parse_args()
     s = Session().login(*credentials())
+    org = require_org(s)
+    print(f"ORG: {org['id']} ({org['name']}) — the only org this script deletes from\n")
     p = plan(s)
     report(p)
     if not args.apply:

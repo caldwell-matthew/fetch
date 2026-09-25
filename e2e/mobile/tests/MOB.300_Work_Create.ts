@@ -1,8 +1,16 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.300_Work_Create.json. This file is the source now: edit it directly.
 // MOB.300_Work_Create
+//
+// The form's `Assign to Crew` (since 2026-09-18, `WorkOrders/components/InsertForm/index.tsx:44-58,298`; shown with the
+// `crewassignment.create` permission) starts at the user's crew, and the create sends it as the stage's `roleId` —
+// before, every mobile-made work order went to the user's crew with no choice. The test leaves it as it is, and proves
+// that the create sends the session's crew as `roleId` and the new stage holds it (the server adds it to the
+// crews the workflow assigns itself — `server/…/work/work/create/index.ts:285-308`). Clearing it or picking another crew
+// leaves work outside the crew's list: an owner decision, not made here.
 
-import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, typeText, wait } from '../../support/dd';
+import { expect, Page, Response } from '@playwright/test';
+import { serverRead } from '../support/session';
+import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertPageContains, assertPageLacks, click, typeText, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob300(page: Page): Promise<void> {
@@ -25,22 +33,10 @@ export async function mob300(page: Page): Promise<void> {
   await run.step("LOADEDALL 2/3: paging through workstages finished", {}, async () => {
     await assertPageLacks(page, `workstages found`, DEFAULT_TIMEOUT);
   });
-  await run.step("LOADEDALL 3/3: the per-stage detail downloads finished", {}, async () => {
-    await assertPageLacks(page, `workstages downloaded`, 360000);
-  });
-  await run.step("LOADEDALL: start the idle clock", {}, async () => {
-    await assertFromJavascript(page, `sessionStorage.removeItem('__dd_worklist_idle_since');
-return true;`, DEFAULT_TIMEOUT);
-  });
-  await run.step("LOADEDALL: no loading bar on screen for 10s straight (all six phases, and the gaps between them)", {}, async () => {
-    await assertFromJavascript(page, `const K = '__dd_worklist_idle_since';
-if (document.querySelector('.mantine-Progress-root')) {
-  sessionStorage.removeItem(K);
-  return false;
-}
-const since = Number(sessionStorage.getItem(K)) || 0;
-if (!since) { sessionStorage.setItem(K, String(Date.now())); return false; }
-return Date.now() - since >= 10000;`, 360000);
+  // Not every stage's download: the create button works while they run (the app gates only sorting and the prefetch
+  // on `loadedAll`, `WorkOrders/index.tsx:70-164`); MOB.937 clicks it there. Waiting for them cost minutes (trap 49).
+  await run.step("The lookup prefetch finished (not every stage's download)", {}, async () => {
+    await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Open the create-work-order form", {}, async () => {
     await click(page, `//div[contains(concat(" ", normalize-space(@class), " "), " mantine-Affix-root ")]//button`, DEFAULT_TIMEOUT);
@@ -60,7 +56,14 @@ return Date.now() - since >= 10000;`, 360000);
   await run.step("Type the synthetic marker into Problem Description", {}, async () => {
     await typeText(page, `//*[@id="problemDesc"]`, `DD SYNTHETIC MOBILE`, DEFAULT_TIMEOUT);
   });
+  const crew = (await serverRead(page, '{ session { me { role { id name } } } }')).session.me.role;
+  await run.step("`Assign to Crew` shows the session's crew", {}, async () => {
+    await expect(page.locator('#workorder-insert-form #crewId')).toHaveValue(crew.name, { timeout: DEFAULT_TIMEOUT });
+  });
+  let created: Promise<Response> | undefined;
   await run.step("Click \"Create Work Order\"", {}, async () => {
+    created = page.waitForResponse((r) => r.url().endsWith('/graphql') && /\bcreateWork\s*\(/.test(r.request().postData() ?? ''),
+      { timeout: 60_000 });
     await click(page, `//button[normalize-space(.)="Create Work Order"]`, DEFAULT_TIMEOUT);
   });
   await run.step("Wait for the create mutation to resolve", {}, async () => {
@@ -71,6 +74,18 @@ return Date.now() - since >= 10000;`, 360000);
   });
   await run.step("Test success toast (optional: transient, autoClose 5000)", {allow: 'ignore'}, async () => {
     await assertPageContains(page, `Work order successfully created!`, DEFAULT_TIMEOUT);
+  });
+  await run.step("\u2b50 SERVER: the create sent the session's crew, and the new stage holds it \u2014 asked over /graphql", {}, async () => {
+    const res = await created!;
+    expect(res.request().postDataJSON()?.variables?.data?.roleId, "the create's roleId is the session's crew").toBe(crew.id);
+    const stages: { id: string }[] = (await res.json()).data.createWork.stages;
+    expect(stages.length, 'the create made a stage').toBeGreaterThan(0);
+    // The workflow assigns crews of its own too ("Datadog Test": seven more), so the crew is one of several.
+    for (const stage of stages) {
+      const crews = (await serverRead(page, 'query($p: ChildTableQuery!) { workStageAssignments(params: $p) { edges { name } } }',
+        { p: { parentId: stage.id, limit: 100 } })).workStageAssignments.edges.map((e: { name: string }) => e.name);
+      expect(crews, `stage ${stage.id} is assigned to ${crew.name}`).toContain(crew.name);
+    }
   });
   run.finish();
 }
