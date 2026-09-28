@@ -929,8 +929,10 @@ check('MUST FAIL: diag - nothing stored', runJs(M580.diag, avList([TANK, MOTOR])
  * ========================================================================================= */
 console.log('\nWork list idle gate - no loading bar for 10s straight');
 {
-	const start = bodyOf('MOB.350_Work_Add_Equipment_Charge.json', 'start the idle clock');
-	const idle = bodyOf('MOB.350_Work_Add_Equipment_Charge.json', 'no loading bar on screen');
+	// MOB.397 keeps the full-download gate (it opens the follow-up it assigns); the tests that only leave the list
+	// wait for the lookups alone since 2026-09-24 (trap 49), MOB.350 among them.
+	const start = bodyOf('MOB.397_Work_Assign_Followup.json', 'start the idle clock');
+	const idle = bodyOf('MOB.397_Work_Assign_Followup.json', 'no loading bar on screen');
 	const KEY = '__dd_worklist_idle_since';
 	const page = ({ bar }) => {
 		const dom = new JSDOM('<body></body>', { url: 'https://dev.mentorapm.com/apm-mobile/work' });
@@ -3574,7 +3576,7 @@ if (!testExists('MOB.866_MaterialLookup_Item_Attachment_Delete.json')) {
 	const F866 = 'MOB.866_MaterialLookup_Item_Attachment_Delete.json';
 	const b6 = (n) => bodyOf(F866, n);
 	const up6 = (f) => loadTest(f).details.steps.filter(s => s.type === 'uploadFiles');
-	const PHOTO = up6('MOB.600_Collector_Create_Asset.json')[0].params.files[0].name;
+	const PHOTO = up6(F866)[0].params.files[0].name;
 	const DOC = up6(F866)[1].params.files[0].name;
 	const E = '__dd866_empty', M = '__dd866_mat', P = '__dd866_photo', D = '__dd866_doc';
 	const READY = { [E]: '1', [M]: '0' };
@@ -4380,7 +4382,7 @@ if (!['MOB.363_Work_Attachment_Upload_Delete.json', 'MOB.364_Work_Attach_Form.js
 		premise: bodyOf(F354, 'PREMISE (server)'), mark: bodyOf(F354, 'PREMISE PASSED'), stash: bodyOf(F354, 'STASH the persisted'),
 		one: bodyOf(F354, 'lists ONE row'), pick0: bodyOf(F354, 'picker lists exactly one'), pick1: bodyOf(F354, 'is CHECKED and the footer'),
 		pickClosed: bodyOf(F354, 'picker closed and the page'), added: bodyOf(F354, 'SERVER: the stage now links'),
-		two: bodyOf(F354, 'now lists Bypass Valve 0001 beside'), schema: bodyOf(F354, 'GATE ('), expanded: bodyOf(F354, 'row expanded'),
+		two: bodyOf(F354, 'now lists Bypass Valve 0001 beside'), schema: bodyOf(F354, 'GATE: both rows are ready'), expanded: bodyOf(F354, 'row expanded'),
 		guard: bodyOf(F354, 'GUARD + open its gear'), gone: bodyOf(F354, 'SERVER: no Bypass Valve 0001 link remains'),
 		onlyPump: bodyOf(F354, 'lists only Pump 0102 again'), restoreQ: bodyOf(F354, 'RESTORE the persisted'),
 		backstop: bodyOf(F354, 'BACKSTOP'), atRest: bodyOf(F354, 'AT REST (server)'),
@@ -4458,8 +4460,8 @@ if (!['MOB.363_Work_Attachment_Upload_Delete.json', 'MOB.364_Work_Attach_Form.js
 	check('MUST FAIL: 354 added - Pump\'s link changed', twice(A.added, pg('', { answers: [stage({ assets: [{ ...PL, sequence: null }, BL] })] })), false);
 	check('354 two rows - Pump and Bypass Valve', runJs(A.two, woAssets([[BV], [PUMP]])), true);
 	check('MUST FAIL: 354 two rows - only Pump (the list never refreshed)', runJs(A.two, woAssets([[PUMP]])), false);
-	check('354 schema gate - both rows render the geolocate control', runJs(A.schema, woAssets([[BV], [PUMP]])), true);
-	check('MUST FAIL: 354 schema gate - no geolocate controls (the Asset schema is not cached: expanding would crash)', runJs(A.schema, woAssets([[BV, { geo: false }], [PUMP, { geo: false }]])), false);
+	check('354 ready gate - both rows render the geolocate control', runJs(A.schema, woAssets([[BV], [PUMP]])), true);
+	check('MUST FAIL: 354 ready gate - no geolocate controls (the Asset schema has not loaded yet)', runJs(A.schema, woAssets([[BV, { geo: false }], [PUMP, { geo: false }]])), false);
 	check('354 expanded - the Bypass Valve panel holds one gear', runJs(A.expanded, woAssets([[BV, { gears: 1 }], [PUMP]])), true);
 	check('MUST FAIL: 354 expanded - not expanded (no gear)', runJs(A.expanded, woAssets([[BV], [PUMP, { gears: 1 }]])), false);
 	{

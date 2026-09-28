@@ -6,9 +6,9 @@ config and step helpers are one level up in `e2e/`.
 
 ## Status
 
-**27 suites, 164 tests.** The last full local pass (2026-09-24, 83 min) had every suite green — 24 suites, 139 tests,
-one of them red by design (below); the tests added since have each passed on their own and in their suites, not yet in
-a full pass. Datadog is paused (▶ checklist #37); these tests are its replacement.
+**27 suites, 164 tests.** The last full local pass (2026-09-28, build 127, 85 min) ran every suite with the fixture checks
+between them: 162 green and one red, `MOB.722`, on a test assumption (fixed — its suite `MOB.980` then green twice,
+with `MOB.944`, which the red had skipped). The bug pins pass as expected failures (below). Datadog is paused (▶ checklist #37); these tests are its replacement.
 
 | | Suites | Tests | Result |
 |---|---|---|---|

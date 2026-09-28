@@ -561,3 +561,9 @@ what the page actually sent.
 `<input id="<field>">` sits under the styled switch and takes no click, and the wrapper's centre is empty space. Tap
 `.react-switch-bg` inside it, and assert the input's checked state; when a picker is open, the first tap may only close
 it — retry until the state changes (`MOB.944`). `MOB.365` clicks the input from page JavaScript instead.
+
+**54 · An empty element is "hidden" to Playwright.** `toBeVisible()` fails on a 0px-tall element that is plainly in
+the page: an asset with no reading types renders its Readings form with no field (`No readings recorded for this
+asset.`), and `MOB.722`'s "form mounted" check went red the day the newest test asset was a fresh one (2026-09-28). For
+a container that may be empty, assert it is PRESENT (`toHaveCount(1)`), then assert what should be in it.
+

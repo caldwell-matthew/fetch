@@ -12,7 +12,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** |
 > | what a green run actually proves | `coverage.md` |
-> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 52 traps) |
+> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 53 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | test residue, cleanup, the AV fixture reset | `cleanup_spec.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |

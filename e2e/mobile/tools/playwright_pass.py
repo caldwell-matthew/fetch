@@ -69,7 +69,21 @@ def run_suites(names, evidence):
     counts = {k: int(m.group(1)) for k in ("passed", "failed", "skipped", "did not run")
               for m in [re.search(rf"(\d+) {k}\b", out)] if m}
     secs = round((datetime.datetime.now() - started).total_seconds())
-    failures = re.findall(r"✘\s+\d+\s+suites/\S+ › [^›]+ › (\S+)", out)
+    # A red is Playwright's closing summary — `N failed` with the failed tests listed under it — or a non-zero exit.
+    # Not the `✘` marks: the list reporter prints one for an EXPECTED failure too (a bug pin, e.g. MOB.925), which
+    # passes. (Until 2026-09-28 this matched `✘ … suites/`, which the `mobile/suites/` paths never did: a red suite
+    # neither stopped the pass nor showed in its report.)
+    failures = []
+    lines = out.splitlines()
+    for k, line in enumerate(lines):
+        if re.match(r"\s*\d+ failed\s*$", line):
+            for nxt in lines[k + 1:]:
+                m = re.match(r"\s+\S*suites/\S+ › [^›]+ › (\S+)", nxt)
+                if not m:
+                    break
+                failures.append(m.group(1))
+    if not failures and (counts.get("failed") or proc.returncode != 0):
+        failures = [f"{counts.get('failed', '?')} failed (exit {proc.returncode}; names not parsed — see the evidence)"]
     return counts, failures, secs
 
 

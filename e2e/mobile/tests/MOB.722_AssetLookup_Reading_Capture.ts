@@ -1,7 +1,7 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.722_AssetLookup_Reading_Capture.json. This file is the source now: edit it directly.
 // MOB.722_AssetLookup_Reading_Capture
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, press, typeText, wait } from '../../support/dd';
 import { runId } from '../../support/env';
 
@@ -56,8 +56,11 @@ return true;`, 30000);
   await run.step("The \"Readings\" tab is active", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//*[@role="tab"][normalize-space(.)="Readings"][@data-active]`, 30000);
   });
-  await run.step("The asset-scoped readings form mounted", {}, async () => {
-    await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//form[starts-with(@id, "asset-lookup-readings-")]`, 60000);
+  // PRESENT, not visible: on an asset with no reading types yet the form holds no field and is 0px tall (it says
+  // `No readings recorded for this asset.`), which Playwright counts as hidden — the ENSURE steps below add `Test 1`.
+  // Red on 2026-09-28 when the newest test asset, made that day, had none.
+  await run.step("The asset-scoped readings form mounted (present \u2014 empty until a reading type exists)", {}, async () => {
+    await expect(page.locator(`xpath=(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")][.//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-control ")][contains(., "DD SYNTHETIC MOBILE")][not(contains(., "DD SYNTHETIC MOBILE MAP"))]])[1]//form[starts-with(@id, "asset-lookup-readings-")]`)).toHaveCount(1, { timeout: 60000 });
   });
   await run.step("ENSURE 1/3: the `Test 1` field is already on the form \u2014 or open `Add reading types` (once, when it is not loading)", {}, async () => {
     await assertFromJavascript(page, `const it = [...document.querySelectorAll('.mantine-Accordion-item')].find(i => {
