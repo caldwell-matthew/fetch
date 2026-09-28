@@ -10,20 +10,19 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | **Source** | read in the code; mechanism clear, not observed failing |
 
 **Rules for this file**
-- Every status was read against `origin/development@9fdd47e6fc`. Re-read a row
+- Every status was read against `origin/development@071ef40409`. Re-read a row
   before acting on it once the sync line in `testing_checklist.md` has moved on.
 - **🔧 fix pending** = a PR is open; delete the entry once it merges and the served code has it.
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
   state the fact directly. This is what is wrong now, not a history.
 - **Numbers are never reused or renumbered** (other docs cite them). Gaps are expected: §1–§4,
-  §4b, §4c, §5–§9, §14–§17, §19–§21, §23, §24, §26, §27, §30, §36, §41, §47. Dead code is not filed.
+  §4b, §4c, §5–§9, §11, §14–§17, §19–§21, §23, §24, §26, §27, §30, §36, §41, §45, §47. Dead code is not filed.
 - File a finding the day it is found. A finding that lives only in a generator comment is lost.
 
 ## Index
 
 | § | Finding | Evidence | Status |
 |---|---|---|---|
-| 11 | `Form added` toast fires before the mutation | Source | ❌ low · `AdHocForm.tsx:49` |
 | 28 | The offline geolocate message sits behind a `disabled` element's `onClick` | Source + Runtime | ❌ `GeolocateButton.tsx:94` |
 | 29 | A Mapbox failure makes Geolocate fail silently | Source | ❌ `reverseGeocode` has no `ok` check or `catch` |
 | 31 | A deploy takes over a running session silently and deletes its cache | Source | ❌ no `controllerchange` handler in `client` |
@@ -37,7 +36,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 42 | **A condition or failure form's first Submit after a page load does nothing** (add and `Edit Item`) | Runtime + Source | ❌ unchanged on `origin/development` `9d80ad499c` — **reproduced by `MOB.977_DIAG_Condition_Form_Schema_Race`**, which is red when the bug is gone |
 | 43 | An offline menu item's connection message flashes and vanishes with the menu | Runtime + Source | ❌ `MOB.626` / `MOB.914` sentinel it |
 | 44 | Creating a tag on a saved photo never attaches it | Runtime + Source | ❌ `ui/PhotoCarousel/Tags/index.tsx:77-89` → `handleTagAssign` `:51-52` looks the new tag up in the pre-create list — still on `f208805e08`; `MOB.627`'s sentinel red 2026-09-24 |
-| 45 | Expanding an asset row on a work order's Assets tab — or in Asset Lookup before its schema answers — can crash the page | Runtime | ❌ `WorkOrders/components/Assets/index.tsx:42-45,231-233` passes an uncached schema, `AssetLookup/index.tsx:86,351` an unanswered one; `AssetLookupDetails/index.tsx:43` maps it unguarded |
 | 46 | A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated` | Runtime | ❌ `GeneralInfo.tsx:61,77-85`; `InsertForm/utils/index.ts:150-161` copies every `allowUpdate` field, dirty or not |
 | 48 | `Item added` is shown for a save the server refused | Runtime | ❌ low–medium · `ui/NewItemForm.tsx:89` · `MOB.923` pins it |
 | 49 | `Extend session` succeeds but tells the user `The operation was aborted.` | Runtime | ❌ medium · `Layout/Auth.tsx:38-58` · `MOB.925` pins it |
@@ -46,19 +44,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 52 | A verify the server refused leaves the asset's box ticked | Runtime + Source | ❌ medium · `AssetVerification/VerificationCheckbox.tsx:17` · `MOB.940` pins it |
 | 53 | **A verify the server refused still changes the job's status** | Runtime + Source | ❌ medium–high · `VerificationCheckbox.tsx:40-66` · `MOB.940` pins it |
 | 54 | A HEIC photo added from a browser is stored as it is and shows as a broken image | Runtime + Source | ❌ low–medium · `ui/PhotoCarousel/AddPhotoOptions.tsx:55` · `MOB.936` records it |
-
-## §11 · `Form added` toast fires before the mutation
-
-`WorkOrders/components/Forms/AdHocForm.tsx:49`
-
-```js
-toast.success('Form added');
-client.mutate({ ... });
-```
-
-The success toast is shown before the mutation is even sent, and nothing reports a rejection, so a form the
-server refused is still announced as added. **Severity:** low — only a server rejection exposes it.
-**Tests:** a toast proves the handler ran, not persistence (trap 7).
 
 ## §13 · Escape discards the whole new-asset form
 
@@ -365,41 +350,6 @@ to create it, then search for it and pick it again. Each attempt leaves an unatt
 **Tests:** `MOB.627` proves add and remove of an existing tag and the tag's creation over `/graphql`; its
 optional sentinel, "the CREATED tag reached our photo", is red while §44 is open.
 
-## §45 · Expanding an asset row on a work order's Assets tab can crash the page
-
-The Assets tab reads the Asset schema from the cache only — `apolloClient.readQuery(GET_SCHEMA, { schema:
-'Asset' })` (`WorkOrders/components/Assets/index.tsx:42-45`) — and passes `schemaQuery?._info?.fields`
-to each row's `AssetLookupDetails` (`:231-233`). `/work` fetches that schema only when a listed work stage's mobile
-template has an `ASSETS` section (`WorkOrders/utils/prefetchData.ts:74`, behind the `PREFETCHED_WORK_DATA`
-guard at `:142-143`) — the fixture stage has none, so on a cold cache the prop is `undefined`, and `AssetLookupDetails` calls `fields.map` without a
-guard (`AssetLookup/AssetLookupDetails/index.tsx:43`). The ErrorBoundary replaces the page.
-
-**How it showed.** Local probe, twice, each in a fresh session (`/work` → the fixture work order → Assets
-tab): no geolocate control appeared on the row in 60 s (`AssetGeolocate` renders nothing without the
-schema), and clicking the row's chevron replaced the page with "Something went wrong. … Cannot read
-properties of undefined (reading 'map')". Opening `Add Existing Asset` first fetches the schema; after
-that the row expands normally.
-**User-visible effect.** A user who opens a work order straight from the list and expands an asset on the
-Assets tab loses the page to the error screen, until something else on the device has loaded the Asset schema.
-**Fix:** query the schema instead of reading it from the cache (`useQuery(GET_SCHEMADocument, { variables:
-{ schema: 'Asset' } })`), and render `AssetLookupDetails` only once the fields exist — or default `fields`
-to `[]` there.
-**Tests:** `MOB.354` gates on the rows' geolocate controls before expanding a row, so it cannot trip the
-crash. `MOB.397` expands the first asset row to reach its gear menu, and **did trip it** — 1 of 2 local replays,
-2026-09-17, at "Expand the first asset row", the page replaced by the error screen. It is now guarded the same way,
-after first opening `Add Existing Asset` and closing it unused, since that picker's `useQuery` is what loads the
-schema — a gate alone would wait on a schema nothing had asked for. `MOB.358` does **not** expand a row — but its step 10 fixture guard requires an asset row to render the
-geolocate control, and `AssetGeolocate` renders nothing without the schema, so that is its exposure. Inside
-`MOB.955` it runs last, after `MOB.347` opens the Assets tab — whether that loads the schema is not measured.
-
-**Asset Lookup has the same hole.** It does query the schema (`AssetLookup/index.tsx:86`), but renders
-`AssetLookupDetails` with `schema={s.data?._info.fields}` (`:349-352`) whether or not that query has answered. A row
-expanded before it answers crashes the same way. **Runtime:** once, 2026-09-23, in `MOB.929`'s development runs
-(a fresh session, Asset Lookup → search → expand at once); not reproduced on demand. The same guard in
-`AssetLookupDetails` (`fields ?? []`, or render nothing until the fields exist) fixes both.
-**Tests (continued):** `MOB.929`'s removal opens Asset Lookup in its fresh browser and waits for the schema in the
-persisted cache before loading the work order (`test_authoring.md` trap 44).
-
 ## §46 · A General Info save resubmits every field, so one invalid field blocks the whole form — and the toast still says `Record Updated`
 
 `GeneralInfo.updateRecord` builds its mutation variables with `sanitizeValues(fields, values, 'UPDATE')`
@@ -450,7 +400,6 @@ and the optimistic item then disappears.
 it) showed "Item added", then the error, then the note vanished; the server held no new note.
 **Reach:** confirmed for job notes. The same form adds equipment, labor, material and other charges — likely the
 same, not yet run. **Severity:** low–medium — only a refused save exposes it, but then the user is told both things.
-**Same mistake as §11**, in the shared form rather than `AdHocForm`.
 
 ## §49 · `Extend session` succeeds but tells the user `The operation was aborted.`
 

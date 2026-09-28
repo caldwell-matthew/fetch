@@ -173,7 +173,7 @@ const named = n => rows.filter(r => { const c = r.querySelector('.mantine-Accord
   return c && (c.textContent || '').includes(n); });
 return rows.length === 2 && named('Bypass Valve 0001').length === 1 && named('Pump 0102').length === 1;`, 60000);
   });
-  await run.step("GATE (\ud83d\udc1e crash workaround): the Asset schema is cached \u2014 every row renders its geolocate control \u2014 so expanding a row cannot hit the AssetLookupDetails crash", {}, async () => {
+  await run.step("GATE: both rows are ready \u2014 each renders its geolocate control (it waits for the Asset schema)", {}, async () => {
     await assertFromJavascript(page, `const tabEl = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
 if (!tabEl || (tabEl.textContent || '').trim() !== 'Assets') return false;
 const p = tabEl.getAttribute('aria-controls') ? document.getElementById(tabEl.getAttribute('aria-controls')) : null;

@@ -166,8 +166,7 @@ each paired with its online control.
 asset lookups ignore case · `MOB.387` `Edit Item` opens the condition form filled with its card's six values, closed
 unsaved; the card's `Stress Decision Score:`/`Notes:` rows and the failure table's `Discovery Code` · `MOB.741` the
 work-stage attachment panel and its image filter · `MOB.731` Near Me's radius · `MOB.358` the asset location form, online
-and — with `navigator.onLine` overridden — its offline state (last: it stubs `fetch`, and expanding an asset row needs
-the Asset schema cached — bugs §45).
+and — with `navigator.onLine` overridden — its offline state (last: it stubs `fetch`).
 
 #### `MOB.956_WorkOrders_5_Records_Suite` — 8 children · writes (residue: charges, a note) · Datadog 623s
 **Records added to a work order, each PROVEN ON THE SERVER after a reload.**

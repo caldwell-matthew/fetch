@@ -1,8 +1,9 @@
-// MOB.924_Form_Attach_Rejected — written for Playwright (not converted from Datadog). Pins bugs §11.
+// MOB.924_Form_Attach_Rejected — written for Playwright (not converted from Datadog).
 //
-// `Forms/AdHocForm.tsx:49` shows "Form added" BEFORE it sends the mutation, so a user is told the form was added
-// even when the server refuses it (bugs §11). The browser answers `CREATE_WORKSTAGE_FORM` with an error, so dev
-// never receives it; a server read before and after proves no form was attached.
+// Attaching a form from `Add Form` (`Forms/AdHocForm.tsx`) shows `Form added` only once the server returns the form
+// (build 127; it used to toast before sending). The browser answers `CREATE_WORKSTAGE_FORM` with an error, so dev
+// never receives it: the refusal reaches the user and no `Form added` appears. A server read before and after proves
+// no form was attached. (The operation name matches here: the app sends it as generated.)
 //
 // On work order `20260910-16`, where MOB.364 attaches forms — never the main fixture. If the refusal did not
 // happen, a real form would be attached: the server read fails loudly rather than leave it unnoticed.
@@ -13,8 +14,7 @@ import { appUrl, FORMS_WO, serverRead } from '../support/session';
 const FORMS = 'query($id: ID!) { workStage(id: $id) { forms { id } } }';
 const REJECTION = 'DD SYNTHETIC 924: the test refused this form';
 
-/** Returns whether "Form added" was shown for the refused save — true while bugs §11 is open. */
-export async function mob924(page: Page): Promise<{ formAddedShown: boolean }> {
+export async function mob924(page: Page): Promise<void> {
   const before = (await serverRead(page, FORMS, { id: FORMS_WO })).workStage.forms.length;
 
   await page.goto(appUrl(`work/${FORMS_WO}`), { waitUntil: 'load' });
@@ -28,17 +28,15 @@ export async function mob924(page: Page): Promise<{ formAddedShown: boolean }> {
 
   const failing = await failOperation(page, { operation: 'CREATE_WORKSTAGE_FORM' },
     { kind: 'graphql', message: REJECTION });
-  let formAddedShown = false;
   try {
     await page.locator('xpath=//button[@form="adhoc-form"]').click();
     await expect(page.getByText(REJECTION), 'the server\'s refusal reaches the user').toBeVisible({ timeout: 30_000 });
     expect(failing.hits, 'the form mutation really was refused (not a vacuous pass)').toBeGreaterThan(0);
-    formAddedShown = (await page.getByText('Form added').count()) > 0;
+    await expect(page.getByText('Form added', { exact: true }), 'no success toast for a refused form').toHaveCount(0);
   } finally {
     await failing.stop();
   }
 
   const after = (await serverRead(page, FORMS, { id: FORMS_WO })).workStage.forms.length;
   expect(after, 'the server attached no form (if this fails, a real form was added — remove it)').toBe(before);
-  return { formAddedShown };
 }

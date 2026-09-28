@@ -12,7 +12,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** |
 > | what a green run actually proves | `coverage.md` |
-> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 52 traps) |
+> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 51 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | test residue, cleanup, the AV fixture reset | `cleanup_spec.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |
@@ -28,8 +28,8 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree; `git fetch origin development` first |
-| **Last synced** | `9fdd47e6fc` (2026-09-25) — **served**: dev's mobile page loads `mobile.2026.7.0-123.bundle.js`. Since `54406b4b74`, 26 `client/mobile` commits, now covered except a PM route stage (🟡, no fixture): the **new work order form's `Assign to Crew`** (defaults to the user's crew, shown with `crewassignment.create`; cleared = unassigned) · **PM routes** — a stage a PM creates from a workflow that cycles its assets carries `pmRoute`, which turns on the Assets tab's status controls, and those gain an **`All` / `Active` switch** and sequence order · **mobile-only users** — a browser session whose user is `mobileOnly` is logged out to `/login?src=mobile&mobileOnly=true`, and the server refuses their browser login · **writes that wait for the server** — create work order, reassign and add-asset-to-work-order now await their mutations, with `Unable to …` toasts on failure, and `Asset verified` waits for the server when online · **the Transaction Log's 30-day retention** now purges (it purged nothing: the day count was reversed, and an `async` iterate callback stopped after the first entry) · `No permits` · the header (`green.0`, no border, no white bar under it on tablets) · `Superseded` spelled right on the status ring. Also since then, and already in the tests: Asset Lookup's search keeps the active filters (`MOB.820`), the map card's `Add to Work` picker (`MOB.929`, bugs §50). The server fixes to the estimated/workflow other-charge resolvers (rc.122) touch nothing mobile sends |
-| **Literal scan** | `check_literals.py` clean against `9fdd47e6fc` — 2371 literals, 0 MISSING. `sweep_strings.py` last ran on `54406b4b74`: 197 JSX text strings, 135 asserted, 62 in no test |
+| **Last synced** | `071ef40409` (2026-09-28) — **served**: dev's mobile page loads `mobile.2026.7.0-127`. Since `9fdd47e6fc` (build 123), 11 `client/mobile` commits: **asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, new) — every expanded asset's Attributes tab (Asset Lookup, the collector, Asset Verify jobs, a work order's Assets tab) can edit a value (`Update Attribute`), add one (`Add Attribute`, optionally only the asset type's) and remove one (`Remove Attribute` → `Are you sure you want to remove …?`), online only, each behind its permission, a failure toasting `Unable to save attribute. Please try again.` (▶ #97) · **`Form added` waits for the server**, offline `Form queued for sync` (`MOB.924` asserts the refused form shows none) · **an asset row no longer crashes before the Asset schema loads** — the Assets tab queries it and `AssetLookupDetails` tolerates a missing one (checked 4 of 4 in fresh browsers, 2026-09-28) · **trial mode removed** — Home's tiles no longer disable for a trial org, and the server's trial banner is gone. No asserted literal moved. The sync before (`9fdd47e6fc`, build 123) brought `Assign to Crew`, PM routes, mobile-only users, writes that wait for the server and the log retention — all covered but a PM route stage (🟡) |
+| **Literal scan** | `check_literals.py` clean against `071ef40409` — 2368 literals, 0 MISSING. `sweep_strings.py` last ran on `54406b4b74`: 197 JSX text strings, 135 asserted, 62 in no test |
 
 ```bash
 cd ~/GitHub/MentorAPM/MentorTwo && git fetch origin development
@@ -55,7 +55,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Tests | **163 tests · 27 suites** · 163 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 208 `[x]` · 8 `[~]` · 0 `[ ]` · 25 `[-]` — 241 rows. Counts describe *this file*, not the app |
+| Rows | 208 `[x]` · 8 `[~]` · 1 `[ ]` · 24 `[-]` — 241 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -123,7 +123,7 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 - `MOB.135_Work_Form_Signature_Pad` — new, wired into `960` after `MOB.134` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 252s). `960` has not re-run with it.
 - `MOB.331_Work_GenInfo_Value_Modal` — new, wired into `954` after `MOB.330` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 193s). `954` has not re-run with it.
 - `MOB.629_Collector_Location_Capture` — new, wired into `MOB.966` after `MOB.626` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 58s). `MOB.966` has not re-run with it in place.
-- **The blind-warm-up sweep (2026-09-17):** `MOB.302`, `389`, `393`, `394`, `397`, `398` and `399` now wait on `work_list_gate(require_row=False)` instead of a blind 20s on `/work`, and each **passed on Datadog individually** (2 runs each, `MOB.999` 319s / 201s / 239s / 200s / 301s / 86s / 231s), the work fixtures clean afterwards. Their suites (`954`, `955`, `959`, `981`) have not re-run since, so their ✅ is per-test for these seven. `MOB.397` also gained a bugs §45 guard — it crashed the page on 1 of 2 local replays before it.
+- **The blind-warm-up sweep (2026-09-17):** `MOB.302`, `389`, `393`, `394`, `397`, `398` and `399` now wait on `work_list_gate(require_row=False)` instead of a blind 20s on `/work`, and each **passed on Datadog individually** (2 runs each, `MOB.999` 319s / 201s / 239s / 200s / 301s / 86s / 231s), the work fixtures clean afterwards. Their suites (`954`, `955`, `959`, `981`) have not re-run since, so their ✅ is per-test for these seven.
 - `MOB.977_DIAG_Condition_Form_Schema_Race` **passed on Datadog 2026-09-17** (2 runs, `verify.py`) — and it asserts bugs §42, so passing means §42 reproduced there too: the first Submit after a cold deep link reached nobody, the second open saved. Run it deliberately, never weekly.
 - `MOB.346_Work_Scheduled_View` cannot pass — see 🟡 BLOCKED.
 
@@ -133,13 +133,15 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#37** CircleCI (held by the owner for later).
+1. **#97** asset attribute editing — the delete leg needs the owner to name it (trap 2).
+2. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
 | **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **97** | **Asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, build 127) — on a `DD SYNTHETIC MOBILE` asset in Asset Lookup: the edit icon per row (`aria-label="Edit <label>"`) → `Update Attribute`, proved over `/graphql` and restored (self-restoring) · `Add Attribute` (the list offers only attributes the asset lacks; `Only attributes for <type>` narrows it) → proved over `/graphql` · a refused save → `Unable to save attribute. Please try again.`, nothing on the server (read-only, refused in the browser) · offline → neither button (read-only). 🟡 **The owner names the remove flow first** (trap 2): `Remove Attribute` → `Yes` is what cleans up an added attribute; until then the add leg leaves one attribute per run on the test asset | not started |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -158,7 +160,6 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | `MOB.342` exclusion leg | a second status in the crew's list — read the legend before asking | fixture |
 | `MOB.351`'s estimate rows | an estimate on the fixture work order | fixture |
 | Session/JWT expiry | cookie-authenticated; a client cannot expire it | backend |
-| Trial-mode tile disabling | a trial org | fixture |
 | Drawing + saving a signature (`MOB.135`'s write half) | owner decision: it signs the fixture's `🔎 Inspection` form. Strokes are canvas pointer events (`react-signature-canvas`), and the restore — saving `null` back through `updateSignature`, as `Clear` does — is untested | decision |
 | Asset Type on the AV detail — characterization test | owner decision: it now renders as plain text; pin that or not | decision |
 | `Component:` on a failure card (`MOB.387`) | a fixture failure WITH a component — the fixture's has none | fixture |
@@ -299,7 +300,6 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Six module tiles render; `Work Orders` navigates *(MOB.180)*
 - [x] Tile permission gating and `No valid permissions` *(MOB.210)*
 - [x] Asset Lookup tile hidden when offline *(MOB.910)*
-- [-] Trial-mode tile disabling — needs a trial org
 - [x] Login landing *(MOB.000)* · `/` Home *(MOB.180)*
 
 ## Every route — header, hamburger menu and back arrow
@@ -362,7 +362,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 ### Tabs, records and forms
 
 - [x] The Condition and Failure add forms, when their schema cannot load → `Unable to load form. Close and reopen to retry.` *(MOB.921 — work order opened directly in a fresh browser, schema failed in the browser)*
-- [x] A save the server refuses → the server's message is shown, the item does not stay, nothing reaches the server *(MOB.923 note, MOB.924 form)* · 🐞 both also show a success toast: `Item added` (bugs §48), `Form added` (bugs §11) — each test pins its bug
+- [x] A save the server refuses → the server's message is shown, the item does not stay, nothing reaches the server *(MOB.923 note, MOB.924 form)* · 🐞 the note also shows `Item added` (bugs §48, `MOB.923` pins it); the form shows no `Form added`
 - [x] Assign follow-up work *(MOB.397)*
 - [x] Detail tabs render and switch *(MOB.330)*
 - [x] General Info — edit a field *(MOB.395)* · self-restoring (`DATADOG FIXTURE`)
@@ -512,6 +512,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Work History rows' `Assigned to` field *(MOB.740)* — the newest row's rendered value is exactly the `_assignments` the server holds for that row (compared over `/graphql`, not hardcoded)
 - [x] Create a System from the System field *(MOB.712)* · residue — on a `DD SYNTHETIC MOBILE` asset: ticks `System` in the column picker (restored `always`), `+ Create '…'` → `CREATE_SYSTEM` + `UPDATE_ASSET`, both proved over `/graphql` (the modal closes before either is sent)
 - [x] Capture a reading from Asset Lookup's Readings tab *(MOB.722)* · residue — `Test 1` on a `DD SYNTHETIC MOBILE` asset (added through `Add reading types` when absent), `CREATE_EVENT` proved over `/graphql`; `MOB.550` covers the AV container
+- [ ] An asset's Attributes tab edits, adds and removes attributes (build 127; the same tab in the collector, Asset Verify and a work order's Assets tab) — ▶ #97
 
 ### Filters and sort
 

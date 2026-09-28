@@ -150,16 +150,10 @@ test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
     }
   });
 
-  // Bugs §11 pin, last in the suite: "Form added" is shown for a form the server refused. That symptom — and only
-  // that — is EXPECTED; when §11 is fixed nothing is thrown and the test is simply green.
   test('MOB.924_Form_Attach_Rejected', async ({ browser }) => {
     const page = await freshSession(browser);
     try {
-      const { formAddedShown } = await mob924(page);
-      if (formAddedShown) {
-        test.fail(true, 'bugs §11: "Form added" is shown before the save is sent');
-        throw new Error('bugs §11: "Form added" was shown for a form the server refused');
-      }
+      await mob924(page);
     } finally {
       await page.context().close();
     }

@@ -60,8 +60,7 @@ The read-only suites ran as one batch, so they have a combined time rather than 
   locally, but the collect never reaches the server, so its last step — the server proof — fails. The suite
   expects exactly that failure and carries on; any other failure is a real red, and when §34 is fixed the test
   goes green by itself.
-- **`MOB.923`** pins bugs §48 ("Item added" shown for a save the server refused), **`MOB.924`** pins §11 ("Form
-  added" likewise), **`MOB.925`** pins §49 (a session the server extended is reported as "The operation was
+- **`MOB.923`** pins bugs §48 ("Item added" shown for a save the server refused), **`MOB.925`** pins §49 (a session the server extended is reported as "The operation was
   aborted."). Same rule: only the pinned symptom counts as the expected failure.
 
 ### Left to do

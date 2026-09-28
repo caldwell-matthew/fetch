@@ -56,36 +56,6 @@ return Date.now() - since >= 10000;`, 360000);
   await run.step("The \"Assets\" tab is active", {}, async () => {
     await assertElementPresent(page, `//*[@role="tab"][normalize-space(.)="Assets"][@data-active]`, DEFAULT_TIMEOUT);
   });
-  await run.step("\u00a745 GUARD: open `Add Asset` \u2014 its picker is what loads the Asset schema", {}, async () => {
-    await click(page, `//button[normalize-space(.)="Add Asset"]`, 30000);
-  });
-  await run.step("\u00a745 GUARD: choose `Add Existing Asset` (mounts `AssetLookup` \u2192 `useQuery(GET_SCHEMA Asset)`)", {}, async () => {
-    await click(page, `//label[contains(concat(" ", normalize-space(@class), " "), " mantine-SegmentedControl-label ")][normalize-space(.)="Add Existing Asset"]`, 30000);
-  });
-  await run.step("\u00a745 GUARD: the picker's search box mounted", {}, async () => {
-    await assertElementPresent(page, `//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Modal-content ")]//input[@name="asset-search"]`, 60000);
-  });
-  await run.step("\u00a745 GUARD: the picker finished its first load \u2014 no LoadingOverlay, and rows or `No Results`", {}, async () => {
-    await assertFromJavascript(page, `const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name="asset-search"]'));
-if (!m) return false;
-if (m.querySelector('.mantine-LoadingOverlay-overlay, .mantine-LoadingOverlay-root')) return false;
-return m.querySelectorAll('.mantine-Accordion-item').length > 0 || /No Results/.test(m.textContent || '');`, 60000);
-  });
-  await run.step("\u00a745 GUARD: close the picker UNUSED \u2014 nothing picked, nothing written", {}, async () => {
-    await press(page, `Escape`);
-  });
-  await run.step("\u00a745 GUARD: the picker is closed", {}, async () => {
-    await assertFromJavascript(page, `const m = [...document.querySelectorAll('.mantine-Modal-content')].find(x => x.querySelector('input[name="asset-search"]'));
-return !m;`, 20000);
-  });
-  await run.step("\u00a745 GATE: the Asset schema is cached \u2014 every asset row renders its geolocate control (`AssetGeolocate` renders null without it), so expanding a row cannot crash the page", {}, async () => {
-    await assertFromJavascript(page, `const t = document.querySelector('[role="tab"][aria-selected="true"], [role="tab"][data-active]');
-if (!t || (t.textContent || '').trim() !== 'Assets') return false;
-const p = t.getAttribute('aria-controls') ? document.getElementById(t.getAttribute('aria-controls')) : null;
-if (!p) return false;
-const rows = [...p.querySelectorAll('.mantine-Accordion-item')];
-return rows.length > 0 && rows.every(r => !!r.querySelector('[data-icon="location-crosshairs"]'));`, 60000);
-  });
   await run.step("Expand the first asset row (the gear menu lives in the panel)", {}, async () => {
     await click(page, `(//*[contains(@class,"mantine-Accordion-item")])[1]//*[contains(@class,"mantine-Accordion-control")]`, 30000);
   });

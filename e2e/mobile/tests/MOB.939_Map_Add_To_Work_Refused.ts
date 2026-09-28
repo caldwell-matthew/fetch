@@ -4,7 +4,8 @@
 // add asset to work order.` and leaves the form open — it used to close at once, whatever the server said. The path
 // is MOB.929's: Asset Lookup → Tank 0040 → View in Map → its card → Add to Work → a work stage → submit. The browser
 // refuses the add (`addWorkStageAssetLink`, the field — the app sends it as `MOBILE_WORK_ADD_ASSET`, trap 43), so dev
-// never receives it. The stage picked is one the tests made, as in MOB.929, so even a missed refusal could only link
+// never receives it. The stage picked is one the tests made, as in MOB.929 — made the same day, or it has sorted off the
+// picker's page (MOB.929's note; in a full pass MOB.300 makes one first), so even a missed refusal could only link
 // the asset to test residue; its links are read over `/graphql` before and after: unchanged. Reads only.
 import { expect, Page } from '@playwright/test';
 import { failOperation } from '../../support/network';

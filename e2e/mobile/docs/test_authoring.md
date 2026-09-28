@@ -255,8 +255,8 @@ fire-and-forget `mutate`). Read the write path before trusting a reload; for a r
 a `network-only` surface (Asset Lookup, as `MOB.302` does) or `dd_tools.server_assert` (a same-origin
 `/graphql` read — `MOB.320`, `MOB.390`/`391`, `MOB.386`).
 
-**7 · Toasts are transient, and some fire before the mutation.** `AdHocForm` toasts before
-`client.mutate` (bugs §11). `VerificationCheckbox` and the event-readings form wait for the server when
+**7 · Toasts are transient, and some fire before the mutation.** `NewItemForm` toasts `Item added` before the
+server answers (bugs §48). `AdHocForm`, `VerificationCheckbox` and the event-readings form wait for the server when
 online, but offline they toast at once — the queue holds the mutation open — so even there a toast says
 only that the server answered or that the change was queued. Demote a toast to `optional` only after
 replacing it with something stronger.
@@ -464,11 +464,9 @@ read 1 pending while the fixture rested `IN_PROGRESS` and needed 2 once it reste
 on Datadog though no step of it named a status. When a fixture's rest state moves, re-read every test
 that COUNTS something about it, not only those that assert the state.
 
-**39 · A gate can only wait for something that is coming.** The work order's Assets tab crashes when a
-row is expanded before the Asset schema is cached (bugs §45), and nothing on `/work` guarantees to fetch
-it. Gating on the rows' geolocate controls (which render only with that schema) would wait for a request
-nobody makes. Prime it through the user's own path — open `Add Existing Asset`, whose picker queries the
-schema, close it unused — THEN gate (`MOB.397`).
+**39 · A gate can only wait for something that is coming.** A gate on a control that renders only once some data is
+cached waits forever when nothing on the page asks for that data. Before gating, find what requests it; if nothing on
+the path does, prime it through the user's own path (a picker whose query loads it, closed unused) — THEN gate.
 
 **40 · Datadog's scheduler, as measured.** Browser `tick_every` is 60–604800s — weekly at most.
 `options.scheduling` is `{timezone, timeframes: [{day, from, to}]}`, **`day` is ISO (Monday = 1)**
@@ -497,13 +495,6 @@ sometimes does not (the icon drawn after the last event). `MOB.929` waits, then 
 route that matches on the generated name never fires — a guard built that way guards nothing. Match a mutation
 on its FIELD in the query text (`addWorkStageAssetLink`) — `failOperation(page, { field: … })` in `support/network.ts`
 does — and assert the route was hit.
-
-**44 · Some screens read the Asset schema from the cache ONLY, and crash without it (bugs §45).** A work order's Assets tab
-(`WorkOrders/components/Assets/index.tsx:42`, `readQuery`) and Asset Lookup before its query answers
-(`AssetLookup/index.tsx:86,349`) hand `undefined` to `AssetLookupDetails`, whose `fields.map` throws: "Something
-went wrong … reading 'map'". A FRESH browser that opens a work order directly and expands an asset hits it every
-time. Before that, open Asset Lookup and wait for `persistedCacheHas(page, '_info({\\"schema\\":\\"Asset\\"})')`
-(trap 41), then load the work order (`MOB.929`'s removal).
 
 **45 · Playwright's failure screenshot is of ITS page, not yours.** A test that opens its own browser
 (`freshSession`) or runs on a suite's shared page fails with a screenshot and `error-context.md` of the unused `page`

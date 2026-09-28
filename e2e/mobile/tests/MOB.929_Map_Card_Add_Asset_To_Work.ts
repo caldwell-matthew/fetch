@@ -13,14 +13,16 @@
 // The picker offers only the FIRST 50 of the crew's work stages (bugs §50, `InsertForm/schemas.ts:27-40`: one page, and the
 // typed text is not sent), so the protected fixtures — 20260910-16 sits on page 9 — cannot be picked. The target is
 // a work order the tests made themselves: the first one on that page created by the test account whose problem
-// description starts with `DD SYNTHETIC MOBILE` (MOB.122, earlier in this suite, makes one). The fixtures are refused
-// by id even so, and `cleanup_residue.py` prunes the work order later whatever happens here.
+// description starts with `DD SYNTHETIC MOBILE` (MOB.122, earlier in this suite, makes one). It must be made THE SAME
+// DAY: the page sorts by work-order number, newest first, and dev's scheduled PM job adds about 29 stages a day under
+// the newest numbers (the first 50 were all its own by 2026-09-28) — run alone, with no fresh test work order, the
+// premise fails. The fixtures are refused by id even so, and `cleanup_residue.py` prunes the work order later whatever happens here.
 //
 // Owner, 2026-09-23 (trap 2): the test adds ONE link and removes exactly that link. Removal is MOB.354's path: the
 // link's gear → `Delete Item` → `Yes`.
 import { Browser, expect, Page, Request } from '@playwright/test';
 import { openAssetCard } from '../support/map';
-import { appUrl, FIXTURE_WO, FORMS_WO, freshSession, persistedCacheHas, serverRead } from '../support/session';
+import { appUrl, FIXTURE_WO, FORMS_WO, freshSession, serverRead } from '../support/session';
 
 const ASSET = 'Tank 0040';
 const MARKER = 'DD SYNTHETIC MOBILE';
@@ -29,7 +31,6 @@ const LINKS = 'query($id: ID!) { workStage(id: $id) { assets { id assetId { id n
 // The picker's query (`WorkOrders/queries/index.gql.ts:264`), cut down: its answer in full is too large to read back.
 const PICKER_STAGES = '{ workStages(crew: "<SESSION>", params: { limit: 50, sortId: "displayName" }) '
   + '{ edges { id name workId { problemDesc createdBy { id } } } } }';
-const ASSET_SCHEMA_KEY = '_info({\\"schema\\":\\"Asset\\"})'; // as the persisted cache writes it
 type Link = { id: string; assetId: { id: string; name: string } };
 type Stage = { id: string; name: string; workId: { problemDesc: string | null; createdBy: { id: string } | null } };
 
@@ -54,12 +55,6 @@ export async function removeOurLink(browser: Browser, stage: string, before: Set
     const ours = (await links(page, stage)).filter((l) => l.assetId.name === ASSET && !before.has(l.id));
     if (!ours.length) return;
     expect(ours.length, `exactly one new link to ${ASSET}`).toBe(1);
-    // A work order's Assets tab reads the Asset schema from the cache only (`WorkOrders/components/Assets/index.tsx:42`)
-    // and opening an asset without it crashes the page ("reading 'map'"). A fresh browser has not fetched it, so let
-    // Asset Lookup fetch it, and reload only once it is persisted (trap 41).
-    await page.goto(appUrl('asset-lookup'), { waitUntil: 'load' });
-    await expect.poll(() => persistedCacheHas(page, ASSET_SCHEMA_KEY),
-      { message: 'the Asset schema is in the persisted cache', timeout: 60_000 }).toBe(true);
     await page.goto(appUrl(`work/${stage}`), { waitUntil: 'load' });
     await expect(page.getByText('Status:').first()).toBeVisible({ timeout: 60_000 });
     await page.locator('xpath=//*[@role="tab"][normalize-space(.)="Assets"]').click();
