@@ -1,12 +1,14 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.600_Collector_Create_Asset.json. This file is the source now: edit it directly.
 // MOB.600_Collector_Create_Asset
 //
-// Red by design while bugs §34 is open: the asset is created and shown locally, but the collect never reaches
-// the server, so the last step (the SERVER PROOF, a soft step) fails. The suite expects exactly that failure
-// and no other; when §34 is fixed this test goes green on its own.
+// Collects an asset WITHOUT a photo, and proves the server has it. A photo attached in the collector goes up through
+// the native shell's `UPLOAD_THUMBNAILS` bridge (`AssetCollector/utils/createAsset.ts`, `graphql/links/UploadLink.ts`);
+// in a browser there is no shell, the bridge never answers, and the collect is never sent — a harness limit, not a
+// mobile bug (the app runs only in the native shell on phones; owner, 2026-09-28). Photos on a SAVED asset go up by
+// tus in a browser too, and MOB.623 / MOB.627 / MOB.933–936 cover them.
 
 import { Page } from '@playwright/test';
-import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, uploadStandIn, wait } from '../../support/dd';
+import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
 import { runId } from '../../support/env';
 
 export async function mob600(page: Page): Promise<void> {
@@ -35,29 +37,6 @@ export async function mob600(page: Page): Promise<void> {
   });
   await run.step("Pick Actuator Tools", {}, async () => {
     await click(page, `//*[@role="option"][contains(normalize-space(.), "Actuator Tools")]`, DEFAULT_TIMEOUT);
-  });
-  // Datadog recorded this click on the button's label with its own locator only, so it never ported. The
-  // button is unique in the new-asset form while no capture menu is open (the same locator as MOB.626).
-  await run.step("Open the photo picker (\"Add Asset Photo\")", {}, async () => {
-    await click(page, `//button[normalize-space(.)="Add Asset Photo"]`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Reveal the hidden gallery file input (useFileDialog appends it to <body>)", {}, async () => {
-    await assertFromJavascript(page, `const inputs = [...document.querySelectorAll('input[type="file"]')];
-const el = inputs.find(i => !i.capture);
-if (!el) return false;
-el.setAttribute('data-dd-upload', '1');
-Object.assign(el.style, {
-  display: 'block', opacity: '1', position: 'fixed',
-  top: '0', left: '0', width: '240px', height: '40px', zIndex: '99999'
-});
-return true;
-`, DEFAULT_TIMEOUT);
-  });
-  await run.step("Upload file", {}, async () => {
-    await uploadStandIn(page, `//input[@data-dd-upload="1"]`, ["Screenshot 2024-12-11 at 3.23.46\u202fPM.png"], DEFAULT_TIMEOUT);
-  });
-  await run.step("\u2b50 The photo-source modal closed ITSELF once the file arrived \u2014 `onDialogChange` calls `close()` (2026-09). Nothing clicks an X: closing early unmounted the component and destroyed the very <input> the upload needs", {}, async () => {
-    await assertPageLacks(page, `Select Photo Source`, 30000);
   });
   await run.step("Submit the new asset", {}, async () => {
     await click(page, `//button[@form="asset-collector"]`, DEFAULT_TIMEOUT);
@@ -95,7 +74,7 @@ return true;
   await run.step("Wait for the search results", {}, async () => {
     await wait(page, 5);
   });
-  await run.step("\u2b50 SERVER PROOF: the asset comes back from the SERVER \u2014 a result row carries this run's name (bugs \u00a734: the collected list's row is client-prepended and proves nothing)", {allow: 'soft'}, async () => {
+  await run.step("\u2b50 SERVER PROOF: the asset comes back from the SERVER \u2014 a result row carries this run's name (the collected list's row is client-prepended and proves nothing)", {}, async () => {
     await assertElementPresent(page, `(//*[contains(concat(" ", normalize-space(@class), " "), " mantine-Accordion-item ")])[1][contains(., "DD SYNTHETIC MOBILE ${RUNID}")]`, 30000);
   });
   run.finish();

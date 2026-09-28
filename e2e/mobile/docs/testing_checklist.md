@@ -12,7 +12,7 @@
 > |---|---|
 > | what is left to do, and the state of each item | **this file** |
 > | what a green run actually proves | `coverage.md` |
-> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 51 traps) |
+> | how to build a test and prove it — locally, then on Datadog — without repeating a known mistake | `test_authoring.md` (the loop, the 52 traps) |
 > | product defects the tests found | `bugs_found.md` |
 > | test residue, cleanup, the AV fixture reset | `cleanup_spec.md` |
 > | why a specific test is built the way it is | its `build_*.py` docstring |
@@ -28,7 +28,7 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree; `git fetch origin development` first |
-| **Last synced** | `071ef40409` (2026-09-28) — **served**: dev's mobile page loads `mobile.2026.7.0-127`. Since `9fdd47e6fc` (build 123), 11 `client/mobile` commits: **asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, new) — every expanded asset's Attributes tab (Asset Lookup, the collector, Asset Verify jobs, a work order's Assets tab) can edit a value (`Update Attribute`), add one (`Add Attribute`, optionally only the asset type's) and remove one (`Remove Attribute` → `Are you sure you want to remove …?`), online only, each behind its permission, a failure toasting `Unable to save attribute. Please try again.` (▶ #97) · **`Form added` waits for the server**, offline `Form queued for sync` (`MOB.924` asserts the refused form shows none) · **an asset row no longer crashes before the Asset schema loads** — the Assets tab queries it and `AssetLookupDetails` tolerates a missing one (checked 4 of 4 in fresh browsers, 2026-09-28) · **trial mode removed** — Home's tiles no longer disable for a trial org, and the server's trial banner is gone. No asserted literal moved. The sync before (`9fdd47e6fc`, build 123) brought `Assign to Crew`, PM routes, mobile-only users, writes that wait for the server and the log retention — all covered but a PM route stage (🟡) |
+| **Last synced** | `071ef40409` (2026-09-28) — **served**: dev's mobile page loads `mobile.2026.7.0-127`. Since `9fdd47e6fc` (build 123), 11 `client/mobile` commits: **asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, new) — every expanded asset's Attributes tab (Asset Lookup, the collector, Asset Verify jobs, a work order's Assets tab) can edit a value (`Update Attribute`), add one (`Add Attribute`, optionally only the asset type's) and remove one (`Remove Attribute` → `Are you sure you want to remove …?`), online only, each behind its permission, a failure toasting `Unable to save attribute. Please try again.` (`MOB.944`) · **`Form added` waits for the server**, offline `Form queued for sync` (`MOB.924` asserts the refused form shows none) · **an asset row no longer crashes before the Asset schema loads** — the Assets tab queries it and `AssetLookupDetails` tolerates a missing one (checked 4 of 4 in fresh browsers, 2026-09-28) · **trial mode removed** — Home's tiles no longer disable for a trial org, and the server's trial banner is gone. No asserted literal moved. The sync before (`9fdd47e6fc`, build 123) brought `Assign to Crew`, PM routes, mobile-only users, writes that wait for the server and the log retention — all covered but a PM route stage (🟡) |
 | **Literal scan** | `check_literals.py` clean against `071ef40409` — 2368 literals, 0 MISSING. `sweep_strings.py` last ran on `54406b4b74`: 197 JSX text strings, 135 asserted, 62 in no test |
 
 ```bash
@@ -51,11 +51,11 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 
 | | |
 |---|---|
-| Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16); `MOB.967` held out while bugs §34 is open. The old suites are retired, on Datadog and locally |
-| Tests | **163 tests · 27 suites** · 163 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
+| Tests | **164 tests · 27 suites** · 164 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 208 `[x]` · 8 `[~]` · 1 `[ ]` · 24 `[-]` — 241 rows. Counts describe *this file*, not the app |
+| Rows | 210 `[x]` · 6 `[~]` · 0 `[ ]` · 25 `[-]` — 241 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -80,7 +80,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Asset Verify | `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` | 570 575 546 | read-only | 166s | 199–332s | 263s |
 | Asset Verify | `MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite` | 537 545 550 | writes | 340s | 408–680s | 438s |
 | Asset Collector | `MOB.966_AssetCollector_1_Capture_Suite` | 160 620 621 622 626 629 610 624 625 | read-only | 261s | 313–522s | 356s (before the 09-17 changes) |
-| Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s | runs under Playwright: `MOB.600` red on its §34 server proof, expected by the suite; the other three pass |
+| Asset Collector | `MOB.967_AssetCollector_2_Saved_Asset_Suite` | 600 623 627 628 | writes | 379s ❌ | 455–758s | runs under Playwright |
 | Asset Lookup | `MOB.968_AssetLookup_1_Rows_Tabs_Suite` | 100 700 750 720 721 914 740 735 730 | read-only | 213s | 256–426s | 324s (before the 09-17 changes) |
 | Asset Lookup | `MOB.969_AssetLookup_2_Filters_Sort_Suite` | 800 805 806 807 820 | read-only | 185s | 222–370s | 307s |
 | Asset Lookup | `MOB.980_AssetLookup_3_Edits_Suite` | 710 712 722 | writes | 109s | 131–218s | 179s |
@@ -114,7 +114,7 @@ The loop and its costs live in `test_authoring.md` → **The loop**: build → s
 | read-only, together (cap 10 then) | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
 | writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 739s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
 | alone | `973` 215s | ✅ · current build · 2026-09-16 |
-| Playwright | `967` | ✅ 4/4 as intended — `MOB.600` red on its §34 SERVER PROOF alone (the suite expects exactly that failure), `623` `627` `628` green |
+| Playwright | `967` | `MOB.600` now collects without a photo (2026-09-28) — not yet run in the suite |
 
 - **The `READY` rest state is proven on Datadog (2026-09-17).** `MOB.963` ran green as a whole at 739s with all six children — `510`, `590`, `913`, `536` and the new `511`/`512` — and the fixture read back at rest afterwards. `MOB.530` and `MOB.560` were verified individually (2 runs each); their suite `MOB.961` has not re-run since, so its ✅ is per-test for those two.
 - ⚠️ `956` and `957` pass their bugs §42 sentinels NOT because §42 is fixed (its forms are unchanged on `9d80ad499c`): their children wait for `/work`'s prefetch, which loads `WorkStageCondition`/`WorkStageFailure` (`prefetchData.ts:26-36`) before the form opens. §42 still hits a user who opens a work order before that prefetch — `MOB.977_DIAG_Condition_Form_Schema_Race` is the test that reproduces it, deliberately outside the schedule.
@@ -133,7 +133,7 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#97** asset attribute editing — the delete leg needs the owner to name it (trap 2).
+1. **#100** the collector's `Location` on a created asset.
 2. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
@@ -141,7 +141,7 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 | # | item | state |
 |---|---|---|
 | **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **97** | **Asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, build 127) — on a `DD SYNTHETIC MOBILE` asset in Asset Lookup: the edit icon per row (`aria-label="Edit <label>"`) → `Update Attribute`, proved over `/graphql` and restored (self-restoring) · `Add Attribute` (the list offers only attributes the asset lacks; `Only attributes for <type>` narrows it) → proved over `/graphql` · a refused save → `Unable to save attribute. Please try again.`, nothing on the server (read-only, refused in the browser) · offline → neither button (read-only). 🟡 **The owner names the remove flow first** (trap 2): `Remove Attribute` → `Yes` is what cleans up an added attribute; until then the add leg leaves one attribute per run on the test asset | not started |
+| **100** | **The collector's `Location` applied to a created asset** — extend `MOB.600` (it now collects without a photo and proves the asset over `/graphql`). `MOB.629` covers the capture; this half is `createAsset` writing the address and GIS onto the new asset, and `assetTypeHasGeometry` dropping GIS for a type with no geometry — prove both over `/graphql` with `MOB.629`'s geolocation and Mapbox stubs | not started |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -154,8 +154,6 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 |---|---|---|
 | **`MOB.346_Work_Scheduled_View`** | settled: `mobileDownloadMode` stays `ASSIGNED` so the crew keeps its work orders; a `SCHEDULED` role sees only stages with a `scheduledevent` within ±7 days (bugs §25 rule 4). The scheduled view, `WO_SCHEDULED_SORT` and `ScheduleTimeline` are unreachable. Standalone; restore only when the role changes **and** its work is scheduled | settled |
 | Add a NEW / EXISTING asset to the job · Add Work | `reset_av_fixture.py` can put the fixture back for 0 runs (`cleanup_spec.md` §4). The owner accepts the **run → reset** chore and Add Work's residue, then these three get built. (The two verify tests left this row: the status recompute means they undo themselves — `MOB.511`/`MOB.512`) | decision |
-| `MOB.600`'s server proof green | bugs §34 fixed — until then `MOB.967` pins it: `MOB.600`'s SERVER PROOF is its one expected failure (Playwright attaches a real photo and reproduces it — re-checked 2026-09-25) | backend |
-| The collector's `Location` **applied** to a created asset — extend `MOB.600` | a green `MOB.600` (bugs §34). `MOB.629` covers the capture; this half is `createAsset` writing the address and GIS onto the new asset, and `assetTypeHasGeometry` dropping GIS for a type with no geometry — prove both over `/graphql` with `MOB.629`'s stubs | backend |
 | `MOB.357`'s non-zero path | a form template with a **required field**; every card reads `0 of 0` | fixture |
 | `MOB.342` exclusion leg | a second status in the crew's list — read the legend before asking | fixture |
 | `MOB.351`'s estimate rows | an estimate on the fixture work order | fixture |
@@ -234,7 +232,7 @@ MentorTwo.
 
 ## T1.2 Uploads & attachments
 
-- [~] Attach a file *(MOB.600)* — 🛑 the collect never reaches the server when a photo is attached (bugs §34); red until fixed
+- [-] Attach a photo while collecting *(MOB.600 collects without one)* — the photo goes through the native shell's `UPLOAD_THUMBNAILS` bridge, which a browser does not have; a photo on a SAVED asset is covered (`MOB.623`, `MOB.627`, `MOB.933`–`936`)
 - [x] A photo reaches the carousel without submitting *(MOB.621)* — local reducer, discarded unsent
 - [x] Work-stage attachments panel and its image filter *(MOB.741)* — an image through `Add File` is rejected with a toast, zero residue
 - [x] Add a photo to an EXISTING asset through the panel's `Add Photo` *(MOB.623)* · residue — polls for the `blob:` preview to become a server URL
@@ -458,12 +456,12 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] The route renders and titles itself *(MOB.160)*
 - [x] Photos / Docs / Attributes panel content *(MOB.623)* — collector call site of the same `AssetLookupDetails`
-- [~] Create asset — name + desc + type, with a real photo *(MOB.600)* — 🛑 red by design: the server never receives it (bugs §34); ends with a network-only search for its own name
+- [x] Create asset — name + desc + type *(MOB.600)* — without a photo (above); proved by a network-only Asset Lookup search for its own name
 - [x] Add a photo without submitting *(MOB.621)*
 - [x] The add-photo picker *(MOB.620)*
 - [x] Carousel at one photo and at two; fullscreen; tag editor and its `MentorLens Tags` header *(MOB.622)*
 - [x] Tag / description capture menus *(MOB.626)* — exactly `Add Asset Photo` in a browser; `Use photo selected above` (enabled) once the form holds a photo; offline, the wand's and `Add Asset Photo`'s connection messages (they flash, bugs §43); no item clicked online, form discarded unsent
-- [~] The create form's `Location` row *(MOB.629)* — `No location captured.`; with stubbed geolocation and Mapbox, `Asset Location` prefilled (`Include GIS` and `Include Address` on), its Submit puts the address over `lat, lng` on the row, `Clear location` puts the placeholder back; form discarded unsent. Partial: the location APPLIED to a created asset needs `MOB.600` (bugs §34)
+- [~] The create form's `Location` row *(MOB.629)* — `No location captured.`; with stubbed geolocation and Mapbox, `Asset Location` prefilled (`Include GIS` and `Include Address` on), its Submit puts the address over `lat, lng` on the row, `Clear location` puts the placeholder back; form discarded unsent. Partial: the location APPLIED to a created asset — ▶ #100
 - [x] Collector search *(MOB.610)*
 - [x] Saved-photo menu, `Rotate Image`, and the three attachment panels on a collected asset *(MOB.623)* · residue
 - [x] Collector sort *(MOB.625)* — on our own rows: `Created At` against the server's order, `Name` against `localeCompare`
@@ -500,7 +498,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] `Tag Lookup` menu *(MOB.750)* — exactly `Scan Barcode` then `Alphanumeric`
 - [x] `Alphanumeric`'s browser branch *(MOB.750)* — one file dialog, `capture=environment`, images, one file; nothing uploaded
 - [-] The capture itself — posts to `/api/upload/ai`; native scanner and camera are 🔴 HARNESS
-- 🟡 `Scan Barcode` in a browser does nothing — bugs §37, `MOB.750` sentinels it
+- 🟡 `Scan Barcode` in a browser does nothing — it asks the native shell for the camera and has no browser branch; `MOB.750` sentinels it
 - 🟡 Tag Lookup ignores the active filters, on the capture and on its X — bugs §51, `MOB.943` pins it
 - [x] `View in Map` on an expanded row *(MOB.735)* — router state, not a URL
 - [x] `Work History` tab — `WorkLookupDetails` *(MOB.740)*, also the map's `WorkCard`
@@ -512,7 +510,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Work History rows' `Assigned to` field *(MOB.740)* — the newest row's rendered value is exactly the `_assignments` the server holds for that row (compared over `/graphql`, not hardcoded)
 - [x] Create a System from the System field *(MOB.712)* · residue — on a `DD SYNTHETIC MOBILE` asset: ticks `System` in the column picker (restored `always`), `+ Create '…'` → `CREATE_SYSTEM` + `UPDATE_ASSET`, both proved over `/graphql` (the modal closes before either is sent)
 - [x] Capture a reading from Asset Lookup's Readings tab *(MOB.722)* · residue — `Test 1` on a `DD SYNTHETIC MOBILE` asset (added through `Add reading types` when absent), `CREATE_EVENT` proved over `/graphql`; `MOB.550` covers the AV container
-- [ ] An asset's Attributes tab edits, adds and removes attributes (build 127; the same tab in the collector, Asset Verify and a work order's Assets tab) — ▶ #97
+- [x] An asset's Attributes tab — add, edit and remove *(MOB.944, in `MOB.980`, its own browser)* · self-cleaning — on a `DD SYNTHETIC MOBILE` asset: offline shows neither `Add Attribute` nor a pencil; a refused add → `Unable to save attribute. Please try again.`, the form open, nothing on the server; `Only attributes for Actuator Tools` offers nothing until switched off; `🔤 string 1` added, edited and removed, each over `/graphql`, the remove guarded to this run's one attribute (trap 2). The same tab serves the collector, Asset Verify and a work order's Assets tab
 
 ### Filters and sort
 
@@ -592,7 +590,7 @@ where a client-side filter rejects it (`MOB.741`).
 - [x] Image rejected by the Docs-tab filter — `MOB.741`
 - [x] Video · Document · several at once · HEIC refused by the Docs tab — `MOB.933`
 - [x] Nameplate — the AI's `NAME_PLATE` description of a photo, `Get Description` — `MOB.935`
-- [x] HEIC through `Add Photo` — `MOB.936`: taken and stored as `image/heic`, then deleted. A browser cannot show it: the slide's image has `naturalWidth` 0 (the server serves the file as it is) — bugs §54. ("Custom" is not a mobile attachment type)
+- [x] HEIC through `Add Photo` — `MOB.936`: taken and stored as `image/heic`, then deleted. A browser cannot show it: the slide's image has `naturalWidth` 0 (the server serves the file as it is). Only a browser picks a HEIC file this way; the phone app goes through the native shell, so it is not a mobile bug ("Custom" is not a mobile attachment type)
 - [-] Capture from camera — native dialog
 
 # Appendix A — Blocked on the AV reset decision

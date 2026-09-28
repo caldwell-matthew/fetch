@@ -5,8 +5,8 @@
 // file goes up by tus as it is — the app makes no thumbnail (`DetailPage/utils/uploadPhoto.ts:86-111`) — and the slide
 // shows the server's `/api/attachment/<id>` image. Chrome cannot decode HEIC itself, so whether the slide shows a
 // picture depends on what the server serves for it — measured 2026-09-24: it serves the HEIC as it is, and the slide's
-// image has `naturalWidth` 0 (a broken image) — bugs §54. Not asserted: the suite logs the width; when §54 is fixed,
-// assert it above 0.
+// image has `naturalWidth` 0 (a broken image). Not asserted, and not a mobile bug: only a browser picks a HEIC file
+// this way — the phone app goes through the native shell (owner, 2026-09-28). The suite logs the width.
 //
 // The file is a real 96×96 HEIC (`e2e/fixtures/uploads/gradient.heic`, made with macOS `sips`). The upload is this
 // run's own, on the `DD SYNTHETIC MOBILE` asset the attachment tests use, and deleted at the end (owner, 2026-09-23).

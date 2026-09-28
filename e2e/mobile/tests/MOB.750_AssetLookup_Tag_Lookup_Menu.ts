@@ -96,7 +96,7 @@ return items.includes('Alphanumeric');`, 30000);
   await run.step("Give it time to show anything at all", {allow: 'ignore'}, async () => {
     await wait(page, 3);
   });
-  await run.step("SENTINEL (bugs \u00a737): `Scan Barcode` in a browser does NOTHING \u2014 the menu closed, no dialog, no toast, no file dialog, still on Asset Lookup. Red here means it was fixed: rewrite this step", {allow: 'ignore'}, async () => {
+  await run.step("SENTINEL: `Scan Barcode` in a browser does NOTHING (it asks the native shell for the camera; there is no browser branch) \u2014 the menu closed, no dialog, no toast, no file dialog, still on Asset Lookup. Red here means it was fixed: rewrite this step", {allow: 'ignore'}, async () => {
     await assertFromJavascript(page, `const dialog = document.querySelector('[role="dialog"]');
 const toast = document.querySelector('.Toastify__toast');
 return !document.querySelector('[role="menu"]') && !dialog && !toast

@@ -232,7 +232,7 @@
         "MOB.935",
         "MOB.936"
       ],
-      "about": "Writes on `DD SYNTHETIC MOBILE` assets: create an asset (red while bugs §34 is open), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag), then several file types at once, an upload cut off and refused, `Get Description` with the AI answered in the browser, and a HEIC photo — each deleting only its own uploads.\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.\n- 🛑 A LOCAL REPLAY OF MOB.600 IS A FALSE NEGATIVE: it cannot drive the photo picker, so it collects photo-free, which persists, and its server proof passes. Only Datadog exercises §34.",
+      "about": "Writes on `DD SYNTHETIC MOBILE` assets: collect an asset without a photo (a photo at collect time needs the native shell), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag), then several file types at once, an upload cut off and refused, `Get Description` with the AI answered in the browser, and a HEIC photo — each deleting only its own uploads.\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.",
       "order": 27
     },
     {
@@ -272,9 +272,10 @@
       "children": [
         "MOB.710",
         "MOB.712",
-        "MOB.722"
+        "MOB.722",
+        "MOB.944"
       ],
-      "about": "`/asset-lookup` writes: a field edit on `Pump 0102` (self-restoring), a System created and a reading captured on a `DD SYNTHETIC MOBILE` asset (residue).\n- Separate from MOB.969: the filter/search children leave a term in `asset_lookup_query`, and a search typed on top of it reads `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).",
+      "about": "`/asset-lookup` writes: a field edit on `Pump 0102` (self-restoring), a System created and a reading captured on a `DD SYNTHETIC MOBILE` asset (residue), and the Attributes tab's add/edit/remove on one (self-cleaning).\n- Separate from MOB.969: the filter/search children leave a term in `asset_lookup_query`, and a search typed on top of it reads `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).",
       "order": 20
     },
     {

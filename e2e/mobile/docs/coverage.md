@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**163 tests · 27 suites** · 163 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**164 tests · 27 suites** · 164 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -37,7 +37,7 @@ nobody thought to list).
 | shape | strength | example |
 |---|---|---|
 | **Biconditional** — one fact read in two states, required to disagree | ⭐ strongest | `MOB.622` indicators at one photo and at two · `MOB.912` online control → offline screen, same session |
-| **Read-back after a reload** — assert the RECORD, not the form | ⭐ strong — *where the write is optimistic* | charges and `MOB.392` count exactly +1. ⚠️ A reload renders the **persisted Apollo cache**, not the server: sound only for writes made through `optimisticResponse` (never persisted); a write the app makes straight into the cache reads back its own value (trap 6). 🛑 a row the client just prepended is NOT one (bugs §34) |
+| **Read-back after a reload** — assert the RECORD, not the form | ⭐ strong — *where the write is optimistic* | charges and `MOB.392` count exactly +1. ⚠️ A reload renders the **persisted Apollo cache**, not the server: sound only for writes made through `optimisticResponse` (never persisted); a write the app makes straight into the cache reads back its own value (trap 6). 🛑 a row the client just prepended is NOT one (the collector prepends its new asset before the server answers) |
 | **A `network-only` read** | ⭐ strongest server proof | `MOB.302` and `MOB.600` read Asset Lookup (`MOBILE_ASSET_LOOKUP` is `network-only`) |
 | **A `/graphql` read** (`dd_tools.server_assert`) | ⭐ strongest server proof | `MOB.320` the status · `MOB.390`/`391` the added key and the post-delete count · `MOB.386` the edited score |
 | **A recorder installed before the action** | solid — for UI that exists for milliseconds | `MOB.626`/`MOB.914` offline menu messages (bugs §43) · `MOB.750` the file-dialog request |
@@ -66,7 +66,7 @@ nobody thought to list).
 | `/asset-verify/:jobId/asset/:verificationId` — full-page asset data | 537 545 546 550 570 575 | 6 | 1 | 0 | 1 |
 | `/asset-collector` — Asset Collector / Lens | 160 600 610 620 621 622 623 624 625 626 627 628 710 | 16 | 1 | 1 | 1 |
 | `/asset-collector/:assetId` | — | 0 | 0 | 0 | 1 |
-| `/asset-lookup` — Asset Lookup | 100 550 623 700 710 712 720 721 722 730 731 735 740 741 750 800 805 806 807 820 914 | 19 | 1 | 1 | 2 |
+| `/asset-lookup` — Asset Lookup | 100 550 623 700 710 712 720 721 722 730 731 735 740 741 750 800 805 806 807 820 914 944 | 19 | 1 | 1 | 2 |
 | `/material-lookup` — Material Lookup | 110 370 850 855 860 865 866 870 | 8 | 0 | 0 | 2 |
 | `/map` — The Map | 120 121 122 123 735 | 7 | 1 | 0 | 4 |
 | `/transactions` — Transaction Log | 130 131 132 | 3 | 0 | 0 | 0 |
@@ -109,10 +109,11 @@ reproduces §42.
 
 | record | create | update | delete |
 |---|---|---|---|
-| Asset | 🟠 `MOB.600` (bugs §34) · ✅ at a dropped map point `MOB.932` | ✅ fields `MOB.710` · ✅ create a System `MOB.712` · ✅ `Get Description`, the AI answered in the browser `MOB.935` | — |
+| Asset | ✅ `MOB.600`, without a photo (a photo needs the native shell) · ✅ at a dropped map point `MOB.932` | ✅ fields `MOB.710` · ✅ create a System `MOB.712` · ✅ `Get Description`, the AI answered in the browser `MOB.935` | — |
 | Photos | ✅ upload to an existing asset `MOB.623` · a HEIC `936` | ✅ rotate `MOB.623` · `Set as Avatar` `627` · tags add/remove `627` · 🟠 tag **create** `627` — red on bugs §44, the created tag never attaches (its sentinel is `optional`) | ✅ `MOB.627`, its own upload |
 | Docs | ✅ one PDF `MOB.628` · PDF, text and video at once `MOB.933` | — | ✅ `MOB.628`, `MOB.933`, `MOB.934`, their own files |
 | Readings on Asset Lookup | ✅ `MOB.722` | — | — |
+| Attributes (the tab's add / edit / remove, build 127) | ✅ `MOB.944` · a refused add shows the error, saves nothing | ✅ `MOB.944` | ✅ `MOB.944`, its own attribute |
 
 **`/material-lookup` · `/map` · every route's header**
 
@@ -277,15 +278,15 @@ the carousel, discarded unsent · `MOB.622` the carousel at one photo **and** tw
 `MentorLens Tags` — including a lens tag's **description**: the `?` on `Lens: Thermography`, then on `Lens: Condition
 Assessment`, shows exactly that tag's desc in a modal that closes itself after 3s, and assigns nothing · `MOB.626` the tag/description capture menus — exactly `Add Asset Photo` in a browser, plus `Use photo
 selected above` once the form holds a photo, and offline the wand's and `Add Asset Photo`'s connection messages
-(recorded — they flash, bugs §43) · `MOB.629` the create form's **`Location` row**: `No location captured.`, then — with `MOB.358`'s geolocation and Mapbox stubs — `Asset Location` prefilled from the geocode, its Submit putting `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` on the row, and `Clear location` restoring the placeholder; the location lives in the form's reducer, so nothing is written and the form is discarded unsent (the location APPLIED to a created asset is `MOB.600`'s, held by bugs §34) · `MOB.610` search · `MOB.624` the row avatar's attachments modal (its sentinel carries
+(recorded — they flash, bugs §43) · `MOB.629` the create form's **`Location` row**: `No location captured.`, then — with `MOB.358`'s geolocation and Mapbox stubs — `Asset Location` prefilled from the geocode, its Submit putting `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` on the row, and `Clear location` restoring the placeholder; the location lives in the form's reducer, so nothing is written and the form is discarded unsent (the location APPLIED to a created asset is ▶ checklist #100) · `MOB.610` search · `MOB.624` the row avatar's attachments modal (its sentinel carries
 bugs §35) · `MOB.625` list sort on our own rows against the server's order and `localeCompare`, and `Collected By Me` as a
 filter (sentinels carry bugs §38).
 
-#### `MOB.967_AssetCollector_2_Saved_Asset_Suite` — 4 children · writes (residue: a photo, an org tag) · `MOB.600` red by design until bugs §34 is fixed
+#### `MOB.967_AssetCollector_2_Saved_Asset_Suite` — 8 children · writes (residue: the collected asset, an org tag)
 **Writes on `DD SYNTHETIC MOBILE` assets.**
 
-`MOB.600` create an asset with a real photo — 🛑 red on Datadog: the server never receives it (bugs §34); its server proof
-is `soft`, so later children still run. A local replay of `MOB.600` is a false negative (it cannot drive the photo picker)
+`MOB.600` collect an asset (name, description, type) WITHOUT a photo, proved by a `network-only` Asset Lookup search — a
+photo at collect time goes through the native shell's bridge, which a browser does not have
 · ⭐ `MOB.623` a photo added to an **existing** asset, polled until its `blob:` becomes a server URL; the saved photo's
 five-item menu exactly and in order; `Rotate Image` ×4 with the src read back (self-restoring at 360° — proves the round
 trip, not the pixels); the Photos / Docs / Attributes panel content · `MOB.627` on a photo of its own: an existing tag
@@ -300,8 +301,8 @@ same asset's Docs and deletes exactly that file, both ends over `/graphql`.
 **Asset lookup, its rows and detail tabs.**
 
 `MOB.100` the route renders · `MOB.700` search and open · `MOB.750` the `Tag Lookup` menu — `Alphanumeric`'s browser
-branch proved by a prototype-`click` recorder (one file dialog, rear camera, images, one file; nothing uploaded); bugs
-§37 sentinelled · `MOB.720` Readings and `MOB.721` its empty state · ⭐ `MOB.914` the offline messages — the Readings and
+branch proved by a prototype-`click` recorder (one file dialog, rear camera, images, one file; nothing uploaded); `Scan
+Barcode` doing nothing in a browser sentinelled · `MOB.720` Readings and `MOB.721` its empty state · ⭐ `MOB.914` the offline messages — the Readings and
 Work History tabs show `OFFLINE_FEATURE_MESSAGE`, `Add reading types` offline opens it in a popover, and `Get
 Description` on a saved photo, clicked only offline, renders it (recorded — bugs §43) · ⭐ `MOB.740` `WorkLookupDetails`,
 which is also the map's `WorkCard`, and the history rows' `Assigned to:` — the newest row's value checked against the server's `_assignments` for that row · `MOB.735` `View in Map` (router state, not a URL) · `MOB.730` Near Me.
@@ -317,13 +318,14 @@ multi-value `enum` (`Failure Curve`, narrows) and `record` (`Asset Type`; sentin
 filter — it did until `02b17aa82e` (2026-09-17), and `MOB.820` now asserts that it survives. All four
 filter tests share `dd_tools.open_filters_drawer` (a bench drift-guard enforces one copy).
 
-#### `MOB.980_AssetLookup_3_Edits_Suite` — 3 children · writes · Datadog 179s
+#### `MOB.980_AssetLookup_3_Edits_Suite` — 4 children · writes · Datadog 179s
 **Writes on the Asset Lookup route.**
 
 `MOB.710` the per-field pencil (three entry points), self-restoring on `Pump 0102` · `MOB.712` a System created from the
 System field on a `DD SYNTHETIC MOBILE` asset — the System and the asset's link both over `/graphql` (residue: one System
 per run) · `MOB.722` a `Test 1` reading captured on that asset, `CREATE_EVENT` proved over `/graphql` (residue: one
-reading per run).
+reading per run) · `MOB.944` the Attributes tab, in its own browser: offline, a refused add, the type filter, then
+`🔤 string 1` added, edited and removed on a `DD SYNTHETIC MOBILE` asset, each over `/graphql` (self-cleaning).
 🛑 Separate from `MOB.969`: its children leave a term in `asset_lookup_query`, and a search typed on top of one reads
 `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).
 
@@ -368,9 +370,8 @@ exists only on Datadog — never delete it.
 schedule. The owner decides the order.*
 
 1. **A dedicated bugs §42 repro** — deep-link the fixture without visiting `/work` first; nothing detects §42 today.
-2. **`MOB.600` goes green by itself when bugs §34 is fixed** — its suite expects only that failure; until then the create is unproven on the server.
-3. **The weekly schedule** (#37) — turns capability into detection.
-4. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), pruning the residue (`cleanup_residue.py --apply`), a second
+2. **The weekly schedule** (#37) — turns capability into detection.
+3. **Decisions and fixtures** — the AV job reset (`cleanup_spec.md` §4, five tests), pruning the residue (`cleanup_residue.py --apply`), a second
    work-order shape (estimate rows, a required form field, a second list status).
 
 Genuinely offline, network errors, file choosers, the re-auth clock, the map canvas and the tus transport were out

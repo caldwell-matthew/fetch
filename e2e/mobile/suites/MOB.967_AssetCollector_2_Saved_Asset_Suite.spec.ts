@@ -27,19 +27,8 @@ test.describe.serial('MOB.967_AssetCollector_2_Saved_Asset_Suite', () => {
     await page?.context().close();
   });
 
-  // Bugs §34 pin: MOB.600 is red on its SERVER PROOF step alone (a soft step) while the collect never reaches
-  // the server. That one failure is EXPECTED, so the suite goes on to the children after it; any other failure
-  // is a real red. When §34 is fixed nothing is thrown and the test is simply green.
   test('MOB.600_Collector_Create_Asset', async () => {
-    try {
-      await mob600(page);
-    } catch (err) {
-      const msg = String((err as Error)?.message ?? err);
-      const soft = msg.startsWith('soft step(s) failed:');
-      const onlyServerProof = soft && msg.split('\n').slice(1).every((l) => l.includes('SERVER PROOF'));
-      if (onlyServerProof) test.fail(true, 'bugs §34: a collected asset never reaches the server');
-      throw err;
-    }
+    await mob600(page);
   });
 
   test('MOB.623_Collector_Saved_Photo_Menu', async () => {

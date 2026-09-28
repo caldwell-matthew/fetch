@@ -39,9 +39,7 @@ spends runs and waits for the owner's go-ahead — state the cost when asking.
 - 🛑 **A STEP WITH NO `userLocator` CANNOT REPLAY AT ALL, AND THE TEST MAY STILL GO GREEN.**
   `local_run` needs an xpath; a recorded-element step has none and fails with `no xpath locator on
   this step`. `MOB.600`'s `Open the photo picker ("Add Asset Photo")` is exactly that, so a local
-  MOB.600 attaches NO photo — and collecting without a photo persists, so its bugs §34 server proof
-  **passes locally while the bug is live**. Measured 2026-09-15: local red at the picker with a green
-  server proof; Datadog green at the picker with a red server proof. ➡️ Only Datadog exercises §34.
+  MOB.600 attached NO photo, and its server proof passed on a path the test never meant to take.
   Before trusting any local green, check the run for `no xpath locator` errors earlier in the test.
 - **What a replay cannot show:** a click Playwright refuses as not actionable is retried forced and flagged, because Datadog clicks it —
   but a forced click on an element still animating can land without effect (`MOB.951`'s Forms tab at
@@ -196,6 +194,9 @@ alongside a mutating tablet suite.
   and proves the stage is back to what it read.
 - **Attachment types** (`MOB.933`–`MOB.936`) — delete only what
   THIS run uploaded, on the records the attachment tests already use, never `Pump 0102` (owner 2026-09-23).
+- **Asset attributes** (`MOB.944`) — `Remove Attribute` → `Yes` on the ONE attribute this run added, on a
+  `DD SYNTHETIC MOBILE` test asset only (owner 2026-09-28). The test reads the asset's attributes first; a route
+  refuses any `removeAttributeFromAsset` whose ids are not exactly that one attribute's.
 
 **Not a delete, and decided the same day:** the map's change-asset popup (`Replace existing assets` — "cannot
 be undone") is opened and cancelled, never confirmed; the map's drawing tools may **create** work orders and
@@ -242,7 +243,7 @@ wired to — read the submit path, not the test name:
 | `.then` on a non-awaited `mutate` returning an optimistic value | **nothing** (MOB.600's `createAsset`) |
 
 Where it proves nothing, read the record back **after a reload** (`prove_record_count`). Never
-read back a row the client just prepended (bugs §34).
+read back a row the client just prepended (the collector prepends its new asset before the server answers).
 
 ⚠️ **A reload is not a server read.** The app persists its Apollo cache to IndexedDB
 (`apollo3-cache-persist`, saved on every cache write) and the work-order detail query is
@@ -554,3 +555,9 @@ refused the verify in the browser, and its first run still moved the fixture job
 Before calling a refusal test read-only, read the mutation's `update` and `onCompleted` for further `mutate` calls,
 refuse those too, and assert over `/graphql` that nothing changed — `watchOperations` (`support/network.ts`) shows
 what the page actually sent.
+
+**53 · A form's on/off field is a `react-switch`, not a Mantine `Switch`.** `FormField type="boolean"`
+(`helper-components/MentorInputs/BooleanInput`) renders `react-switch` inside a full-width `div.boolean-switch`: the
+`<input id="<field>">` sits under the styled switch and takes no click, and the wrapper's centre is empty space. Tap
+`.react-switch-bg` inside it, and assert the input's checked state; when a picker is open, the first tap may only close
+it — retry until the state changes (`MOB.944`). `MOB.365` clicks the input from page JavaScript instead.

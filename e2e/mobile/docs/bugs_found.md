@@ -16,7 +16,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to
   state the fact directly. This is what is wrong now, not a history.
 - **Numbers are never reused or renumbered** (other docs cite them). Gaps are expected: §1–§4,
-  §4b, §4c, §5–§9, §11, §14–§17, §19–§21, §23, §24, §26, §27, §30, §36, §41, §45, §47. Dead code is not filed.
+  §4b, §4c, §5–§9, §11, §13, §14–§17, §19–§21, §23, §24, §26, §27, §30, §34, §36, §37, §41, §45, §47, §54. Dead code is not filed, nor is a failure that happens only in a desktop browser — the app runs in the native shell on phones.
 - File a finding the day it is found. A finding that lives only in a generator comment is lost.
 
 ## Index
@@ -28,7 +28,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 31 | A deploy takes over a running session silently and deletes its cache | Source | ❌ no `controllerchange` handler in `client` |
 | 32 | Work-stage Docs upload gated on `asset.create` | Source | ❌ `Attachments.tsx:126` |
 | 33 | Material Lookup shows at most 500 items under a label counting all | Runtime | ❌ 996 items, 500 rows |
-| 34 | **Collecting an asset WITH a photo from a browser never reaches the server** | Runtime + Source | 🛑 `MOB.600`'s server proof is red until fixed |
 | 35 | Clicks inside the row-avatar modal toggle the row behind it | Runtime + Source | ❌ `MOB.624` sentinels it |
 | 38 | The collector's sort is saved under the AV job list's key | Runtime + Source | ❌ `MOB.625` sentinels it |
 | 39 | A record-field `includes` filter is saved with no value | Runtime + API + Source | ❌ `MOB.807` sentinels it |
@@ -43,20 +42,6 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 51 | Asset Lookup's Tag Lookup ignores the active filters — on the capture and on its X — while the pill still counts them | Runtime + Source | ❌ medium · `AssetLookup/index.tsx:194-198,226-229` · `MOB.943` pins it |
 | 52 | A verify the server refused leaves the asset's box ticked | Runtime + Source | ❌ medium · `AssetVerification/VerificationCheckbox.tsx:17` · `MOB.940` pins it |
 | 53 | **A verify the server refused still changes the job's status** | Runtime + Source | ❌ medium–high · `VerificationCheckbox.tsx:40-66` · `MOB.940` pins it |
-| 54 | A HEIC photo added from a browser is stored as it is and shows as a broken image | Runtime + Source | ❌ low–medium · `ui/PhotoCarousel/AddPhotoOptions.tsx:55` · `MOB.936` records it |
-
-## §13 · Escape discards the whole new-asset form
-
-`AssetCollector/index.tsx:263-275` sets `closeOnClickOutside={false}` on the "Get New Asset"
-modal and leaves `closeOnEscape` at Mantine's default `true`. Escape discards every field and
-photo, without confirmation — and cascades: with the "Select Photo Source" picker open on top,
-one Escape closes both.
-The modal does not set `keepMounted`, so closing unmounts `NewAssetForm` and what was typed is gone. (The X
-loses the form the same way, which is presumably intended.)
-**Runtime:** `MOB.600` pressed Escape to leave the picker and its next step found no form.
-**Reach:** on a phone or tablet webview nothing sends Escape — only a hardware keyboard, or a desktop
-browser, can trigger it. **Severity:** low.
-**Fix:** `closeOnEscape={false}` on the outer modal, matching the click-outside guard.
 
 ## §25 · How the crew's work list is populated — reference, not a bug
 
@@ -151,32 +136,6 @@ reverse can upload documents to a stage it may not modify. Not observed — `Adm
 matches"**, nothing hinting at the rest. Sorting is server-side, so it changes *which* 500 show.
 **Tests:** `MOB.855` asserts `rows == min(matches, 500)`.
 **Fix:** raise the limit, page, or say "showing 500 of 996".
-
-## §34 · Collecting an asset with a photo from a browser never reaches the server — the UI says it did
-
-**Mechanism.** `AssetCollector/utils/createAsset.ts` sends `MOBILE_COLLECT_ASSET` with
-`context.thumbnails` when photos are attached. `UploadLink.ts` handles that by calling
-`callNative('UPLOAD_THUMBNAILS')` and forwards the operation only when the bridge answers.
-Outside the Expo shell `window.ReactNativeWebView?.postMessage` is skipped, the promise never
-settles, and the mutation is never sent. Meanwhile the `optimisticResponse` fills the cache,
-`prependTableResults` puts the row at the top of the list, the toast fires and the form closes.
-
-**Evidence.** The owner saw on desktop that the newest `DD SYNTHETIC MOBILE` asset was dated
-Aug 24 while `MOB.600` "passed" Sep 8–9; the server-side list agreed.
-
-**Scope.** Adding a photo to an EXISTING record works in a browser — `DetailPage/utils/uploadPhoto.ts`
-tus-uploads via `context.uploads` (its comment explains why), and `MOB.623` measures it. Collecting
-**without** a photo persists. Only create-with-photo is stuck, because `createAsset.ts` never got
-that browser branch.
-
-**Fix.** Give `createAsset.ts` `uploadPhoto.ts`'s branch: tus-upload via `context.uploads` when
-`!window.ReactNativeWebView`; reserve `thumbnails` for the shell.
-**Tests.** `MOB.600` ends with a `network-only` Asset Lookup search for its own name — red until
-fixed. It is `soft`, so `MOB.967`'s later children still run. **Never make it `optional`.** `MOB.967` is held out of the Datadog passes while this is open — it would spend 5 runs a pass re-confirming it.
-**Playwright reproduces it** (the old Datadog local replay could not attach the photo, and passed). `MOB.967` pins it:
-`MOB.600` attaches a real photo, and its SERVER PROOF is the one expected failure. Re-checked 2026-09-25 on
-`9fdd47e6fc`: `createAsset.ts` and `UploadLink.ts` unchanged since build 92, and the asset `MOB.600` collected at
-~17:52 UTC never reached the server — the newest `DD SYNTHETIC MOBILE <8 digits>` asset there is from 2026-09-15.
 
 ## §35 · Every click inside the row-avatar modal toggles the accordion row behind it
 
@@ -510,24 +469,3 @@ refused the status write too, and counted it: sent once.
 `update` is optimistic); or let the server recompute the status as part of `updateMobileJobAsset`.
 **Tests:** `MOB.940` pins it, refusing the status write in the browser as well, so the test never changes the
 fixture. Trap 52 in `test_authoring.md` is the lesson for other refusal tests.
-
-## §54 · A HEIC photo added from a browser shows as a broken image
-
-A saved asset's Photos → `Add Photo` takes any `image/*` (`ui/PhotoCarousel/AddPhotoOptions.tsx:55-56`), so an
-iPhone's HEIC gets in. In a browser the file is tus-uploaded as it is — no thumbnail, no conversion
-(`DetailPage/utils/uploadPhoto.ts:86-111`) — and the server stores and serves it as `image/heic`. The carousel shows
-it with an `<img>` on `/api/attachment/<id>`, which Chrome cannot decode.
-
-**Runtime (2026-09-25, local, `MOB.936`, a real 96×96 HEIC made with macOS `sips`):** the server held the upload as
-`image/heic`; the slide showed only a broken-image icon and its file name (`results/MOB.936-slide.png`), the image's
-`naturalWidth` 0 (also 0 on 2026-09-24). The test deletes its upload.
-**Reach:** Chrome, Edge and Firefox, and Android's WebView, cannot show HEIC — the desktop app included, wherever it
-shows these attachments. Safari and iOS's WKWebView can, so the uploader on an iPhone may see it fine (inferred, not
-measured). Whether the native app's gallery hands the web layer HEIC or JPEG is not known here.
-**User-visible effect:** a photo taken on an iPhone and added from a browser is stored, but most people who open it
-see a broken image.
-**Severity:** low–medium.
-**Fix:** convert HEIC to JPEG before upload (in the browser, or on the server when it stores an image), or refuse
-`image/heic` in the picker with a message, as the Docs tab refuses images.
-**Tests:** `MOB.936` (in `MOB.967`) logs the width and does not assert it; when this is fixed, assert it above 0.
-

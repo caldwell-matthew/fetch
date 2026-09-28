@@ -8,6 +8,8 @@ import { login } from '../support/login';
 import { mob710 } from '../tests/MOB.710_AssetLookup_Field_Edit';
 import { mob712 } from '../tests/MOB.712_AssetLookup_System_Create';
 import { mob722 } from '../tests/MOB.722_AssetLookup_Reading_Capture';
+import { mob944 } from '../tests/MOB.944_AssetLookup_Attributes_Edit';
+import { freshSession } from '../support/session';
 
 test.describe.serial('MOB.980_AssetLookup_3_Edits_Suite', () => {
   let page: Page;
@@ -32,6 +34,16 @@ test.describe.serial('MOB.980_AssetLookup_3_Edits_Suite', () => {
 
   test('MOB.722_AssetLookup_Reading_Capture', async () => {
     await mob722(page);
+  });
+
+  // Its own browser: it takes the page offline for a moment, which the shared session must not see.
+  test('MOB.944_AssetLookup_Attributes_Edit', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      await mob944(own);
+    } finally {
+      await own.context().close();
+    }
   });
 
 });

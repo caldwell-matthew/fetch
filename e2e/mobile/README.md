@@ -6,7 +6,7 @@ config and step helpers are one level up in `e2e/`.
 
 ## Status
 
-**27 suites, 163 tests.** The last full local pass (2026-09-24, 83 min) had every suite green — 24 suites, 139 tests,
+**27 suites, 164 tests.** The last full local pass (2026-09-24, 83 min) had every suite green — 24 suites, 139 tests,
 one of them red by design (below); the tests added since have each passed on their own and in their suites, not yet in
 a full pass. Datadog is paused (▶ checklist #37); these tests are its replacement.
 
@@ -14,10 +14,10 @@ a full pass. Datadog is paused (▶ checklist #37); these tests are its replacem
 |---|---|---|---|
 | Read-only | 10 | 60 | ✅ all pass — one run, 48 min (before the waits were trimmed; per suite below) |
 | Data-changing, one at a time with the fixture checks between them | 13 | 75 | ✅ all pass — ≈ 80 min before the waits were trimmed; the fixtures read back at rest after the last |
-| Data-changing, bug pin | 1 (`MOB.967`) | 8 | ✅ as intended — `MOB.600` red on bugs §34 alone, the others green |
+| Data-changing, bug pin | 1 (`MOB.967`) | 8 | ✅ as intended then — `MOB.600` now collects without a photo and is expected green |
 
 What those tests prove, route by route, is in [`docs/coverage.md`](docs/coverage.md); what is left to cover is in
-[`docs/testing_checklist.md`](docs/testing_checklist.md) (208 of the 216 automatable rows automated, 8 partial, none open).
+[`docs/testing_checklist.md`](docs/testing_checklist.md) (209 of the 217 automatable rows automated, 8 partial, none open).
 The docs are copies of `legacy/Mobile/`'s for now — see [`docs/README.md`](docs/README.md).
 
 ### Per suite
@@ -56,10 +56,6 @@ The read-only suites ran as one batch, so they have a combined time rather than 
 
 ### Red by design
 
-- **`MOB.600` Asset Collector · create an asset** (in `MOB.967`). It pins bugs §34: the asset is created and shown
-  locally, but the collect never reaches the server, so its last step — the server proof — fails. The suite
-  expects exactly that failure and carries on; any other failure is a real red, and when §34 is fixed the test
-  goes green by itself.
 - **`MOB.923`** pins bugs §48 ("Item added" shown for a save the server refused), **`MOB.925`** pins §49 (a session the server extended is reported as "The operation was
   aborted."). Same rule: only the pinned symptom counts as the expected failure.
 

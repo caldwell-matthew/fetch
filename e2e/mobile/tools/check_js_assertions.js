@@ -1569,7 +1569,7 @@ const M750 = {
 	rear: bodyOf(MOB750, 'asking for the REAR camera'),
 	img: bodyOf(MOB750, 'for images only, one file'),
 	open: bodyOf(MOB750, 'and the menu STAYED OPEN'),
-	sentinel: bodyOf(MOB750, 'SENTINEL (bugs §37)'),
+	sentinel: bodyOf(MOB750, 'SENTINEL: `Scan Barcode` in a browser does NOTHING'),
 	restore: bodyOf(MOB750, 'RESTORE: put `HTMLInputElement.prototype.click` back'),
 	restored: bodyOf(MOB750, 'RESTORED: inputs click with the ORIGINAL'),
 };
@@ -2399,7 +2399,7 @@ check('MUST FAIL: drained - still 1 pending', runJs(M913.drained, page913({ coun
 	check('MUST FAIL: with photo - Use photo… missing', runJs(withPhoto, pg(menu(['Add Asset Photo']))), false);
 	check('closed - no labelled dropdown, form still open', runJs(closed, pg('<form id="asset-collector"></form><div class="mantine-Menu-dropdown"><button class="mantine-Menu-item">Other</button></div>')), true);
 	check('MUST FAIL: closed - the capture menu is still open', runJs(closed, pg('<form id="asset-collector"></form>' + menu(['Add Asset Photo']))), false);
-	check('MUST FAIL: closed - the FORM is gone too (Escape discarded it - bugs §13)', runJs(closed, pg('')), false);
+	check('MUST FAIL: closed - the FORM is gone too (Escape discarded it - a desktop-keyboard path)', runJs(closed, pg('')), false);
 	{
 		const w = pg('<form id="asset-collector"><label>Tag</label><button type="button" class="ab"><svg data-icon="barcode-read"></svg></button><button type="button" class="cd"><svg data-icon="wand-magic-sparkles"></svg></button></form>');
 		let hit = null; w.document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { hit = b.className; }));
