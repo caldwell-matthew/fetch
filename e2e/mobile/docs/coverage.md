@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**164 tests · 27 suites** · 164 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**165 tests · 27 suites** · 165 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -278,15 +278,16 @@ the carousel, discarded unsent · `MOB.622` the carousel at one photo **and** tw
 `MentorLens Tags` — including a lens tag's **description**: the `?` on `Lens: Thermography`, then on `Lens: Condition
 Assessment`, shows exactly that tag's desc in a modal that closes itself after 3s, and assigns nothing · `MOB.626` the tag/description capture menus — exactly `Add Asset Photo` in a browser, plus `Use photo
 selected above` once the form holds a photo, and offline the wand's and `Add Asset Photo`'s connection messages
-(recorded — they flash, bugs §43) · `MOB.629` the create form's **`Location` row**: `No location captured.`, then — with `MOB.358`'s geolocation and Mapbox stubs — `Asset Location` prefilled from the geocode, its Submit putting `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` on the row, and `Clear location` restoring the placeholder; the location lives in the form's reducer, so nothing is written and the form is discarded unsent (the location APPLIED to a created asset is ▶ checklist #100) · `MOB.610` search · `MOB.624` the row avatar's attachments modal (its sentinel carries
+(recorded — they flash, bugs §43) · `MOB.629` the create form's **`Location` row**: `No location captured.`, then — with `MOB.358`'s geolocation and Mapbox stubs — `Asset Location` prefilled from the geocode, its Submit putting `1600 Main Street, Chicago, IL, 60601` over `41.878100, -87.629800` on the row, and `Clear location` restoring the placeholder; the location lives in the form's reducer, so nothing is written and the form is discarded unsent (the location APPLIED to a created asset: `MOB.600` and `MOB.945`) · `MOB.610` search · `MOB.624` the row avatar's attachments modal (its sentinel carries
 bugs §35) · `MOB.625` list sort on our own rows against the server's order and `localeCompare`, and `Collected By Me` as a
 filter (sentinels carry bugs §38).
 
 #### `MOB.967_AssetCollector_2_Saved_Asset_Suite` — 8 children · writes (residue: the collected asset, an org tag)
 **Writes on `DD SYNTHETIC MOBILE` assets.**
 
-`MOB.600` collect an asset (name, description, type) WITHOUT a photo, proved by a `network-only` Asset Lookup search — a
-photo at collect time goes through the native shell's bridge, which a browser does not have
+`MOB.600` collect an asset (name, description, type) WITHOUT a photo — a photo at collect time goes through the native
+shell's bridge, which a browser does not have — WITH a location (stubbed geolocation and Mapbox), proved by a
+`network-only` Asset Lookup search and a `/graphql` read of its address and coordinates
 · ⭐ `MOB.623` a photo added to an **existing** asset, polled until its `blob:` becomes a server URL; the saved photo's
 five-item menu exactly and in order; `Rotate Image` ×4 with the src read back (self-restoring at 360° — proves the round
 trip, not the pixels); the Photos / Docs / Attributes panel content · `MOB.627` on a photo of its own: an existing tag

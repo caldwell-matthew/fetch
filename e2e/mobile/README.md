@@ -6,7 +6,7 @@ config and step helpers are one level up in `e2e/`.
 
 ## Status
 
-**27 suites, 164 tests.** The last full local pass (2026-09-28, build 127, 85 min) ran every suite with the fixture checks
+**27 suites, 165 tests.** The last full local pass (2026-09-28, build 127, 85 min) ran every suite with the fixture checks
 between them: 162 green and one red, `MOB.722`, on a test assumption (fixed — its suite `MOB.980` then green twice,
 with `MOB.944`, which the red had skipped). The bug pins pass as expected failures (below). Datadog is paused (▶ checklist #37); these tests are its replacement.
 
@@ -17,7 +17,7 @@ with `MOB.944`, which the red had skipped). The bug pins pass as expected failur
 | Data-changing, bug pin | 1 (`MOB.967`) | 8 | ✅ as intended then — `MOB.600` now collects without a photo and is expected green |
 
 What those tests prove, route by route, is in [`docs/coverage.md`](docs/coverage.md); what is left to cover is in
-[`docs/testing_checklist.md`](docs/testing_checklist.md) (209 of the 217 automatable rows automated, 8 partial, none open).
+[`docs/testing_checklist.md`](docs/testing_checklist.md) (211 of the 216 automatable rows automated, 5 partial, none open).
 The docs are copies of `legacy/Mobile/`'s for now — see [`docs/README.md`](docs/README.md).
 
 ### Per suite

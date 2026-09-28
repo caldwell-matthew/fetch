@@ -232,7 +232,7 @@
         "MOB.935",
         "MOB.936"
       ],
-      "about": "Writes on `DD SYNTHETIC MOBILE` assets: collect an asset without a photo (a photo at collect time needs the native shell), the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag), then several file types at once, an upload cut off and refused, `Get Description` with the AI answered in the browser, and a HEIC photo — each deleting only its own uploads.\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.",
+      "about": "Writes on `DD SYNTHETIC MOBILE` assets: collect an asset without a photo (a photo at collect time needs the native shell) and with a location, proved over /graphql, the saved-photo menu (residue: one photo), saved-photo tags, avatar and delete (residue: one org tag), then several file types at once, an upload cut off and refused, `Get Description` with the AI answered in the browser, and a HEIC photo — each deleting only its own uploads.\n- MOB.600 FIRST, then MOB.623, then MOB.627 — all on the newest marker asset.",
       "order": 27
     },
     {
@@ -371,11 +371,12 @@
         "MOB.938",
         "MOB.939",
         "MOB.940",
+        "MOB.945",
         "MOB.941",
         "MOB.923",
         "MOB.924"
       ],
-      "about": "What the user sees when the server fails: startup session, form schemas, the tag lookup's AI answers and its filters, an asset gone from a map card, four refused saves that now say so (create work order, reassign, add to work, verify), a mobile-only user in a browser, a refused note, a refused form — pins bugs §48, §51, §52 and §53. Failures are made in the browser; built to write nothing."
+      "about": "What the user sees when the server fails: startup session, form schemas, the tag lookup's AI answers and its filters, an asset gone from a map card, four refused saves that now say so (create work order, reassign, add to work, verify), a mobile-only user in a browser, the collector's location for a type with no geometry, a refused note, a refused form — pins bugs §48, §51, §52 and §53. Failures are made in the browser; built to write nothing."
     },
     {
       "id": "MOB.983",

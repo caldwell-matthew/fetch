@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
-| Tests | **164 tests · 27 suites** · 164 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **165 tests · 27 suites** · 165 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 210 `[x]` · 6 `[~]` · 0 `[ ]` · 25 `[-]` — 241 rows. Counts describe *this file*, not the app |
+| Rows | 211 `[x]` · 5 `[~]` · 0 `[ ]` · 25 `[-]` — 241 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -133,15 +133,13 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#100** the collector's `Location` on a created asset.
-2. **#37** CircleCI (held by the owner for later).
+1. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
 | **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **100** | **The collector's `Location` applied to a created asset** — extend `MOB.600` (it now collects without a photo and proves the asset over `/graphql`). `MOB.629` covers the capture; this half is `createAsset` writing the address and GIS onto the new asset, and `assetTypeHasGeometry` dropping GIS for a type with no geometry — prove both over `/graphql` with `MOB.629`'s geolocation and Mapbox stubs | not started |
 
 **Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
 not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
@@ -461,7 +459,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The add-photo picker *(MOB.620)*
 - [x] Carousel at one photo and at two; fullscreen; tag editor and its `MentorLens Tags` header *(MOB.622)*
 - [x] Tag / description capture menus *(MOB.626)* — exactly `Add Asset Photo` in a browser; `Use photo selected above` (enabled) once the form holds a photo; offline, the wand's and `Add Asset Photo`'s connection messages (they flash, bugs §43); no item clicked online, form discarded unsent
-- [~] The create form's `Location` row *(MOB.629)* — `No location captured.`; with stubbed geolocation and Mapbox, `Asset Location` prefilled (`Include GIS` and `Include Address` on), its Submit puts the address over `lat, lng` on the row, `Clear location` puts the placeholder back; form discarded unsent. Partial: the location APPLIED to a created asset — ▶ #100
+- [x] The create form's `Location` row *(MOB.629)* — `No location captured.`; with stubbed geolocation and Mapbox, `Asset Location` prefilled (`Include GIS` and `Include Address` on), its Submit puts the address over `lat, lng` on the row, `Clear location` puts the placeholder back; form discarded unsent. Applied to a created asset: *(MOB.600)* the address and the coordinates, over `/graphql`, for a Point type · *(MOB.945, read-only)* a type with no geometry — the location captured before the type, `Include GIS` on — sends the address and NO coordinates (the form also disables `Include GIS` once such a type is picked)
 - [x] Collector search *(MOB.610)*
 - [x] Saved-photo menu, `Rotate Image`, and the three attachment panels on a collected asset *(MOB.623)* · residue
 - [x] Collector sort *(MOB.625)* — on our own rows: `Created At` against the server's order, `Name` against `localeCompare`

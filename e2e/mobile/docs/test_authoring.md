@@ -528,7 +528,8 @@ orders other than the fixture: they render from those downloads. The list's own 
 run — the app gates only sorting and the prefetch on `loadedAll` (`WorkOrders/index.tsx:70-164`) — so `MOB.300`,
 `MOB.301` and `MOB.937` click the create button after the lookups alone (2026-09-25). A test that leaves the list for
 the fixture waits for the lookups only — the full wait cost 141s in `MOB.135` with 502 stages, and it grows: the crew's list gains about 29 `Ready`
-stages a day from dev's scheduled PM job ("Application Job" — 487 of 504 on 2026-09-25), far more than test residue. `MOB.349` (record cycling) waits for every download itself; `MOB.397` keeps its gate (`NEEDS_ALL_DOWNLOADS`
+stages a day from dev's scheduled PM job ("Application Job": 573 of 600 on 2026-09-28, 546 of them from the `High Score
+Maintenance Strategy`'s two daily triggers — `🔧 Repair` and `🗓️ Monthly PM Inspection`), far more than test residue. `MOB.349` (record cycling) waits for every download itself; `MOB.397` keeps its gate (`NEEDS_ALL_DOWNLOADS`
 in the tool). With that and the login's 10s sleep replaced by a wait for the shell, the pass went to 83 min.
 
 **50 · A list read returns ONE page — 500 rows by default.** `workStages(crew: "<SESSION>")` with no `params` returns
