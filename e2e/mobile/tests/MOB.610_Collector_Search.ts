@@ -1,7 +1,7 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.610_Collector_Search.json. This file is the source now: edit it directly.
 // MOB.610_Collector_Search
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, click, press, typeText, wait } from '../../support/dd';
 
 export async function mob610(page: Page): Promise<void> {
@@ -18,6 +18,13 @@ export async function mob610(page: Page): Promise<void> {
   await run.step("BASELINE GUARD: the collected list has rows to filter", {}, async () => {
     await assertFromJavascript(page, `const rows = () => [...document.querySelectorAll('.mantine-Accordion-item')];
 return rows().length >= 1;`, 60000);
+  });
+  // A row's name is `ui/TruncatedText`'s one-line text (`AssetCollector/index.tsx:185-189`: `TruncateText`, lineClamp 1).
+  await run.step("A row's name is its one-line truncated title (`#truncation-text`, clamped to 1 line)", {}, async () => {
+    const title = page.locator('.mantine-Accordion-item').first().locator('#truncation-text');
+    await expect(title, 'the first row has its truncated title').toHaveCount(1, { timeout: 30_000 });
+    await expect(title).not.toHaveText('');
+    expect(await title.evaluate((el) => getComputedStyle(el).webkitLineClamp), 'clamped to one line').toBe('1');
   });
   await run.step("Focus the search box (a term nothing can match)", {}, async () => {
     await click(page, `//input[@placeholder="Find Asset(s)"]`, 30000);

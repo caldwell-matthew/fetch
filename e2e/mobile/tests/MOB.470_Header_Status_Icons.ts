@@ -94,6 +94,8 @@ return true;`, 15000);
     });
     expect(Math.abs(gap.pageTop - gap.headerBottom), `header ends at ${gap.headerBottom}px, the page starts at ${gap.pageTop}px`)
       .toBeLessThanOrEqual(1);
+    // and under the header is the app's own page — `AppShell.Main` carries the gradient background (`Layout/index.tsx:37-38`)
+    await expect(page.locator('.mantine-AppShell-main'), 'the page area is the gradient-bg main').toHaveClass(/\bgradient-bg\b/);
   });
   run.finish();
 }

@@ -7,6 +7,8 @@
 // is still safe although its refetch sends `jobId: '??'` (`AssetLookup/index.tsx:171`): measured 2026-09-23, the
 // request carried `'??'` and the job's asset was still not offered.
 //
+// It first looks at the modal's NEW asset tab — the collector's create form — untouched.
+//
 // READ-ONLY: nothing is added — the picker is closed with its X, and a server read proves the job unchanged.
 import { expect, Page } from '@playwright/test';
 import { appUrl, serverRead } from '../support/session';
@@ -29,6 +31,11 @@ export async function mob928(page: Page): Promise<void> {
   await page.locator('.mantine-Paper-root').filter({ hasText: job.name }).first().click();
   await expect(page.locator('.mantine-Accordion-item').first(), 'the job opened, its assets listed').toBeVisible({ timeout: 60_000 });
   await page.locator('xpath=//div[contains(concat(" ", normalize-space(@class), " "), " mantine-Affix-root ")]//button').click();
+  // It opens on the NEW asset tab (the role can create assets — `AssetVerification/NewAssetForm.tsx:122-136`): the
+  // collector's create form, inside the modal's `gradient-bg` body. Looked at, nothing typed, then left for the other tab.
+  const body = page.locator('.mantine-Modal-content .gradient-bg').first();
+  await expect(body.locator('#asset-collector'), "the New Asset tab holds the collector's create form").toBeVisible({ timeout: 30_000 });
+  await expect(body.getByRole('button', { name: 'Create Asset' }), 'with its Create Asset button').toBeVisible();
   await page.locator('xpath=//label[contains(concat(" ", normalize-space(@class), " "), " mantine-SegmentedControl-label ")][normalize-space(.)="Add Existing Asset"]').click();
 
   const modal = page.locator('.mantine-Modal-content').filter({ has: page.locator('input[name="asset-search"]') });

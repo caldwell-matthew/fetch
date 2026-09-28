@@ -22,6 +22,10 @@ import { mob940 } from '../tests/MOB.940_AssetVerify_Verify_Refused';
 import { mob941 } from '../tests/MOB.941_Mobile_Only_Browser';
 import { mob943 } from '../tests/MOB.943_AssetLookup_Tag_Keeps_Filters';
 import { mob945 } from '../tests/MOB.945_Collector_Location_No_Geometry';
+import { mob946 } from '../tests/MOB.946_AssetVerify_No_Standard_No_Profile';
+import { mob947 } from '../tests/MOB.947_Work_Failure_Component';
+import { mob948 } from '../tests/MOB.948_Work_Scheduled_View_Empty';
+import { mob949 } from '../tests/MOB.949_Collector_Describe_Video';
 
 test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
   test('MOB.920_Startup_Session_Load_Fails', async ({ browser }) => {
@@ -132,6 +136,42 @@ test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
     try {
       const { toggles } = await mob945(page);
       console.log(`MOB.945: the location form's toggles (GIS, Address) read ${JSON.stringify(toggles)} for a no-geometry type`);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.946_AssetVerify_No_Standard_No_Profile', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob946(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.947_Work_Failure_Component', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob947(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.948_Work_Scheduled_View_Empty', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob948(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  test('MOB.949_Collector_Describe_Video', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob949(page);
     } finally {
       await page.context().close();
     }

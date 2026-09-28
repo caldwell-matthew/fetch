@@ -1,7 +1,7 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.912_Offline_Connection_Screens.json. This file is the source now: edit it directly.
 // MOB.912_Offline_Connection_Screens
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertFromJavascript, assertPageContains, click, wait } from '../../support/dd';
 
 export async function mob912(page: Page): Promise<void> {
@@ -132,6 +132,29 @@ return true;`, 15000);
     await assertPageContains(page, `Status:`, 60000);
   });
   await run.step("RESTORED: navigator.onLine is true again", {always: true}, async () => {
+    await assertFromJavascript(page, `return navigator.onLine === true;`, 15000);
+  });
+  // The page's ⟳ beside `Data synced on` checks `navigator.onLine` itself (`ui/ResyncButton.tsx:26-30`): offline it says
+  // `No network connection detected` and refetches nothing.
+  await run.step("RESYNC OFFLINE: with `navigator.onLine` false, the \u27f3 says `No network connection detected` and sends no refetch", {}, async () => {
+    const resync = page.locator('p', { hasText: /^Data synced on/ }).locator('xpath=following-sibling::button').first();
+    await expect(resync, 'the work order shows its resync control').toBeVisible({ timeout: 30_000 });
+    await page.evaluate(() => Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false }));
+    let sent = 0;
+    const count = (r: import('@playwright/test').Request) => { if (r.url().endsWith('/graphql') && /MOBILE_WORK_ORDER_DETAILS/.test(r.postData() ?? '')) sent++; };
+    page.on('request', count);
+    try {
+      await resync.click();
+      await expect(page.getByText('No network connection detected'), 'the offline resync is refused, and says why').toBeVisible({ timeout: 15_000 });
+      await page.waitForTimeout(1_000);
+      expect(sent, 'no refetch was sent').toBe(0);
+    } finally {
+      page.off('request', count);
+      await page.evaluate(() => { try { delete (navigator as unknown as { onLine?: boolean }).onLine; } catch { /* restored below */ } });
+    }
+  });
+  await run.step("RESTORED (resync leg): navigator.onLine is true again", {always: true}, async () => {
+    await page.reload({ waitUntil: 'load' });
     await assertFromJavascript(page, `return navigator.onLine === true;`, 15000);
   });
   run.finish();

@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
-| Tests | **165 tests · 27 suites** · 165 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **169 tests · 27 suites** · 169 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 211 `[x]` · 5 `[~]` · 0 `[ ]` · 25 `[-]` — 241 rows. Counts describe *this file*, not the app |
+| Rows | 216 `[x]` · 5 `[~]` · 0 `[ ]` · 25 `[-]` — 246 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -158,9 +158,8 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | Session/JWT expiry | cookie-authenticated; a client cannot expire it | backend |
 | Drawing + saving a signature (`MOB.135`'s write half) | owner decision: it signs the fixture's `🔎 Inspection` form. Strokes are canvas pointer events (`react-signature-canvas`), and the restore — saving `null` back through `updateSignature`, as `Clear` does — is untested | decision |
 | Asset Type on the AV detail — characterization test | owner decision: it now renders as plain text; pin that or not | decision |
-| `Component:` on a failure card (`MOB.387`) | a fixture failure WITH a component — the fixture's has none | fixture |
 | Dev Logs' `Error:` column · its `No logs found.` | a log entry carrying an error · a session with no log entries | fixture |
-| An AV job asset's `An asset standard needs to exist…`, `A failure profile need to exist…` and `No asset attributes found.` | an asset on a fixture job with no asset standard, failure profile or attributes — both of `DATADOG MOBILE JOB`'s assets have all three | fixture |
+| An AV job asset's `No asset attributes found.` | an asset on a fixture job with no attributes — both of `DATADOG MOBILE JOB`'s assets have them (the no-standard and no-profile messages are `MOB.946`'s, answered in the browser) | fixture |
 | `Your organization has not configured their map settings.` (`Map/index.tsx:405`) | an org without map settings | fixture |
 | A PM route stage (`pmRoute`) — the Assets tab's status controls with no template flag (`WorkDetails.tsx:157`), the stage's assets taken from the workflow's stage asset lists, and the Assets tab's sequence order (numbered assets first, then by name — `Assets/index.tsx:76-77`) | a stage a PM created from a workflow with `cycleWorkflowAssets` (`server/…/work/work/create/index.ts:187-198`) — desktop setup | fixture |
 | The server refusing a mobile-only user's browser login — the same notice, before any session exists (`server/…/login/utils/index.ts:125-130`) | a second test user with `mobileOnly` set (`MOB.941` fakes the in-session half) | fixture |
@@ -168,7 +167,7 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 
 ### ⚪ NOT A GAP
 
-`CopyAttributesConfirmation` (dead: `typeId` is `allowUpdate: false`) · material transfers /
+`CopyAttributesConfirmation` (dead: `AssetLookupDetails` forces `typeId` to `allowUpdate: false`, `index.tsx:45-50` — listed unreachable in `source_coverage.py`) · material transfers /
 issue-return / reorder (controls do not exist) · Switch-Crews close button
 (`withCloseButton: false`) · status-change form triggers (desktop → Appendix B) · the status-notes
 modal (deliberate; enabling it reworks `MOB.320`) · `typeId` on the AV detail (no longer editable)
@@ -258,7 +257,7 @@ MentorTwo.
 ## T1.4 Responsive / viewport
 
 - [x] Tablet width (`chrome.tablet`) — all tests but the phone suite
-- [x] The page starts exactly where the header ends — no white bar under it *(MOB.470)*
+- [x] The page starts exactly where the header ends — no white bar under it; the page area is the `gradient-bg` main *(MOB.470)*
 - [x] Phone form branch `#senor-work-form` renders below `availWidth` 750, the desktop panel does not *(MOB.951, in `MOB.975`)*; its image field shows `Upload Photo` exactly when the form has one
 - [x] The list's search control, the affixed create button and the burger are on screen at phone width *(MOB.952)*
 - [x] Crew switching at phone width — the burger's `Switch Crews` (the login prefix reads the role there, `MOB.975`); the header shortcut `.mobile-crew` is hidden under 450px **by design** *(MOB.952, `optional`)*. Common phones are 393–430px, so the shortcut shows only on tablets and in landscape — a product call
@@ -331,6 +330,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Tapping a row opens its work order *(MOB.344)*
 - [x] Sort applies, persists, and really reverses *(MOB.345)*
 - [x] Scheduled view, `WO_SCHEDULED_SORT`, group headers *(MOB.346)* — 🛑 blocked, see 🟡
+- [x] The scheduled view's groups for a `SCHEDULED` role *(MOB.948, in `MOB.982`)* — an empty `Today` shows `No work found`, `Tomorrow` collapsed, empty `Past Due` and `Future` dropped; the role and an empty list answered in the browser (the crew stays `ASSIGNED`)
 - [-] `Created` stages on the ring — the crew query never returns one (bugs §25 rule 2)
 
 ## `/work/:workStageId` — a work order
@@ -346,6 +346,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] `MapLink` on the title *(MOB.348)* — `View in Map` and `Edit Location`
 - [x] Record cycling *(MOB.349)*
 - [x] Offline geolocate branch *(MOB.911)*
+- [x] The work order's ⟳ resync offline → `No network connection detected`, and no refetch *(MOB.912)*
 - [x] `Edit Location` saves *(MOB.352)* · self-restoring — a marker address and x/y through `UPDATE_WORK_STAGE`, proved over `/graphql`; the UI types the fixed rest values back `always`, with a `/graphql` backstop, and the final read requires them and `Ready`
 
 ### Charges (ELMO)
@@ -369,6 +370,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Add failure *(MOB.391)* · self-cleaning — key `BELT (R-L1) · ADJUST · TIME`; proved after a RELOAD and over `/graphql`, deleted from its own card (trap 2); then the server holds none of the key and the fixture's `MISSED` failure is untouched ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] Add condition score *(MOB.390)* · self-cleaning — key `Pump Body`; proved after a RELOAD and over `/graphql`, deleted from its own card (trap 2); then the server holds none of the key and the fixture's `Mounting/Support` is untouched ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] `Edit Item` opens the form filled from its card *(MOB.387)* — the six inputs hold the card's values; closed unsaved, the card unchanged after a reload; the card also lists `Stress Decision Score:`/`Notes:` and the failure table a `Discovery Code` row
+- [x] A failure WITH a component heads its group `Component: <name>` *(MOB.947, in `MOB.982`)* — the fixture's failure given a component in the browser's answers
 - [x] `Edit Item` **saves** *(MOB.386)* · self-restoring — proved over `/graphql`, restored to 2 ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] Condition and Failure asset lookups ignore case *(MOB.389)* — `ZZZZ-NO-SUCH-ASSET` → `No results found`, `pUMP 0102` → exactly `Pump 0102`
 - [x] Add-form picker *(MOB.393)* — read-only: the modal opens and the picker offers forms; nothing is attached
@@ -427,6 +429,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Filter All / Verified / Unverified *(MOB.500)*
 - [x] Asset card caret expands and collapses *(MOB.520)*
 - [-] Add a new / an existing asset to a job — 🟡 reset decision (Appendix A)
+- [x] The add-asset modal opens on its `New Asset` tab — the collector's create form *(MOB.928)* — looked at, never submitted
 - [x] Map view toggle on the job asset list *(MOB.585)*
 - [-] Markers carry verification state — canvas, no DOM
 - [x] Accordion tabs render and switch — General Info · Attributes · Photos · Docs · Work History *(MOB.520)*; Readings *(MOB.720)*
@@ -441,6 +444,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] Left / right asset cycling with wrap-around *(MOB.570)*
 - [x] Failures and Condition forms open on the full-page detail *(MOB.575)* — read-only
+- [x] Without an asset standard / a failure profile, the Condition / Failure tab says so *(MOB.946, in `MOB.982`)* — the two ids emptied in the browser's answers
 - [x] Attributes — edit *(MOB.545)* — `Year Of Manufacture`, self-restoring
 - [x] Header `Tag ID` and its edit button *(MOB.537)* · self-restoring — `None` (A/C Motor) and `0000` (Tank); `0000` → `DD-TAG-EDIT` → back, each proved after a reload; `Desc:`
 - [x] Event Readings — capture *(MOB.550)* · residue
@@ -491,7 +495,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Alphanumeric lookup *(MOB.700)* — server-side `CONTAINS`
 - [x] Tag Lookup's photo → AI outcomes *(MOB.922)* — the AI's three answers made in the browser: `No tag found in that image.`, `Tag was not legible, try again with a clearer image.`, and a read tag no asset has: `Captured tag …`, `No results found for tag number …`, its X restoring the list
 - [x] Card caret and tab strip *(MOB.700)*
-- [x] `Get Description` (MentorLens) — present in the menu *(MOB.623)*; offline, its connection message *(MOB.914)*; online, the AI answered in the browser *(MOB.935)*
+- [x] `Get Description` (MentorLens) — present in the menu *(MOB.623)*; offline, its connection message *(MOB.914)*; online, the AI answered in the browser *(MOB.935)*; on the collector's create form, given a VIDEO → `Unable to capture descriptions from videos.`, the description left empty *(MOB.949, in `MOB.982`)*
 - [x] Readings and Work History tabs offline — `OFFLINE_FEATURE_MESSAGE`; on an asset with readings, `Add reading types` offline opens it in a popover, not the add-types modal *(MOB.914)*
 - [x] `Tag Lookup` menu *(MOB.750)* — exactly `Scan Barcode` then `Alphanumeric`
 - [x] `Alphanumeric`'s browser branch *(MOB.750)* — one file dialog, `capture=environment`, images, one file; nothing uploaded
@@ -504,7 +508,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] "Near Me" proximity *(MOB.730)* and its radius *(MOB.731)*
 - [x] The `Readings` tab *(MOB.720)*
 - [x] Readings empty state — `No readings recorded for this asset.` on `⚡ Building 0000` *(MOB.721)*
-- [-] `CopyAttributesConfirmation` — dead from mobile
+- [-] `CopyAttributesConfirmation` — dead from mobile: `AssetLookupDetails` forces `typeId` to `allowUpdate: false` (`index.tsx:45-50`), so Asset Type has no pencil
 - [x] Work History rows' `Assigned to` field *(MOB.740)* — the newest row's rendered value is exactly the `_assignments` the server holds for that row (compared over `/graphql`, not hardcoded)
 - [x] Create a System from the System field *(MOB.712)* · residue — on a `DD SYNTHETIC MOBILE` asset: ticks `System` in the column picker (restored `always`), `+ Create '…'` → `CREATE_SYSTEM` + `UPDATE_ASSET`, both proved over `/graphql` (the modal closes before either is sent)
 - [x] Capture a reading from Asset Lookup's Readings tab *(MOB.722)* · residue — `Test 1` on a `DD SYNTHETIC MOBILE` asset (added through `Add reading types` when absent), `CREATE_EVENT` proved over `/graphql`; `MOB.550` covers the AV container

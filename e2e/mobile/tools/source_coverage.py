@@ -12,7 +12,8 @@ WHAT IT MEASURES, AND WHAT IT DOES NOT
       ✅ touched      at least one of the file's handles appears in a test
       ❌ untouched    it has handles, and no test uses any of them
       ⚪ no handles   it renders nothing a test can name (hooks, layout wrappers, pure logic)
-      💀 dead         nothing in the app imports it (by file name), so there is nothing to test
+      💀 dead         nothing in the app imports it (by file name), or it is on UNREACHABLE below — imported, but no
+                      path a user can take reaches it (each with its reason) — so there is nothing to test
 
   This is NOT code coverage. "Touched" means a test names something the file renders; it says nothing about
   how many of the file's branches ran. Real line coverage needs source maps from the dev build (see
@@ -28,6 +29,14 @@ import os
 import re
 import subprocess
 import sys
+
+# Imported, but no path a user can take reaches it. Each entry needs the source line that makes it so; re-read it at
+# every sync — when that line changes, the file is testable again and comes off this list.
+UNREACHABLE = {
+    "AssetLookup/AssetLookupDetails/CopyAttributesConfirmation.tsx":
+        "it opens only from an Asset Type edit, and `AssetLookupDetails` forces `typeId` to `allowUpdate: false` "
+        "(`AssetLookup/AssetLookupDetails/index.tsx:45-50`), so the field has no pencil",
+}
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 E2E = os.path.dirname(HERE)
@@ -112,11 +121,12 @@ def main():
 
     rows = []
     for f in files:
+        unreachable = next((why for k, why in UNREACHABLE.items() if f.endswith(k)), None)
         hs = handles(sources[f])
         hit = sorted(v for k, v in hs if seen_in(corpus, v))
         miss = sorted(v for k, v in hs if not seen_in(corpus, v))
         entry = f.count("/") <= 2 or f.endswith("routing/index.tsx")      # client/mobile/*.tsx, the router
-        if not entry and not imported(f):
+        if unreachable or (not entry and not imported(f)):
             state = "💀"
         elif hit:
             state = "✅"
@@ -171,7 +181,8 @@ def main():
     lines += ["", "## 💀 Imported by nothing", "",
               "Matched by file name, so a file imported under another name can land here; check before calling it "
               "dead.", ""]
-    lines += [f"- `{f}`" for area, f, state, hit, miss in sorted(rows) if state == "💀"]
+    lines += [f"- `{f}`" + next((f" — unreachable: {why}" for k, why in UNREACHABLE.items() if f.endswith(k)), "")
+              for area, f, state, hit, miss in sorted(rows) if state == "💀"]
     lines += ["", "## ✅ Touched", "", "| File | Named by a test |", "|---|---|"]
     for area, f, state, hit, miss in sorted(rows):
         if state == "✅":
