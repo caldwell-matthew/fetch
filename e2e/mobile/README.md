@@ -6,7 +6,7 @@ config and step helpers are one level up in `e2e/`.
 
 ## Status
 
-**27 suites, 169 tests.** The last full local pass (2026-09-28, build 127, 85 min) ran every suite with the fixture checks
+**27 suites, 173 tests.** The last full local pass (2026-09-28, build 127, 85 min) ran every suite with the fixture checks
 between them: 162 green and one red, `MOB.722`, on a test assumption (fixed — its suite `MOB.980` then green twice,
 with `MOB.944`, which the red had skipped). The bug pins pass as expected failures (below). Datadog is paused (▶ checklist #37); these tests are its replacement.
 
@@ -17,7 +17,7 @@ with `MOB.944`, which the red had skipped). The bug pins pass as expected failur
 | Data-changing, bug pin | 1 (`MOB.967`) | 8 | ✅ as intended then — `MOB.600` now collects without a photo and is expected green |
 
 What those tests prove, route by route, is in [`docs/coverage.md`](docs/coverage.md); what is left to cover is in
-[`docs/testing_checklist.md`](docs/testing_checklist.md) (216 of the 221 automatable rows automated, 5 partial, none open).
+[`docs/testing_checklist.md`](docs/testing_checklist.md) (217 of the 223 automatable rows automated, 6 partial, none open).
 The docs are copies of `legacy/Mobile/`'s for now — see [`docs/README.md`](docs/README.md).
 
 ### Per suite
@@ -56,8 +56,11 @@ The read-only suites ran as one batch, so they have a combined time rather than 
 
 ### Red by design
 
-- **`MOB.923`** pins bugs §48 ("Item added" shown for a save the server refused), **`MOB.925`** pins §49 (a session the server extended is reported as "The operation was
-  aborted."). Same rule: only the pinned symptom counts as the expected failure.
+- **Bug pins** — each red only on its bug's symptom, and green by itself when the bug is fixed: `MOB.923` §48 ("Item
+  added" for a refused save) · `MOB.925` §49 (an extended session reported as "The operation was aborted.") · `MOB.943`
+  §51 (Tag Lookup drops the active filters) · `MOB.940` §52 and §53 (a refused verify: the box stays ticked, the job's
+  status is written anyway) · `MOB.124` §55 (the map's tilt button always reads `3D`). Same rule: only the pinned
+  symptom counts as the expected failure.
 
 ### Left to do
 

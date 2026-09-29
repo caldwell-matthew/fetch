@@ -5,8 +5,13 @@
 import { test, Browser, Page } from '@playwright/test';
 import { DEVICES } from '../../playwright.config';
 import { login } from '../support/login';
+import { freshSession } from '../support/session';
 import { mob120 } from '../tests/MOB.120_Nav_Map';
 import { mob121 } from '../tests/MOB.121_Map_Controls';
+import { mob124 } from '../tests/MOB.124_Map_Tilt_And_Home';
+import { mob125 } from '../tests/MOB.125_Map_Address_Search';
+import { mob126 } from '../tests/MOB.126_Map_Layers_After_Style_Switch';
+import { mob127 } from '../tests/MOB.127_AssetVerify_Map_Pins';
 import { mob123 } from '../tests/MOB.123_Map_Switch_Map';
 import { mob122 } from '../tests/MOB.122_Map_Create_Work';
 import { mob929 } from '../tests/MOB.929_Map_Card_Add_Asset_To_Work';
@@ -32,6 +37,54 @@ test.describe.serial('MOB.971_Map_Suite', () => {
 
   test('MOB.121_Map_Controls', async () => {
     await mob121(page);
+  });
+
+  // Read-only, in its own browser.
+  test('MOB.124_Map_Tilt_And_Home', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      const { labelWhileTilted } = await mob124(own);
+      // Bugs §55 pin: the tilt button reads `3D` while the map is tilted. That symptom — and only that — is EXPECTED;
+      // when §55 is fixed it reads `2D`, nothing is thrown, and the test is simply green.
+      if (labelWhileTilted !== '2D') {
+        test.fail(true, `bugs §55: the tilt button reads ${JSON.stringify(labelWhileTilted)} while tilted`);
+        throw new Error(`bugs §55: the tilt button reads ${JSON.stringify(labelWhileTilted)} while the map is tilted`);
+      }
+    } finally {
+      await own.context().close();
+    }
+  });
+
+  // Read-only, in its own browser.
+  test('MOB.125_Map_Address_Search', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      await mob125(own);
+    } finally {
+      await own.context().close();
+    }
+  });
+
+  // Read-only, in its own browser.
+  test('MOB.126_Map_Layers_After_Style_Switch', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      const r = await mob126(own);
+      console.log(`MOB.126: ${r.groups} layer group(s), ${r.layers} layer(s), the same after the style switch`);
+    } finally {
+      await own.context().close();
+    }
+  });
+
+  // Read-only, in its own browser.
+  test('MOB.127_AssetVerify_Map_Pins', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      const { fills } = await mob127(own);
+      console.log(`MOB.127: pin fills ${JSON.stringify(fills)}`);
+    } finally {
+      await own.context().close();
+    }
   });
 
   test('MOB.123_Map_Switch_Map', async () => {

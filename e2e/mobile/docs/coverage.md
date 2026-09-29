@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**169 tests · 27 suites** · 169 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**173 tests · 27 suites** · 173 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 

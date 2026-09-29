@@ -42,6 +42,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 51 | Asset Lookup's Tag Lookup ignores the active filters — on the capture and on its X — while the pill still counts them | Runtime + Source | ❌ medium · `AssetLookup/index.tsx:194-198,226-229` · `MOB.943` pins it |
 | 52 | A verify the server refused leaves the asset's box ticked | Runtime + Source | ❌ medium · `AssetVerification/VerificationCheckbox.tsx:17` · `MOB.940` pins it |
 | 53 | **A verify the server refused still changes the job's status** | Runtime + Source | ❌ medium–high · `VerificationCheckbox.tsx:40-66` · `MOB.940` pins it |
+| 55 | The map's tilt button always reads `3D`, even while the map is tilted | Runtime + Source | ❌ low · `Map/MapGL/index.tsx:322` · `MOB.124` pins it |
 
 ## §25 · How the crew's work list is populated — reference, not a bug
 
@@ -469,3 +470,19 @@ refused the status write too, and counted it: sent once.
 `update` is optimistic); or let the server recompute the status as part of `updateMobileJobAsset`.
 **Tests:** `MOB.940` pins it, refusing the status write in the browser as well, so the test never changes the
 fixture. Trap 52 in `test_authoring.md` is the lesson for other refusal tests.
+
+## §55 · The map's tilt button always reads `3D`, even while the map is tilted
+
+`Map/MapGL/ControlButtons.tsx:59-60` labels the tilt button from `viewport.pitch` — `3D` with a cube while flat, `2D`
+with a square while tilted — and its click eases the map to the other pitch (`:61-68`). But the map renders it with a
+constant `viewport={{ pitch: 0 }}` (`Map/MapGL/index.tsx:322`), so the label and icon never change: after a tap the map
+is tilted and the button still offers `3D`, although its next tap flattens it.
+
+**Runtime (2026-09-28, local, `MOB.124`, 2 runs of 2):** after the tilt, the button's `data-tooltip-content` was still
+`3D`.
+**User-visible effect:** the control says the opposite of what it will do once the map is tilted.
+**Severity:** low — cosmetic; the tilt itself works.
+**Fix:** pass the live pitch (the map's `pitch` from its view state, or `map.getPitch()` on `pitchend`) instead of
+the constant.
+**Tests:** `MOB.124` (in `MOB.971`) pins it: the suite expects `3D` while tilted and goes green by itself when fixed.
+

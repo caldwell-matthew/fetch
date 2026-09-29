@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
-| Tests | **169 tests · 27 suites** · 169 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **173 tests · 27 suites** · 173 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 216 `[x]` · 5 `[~]` · 0 `[ ]` · 25 `[-]` — 246 rows. Counts describe *this file*, not the app |
+| Rows | 217 `[x]` · 6 `[~]` · 0 `[ ]` · 23 `[-]` — 246 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -431,7 +431,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [-] Add a new / an existing asset to a job — 🟡 reset decision (Appendix A)
 - [x] The add-asset modal opens on its `New Asset` tab — the collector's create form *(MOB.928)* — looked at, never submitted
 - [x] Map view toggle on the job asset list *(MOB.585)*
-- [-] Markers carry verification state — canvas, no DOM
+- [x] Markers carry verification state *(MOB.127, in `MOB.971`)* — the app's pins are SVG page elements (`MapGL/PinSvg.tsx`), one per located job asset, filled `green` when verified and `blue` when not; one asset answered as verified in the browser
 - [x] Accordion tabs render and switch — General Info · Attributes · Photos · Docs · Work History *(MOB.520)*; Readings *(MOB.720)*
 - [x] Verify every asset → the job completes, and unverifying walks it back *(MOB.511)*; the job list reflects it *(MOB.512)* · self-restoring
 - [x] Asset search inside a job *(MOB.531)*
@@ -543,11 +543,11 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] The route renders and titles itself *(MOB.120)*
 - [x] From the Mobile Map *(MOB.122)* — geocoder popup → `Add Work`
-- [x] Map style · layers panel *(MOB.121)* — `data-tooltip-content` flips `Satellite`↔`Street`; the control's `Layers` heading
+- [x] Map style · layers panel *(MOB.121)* — `data-tooltip-content` flips `Satellite`↔`Street`; the control's `Layers` heading · after a switch to Satellite the panel lists the same groups and layers (5 and 38 on 2026-09-28) — the app re-adds them once the new style loads *(MOB.126)*
 - [~] Zoom in/out *(MOB.121)* — Mapbox publishes no zoom to the DOM; proves the controls and that the canvas survives
 - [x] `Switch Map` picker *(MOB.123)* — a pick writes `mobile-map-id` and remounts the map; reopening reads it back; switched back after. Enabled side only (dev has 3 maps)
-- [-] 2D/3D toggle · Home — no DOM trace of the state change
-- [x] Geocoder search → suggestion → fly + popup *(MOB.122)* — the popup's `Latitude`/`Longitude`
+- [~] 2D/3D toggle · Home *(MOB.124)* — both work in the app's control column and the map survives; Mapbox exposes neither the pitch nor the centre. 🐞 the tilt label always reads `3D` (bugs §55) — the suite pins it
+- [x] Geocoder search → suggestion → fly + popup *(MOB.122)* — the popup's `Latitude`/`Longitude`; read-only with Mapbox's geocoding answered in the browser, the popup required ON SCREEN (the map flew there) *(MOB.125)*
 - [x] Create a work order from the map *(MOB.122)*
 - [x] Feature sheet for an asset, reached by router state *(MOB.735)*
 - [x] The change-asset popup on a work stage's card *(MOB.930)* — the work order's "View in Map" opens the stage's card once `My Work: Ready` is shown; `Change Asset` → the question, the warning, both choices, each choice's Add/Replace and Use Map → Back → **Cancel**, every other mutation stopped and the stage's links proven unchanged. The test switches the layer on for the account and always back off, the account's shown layers proven as before over `/graphql` (owner, 2026-09-24)
