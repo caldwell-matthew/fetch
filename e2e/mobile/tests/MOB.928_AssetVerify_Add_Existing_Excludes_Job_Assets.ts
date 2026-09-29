@@ -12,8 +12,9 @@
 // READ-ONLY: nothing is added — the picker is closed with its X, and a server read proves the job unchanged.
 import { expect, Page } from '@playwright/test';
 import { appUrl, serverRead } from '../support/session';
+import { AV_JOB } from '../support/fixtures';
 
-const JOB = 'Z0EVwQcdJZhMURcBFkp0E0'; // DATADOG MOBILE JOB, the Asset Verify fixture
+const JOB = AV_JOB; // DATADOG MOBILE JOB, the Asset Verify fixture
 const ASSETS = 'query($id: ID!) { mobileJob(id: $id) { name assets { assetId { name } } } }';
 
 export async function mob928(page: Page): Promise<void> {

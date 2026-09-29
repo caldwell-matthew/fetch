@@ -23,6 +23,7 @@ import { mob941 } from '../tests/MOB.941_Mobile_Only_Browser';
 import { mob943 } from '../tests/MOB.943_AssetLookup_Tag_Keeps_Filters';
 import { mob945 } from '../tests/MOB.945_Collector_Location_No_Geometry';
 import { mob946 } from '../tests/MOB.946_AssetVerify_No_Standard_No_Profile';
+import { mob544 } from '../tests/MOB.544_AssetVerify_No_Attributes';
 import { mob947 } from '../tests/MOB.947_Work_Failure_Component';
 import { mob948 } from '../tests/MOB.948_Work_Scheduled_View_Empty';
 import { mob949 } from '../tests/MOB.949_Collector_Describe_Video';
@@ -145,6 +146,16 @@ test.describe.serial('MOB.982_Resilience_1_Error_States_Suite', () => {
     const page = await freshSession(browser);
     try {
       await mob946(page);
+    } finally {
+      await page.context().close();
+    }
+  });
+
+  // Its own browser: Tank 0000's attributes emptied in the answers.
+  test('MOB.544_AssetVerify_No_Attributes', async ({ browser }) => {
+    const page = await freshSession(browser);
+    try {
+      await mob544(page);
     } finally {
       await page.context().close();
     }

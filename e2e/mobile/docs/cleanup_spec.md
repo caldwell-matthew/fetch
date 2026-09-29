@@ -18,6 +18,8 @@ with it and breaks ~40 tests.
 | WO `xohY0klBZktB9VBRxc8k4J` and its parent work `20260910-16` | fixture for `MOB.363`–`365`; created by `MOB.396`, so it carries the marker — excluded by id (`FIXTURE_STAGES`) |
 | Asset `Pump 0102` | fixture; `desc` ends `DATADOG FIXTURE`. **Never touch its attachments** (owner) |
 | Mobile job `Z0EVwQcdJZhMURcBFkp0E0` | **reset its status, never delete it** |
+| Second work order `20260929-19` (stage `Vg5Qd9VddQJIYNR48Yhk9l`) and form template `DATADOG FIXTURE REQUIRED FORM` | fixture for `MOB.342`/`357`, made by `setup_second_fixture.py`; described `DATADOG FIXTURE 2 …`, so the marker query never selects it |
+| PM route: work `20260929-18` (stage `58JgBIYA1cBQxoQVwJ5FRw`), workflow + strategy `DD SYNTHETIC MOBILE PM ROUTE`, asset `DD SYNTHETIC PM ROUTE TRIGGER` | `MOB.366`'s fixture, made by `setup_pm_route.py`. The work has no problem description, so the work prune never selects it; the asset is named outside the `DD SYNTHETIC MOBILE` prefix so the asset prune never does. Remaking it needs a new trigger firing |
 | Workflow **`Datadog Test`** | a fixture *workflow* — every created WO selects it, so its name is all over the residue. Deleting it breaks creation |
 | `Actuator Tools` · `Central Storeroom` · `000-000-000 Adamantium` · `Bypass Valve 0001` · `⚡ Building 0000` | fixtures. ⚠️ This list and `cleanup_residue.NEVER_ASSETS` (`Pump 0102` · `Bypass Valve 0001` · `⚡ Tank 0000` · `A/C Motor 0002`) are different sets — the script only ever selects assets whose name STARTS WITH the marker, so its guard is a backstop, not the policy. Neither list is a subset of the other |
 
@@ -48,7 +50,7 @@ them and added more — recount over `/graphql` or with a dry run before any pru
 
 | state | moved by | reset |
 |---|---|---|
-| Mobile job status → `COMPLETED` when its last asset is verified | a verify-all test (not built) | the test itself: unverifying recomputes the status back down · `reset_av_fixture.py` (§4) is the backstop |
+| Mobile job status → `COMPLETED` when its last asset is verified | `MOB.511`/`512` (`963`) | the test itself: unverifying recomputes the status back down · `reset_av_fixture.py` (§4) is the backstop |
 | `000-000-000 Adamantium` quantity, +1 per run | `MOB.870` (`970`) | decrement by runs since last tidy. `MOB.860`'s `+1`/`-1` self-restores; do not make `MOB.870` two-way |
 
 **Nothing to do:** asset verified flags (they self-revert); `self-restoring` and `read-only`
@@ -91,19 +93,15 @@ because nothing in the app unlinks or deletes an asset:
 
 | test | writes | put back by |
 |---|---|---|
-| verify all → job `COMPLETED` (`/asset-verify/:jobId`) | both `verified = true`, status `COMPLETED` | the test itself: unverify ×2 recomputes to `READY` · reset is the backstop |
-| verify status update on the job list | same act, list-side assertion | same |
-| add a NEW asset to the job | `Asset` + `MobileJobAsset` (+ attachment) | `deleteMobileJobAssets` · `deleteAssets` |
-| add an EXISTING asset (`Pump 0102`) | a `MobileJobAsset` link | `deleteMobileJobAssets` |
-| Add Work from Asset Lookup / AV detail | a work order | `deleteWorkOrders` (`cleanup_residue.py`) |
+| verify all → job `COMPLETED` (`MOB.511`/`512`, in `MOB.963`) | both `verified = true`, status `COMPLETED` | the test itself: unverify ×2 recomputes to `READY` · reset is the backstop |
+| add a NEW asset to the job (`MOB.513`, in `MOB.985`) | an `Asset` `DD SYNTHETIC MOBILE AV <8 digits>` + its `MobileJobAsset` | the reset: `deleteMobileJobAssets` · `deleteAssets` |
+| add an EXISTING asset, Pump 0098 (`MOB.514`, in `MOB.985`) | a `MobileJobAsset` link | the reset: `deleteMobileJobAssets` (never the asset) |
+| Add Work from Asset Lookup (`MOB.742`) / the AV detail (`MOB.396`) | a work order | `deleteWorkOrders` (`cleanup_residue.py`) |
 
-They go in `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` as the **last** children (verifying the second asset flips the
-job), and the two add-asset tests make a `MOB.963` run **run → reset**. A forgotten reset fails the
-next run at its first fixture guard. The reset is idempotent.
-
-**Open owner decisions:** accept the run → reset chore for the add-asset tests; accept Add Work's
-residue (pruned by `cleanup_residue.py`). Then build: the two verify tests (no reset chore — they undo
-themselves) → the two add-asset tests → Add Work.
+The two add-asset tests have their own suite, `MOB.985`, so it is the only **run → reset** suite (owner, 2026-09-29):
+its `after` in `tools/suites.json` makes `playwright_pass.py` run `reset_av_fixture.py --apply` straight after it,
+before the next fixture check. Run alone, reset by hand; a forgotten reset fails the next AV suite at its first fixture
+guard. The reset is idempotent.
 
 ## 5 · Session over plain HTTP
 

@@ -23,10 +23,11 @@
 import { Browser, expect, Page, Request } from '@playwright/test';
 import { openAssetCard } from '../support/map';
 import { appUrl, FIXTURE_WO, FORMS_WO, freshSession, serverRead } from '../support/session';
+import { MOB302_WO } from '../support/fixtures';
 
 const ASSET = 'Tank 0040';
 const MARKER = 'DD SYNTHETIC MOBILE';
-const NEVER = new Set([FIXTURE_WO, FORMS_WO, 'RcdI0xcpc8NBV8VoRNNBYM']); // cleanup_residue.FIXTURE_STAGES
+const NEVER = new Set([FIXTURE_WO, FORMS_WO, MOB302_WO]); // cleanup_residue.FIXTURE_STAGES
 const LINKS = 'query($id: ID!) { workStage(id: $id) { assets { id assetId { id name } } } }';
 // The picker's query (`WorkOrders/queries/index.gql.ts:264`), cut down: its answer in full is too large to read back.
 const PICKER_STAGES = '{ workStages(crew: "<SESSION>", params: { limit: 50, sortId: "displayName" }) '

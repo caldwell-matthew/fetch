@@ -3,11 +3,12 @@
 
 import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, click, press, typeText, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob610(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the collector", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The Collector page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Collector")]`, `Collector`, 60000);

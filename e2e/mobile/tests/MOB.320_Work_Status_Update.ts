@@ -3,11 +3,13 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertFromJavascript, assertPageContains, click, wait } from '../../support/dd';
+import { FIXTURE_WO } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob320(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the fixture work order", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, DEFAULT_TIMEOUT);
@@ -93,7 +95,7 @@ const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Not Completed';`, 30000);
   });
   await run.step("Navigate to the fixture work order (reload: the server's status)", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -119,7 +121,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { status } }", variables: {"id": "EYRpYJ9QYdQ1JFF10JtB0Q"} }) })
+      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { status } }", variables: {"id": "${FIXTURE_WO}"} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
@@ -179,7 +181,7 @@ const now = badge ? (badge.textContent || '').trim() : null;
 return now === 'Ready';`, 30000);
   });
   await run.step("Navigate to the fixture work order (reload: the server's status)", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the detail view begin rendering", {always: true}, async () => {
     await wait(page, 2);
@@ -208,7 +210,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { status } }", variables: {"id": "EYRpYJ9QYdQ1JFF10JtB0Q"} }) })
+      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { status } }", variables: {"id": "${FIXTURE_WO}"} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });

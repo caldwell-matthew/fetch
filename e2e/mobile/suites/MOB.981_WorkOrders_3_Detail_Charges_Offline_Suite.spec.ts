@@ -9,6 +9,7 @@ import { mob357 } from '../tests/MOB.357_Work_Form_Metrics';
 import { mob356 } from '../tests/MOB.356_Work_Charge_Form_Validity';
 import { mob351 } from '../tests/MOB.351_Work_Charge_Estimates';
 import { mob398 } from '../tests/MOB.398_Work_Assign_Stage_Modal';
+import { mob367 } from '../tests/MOB.367_Work_Assign_Stage_Offline_And_Refused';
 import { mob911 } from '../tests/MOB.911_Offline_Geolocate';
 import { mob912 } from '../tests/MOB.912_Offline_Connection_Screens';
 
@@ -39,6 +40,11 @@ test.describe.serial('MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite', () => 
 
   test('MOB.398_Work_Assign_Stage_Modal', async () => {
     await mob398(page);
+  });
+
+  // Its own browser: it goes offline for a moment, and refuses the assignment in the browser.
+  test('MOB.367_Work_Assign_Stage_Offline_And_Refused', async ({ browser }) => {
+    await mob367(browser);
   });
 
   test('MOB.911_Offline_Geolocate', async () => {

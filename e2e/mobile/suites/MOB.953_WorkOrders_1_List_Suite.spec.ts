@@ -7,6 +7,7 @@ import { DEVICES } from '../../playwright.config';
 import { login } from '../support/login';
 import { mob150 } from '../tests/MOB.150_Nav_Work_Orders';
 import { mob300 } from '../tests/MOB.300_Work_Create';
+import { mob303 } from '../tests/MOB.303_Work_Create_Crew_Choice';
 import { mob301 } from '../tests/MOB.301_Work_Create_Photo';
 import { mob340 } from '../tests/MOB.340_Work_Search_Sort';
 import { mob341 } from '../tests/MOB.341_Work_Map_Toggle';
@@ -34,6 +35,11 @@ test.describe.serial('MOB.953_WorkOrders_1_List_Suite', () => {
 
   test('MOB.300_Work_Create', async () => {
     await mob300(page);
+  });
+
+  // Two more work orders (residue), with the crew CLEARED and set to another crew — outside the crew's list.
+  test('MOB.303_Work_Create_Crew_Choice', async () => {
+    await mob303(page);
   });
 
   test('MOB.301_Work_Create_Photo', async () => {

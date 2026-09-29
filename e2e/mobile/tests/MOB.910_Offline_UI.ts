@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertFromJavascript, assertPageContains, click, press, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob910(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the home screen", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("GATE: the home screen rendered", {}, async () => {
     await assertPageContains(page, `Welcome,`, 60000);

@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, press, typeText, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob865(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to material lookup", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/material-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}material-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Material Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Material Lookup")]`, `Material Lookup`, 30000);

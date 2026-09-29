@@ -8,8 +8,9 @@
 import { expect, Page } from '@playwright/test';
 import { appUrl, serverRead } from '../support/session';
 import { waitForPrefetch } from '../support/prefetch';
+import { AV_JOB } from '../support/fixtures';
 
-const JOB = 'Z0EVwQcdJZhMURcBFkp0E0';
+const JOB = AV_JOB;
 const VERIFIED = '⚡ Tank 0000';
 
 export async function mob127(page: Page): Promise<{ fills: string[] }> {

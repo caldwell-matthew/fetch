@@ -1,13 +1,15 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.121_Map_Controls.json. This file is the source now: edit it directly.
 // MOB.121_Map_Controls
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
+import { mapView } from '../support/map';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, click, press, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob121(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile map", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Map\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Map")]`, `Map`, 30000);
@@ -51,19 +53,24 @@ export async function mob121(page: Page): Promise<void> {
   await run.step("The zoom controls render", {}, async () => {
     await assertElementPresent(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-in")]`, 30000);
   });
+  // Mapbox publishes no zoom to the DOM; the page's Mapbox instance does (`support/map.ts`, trap 55).
+  let start = 0;
+  await run.step("Read the zoom level", {}, async () => {
+    start = (await mapView(page)).zoom;
+  });
   await run.step("Zoom in", {}, async () => {
     await click(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-in")]`, 30000);
   });
-  await run.step("Let the zoom animate", {}, async () => {
-    await wait(page, 3);
+  await run.step("\u2b50 The map zoomed IN one level", {}, async () => {
+    await expect.poll(async () => (await mapView(page)).zoom, { message: 'zoom after +', timeout: 10_000 }).toBeCloseTo(start + 1, 1);
   });
   await run.step("Zoom out", {}, async () => {
     await click(page, `//button[contains(@class,"mapboxgl-ctrl-zoom-out")]`, 30000);
   });
-  await run.step("Let the zoom animate", {}, async () => {
-    await wait(page, 3);
+  await run.step("\u2b50 The map zoomed back OUT to where it began", {}, async () => {
+    await expect.poll(async () => (await mapView(page)).zoom, { message: 'zoom after -', timeout: 10_000 }).toBeCloseTo(start, 1);
   });
-  await run.step("The map survived zooming (LIMIT: the zoom level is not exposed to the DOM)", {}, async () => {
+  await run.step("The map survived zooming", {}, async () => {
     await assertElementPresent(page, `//canvas[contains(@class,"mapboxgl-canvas")]`, 30000);
   });
   run.finish();

@@ -3,11 +3,13 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, click, press, wait } from '../../support/dd';
+import { FIXTURE_WO } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob387(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the fixture work order", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -87,7 +89,7 @@ return Object.keys(want).every(k => got[k] === want[k]);`, 30000);
     await assertFromJavascript(page, `return !document.getElementById('work-condition-form');`, 20000);
   });
   await run.step("Navigate to the fixture work order (reload)", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);

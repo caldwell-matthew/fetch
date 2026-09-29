@@ -29,6 +29,23 @@ def counts():
     return len(tests), len(suites), steps, children
 
 
+SUITE_IDS = {int(x["id"].split(".")[1]) for x in json.load(open(os.path.join(HERE, "suites.json")))["suites"]}
+
+
+def route_rows(ck):
+    """The coverage table's row for each `## `/…`` / `## Every route` section of the checklist."""
+    rows = []
+    parts = re.split(r"^## ", ck, flags=re.M)
+    for part in parts[1:]:
+        head, _, body = part.partition("\n")
+        if not (head.startswith("`/") or head.startswith("Every route")):
+            continue
+        tests = sorted({int(t) for t in re.findall(r"MOB\.(\d{3})\b", body)} - SUITE_IDS)
+        boxes = [len(re.findall(rf"^- \[{re.escape(k)}\]", body, re.M)) for k in ("x", "~", " ", "-")]
+        rows.append(f"| {head.strip()} | {' '.join(f'{t:03d}' for t in tests) or '—'} | " + " | ".join(map(str, boxes)) + " |")
+    return rows
+
+
 def check():
     problems = []
     ck = open(os.path.join(DOCS, "testing_checklist.md")).read()
@@ -64,6 +81,15 @@ def check():
     for name, want in (("testing_checklist.md", line), ("coverage.md", line)):
         if want not in open(os.path.join(DOCS, name)).read():
             problems.append(f"{name}'s test counts should read: {want}")
+
+    # The coverage route table: one row per checklist route section, its tests and its row counts. Kept here so it
+    # cannot drift again (it had, silently, by 2026-09-29).
+    cov = open(os.path.join(DOCS, "coverage.md")).read()
+    for want in route_rows(ck):
+        name = want.split(" | ")[0]
+        have = next((l for l in cov.splitlines() if l.startswith(name + " |")), None)
+        if have != want:
+            problems.append(f"coverage.md's route row should read: {want}")
 
     problems = list(dict.fromkeys(problems))
     if problems:

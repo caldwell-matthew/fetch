@@ -1,16 +1,17 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.396_Work_Create_From_Asset.json. This file is the source now: edit it directly.
 // MOB.396_Work_Create_From_Asset
 
-import { Page } from '@playwright/test';
+import { Page, Response, expect } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, typeText, wait } from '../../support/dd';
 import { runId } from '../../support/env';
 import { waitForPrefetch } from '../support/prefetch';
+import { appUrl, serverRead } from '../support/session';
 
 export async function mob396(page: Page): Promise<void> {
   const RUNID = runId('numeric', 8);
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -89,7 +90,10 @@ return ids.every(id => {
   await run.step("Type the synthetic marker into Problem Description", {}, async () => {
     await typeText(page, `//*[@id="problemDesc"]`, `DD SYNTHETIC MOBILE ${RUNID}`, DEFAULT_TIMEOUT);
   });
+  let created: Promise<Response> | undefined;
   await run.step("Click \"Create Work Order\"", {}, async () => {
+    created = page.waitForResponse((r) => r.url().endsWith('/graphql') && /\bcreateWork\s*\(/.test(r.request().postData() ?? ''),
+      { timeout: 60_000 });
     await click(page, `//button[normalize-space(.)="Create Work Order"]`, DEFAULT_TIMEOUT);
   });
   await run.step("Brief wait for the toast", {}, async () => {
@@ -101,8 +105,17 @@ return ids.every(id => {
   await run.step("Wait for the create mutation to resolve", {}, async () => {
     await wait(page, 5);
   });
-  await run.step("PROOF: the modal closed inside Apollo's update()", {}, async () => {
+  await run.step("The modal closed (inside Apollo's update() — not proof of a save)", {}, async () => {
     await assertPageLacks(page, `Creating New Work Order`, DEFAULT_TIMEOUT);
+  });
+  await run.step("\u2b50 SERVER: the new work order carries this run's description, and its stage holds Tank 0000 — asked over /graphql", {}, async () => {
+    const stages: { id: string }[] = (await (await created!).json()).data.createWork.stages;
+    expect(stages.length, 'the create made a stage').toBeGreaterThan(0);
+    // `defaultAsset` is the entry point's asset: the stage is linked to it.
+    await expect.poll(async () => {
+      const st = (await serverRead(page, 'query($id: ID!) { workStage(id: $id) { workId { problemDesc } assets { assetId { name } } } }', { id: stages[0].id })).workStage;
+      return { desc: st.workId.problemDesc, assets: st.assets.map((a: { assetId: { name: string } }) => a.assetId.name) };
+    }, { message: 'the stage the create made', timeout: 30_000 }).toEqual({ desc: `DD SYNTHETIC MOBILE ${RUNID}`, assets: ['⚡ Tank 0000'] });
   });
   run.finish();
 }

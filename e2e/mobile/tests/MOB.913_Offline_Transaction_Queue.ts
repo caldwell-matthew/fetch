@@ -4,11 +4,12 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, wait } from '../../support/dd';
 import { waitForPrefetch } from '../support/prefetch';
+import { appUrl } from '../support/session';
 
 export async function mob913(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -140,7 +141,7 @@ return true;`, 15000);
     await wait(page, 1);
   });
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -188,7 +189,7 @@ return true;`, 20000);
     await wait(page, 4);
   });
   await run.step("Navigate to the mobile job list", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the page begin rendering", {always: true}, async () => {
     await wait(page, 3);
@@ -270,7 +271,7 @@ const pending = lab ? (lab.textContent || '').trim() : null;
 return pending === '2';`, 10000);
   });
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -325,7 +326,7 @@ return true;`, 20000);
     await wait(page, 4);
   });
   await run.step("Navigate to the mobile job list", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the page begin rendering", {always: true}, async () => {
     await wait(page, 3);

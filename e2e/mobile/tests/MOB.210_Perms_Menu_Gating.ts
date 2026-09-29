@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob210(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile home page", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
@@ -43,7 +44,7 @@ export async function mob210(page: Page): Promise<void> {
     await wait(page, 8);
   });
   await run.step("Navigate to the mobile home page", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);
@@ -79,7 +80,7 @@ export async function mob210(page: Page): Promise<void> {
     await wait(page, 8);
   });
   await run.step("Navigate to the mobile home page", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Open the menu to read the session role", {}, async () => {
     await click(page, `//button[@aria-label="Toggle navigation"]`, DEFAULT_TIMEOUT);

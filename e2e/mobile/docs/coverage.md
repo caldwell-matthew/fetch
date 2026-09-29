@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**173 tests · 27 suites** · 173 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**187 tests · 28 suites** · 187 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -56,21 +56,21 @@ nobody thought to list).
 
 | route | tests | `[x]` | `[~]` | `[ ]` gaps | `[-]` |
 |---|---|---|---|---|---|
-| `/` — Home | 000 180 210 910 | 5 | 0 | 0 | 1 |
+| `/` — Home | 000 180 210 910 | 5 | 0 | 0 | 0 |
 | Every route — header, hamburger menu and back arrow | 200 346 400 410 420 430 440 450 460 470 910 913 | 10 | 1 | 0 | 2 |
-| `/work` — Work Orders list | 150 300 301 340 341 342 343 344 345 346 | 9 | 0 | 0 | 1 |
-| `/work/:workStageId` — a work order | 302 310 320 330 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 370 380 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 | 38 | 1 | 1 | 1 |
-| `/work/:workStageId/form/:formId` — a work stage form | 134 355 951 | 2 | 0 | 0 | 1 |
-| `/asset-verify` — Mobile Jobs list | 140 342 530 535 560 580 | 5 | 1 | 1 | 1 |
-| `/asset-verify/:jobId` — a mobile job's asset list | 396 500 510 520 531 536 547 551 585 590 720 | 12 | 0 | 0 | 3 |
-| `/asset-verify/:jobId/asset/:verificationId` — full-page asset data | 537 545 546 550 570 575 | 6 | 1 | 0 | 1 |
-| `/asset-collector` — Asset Collector / Lens | 160 600 610 620 621 622 623 624 625 626 627 628 710 | 16 | 1 | 1 | 1 |
+| `/work` — Work Orders list | 150 300 301 303 340 341 342 343 344 345 346 937 948 | 13 | 0 | 0 | 1 |
+| `/work/:workStageId` — a work order | 302 310 320 330 331 332 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 366 367 370 380 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 921 923 924 938 939 947 977 | 47 | 1 | 0 | 1 |
+| `/work/:workStageId/form/:formId` — a work stage form | 134 135 136 355 951 | 3 | 0 | 0 | 0 |
+| `/asset-verify` — Mobile Jobs list | 132 140 342 343 512 530 531 535 560 580 610 700 850 | 7 | 0 | 0 | 1 |
+| `/asset-verify/:jobId` — a mobile job's asset list | 127 396 500 510 511 512 513 514 520 531 536 547 551 585 590 720 928 940 | 19 | 0 | 0 | 0 |
+| `/asset-verify/:jobId/asset/:verificationId` — full-page asset data | 537 538 544 545 546 550 570 575 933 936 946 | 9 | 1 | 0 | 0 |
+| `/asset-collector` — Asset Collector / Lens | 160 600 610 620 621 622 623 624 625 626 627 628 629 710 933 945 | 20 | 0 | 0 | 0 |
 | `/asset-collector/:assetId` | — | 0 | 0 | 0 | 1 |
-| `/asset-lookup` — Asset Lookup | 100 550 623 700 710 712 720 721 722 730 731 735 740 741 750 800 805 806 807 820 914 944 | 19 | 1 | 1 | 2 |
+| `/asset-lookup` — Asset Lookup | 100 550 623 700 710 712 720 721 722 730 731 735 740 741 742 750 800 805 806 807 820 914 922 935 943 944 949 | 24 | 0 | 0 | 2 |
 | `/material-lookup` — Material Lookup | 110 370 850 855 860 865 866 870 | 8 | 0 | 0 | 2 |
-| `/map` — The Map | 120 121 122 123 735 | 7 | 1 | 0 | 4 |
-| `/transactions` — Transaction Log | 130 131 132 | 3 | 0 | 0 | 0 |
-| `/logz` — Dev Logs | 170 171 | 1 | 0 | 0 | 0 |
+| `/map` — The Map | 119 120 121 122 123 124 125 126 128 129 735 929 930 931 932 | 16 | 0 | 0 | 1 |
+| `/transactions` — Transaction Log | 130 131 132 942 | 4 | 0 | 0 | 0 |
+| `/logz` — Dev Logs | 170 171 172 | 2 | 0 | 0 | 0 |
 
 ## Writes by route — create, update, delete
 
@@ -83,14 +83,14 @@ conditions, failures, work-order asset links, attachments and photo tags; it cre
 
 | record | create | update | delete |
 |---|---|---|---|
-| Work order | ✅ `MOB.300` · `122` · `396` · `397` · at a dropped map point `932` | ✅ status `MOB.320` · General Info `395` (⚠️ only because the fixture carries **no project** — bugs §46: the form resubmits every field, so a project with no account blocks any save, and the toast still says `Record Updated`) · attributes `388` · Edit Location `352` | — |
+| Work order | ✅ `MOB.300` · crew cleared or another `303` · `122` · `396` · `397` · at a dropped map point `932` · from Asset Lookup with the asset's location `742` | ✅ status `MOB.320` · General Info `395` (⚠️ only because the fixture carries **no project** — bugs §46: the form resubmits every field, so a project with no account blocks any save, and the toast still says `Record Updated`) · attributes `388` · Edit Location `352` | — |
 | Charges ×4 | ✅ `MOB.350`–`380` | — | — |
 | Notes | ✅ `MOB.392` | ✅ `MOB.361`, its own note | ✅ `MOB.361`, its own note |
 | Conditions | ✅ `MOB.390` ¹ | ✅ `Edit Item` `MOB.386` ¹ | ✅ `MOB.390`, its own card |
 | Failures | ✅ `MOB.391` ¹ | ✅ `Edit Item` `MOB.385` ¹ | ✅ `MOB.391`, its own card |
 | Assets on a work order | ✅ Assets tab add `MOB.354` · from a map card `929` | ✅ `Mark as …` `MOB.353` · location form submit `359` | ✅ `MOB.354`, `MOB.929`, each its own link |
 | Attachments | ✅ one photo `MOB.363` · several types at once `MOB.933` · resumed after a cut `MOB.934` | ✅ `Copy to asset` `MOB.302` | ✅ `MOB.363`, `MOB.933`–`935`, their own uploads |
-| Forms | ✅ attach `MOB.364` (the test then deletes it over `/graphql`) | ✅ fill `MOB.134` · signature `[-]` | — |
+| Forms | ✅ attach `MOB.364` (the test then deletes it over `/graphql`) | ✅ fill `MOB.134` · sign and clear a signature `MOB.136` | — |
 | Assignment | — | ✅ reassign `MOB.365` | — |
 
 ¹ The write path is proved over `/graphql`, but **bugs §42 is not detected**: these children wait for `/work`'s prefetch,
@@ -101,8 +101,8 @@ reproduces §42.
 
 | record | create | update | delete |
 |---|---|---|---|
-| Job | — | ✅ status `MOB.536` · ⛔ verify all (reset decision) | — |
-| Asset on a job | ⛔ add to job (reset decision) | ✅ verify `MOB.510`/`590` · attributes `545` · Tag ID `537` | — |
+| Job | — | ✅ status `MOB.536` · verify all → `COMPLETED` and back `MOB.511` | — |
+| Asset on a job | ✅ a new asset `MOB.513` (🐞 §57) · an existing one `514` — the job reset after (`MOB.985`'s `after`) | ✅ verify `MOB.510`/`590` · attributes `545` · Tag ID `537` | — |
 | Readings | ✅ `MOB.550` | — | — |
 
 **Assets — Asset Lookup, the Collector and a job's asset rows (one `AssetLookupDetails`)**
@@ -133,13 +133,14 @@ suite's local time against a ~1071s ceiling (Appendix F); `MOB.959` and `MOB.953
 
 ### Work Orders
 
-#### `MOB.953_WorkOrders_1_List_Suite` — 9 children · writes (`MOB.300` leaves a work order) · Datadog 634s
+#### `MOB.953_WorkOrders_1_List_Suite` — 10 children · writes (`MOB.300` leaves a work order, `MOB.303` two) · Datadog 634s
 **The work-order LIST: create, search, sort, map toggle, status ring, row navigation.**
 
 `MOB.150` the route renders · `MOB.300` create (the create form has no `optimisticResponse`, so its modal closing is a
 server answer; `Assign to Crew` shows the session's crew, the create sends it as `roleId`, and the new stage holds it —
-over `/graphql`) · `MOB.301` a photo in the create form (a local `blob:`, discarded unsent) · `MOB.340` search/sort ·
-`MOB.341` map toggle · `MOB.343` search filters · `MOB.344` row navigation · `MOB.342` status ring and legend ·
+over `/graphql`) · `MOB.303` two more creates, the crew CLEARED (no `roleId`: exactly the workflow's own crews) and set to
+`Test Notifications Only` (the workflow's crews plus it), each over `/graphql` · `MOB.301` a photo in the create form (a local `blob:`, discarded unsent) · `MOB.340` search/sort ·
+`MOB.341` map toggle · `MOB.343` search filters · `MOB.344` row navigation · `MOB.342` status ring and legend, and its exclusion leg (the second fixture In Progress: left out under Ready, shown under In Progress) ·
 `MOB.345` sort applied, persisted and really reversed — narrowed by a search first, and every row rendered in both
 directions must come out reversed, so a row paging in mid-test cannot fail it.
 
@@ -153,20 +154,21 @@ cycling.
 #### `MOB.981_WorkOrders_3_Detail_Charges_Offline_Suite` — 6 children · read-only · Datadog 453s
 **The charge forms' negative cases, form metrics, the assign modal and the offline screens.**
 
-`MOB.357` `FormMetrics` · ⭐ **`MOB.356` an invalid charge form does not submit, on all four** — the failure mode the
-charge tests are blind to · `MOB.351` the `ESTIMATES` section on four tabs (no estimate row: the fixture has none) ·
+`MOB.357` `FormMetrics` — `0 of 0` on the main fixture, `0 of 1` on the second fixture's required form, and the work-level header · ⭐ **`MOB.356` an invalid charge form does not submit, on all four** — the failure mode the
+charge tests are blind to · `MOB.351` the `ESTIMATES` section on four tabs, each listing the fixture's estimates by name ·
 `MOB.398` the crew-assignment modal (cancelled) · `MOB.911` the offline geolocate popover · ⭐ `MOB.912`
 `ConnectionRequired` (Asset Lookup) and the material-charge offline message, reached by overriding `navigator.onLine`,
 each paired with its online control.
 🛑 Kept separate from `MOB.954`: together they measured 485s local, too close to the ceiling on Datadog.
 
-#### `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` — 6 children · read-only · Datadog 351s
+#### `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` — 7 children · read-only · Datadog 351s
 **The Assets tab, the record forms opened unsaved, attachments and proximity.**
 
 `MOB.347` Assets tab (🛑 `Mark as …` asserted, never clicked — `MOB.353` writes it; the `All` / `Active` switch renders at `All`) · `MOB.389` the Condition/Failure
 asset lookups ignore case · `MOB.387` `Edit Item` opens the condition form filled with its card's six values, closed
 unsaved; the card's `Stress Decision Score:`/`Notes:` rows and the failure table's `Discovery Code` · `MOB.741` the
-work-stage attachment panel and its image filter · `MOB.731` Near Me's radius · `MOB.358` the asset location form, online
+work-stage attachment panel and its image filter · `MOB.731` Near Me's radius · `MOB.366` a PM route stage's Assets tab —
+the status controls with no template flag, the routed assets in sequence order · `MOB.358` the asset location form, online
 and — with `navigator.onLine` overridden — its offline state (last: it stubs `fetch`).
 
 #### `MOB.956_WorkOrders_5_Records_Suite` — 8 children · writes (residue: charges, a note) · Datadog 623s
@@ -206,18 +208,19 @@ from a stubbed geocode, `Include GIS` off so lat/long are proved unchanged, rest
 #### `MOB.959_WorkOrders_8_Stage_Writes_Create_Suite` — 6 children · writes (residue: two work orders) · Datadog 682s
 **The remaining work-order entry points, and writes on work order `20260910-16`.**
 
-`MOB.396` create from a job asset · `MOB.397` follow-up · `MOB.302` **`Copy to asset` reaches the server** — the asset
+`MOB.396` create from a job asset — the new stage holds `⚡ Tank 0000`, over `/graphql` · `MOB.397` follow-up · `MOB.302` **`Copy to asset` reaches the server** — the asset
 lists the SAME attachment id (a link, not a copy), then the link is removed from the asset and the work order's image
 still loads · on `20260910-16`: `MOB.363` a photo uploaded to the Attachments tab and deleted, guarded to its own id ·
 `MOB.365` reassigned to another crew and assigned back to `Admin` (a `/graphql` net un-assigns the target), the crews
 ending exactly the 8 at rest · `MOB.364` a form attached — one more over `/graphql`, its card after a reload and the
 page's ⟳ resync — then deleted over `/graphql`, the form ids back to the premise's.
 
-#### `MOB.960_WorkOrders_9_Forms_Suite` — 3 children · writes (self-restoring) · Datadog 191s (its 2-child version)
+#### `MOB.960_WorkOrders_9_Forms_Suite` — 4 children · writes (self-restoring) · Datadog 191s (its 2-child version)
 **A work stage form, rendered and written.**
 
 `MOB.355` form render (desktop branch) · `MOB.134` a work form's integer field saved on blur, proved over `/graphql`, and
-cleared · `MOB.135` the `🔎 Inspection` form's signature field in the tablet's desktop grid — drawn with the MOBILE control, `Add Signature`, its pad opened in a modal and closed untouched, and the server still holding no signature (the pad saves only a pending stroke, on close).
+cleared · `MOB.135` the `🔎 Inspection` form's signature field in the tablet's desktop grid — drawn with the MOBILE control, `Add Signature`, its pad opened in a modal and closed untouched, and the server still holding no signature (the pad saves only a pending stroke, on close) · `MOB.136` a stroke drawn on
+that pad, saved on close as a PNG and proved over `/graphql`, then `Clear` — `null` saved and proved (self-restoring).
 
 ### Asset Verify
 
@@ -255,11 +258,21 @@ is COMPLETED, which is false for every premise `MOB.500`/`510`/`590` and `MOB.53
 possible at all because the status now recomputes DOWNWARD — until build 92 `COMPLETED` was a one-way door and each run
 would have needed `reset_av_fixture.py --apply` afterwards.
 
-#### `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` — 3 children · read-only · Datadog 263s
+#### `MOB.985_AssetVerify_4_Add_Assets_Suite` — 2 children · writes (**not** self-restoring: reset after) · not run on Datadog
+**Growing the job, then putting it back.**
+
+`MOB.513` creates a `DD SYNTHETIC MOBILE AV …` asset from the job's + and proves the job holds it over `/graphql` —
+🐞 then the job's page is blank until a module resync (bugs §57, pinned) · `MOB.514` adds Pump 0098 from `Add Existing
+Asset`, proven the same way. Neither undoes itself (owner, 2026-09-29: run, then reset): the suite's `after` in
+`tools/suites.json` makes `playwright_pass.py` run `reset_av_fixture.py --apply` straight after it — the new asset
+unlinked and deleted, Pump 0098 unlinked — before the next fixture check. Run alone, run the reset by hand.
+
+#### `MOB.964_AssetVerify_4_Asset_Detail_Read_Suite` — 4 children · read-only · Datadog 263s
 **The full-page asset, read.**
 
 `MOB.570` asset cycling · `MOB.575` Failure/Condition forms · `MOB.546` the full-page **Attachments** tab (the one
-`keepMounted={false}` call site; Photos and Docs both populated).
+`keepMounted={false}` call site; Photos and Docs both populated) · `MOB.538` a characterization pin: the header's
+`Asset Type:` is plain text beside `Tag ID`/`Desc` edit buttons, while General Info lists it as an enabled lookup.
 
 #### `MOB.965_AssetVerify_5_Asset_Detail_Edits_Suite` — 3 children · writes · Datadog 438s
 **The full-page asset, written.**
@@ -319,14 +332,15 @@ multi-value `enum` (`Failure Curve`, narrows) and `record` (`Asset Type`; sentin
 filter — it did until `02b17aa82e` (2026-09-17), and `MOB.820` now asserts that it survives. All four
 filter tests share `dd_tools.open_filters_drawer` (a bench drift-guard enforces one copy).
 
-#### `MOB.980_AssetLookup_3_Edits_Suite` — 4 children · writes · Datadog 179s
+#### `MOB.980_AssetLookup_3_Edits_Suite` — 5 children · writes · Datadog 179s with its first 4
 **Writes on the Asset Lookup route.**
 
 `MOB.710` the per-field pencil (three entry points), self-restoring on `Pump 0102` · `MOB.712` a System created from the
 System field on a `DD SYNTHETIC MOBILE` asset — the System and the asset's link both over `/graphql` (residue: one System
 per run) · `MOB.722` a `Test 1` reading captured on that asset, `CREATE_EVENT` proved over `/graphql` (residue: one
 reading per run) · `MOB.944` the Attributes tab, in its own browser: offline, a refused add, the type filter, then
-`🔤 string 1` added, edited and removed on a `DD SYNTHETIC MOBILE` asset, each over `/graphql` (self-cleaning).
+`🔤 string 1` added, edited and removed on a `DD SYNTHETIC MOBILE` asset, each over `/graphql` (self-cleaning) ·
+`MOB.742` `Add Work` on Pump 0066's row: the new stage holds the asset at its x/y, over `/graphql` (residue: a work order).
 🛑 Separate from `MOB.969`: its children leave a term in `asset_lookup_query`, and a search typed on top of one reads
 `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).
 
@@ -335,10 +349,33 @@ reading per run) · `MOB.944` the Attributes tab, in its own browser: offline, a
 | suite | children | Datadog | establishes |
 |---|---|---|---|
 | `MOB.970_MaterialLookup_Suite` | 7 · writes | 368s | `MOB.110` the route · `MOB.850` storeroom read and search · `MOB.860` cycle count `+1`/`-1` (self-restoring by construction — neither leg reads the quantity back) · `MOB.870` stocking (**one-way**) · `MOB.855` column sort really reorders, `N matches` vs rows (bugs §33) · `MOB.865` the Photos/Docs segments — the storeroom item's editable attachments above the material item's read-only ones — and the row avatar modal · `MOB.866` uploads a photo and a PDF to the storeroom item and deletes both, each end over `/graphql`, the material item's own attachments proved unchanged |
-| `MOB.971_Map_Suite` | 4 · writes (residue: a work order) | 156s | `MOB.120` the route · `MOB.121` map controls (style, the layers panel and its heading, zoom — not 2D/3D or Home) · `MOB.123` the `Switch Map` picker (a real switch and back, read from `mobile-map-id`) · `MOB.122` a work order created from the map, last |
-| `MOB.972_AppShell_Suite` | 16 · writes (`MOB.131` verifies and un-verifies an AV asset) | 378s | `MOB.180` Home tiles · `MOB.900` a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run · `MOB.910` the offline UI · `MOB.170` route and `MOB.171` Dev Logs · `MOB.130` route and `MOB.131`/`132` the Transaction Log · `MOB.942` its 30-day retention, in its own browser · the hamburger menu, resync, back arrow, header status icons (and no gap under the header), crew modal dismissal and its always-shown offline description (`MOB.400` `410` `420` `430` `450` `460` `470` — **not** `MOB.440`, which logs out and is standalone). 🛑 Route checks are shallow by design: the route resolved and titled itself, not that its data loaded — each module's suites cover that |
+| `MOB.971_Map_Suite` | 14 · writes (residue: work orders and an asset; the `My Work: Ready` layer switched on and back off) | 156s with its first 4 children | `MOB.120` the route · `MOB.119` the no-map message (an empty stored map id, its own browser) · `MOB.121` map controls (style, the layers panel and its heading, zoom) · `MOB.124` tilt and Home (pins bugs §55) · `MOB.125` the address search's popup on screen · `MOB.126` the same layers after a style switch · `MOB.127` an AV job's verification-coloured pins · `MOB.123` the `Switch Map` picker (a real switch and back, read from `mobile-map-id`) · `MOB.122` a work order created from the map · `MOB.929` an asset linked to a test-made work order from its map card, and exactly that link removed · `MOB.930` the change-asset popup opened and cancelled · `MOB.128` a test-made work order's assets replaced by a pick on the map, proven over `/graphql` · `MOB.129` the same from the card "View in Map" opens (pins bugs §56) · `MOB.932` a dropped point turned into a work order and an asset |
+| `MOB.972_AppShell_Suite` | 17 · writes (`MOB.131` verifies and un-verifies an AV asset) | 378s | `MOB.180` Home tiles · `MOB.900` a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run · `MOB.910` the offline UI · `MOB.170` route and `MOB.171` Dev Logs · `MOB.172` its empty state and an error entry, in its own browser (pins bugs §58) · `MOB.130` route and `MOB.131`/`132` the Transaction Log · `MOB.942` its 30-day retention, in its own browser · the hamburger menu, resync, back arrow, header status icons (and no gap under the header), crew modal dismissal and its always-shown offline description (`MOB.400` `410` `420` `430` `450` `460` `470` — **not** `MOB.440`, which logs out and is standalone). 🛑 Route checks are shallow by design: the route resolved and titled itself, not that its data loaded — each module's suites cover that |
 | `MOB.973_Session_RunAlone_Suite` | 2 · writes · **run alone** | 215s | ⭐ `MOB.210` permission gating of the menu · `MOB.220` crew scoping changes the visible job set. ⚠️ never run concurrently — mutates the session crew |
 | `MOB.975_Phone_Suite` | 2 · read-only · `chrome.mobile_small` | 129s | `MOB.951` a work form renders its MOBILE branch (`#senor-work-form`, below `availWidth` 750) and not the desktop one, with its image field's `Upload Photo` exactly when the form has one · `MOB.952` the affixed `+`, the list's search and the burger at phone width; the header crew shortcut is hidden under 450px by design |
+
+### Resilience — failures, the session and offline, made in the browser
+
+#### `MOB.982_Resilience_1_Error_States_Suite` — 18 children · writes nothing (built to: every failure is made in the browser) · not run on Datadog
+**What the user sees when the server fails, or a rare state arrives.** Each child in its own browser.
+
+`MOB.920` the startup session load fails — the `Session could not be loaded.` banner and `Reload page` · `MOB.921` the
+condition and failure forms' schema query fails — `Unable to load form` · `MOB.922` the tag lookup's three AI answers ·
+`MOB.943` the tag lookup ignoring active filters (pins bugs §51) · `MOB.931` `Asset not found.` on a map card · refused
+saves that now say so: `MOB.937` create a work order, `MOB.938` reassign, `MOB.939` add to work, `MOB.940` verify (pins
+bugs §52 and §53), `MOB.923` a job note (pins bugs §48), `MOB.924` an attached form · `MOB.941` a mobile-only user in a
+browser · `MOB.945` the collector's location for a type with no geometry · rare states, answered in the browser:
+`MOB.946` an AV asset with no standard or profile, `MOB.544` one with no attributes, `MOB.947` a failure's component,
+`MOB.948` the scheduled view empty, `MOB.949` a video given to Get Description.
+
+#### `MOB.983_Resilience_2_Session_Suite` — 2 children · read-only · not run on Datadog
+**The session ending.** `MOB.925` the expiry prompt, reached by moving the browser's clock — `Extend session` works but
+says `The operation was aborted.` (pins bugs §49) · `MOB.926` the server calling the session gone sends the user to the
+mobile login.
+
+#### `MOB.984_Resilience_3_Offline_Suite` — 1 child · writes (self-cleaning) · not run on Datadog
+**Really offline.** `MOB.927` a note saved offline is queued, reaches the server on reconnect and survives a reload; then
+deleted with `MOB.361`'s named flow (trap 2).
 
 ### Standalone — in no suite
 

@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob220(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Baseline: \"DATADOG MOBILE JOB\" is visible under Admin", {}, async () => {
     await assertPageContains(page, `DATADOG MOBILE JOB`, DEFAULT_TIMEOUT);
@@ -28,7 +29,7 @@ export async function mob220(page: Page): Promise<void> {
     await wait(page, 8);
   });
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Wait for the job list to reload for the new crew", {}, async () => {
     await wait(page, 25);
@@ -52,7 +53,7 @@ export async function mob220(page: Page): Promise<void> {
     await wait(page, 8);
   });
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Wait for the job list to reload", {}, async () => {
     await wait(page, 25);

@@ -10,6 +10,7 @@ import { mob900 } from '../tests/MOB.900_Online_Guard';
 import { mob910 } from '../tests/MOB.910_Offline_UI';
 import { mob170 } from '../tests/MOB.170_Nav_Dev_Logs';
 import { mob171 } from '../tests/MOB.171_DevLogs_Contents';
+import { mob172 } from '../tests/MOB.172_DevLogs_Empty_And_Error';
 import { mob130 } from '../tests/MOB.130_Nav_Transaction_Log';
 import { mob131 } from '../tests/MOB.131_Transaction_Log_Contents';
 import { mob132 } from '../tests/MOB.132_TransactionLog_Search';
@@ -54,6 +55,17 @@ test.describe.serial('MOB.972_AppShell_Suite', () => {
 
   test('MOB.171_DevLogs_Contents', async () => {
     await mob171(page);
+  });
+
+  // Its own browser: it clears the local log store, and makes one error entry (the email POST aborted in the browser).
+  // Bugs §58 pin: `logger.error` overwrites what it caught, so the entry reads `Unknown error` / `{}` for a network failure.
+  // That symptom — and only that — is EXPECTED; when the error's own name and message survive, the test is green.
+  test('MOB.172_DevLogs_Empty_And_Error', async ({ browser }) => {
+    const { errorBlock } = await mob172(browser);
+    if (/"name":\s*"Unknown error"/.test(errorBlock) && /"message":\s*"\{\}"/.test(errorBlock)) {
+      test.fail(true, 'bugs §58: logger.error drops the caught error — the entry reads Unknown error / {}');
+      throw new Error(`bugs §58: the logged error lost its details: ${errorBlock.replace(/\s+/g, ' ')}`);
+    }
   });
 
   test('MOB.130_Nav_Transaction_Log', async () => {

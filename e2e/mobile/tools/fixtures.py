@@ -11,6 +11,8 @@ its own behaviour, so the pass stops instead (docs/cleanup_spec.md).
     work    the fixture work order is Ready, in the crew's list, and has no project
     mob302  Bypass Valve 0001 has no photos, and its work order exactly one
     mob39x  no condition/failure left behind by MOB.390/391; the original condition is still there
+    second  the second fixture work order is In Progress with its required form (setup_second_fixture.py)
+    pmroute the PM route stage is a PM route, Ready, with its three routed assets (setup_pm_route.py)
 """
 import os
 import subprocess
@@ -21,6 +23,8 @@ sys.path.insert(0, HERE)
 
 WO_FIXTURE = "EYRpYJ9QYdQ1JFF10JtB0Q"
 MOB302_WO, MOB302_ASSET = "RcdI0xcpc8NBV8VoRNNBYM", "wFRo1MMwoAMkdxA4hVpIhB"
+SECOND_WO = "Vg5Qd9VddQJIYNR48Yhk9l"        # 20260929-19-001
+PM_ROUTE_STAGE = "58JgBIYA1cBQxoQVwJ5FRw"    # 20260929-18-001
 
 
 def session():
@@ -87,7 +91,25 @@ def check_mob39x():
                 f"(want 0 — clean from desktop) · original condition: {len(orig_c)} (want 1)")
 
 
-CHECKS = {"av": check_av, "work": check_work, "mob302": check_mob302, "mob39x": check_mob39x}
+def check_second():
+    s = session()
+    w = s.graphql("query($id: ID!) { workStage(id: $id) { status forms { name } } }", {"id": SECOND_WO})["workStage"]
+    forms = [f for f in w["forms"] if f["name"] == "DATADOG FIXTURE REQUIRED FORM"]
+    ok = w["status"] in ("In Progress", "InProgress") and len(forms) == 1
+    return ok, f"20260929-19-001: status {w['status']} (want In Progress) · required form attached {len(forms)}× (want 1) — setup_second_fixture.py --apply"
+
+
+def check_pmroute():
+    s = session()
+    w = s.graphql("query($id: ID!) { workStage(id: $id) { status pmRoute mobileTemplate { showAssetStatus } assets { sequence } } }",
+                  {"id": PM_ROUTE_STAGE})["workStage"]
+    ok = w["pmRoute"] is True and w["status"] == "Ready" and len(w["assets"]) == 3 and not (w["mobileTemplate"] or {}).get("showAssetStatus")
+    return ok, (f"20260929-18-001: pmRoute {w['pmRoute']}, status {w['status']}, {len(w['assets'])} assets (want 3), "
+                f"template status flag {(w['mobileTemplate'] or {}).get('showAssetStatus')} (want off)")
+
+
+CHECKS = {"av": check_av, "work": check_work, "mob302": check_mob302, "mob39x": check_mob39x,
+          "second": check_second, "pmroute": check_pmroute}
 
 
 def main(names):
@@ -98,7 +120,7 @@ def main(names):
         except Exception as e:                      # a check that cannot run is a failure, not a pass
             ok, msg = False, f"ERROR {type(e).__name__}: {str(e)[:160]}"
         bad += not ok
-        print(f"  [{'ok  ' if ok else 'FAIL'}] {name:7} {msg}")
+        print(f"  [{'ok  ' if ok else 'FAIL'}] {name:8} {msg}")
     print("\nFIXTURES " + ("AT REST" if not bad else f"— {bad} not at rest"))
     return 1 if bad else 0
 

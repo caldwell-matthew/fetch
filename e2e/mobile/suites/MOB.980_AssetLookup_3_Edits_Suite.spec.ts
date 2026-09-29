@@ -9,6 +9,7 @@ import { mob710 } from '../tests/MOB.710_AssetLookup_Field_Edit';
 import { mob712 } from '../tests/MOB.712_AssetLookup_System_Create';
 import { mob722 } from '../tests/MOB.722_AssetLookup_Reading_Capture';
 import { mob944 } from '../tests/MOB.944_AssetLookup_Attributes_Edit';
+import { mob742 } from '../tests/MOB.742_AssetLookup_Add_Work';
 import { freshSession } from '../support/session';
 
 test.describe.serial('MOB.980_AssetLookup_3_Edits_Suite', () => {
@@ -44,6 +45,11 @@ test.describe.serial('MOB.980_AssetLookup_3_Edits_Suite', () => {
     } finally {
       await own.context().close();
     }
+  });
+
+  // Creates a work order on Pump 0066 (residue, `DD SYNTHETIC MOBILE …`).
+  test('MOB.742_AssetLookup_Add_Work', async () => {
+    await mob742(page);
   });
 
 });

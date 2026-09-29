@@ -3,11 +3,13 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
+import { PUMP_0102 } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob740(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to asset lookup", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
@@ -73,7 +75,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($p: ChildTableQuery!) { assetWorkHistory(params: $p) { edges { id _assignments } } }", variables: {"p": {"parentId": "oB5BUN1Es1Jctw8FVYwYBh", "sortId": "createdAt", "sortDir": "DESC", "limit": 1}} }) })
+      body: JSON.stringify({ query: "query($p: ChildTableQuery!) { assetWorkHistory(params: $p) { edges { id _assignments } } }", variables: {"p": {"parentId": "${PUMP_0102}", "sortId": "createdAt", "sortDir": "DESC", "limit": 1}} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });

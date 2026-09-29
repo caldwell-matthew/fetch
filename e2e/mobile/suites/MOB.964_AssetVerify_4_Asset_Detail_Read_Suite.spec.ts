@@ -8,6 +8,7 @@ import { login } from '../support/login';
 import { mob570 } from '../tests/MOB.570_AssetVerify_Asset_Cycling';
 import { mob575 } from '../tests/MOB.575_AssetVerify_Failure_Condition_Forms';
 import { mob546 } from '../tests/MOB.546_AssetVerify_Asset_Attachments';
+import { mob538 } from '../tests/MOB.538_AssetVerify_Detail_Asset_Type_Plain';
 
 test.describe.serial('MOB.964_AssetVerify_4_Asset_Detail_Read_Suite', () => {
   let page: Page;
@@ -32,6 +33,10 @@ test.describe.serial('MOB.964_AssetVerify_4_Asset_Detail_Read_Suite', () => {
 
   test('MOB.546_AssetVerify_Asset_Attachments', async () => {
     await mob546(page);
+  });
+
+  test('MOB.538_AssetVerify_Detail_Asset_Type_Plain', async () => {
+    await mob538(page);
   });
 
 });

@@ -7,8 +7,8 @@ import { DEVICES } from '../../playwright.config';
 import { globals } from '../../support/env';
 import { login } from './login';
 
-export const FIXTURE_WO = 'EYRpYJ9QYdQ1JFF10JtB0Q'; // the main work-order fixture (`20260805-18-001`)
-export const FORMS_WO = 'xohY0klBZktB9VBRxc8k4J'; // work order `20260910-16`, where form attaches are allowed
+// The fixtures live in `./fixtures.ts`; these three are re-exported for the tests that import them from here.
+export { FIXTURE_WO, FORMS_WO, SECOND_FIXTURE_WO } from './fixtures';
 
 export function appUrl(path = ''): string {
   return globals.MOBDEV.replace(/\/$/, '') + '/' + path.replace(/^\//, '');

@@ -4,12 +4,13 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertPageContains, assertPageLacks, click, typeText, wait } from '../../support/dd';
 import { runId } from '../../support/env';
+import { appUrl } from '../support/session';
 
 export async function mob122(page: Page): Promise<void> {
   const RUNID = runId('numeric', 8);
   const run = new Sequence();
   await run.step("Navigate to the mobile map", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}map`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The Mapbox canvas rendered", {}, async () => {
     await assertElementPresent(page, `//canvas[contains(@class,"mapboxgl-canvas")]`, 60000);

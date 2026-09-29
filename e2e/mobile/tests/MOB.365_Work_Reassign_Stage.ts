@@ -4,11 +4,13 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, typeText, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
+import { ACCOUNT_EXECUTIVE_CREW, ADMIN_CREW, FORMS_WO } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob365(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
@@ -17,7 +19,7 @@ export async function mob365(page: Page): Promise<void> {
     await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Navigate to the reassign work order (20260910-16)", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FORMS_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -31,10 +33,10 @@ if (raw) {
   ["__dd365_premise", "__dd365_net", "__dd365_keep"].forEach(k => sessionStorage.removeItem(k));   // a killed run's keys
 const ids = data.a.edges.map(e => e.id).sort();
 const same = (want) => JSON.stringify(ids) === JSON.stringify(want);
-  const x = data.x.edges.filter(e => e.id === 'thtNo1Nd9th9FRNNoAN5Il' && e.name === 'Account Executive').length;
-  if (same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "l4Jlk4ExMY005JZAF8hclQ"])) sessionStorage.setItem('__dd365_premise', 'rest');
-  else if (same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "thtNo1Nd9th9FRNNoAN5Il"]) || same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "l4Jlk4ExMY005JZAF8hclQ", "thtNo1Nd9th9FRNNoAN5Il"])) sessionStorage.setItem('__dd365_premise', 'leftover');
-  return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "l4Jlk4ExMY005JZAF8hclQ"]) && x === 1 && data.workStage.scheduleDates.length === 0;
+  const x = data.x.edges.filter(e => e.id === '${ACCOUNT_EXECUTIVE_CREW}' && e.name === 'Account Executive').length;
+  if (same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ADMIN_CREW}"])) sessionStorage.setItem('__dd365_premise', 'rest');
+  else if (same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ACCOUNT_EXECUTIVE_CREW}"]) || same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ADMIN_CREW}", "${ACCOUNT_EXECUTIVE_CREW}"])) sessionStorage.setItem('__dd365_premise', 'leftover');
+  return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ADMIN_CREW}"]) && x === 1 && data.workStage.scheduleDates.length === 0;
 })()); } catch (e) { ok = false; }
   if (ok) return true;
   sessionStorage.removeItem(K);
@@ -44,7 +46,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "xohY0klBZktB9VBRxc8k4J", "p": {"parentId": "xohY0klBZktB9VBRxc8k4J", "limit": 100}, "x": {"parentId": "xohY0klBZktB9VBRxc8k4J", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
+      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "${FORMS_WO}", "p": {"parentId": "${FORMS_WO}", "limit": 100}, "x": {"parentId": "${FORMS_WO}", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
@@ -109,7 +111,7 @@ if (raw) {
   let ok = false;
   try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ids = data.a.edges.map(e => e.id).sort();
 const same = (want) => JSON.stringify(ids) === JSON.stringify(want);
- return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "thtNo1Nd9th9FRNNoAN5Il"]); })()); } catch (e) { ok = false; }
+ return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ACCOUNT_EXECUTIVE_CREW}"]); })()); } catch (e) { ok = false; }
   if (ok) return true;
   sessionStorage.removeItem(K);
 }
@@ -118,7 +120,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "xohY0klBZktB9VBRxc8k4J", "p": {"parentId": "xohY0klBZktB9VBRxc8k4J", "limit": 100}, "x": {"parentId": "xohY0klBZktB9VBRxc8k4J", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
+      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "${FORMS_WO}", "p": {"parentId": "${FORMS_WO}", "limit": 100}, "x": {"parentId": "${FORMS_WO}", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
@@ -130,7 +132,7 @@ return false;`, 60000);
 return true;`, 15000);
   });
   await run.step("Navigate to the reassign work order (restore)", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/xohY0klBZktB9VBRxc8k4J`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FORMS_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the detail view begin rendering", {always: true}, async () => {
     await wait(page, 2);
@@ -197,7 +199,7 @@ if (raw) {
   let ok = false;
   try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ids = data.a.edges.map(e => e.id).sort();
 const same = (want) => JSON.stringify(ids) === JSON.stringify(want);
- return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "l4Jlk4ExMY005JZAF8hclQ", "thtNo1Nd9th9FRNNoAN5Il"]); })()); } catch (e) { ok = false; }
+ return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ADMIN_CREW}", "${ACCOUNT_EXECUTIVE_CREW}"]); })()); } catch (e) { ok = false; }
   if (ok) return true;
   sessionStorage.removeItem(K);
 }
@@ -206,7 +208,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "xohY0klBZktB9VBRxc8k4J", "p": {"parentId": "xohY0klBZktB9VBRxc8k4J", "limit": 100}, "x": {"parentId": "xohY0klBZktB9VBRxc8k4J", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
+      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "${FORMS_WO}", "p": {"parentId": "${FORMS_WO}", "limit": 100}, "x": {"parentId": "${FORMS_WO}", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
@@ -223,8 +225,8 @@ sessionStorage.setItem('__dd365_net', '1');
 const post = (query, variables) => window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
   headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
   body: JSON.stringify({ query, variables }) });
-post("mutation($crew: String!, $ids: [ID!]) { removeWorkStageFromCrew(crew: $crew, workStageIds: $ids) }", { crew: 'thtNo1Nd9th9FRNNoAN5Il', ids: ['xohY0klBZktB9VBRxc8k4J'] });
-post("mutation($id: ID!, $data: AddRoleInput!) { addAssignmentToWorkStage(parentId: $id, data: $data) { id } }", { id: 'xohY0klBZktB9VBRxc8k4J', data: { roleId: 'l4Jlk4ExMY005JZAF8hclQ' } });
+post("mutation($crew: String!, $ids: [ID!]) { removeWorkStageFromCrew(crew: $crew, workStageIds: $ids) }", { crew: '${ACCOUNT_EXECUTIVE_CREW}', ids: ['${FORMS_WO}'] });
+post("mutation($id: ID!, $data: AddRoleInput!) { addAssignmentToWorkStage(parentId: $id, data: $data) { id } }", { id: '${FORMS_WO}', data: { roleId: '${ADMIN_CREW}' } });
 return true;`, 15000);
   });
   await run.step("Let the restore mutations land", {always: true}, async () => {
@@ -237,7 +239,7 @@ if (raw) {
   let ok = false;
   try { const data = (JSON.parse(raw) || {}).data; ok = !!data && !!((() => { const ids = data.a.edges.map(e => e.id).sort();
 const same = (want) => JSON.stringify(ids) === JSON.stringify(want);
- return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "l4Jlk4ExMY005JZAF8hclQ"]); })()); } catch (e) { ok = false; }
+ return same(["1ck5xMQ4IMV0BgRx0xsUdk", "5Ylk1wIhslMR8lsg8NAQxA", "BVM9Bxkpox9BlEYd8sp0NR", "cQVVNJU5cFEU9RwIhw0Aps", "cc5MgMoo1h9VJBZtB4ZNFR", "kkBtBwZoBlpcw84F4F9B8s", "kx5sw1dVUFMYFs0UA08Z5M", "${ADMIN_CREW}"]); })()); } catch (e) { ok = false; }
   if (ok) return true;
   sessionStorage.removeItem(K);
 }
@@ -246,7 +248,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "xohY0klBZktB9VBRxc8k4J", "p": {"parentId": "xohY0klBZktB9VBRxc8k4J", "limit": 100}, "x": {"parentId": "xohY0klBZktB9VBRxc8k4J", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
+      body: JSON.stringify({ query: "query($p: ChildTableQuery!, $x: ChildTableQuery!, $id: ID!) { a: workStageAssignments(params: $p) { edges { id name } } x: workStageAssignments(params: $x) { edges { id name } } workStage(id: $id) { id scheduleDates { id } } }", variables: {"id": "${FORMS_WO}", "p": {"parentId": "${FORMS_WO}", "limit": 100}, "x": {"parentId": "${FORMS_WO}", "notInCollection": true, "limit": 100, "query": {"conditions": [{"column": "name", "operator": "CONTAINS", "value": "Account Executive"}]}}} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });

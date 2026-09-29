@@ -4,11 +4,13 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageLacks, click, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
+import { FIXTURE_WO } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob135(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
@@ -29,7 +31,7 @@ export async function mob135(page: Page): Promise<void> {
     await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Navigate to the fixture work order", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("GATE: the detail data arrived (tab strip)", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[1]`, 60000);
@@ -66,7 +68,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { forms { name widgets { __typename ... on WorkflowFormSignature { id label signature } } } } }", variables: {"id": "EYRpYJ9QYdQ1JFF10JtB0Q"} }) })
+      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { forms { name widgets { __typename ... on WorkflowFormSignature { id label signature } } } } }", variables: {"id": "${FIXTURE_WO}"} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
@@ -131,7 +133,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { forms { name widgets { __typename ... on WorkflowFormSignature { id label signature } } } } }", variables: {"id": "EYRpYJ9QYdQ1JFF10JtB0Q"} }) })
+      body: JSON.stringify({ query: "query($id: ID!) { workStage(id: $id) { forms { name widgets { __typename ... on WorkflowFormSignature { id label signature } } } } }", variables: {"id": "${FIXTURE_WO}"} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });

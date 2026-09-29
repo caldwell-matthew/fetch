@@ -8,6 +8,7 @@ import { login } from '../support/login';
 import { mob310 } from '../tests/MOB.310_Work_Read';
 import { mob330 } from '../tests/MOB.330_Work_Detail_Tabs';
 import { mob331 } from '../tests/MOB.331_Work_GenInfo_Value_Modal';
+import { mob332 } from '../tests/MOB.332_Multiline_Arrow_Other_Forms';
 import { mob393 } from '../tests/MOB.393_Work_Add_Form';
 import { mob394 } from '../tests/MOB.394_Work_Permits';
 import { mob399 } from '../tests/MOB.399_Work_Warranties';
@@ -37,6 +38,10 @@ test.describe.serial('MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite', () => {
 
   test('MOB.331_Work_GenInfo_Value_Modal', async () => {
     await mob331(page);
+  });
+
+  test('MOB.332_Multiline_Arrow_Other_Forms', async () => {
+    await mob332(page);
   });
 
   test('MOB.393_Work_Add_Form', async () => {

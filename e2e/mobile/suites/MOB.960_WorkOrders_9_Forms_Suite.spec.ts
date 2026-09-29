@@ -8,6 +8,7 @@ import { login } from '../support/login';
 import { mob355 } from '../tests/MOB.355_Work_Form_Render';
 import { mob134 } from '../tests/MOB.134_Work_Form_Fill';
 import { mob135 } from '../tests/MOB.135_Work_Form_Signature_Pad';
+import { mob136 } from '../tests/MOB.136_Work_Form_Signature_Save';
 
 test.describe.serial('MOB.960_WorkOrders_9_Forms_Suite', () => {
   let page: Page;
@@ -32,6 +33,11 @@ test.describe.serial('MOB.960_WorkOrders_9_Forms_Suite', () => {
 
   test('MOB.135_Work_Form_Signature_Pad', async () => {
     await mob135(page);
+  });
+
+  // Signs the fixture's Inspection form and clears it again (owner, 2026-09-29) — after MOB.135, which needs it unsigned.
+  test('MOB.136_Work_Form_Signature_Save', async () => {
+    await mob136(page);
   });
 
 });

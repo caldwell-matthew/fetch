@@ -11,6 +11,7 @@ import { mob387 } from '../tests/MOB.387_Work_Condition_Edit_Prefill';
 import { mob741 } from '../tests/MOB.741_Work_Attachments_Docs';
 import { mob731 } from '../tests/MOB.731_AssetLookup_Proximity_Radius';
 import { mob358 } from '../tests/MOB.358_Work_Asset_Geolocate';
+import { mob366 } from '../tests/MOB.366_Work_PM_Route_Assets';
 
 test.describe.serial('MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite', () => {
   let page: Page;
@@ -43,6 +44,11 @@ test.describe.serial('MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite', ()
 
   test('MOB.731_AssetLookup_Proximity_Radius', async () => {
     await mob731(page);
+  });
+
+  // The PM route stage made by tools/setup_pm_route.py — read-only. Before MOB.358, which stubs `fetch` and runs last.
+  test('MOB.366_Work_PM_Route_Assets', async () => {
+    await mob366(page);
   });
 
   test('MOB.358_Work_Asset_Geolocate', async () => {

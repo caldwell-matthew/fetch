@@ -16,6 +16,8 @@ WHY THIS EXISTS AND `npx playwright test` IS NOT ENOUGH
            rather than on its own behaviour. They run again at the end, so residue is seen here and
            not three days later.
   Suites marked `held` in tools/suites.json are skipped, with the reason printed.
+  A suite with an `after` (a tools/ command) has it run straight after the suite, red or green — the
+  owner's "run, then reset" for a suite that does not undo its own writes (MOB.985).
 
   A red suite STOPS the pass (unless --keep-going): the first failure is the one worth reading, and
   the runs after it mostly measure its damage.
@@ -34,7 +36,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 E2E = os.path.dirname(os.path.dirname(HERE))                  # e2e/ - Playwright runs from here, with the shared config
 OUT = os.path.join(E2E, "results", "passes", "mobile")         # git-ignored
-FIXTURE_CHECKS = ["av", "work", "mob302", "mob39x"]
+FIXTURE_CHECKS = ["av", "work", "mob302", "mob39x", "second", "pmroute"]
 SUITES = json.load(open(os.path.join(HERE, "suites.json")))["suites"]
 
 
@@ -133,6 +135,12 @@ def main():
             break
         counts, failures, secs = run_suites([name], evidence(name.split("_")[0]))
         rows.append(("2", name.split("_")[0], counts, failures, secs))
+        after = next((s.get("after") for s in SUITES if spec_name(s) == name), None)
+        if after:
+            print(f"\n=== {name.split('_')[0]}: after — {' '.join(after)} ===", flush=True)
+            if subprocess.run([sys.executable, *after], cwd=HERE).returncode != 0:
+                stopped = f"{name}'s after ({' '.join(after)}) failed"
+                break
         if failures and not a.keep_going:
             stopped = f"{name} was red: {', '.join(failures)}"
             break

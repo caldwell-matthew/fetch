@@ -3,11 +3,13 @@
 
 import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertFromJavascript, assertPageContains, click, wait } from '../../support/dd';
+import { FIXTURE_WO } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob912(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the home screen", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("GATE: the home screen rendered", {}, async () => {
     await assertPageContains(page, `Welcome,`, 60000);
@@ -57,7 +59,7 @@ return navigator.onLine === false;`, 15000);
 return true;`, 15000);
   });
   await run.step("Navigate to the home screen (a reload discards any override)", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let it render", {always: true}, async () => {
     await wait(page, 3);
@@ -69,7 +71,7 @@ return true;`, 15000);
     await assertFromJavascript(page, `return navigator.onLine === true;`, 15000);
   });
   await run.step("Navigate to the fixture work order", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, 30000);
@@ -123,7 +125,7 @@ return t.includes('Internet Connection is required to make a material charge') &
 return true;`, 15000);
   });
   await run.step("Navigate to the fixture work order (a reload discards any override)", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let it render", {always: true}, async () => {
     await wait(page, 3);

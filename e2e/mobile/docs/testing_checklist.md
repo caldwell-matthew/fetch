@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
-| Tests | **173 tests · 27 suites** · 173 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **187 tests · 28 suites** · 187 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 217 `[x]` · 6 `[~]` · 0 `[ ]` · 23 `[-]` — 246 rows. Counts describe *this file*, not the app |
+| Rows | 231 `[x]` · 3 `[~]` · 0 `[ ]` · 21 `[-]` — 255 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -73,7 +73,7 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | Work Orders | `MOB.957_WorkOrders_6_Status_Field_Edits_Suite` | 320 395 388 386 385 | writes | 377s | 452–754s | 581s |
 | Work Orders | `MOB.958_WorkOrders_7_Assets_Location_Edits_Suite` | 352 353 354 359 | writes | 215s | 258–430s | 356s |
 | Work Orders | `MOB.959_WorkOrders_8_Stage_Writes_Create_Suite` | 396 397 302 363 365 364 | writes | 526s | 631–1052s | 682s (before the 09-17 changes) |
-| Work Orders | `MOB.960_WorkOrders_9_Forms_Suite` | 355 134 135 | writes | 225s | 270–450s | 191s (before the 09-17 changes) |
+| Work Orders | `MOB.960_WorkOrders_9_Forms_Suite` | 355 134 135 136 | writes | 225s | 270–450s | 191s (before the 09-17 changes) |
 | Asset Verify | `MOB.961_AssetVerify_1_Jobs_List_Suite` | 140 530 560 580 810 535 | read-only | 234s | 281–468s | 322s (before the 09-17 changes) |
 | Asset Verify | `MOB.962_AssetVerify_2_Job_Assets_Read_Suite` | 500 520 585 531 547 551 | read-only | 305s | 366–610s | 429s |
 | Asset Verify | `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` | 510 590 913 536 511 512 | writes | ~595s | 714–1190s | 739s |
@@ -94,36 +94,33 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 
 **In no scheduled suite:** `MOB.000_Login` (the login itself — every suite already runs it first) · `MOB.200_Crew_Switch` (switches the session's crew; crew-scoped data changes under any suite) · `MOB.346_Work_Scheduled_View` (blocked: the scheduled view is unreachable for this crew, bugs §25) · `MOB.440_Logout` (logs out, which kills any suite running at the time) · `MOB.978` diagnostic (kept while the work-list fixture is in flux) · `MOB.977_DIAG_Condition_Form_Schema_Race` (it ASSERTS bugs §42 and is red once §42 is fixed; §42 is a race, so it is run deliberately rather than weekly).
 
-### Proving a test — locally, then on Datadog
+### Proving a test
 
-The loop and its costs live in `test_authoring.md` → **The loop**: build → static checks →
-`local_run.py` (0 runs) → `verify.py` (2 runs; 3 when red) → wire. What bears on planning:
+The loop lives in `test_authoring.md` → **The loop**: read the component → write the test and wire it →
+type-check → run its suite locally until green (or red only where it pins a bug) → docs. What bears on planning:
 
-- **Datadog runs wait for the owner's go-ahead** — credits are limited. A verify costs 2, a suite
-  `1 + children`. A local pass is a pre-check, not a RUN STATUS entry.
+- **A pass is `tools/playwright_pass.py`**: the read-only suites together, then each writing suite alone with
+  the fixture checks before it. Its report and evidence are saved under `e2e/results/passes/mobile/`, and its
+  result is the Playwright row in 📊 RUN STATUS.
+- **Datadog is paused.** Should it return, its runs wait for the owner's go-ahead with the cost stated.
 - A solo pass is strong evidence (a fresh session inherits no sort, filter or crew). The risk runs
   the other way — passing *inside* a suite because an earlier child left state — so run suites
   occasionally as an integration check, not as the way to prove a test.
 
 ## 📊 RUN STATUS — what is actually proven
 
-*"Passed when last run" on Datadog — runs are manual. Re-run a suite when its area changes (trap 25).*
+*The latest result per runner. Re-run a suite when its area changes (trap 25). The Datadog rows are its last runs before the pause.*
 
 | run as | suites · Datadog time | result |
 |---|---|---|
-| read-only, together (cap 10 then) | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
-| writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 739s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
-| alone | `973` 215s | ✅ · current build · 2026-09-16 |
-| Playwright | `967` | `MOB.600` now collects without a photo (2026-09-28) — not yet run in the suite |
+| Playwright · full pass | stage 1, read-only together: `954` `981` `955` `961` `962` `964` `966` `968` `969` `975` `983` 1662s · stage 2, one at a time: `953` 520s · `956` 465s · `957` 260s · `958` 174s · `959` 629s · `960` 115s · `963` 361s · `985` 102s · `965` 135s · `980` 92s · `970` 159s · `971` 686s · `982` 382s · `984` 27s · `972` 173s · `967` 135s · `973` 98s | ✅ 187 passed, 0 failed, fixtures at rest after · the pins for bugs §48 §49 §51 §52 §53 §55 §56 §57 §58 each red on its own symptom · build 127 · 2026-09-29 |
+| Datadog · read-only, together (cap 10 then) | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
+| Datadog · writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 739s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
+| Datadog · alone | `973` 215s | ✅ · current build · 2026-09-16 |
 
 - **The `READY` rest state is proven on Datadog (2026-09-17).** `MOB.963` ran green as a whole at 739s with all six children — `510`, `590`, `913`, `536` and the new `511`/`512` — and the fixture read back at rest afterwards. `MOB.530` and `MOB.560` were verified individually (2 runs each); their suite `MOB.961` has not re-run since, so its ✅ is per-test for those two.
 - ⚠️ `956` and `957` pass their bugs §42 sentinels NOT because §42 is fixed (its forms are unchanged on `9d80ad499c`): their children wait for `/work`'s prefetch, which loads `WorkStageCondition`/`WorkStageFailure` (`prefetchData.ts:26-36`) before the form opens. §42 still hits a user who opens a work order before that prefetch — `MOB.977_DIAG_Condition_Form_Schema_Race` is the test that reproduces it, deliberately outside the schedule.
-- `MOB.622` (now opening two MentorLens tags' descriptions) and `MOB.740` (a history row's `Assigned to` checked against the server) **passed on Datadog individually 2026-09-17** (2 runs each, `MOB.999` 96s / 110s). Their suites `966` and `968` have not re-run with them.
 - **Local re-timing, 2026-09-17** (0 runs): the eight suites changed that day — `954` `955` `959` `960` `961` `966` `968` `981` — all pass locally, and the table's `local` column is from that pass. ⚠️ **`MOB.959` is now the one to watch: 526s locally**, ≈ 830s on Datadog at its own measured ratio (1.57) — under the ~1,070s ceiling, but the closest suite to it, and the work-order residue each pass adds to `/work` lengthens it. The first scheduled pass re-measures all of them.
-- `MOB.135_Work_Form_Signature_Pad` — new, wired into `960` after `MOB.134` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 252s). `960` has not re-run with it.
-- `MOB.331_Work_GenInfo_Value_Modal` — new, wired into `954` after `MOB.330` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 193s). `954` has not re-run with it.
-- `MOB.629_Collector_Location_Capture` — new, wired into `MOB.966` after `MOB.626` — **passed on Datadog 2026-09-17** (2 runs, `verify.py`, `MOB.999` 58s). `MOB.966` has not re-run with it in place.
-- **The blind-warm-up sweep (2026-09-17):** `MOB.302`, `389`, `393`, `394`, `397`, `398` and `399` now wait on `work_list_gate(require_row=False)` instead of a blind 20s on `/work`, and each **passed on Datadog individually** (2 runs each, `MOB.999` 319s / 201s / 239s / 200s / 301s / 86s / 231s), the work fixtures clean afterwards. Their suites (`954`, `955`, `959`, `981`) have not re-run since, so their ✅ is per-test for these seven.
 - `MOB.977_DIAG_Condition_Form_Schema_Race` **passed on Datadog 2026-09-17** (2 runs, `verify.py`) — and it asserts bugs §42, so passing means §42 reproduced there too: the first Submit after a cold deep link reached nobody, the second open saved. Run it deliberately, never weekly.
 - `MOB.346_Work_Scheduled_View` cannot pass — see 🟡 BLOCKED.
 
@@ -151,19 +148,8 @@ above or classified (⚪ / 🔴 / 🟡 / `[-]`).
 | item | needs | kind |
 |---|---|---|
 | **`MOB.346_Work_Scheduled_View`** | settled: `mobileDownloadMode` stays `ASSIGNED` so the crew keeps its work orders; a `SCHEDULED` role sees only stages with a `scheduledevent` within ±7 days (bugs §25 rule 4). The scheduled view, `WO_SCHEDULED_SORT` and `ScheduleTimeline` are unreachable. Standalone; restore only when the role changes **and** its work is scheduled | settled |
-| Add a NEW / EXISTING asset to the job · Add Work | `reset_av_fixture.py` can put the fixture back for 0 runs (`cleanup_spec.md` §4). The owner accepts the **run → reset** chore and Add Work's residue, then these three get built. (The two verify tests left this row: the status recompute means they undo themselves — `MOB.511`/`MOB.512`) | decision |
-| `MOB.357`'s non-zero path | a form template with a **required field**; every card reads `0 of 0` | fixture |
-| `MOB.342` exclusion leg | a second status in the crew's list — read the legend before asking | fixture |
-| `MOB.351`'s estimate rows | an estimate on the fixture work order | fixture |
 | Session/JWT expiry | cookie-authenticated; a client cannot expire it | backend |
-| Drawing + saving a signature (`MOB.135`'s write half) | owner decision: it signs the fixture's `🔎 Inspection` form. Strokes are canvas pointer events (`react-signature-canvas`), and the restore — saving `null` back through `updateSignature`, as `Clear` does — is untested | decision |
-| Asset Type on the AV detail — characterization test | owner decision: it now renders as plain text; pin that or not | decision |
-| Dev Logs' `Error:` column · its `No logs found.` | a log entry carrying an error · a session with no log entries | fixture |
-| An AV job asset's `No asset attributes found.` | an asset on a fixture job with no attributes — both of `DATADOG MOBILE JOB`'s assets have them (the no-standard and no-profile messages are `MOB.946`'s, answered in the browser) | fixture |
-| `Your organization has not configured their map settings.` (`Map/index.tsx:405`) | an org without map settings | fixture |
-| A PM route stage (`pmRoute`) — the Assets tab's status controls with no template flag (`WorkDetails.tsx:157`), the stage's assets taken from the workflow's stage asset lists, and the Assets tab's sequence order (numbered assets first, then by name — `Assets/index.tsx:76-77`) | a stage a PM created from a workflow with `cycleWorkflowAssets` (`server/…/work/work/create/index.ts:187-198`) — desktop setup | fixture |
 | The server refusing a mobile-only user's browser login — the same notice, before any session exists (`server/…/login/utils/index.ts:125-130`) | a second test user with `mobileOnly` set (`MOB.941` fakes the in-session half) | fixture |
-| `Assign to Crew` cleared (an unassigned work order) or set to another crew (created, but not added to the list: `InsertForm/index.tsx:143`) — `MOB.300` covers the default | owner decision: each leaves a test work order outside the crew's list, where `fixtures.py` does not look | decision |
 
 ### ⚪ NOT A GAP
 
@@ -208,9 +194,9 @@ MentorTwo.
 
 **Other hygiene:**
 - 🧹 **Residue** — `e2e/mobile/tools/cleanup_residue.py` (dry run by default): test-created work orders, notes and
-  assets, newest kept; charges excluded by the owner (`cleanup_spec.md` §2). SMCT2 only. Last applied 2026-09-25:
-  39 work orders, 6 notes and 3 assets deleted; 16 marked work orders remain — the newest 10, the two protected
-  fixtures, and 4 the server refuses (3 scheduled, 1 with charges). Run it when the dry run shows more than the kept.
+  assets, newest kept; charges excluded by the owner (`cleanup_spec.md` §2). SMCT2 only. Last applied 2026-09-29:
+  22 work orders, 2 notes and 7 assets deleted; 4 marked work orders the server refuses (scheduled, or with
+  charges) stay in its plan. Run it when the dry run shows more than the kept.
 
 # Tier 1 — Mobile-specific risks, across routes
 
@@ -321,12 +307,13 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] The route renders and titles itself *(MOB.150)*
 - [x] From the Work Order module *(MOB.300)* — affixed `+` → workflow lookup → submit (a server answer: no `optimisticResponse`)
-- [x] `Assign to Crew` on the create form shows the user's crew; the create sends it as `roleId` and the new stage holds it *(MOB.300)* — the workflow assigns crews of its own too (`Datadog Test`: seven), so it is one of several
+- [x] `Assign to Crew` on the create form shows the user's crew; the create sends it as `roleId` and the new stage holds it *(MOB.300)* — the workflow assigns crews of its own too (`Datadog Test`: seven), so it is one of several — and `Admin` is one of the workflow's own, so MOB.303 is what shows `roleId` at work
+- [x] `Assign to Crew` CLEARED, and set to ANOTHER crew *(MOB.303)* · residue — cleared sends no `roleId` and the stage holds exactly the workflow's own crews; another crew (`Test Notifications Only`) is sent as `roleId` and the stage holds the workflow's crews plus it — each over `/graphql`, against the workflow's assignments read at run time. The `Datadog Test` workflow assigns `Admin` itself, so both stay in the crew's list
 - [x] A refused create → `Unable to create work order.`, the form still open and sendable, no work order on the server *(MOB.937, in `MOB.982`)*
 - [x] Photos on the insert form *(MOB.301)* — one upload lands as exactly one slide, a `blob:` URL (nothing uploaded before submit); closed with its X, never submitted
 - [x] Search bar opens; Sort Criteria modal opens *(MOB.340)* · search filters the list *(MOB.343)*
 - [x] Map view toggle *(MOB.341)*
-- [x] Status ring + clickable legend *(MOB.342)*
+- [x] Status ring + clickable legend *(MOB.342)* — and the EXCLUSION leg: with the second fixture `20260929-19-001` `In Progress`, `Ready` leaves it out (every row Ready-green) and `In Progress` shows it and leaves the Ready main fixture out
 - [x] Tapping a row opens its work order *(MOB.344)*
 - [x] Sort applies, persists, and really reverses *(MOB.345)*
 - [x] Scheduled view, `WO_SCHEDULED_SORT`, group headers *(MOB.346)* — 🛑 blocked, see 🟡
@@ -353,7 +340,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] Equipment *(MOB.350)* · labor *(MOB.360)* · material *(MOB.370, type Return so stock is not decremented)* · other *(MOB.380, `unitPrice` required at runtime — trap 8)* · residue — each proved by exactly +1 of its own record after a reload
 - [x] Invalid charge form does NOT submit — all four *(MOB.356)*
-- [x] The `ESTIMATES` section on all four tabs *(MOB.351)* — pins `{section === 'CHARGES' && InsertForm}` both ways; the fixture has no estimate cards
+- [x] The `ESTIMATES` section on all four tabs *(MOB.351)* — pins `{section === 'CHARGES' && InsertForm}` both ways, and each panel lists the fixture's estimates (one of each, from its workflow) by the names the server holds
 - [x] `Internet Connection is required to make a material charge` *(MOB.912)* — paired: CHARGES online → the message offline
 
 ### Tabs, records and forms
@@ -374,15 +361,16 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] `Edit Item` **saves** *(MOB.386)* · self-restoring — proved over `/graphql`, restored to 2 ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] Condition and Failure asset lookups ignore case *(MOB.389)* — `ZZZZ-NO-SUCH-ASSET` → `No results found`, `pUMP 0102` → exactly `Pump 0102`
 - [x] Add-form picker *(MOB.393)* — read-only: the modal opens and the picker offers forms; nothing is attached
-- [x] `FormMetrics` *(MOB.357)* — every card reads `0 of 0` until the fixture has a required field
+- [x] `FormMetrics` *(MOB.357)* — on the main fixture every card reads `0 of 0` and the header is absent; on the second fixture `DATADOG FIXTURE REQUIRED FORM` reads `0 of 1`, the others `0 of 0`, and the header shows `0 of 1` and counts the cards
 - [x] Permits tab *(MOB.394)* — read-only
 - [x] Add job note *(MOB.392)* · residue — tiptap editor; proved by exactly +1 note after a reload
 - [x] Warranties tab and the warranty alert banner *(MOB.399)*; the empty state `No Warranties Found...` on `MOB.302`'s work order, whose asset has none
-- [~] Assign work stage *(MOB.398)* — opens the crew modal, proves the form, cancels
+- [x] Assign work stage *(MOB.398, MOB.365, MOB.367)* — the crew modal opens and cancels on the fixture (`MOB.398`); it SAVES both ways, `Keep local copy` off and on, each over `/graphql`, on `20260910-16` (`MOB.365`); offline the button is gone and returns online, and a refused assignment toasts `Unable to assign work stage.` with the form left open and the crews unchanged on the server (`MOB.367`, its own browser, the ADD refused in the browser)
 - [x] A refused reassign → `Unable to assign work stage.`, the modal open, the remove refused before any add, the crews unchanged *(MOB.938)* · a refused add from a map card → `Unable to add asset to work order.`, the form open, the links unchanged *(MOB.939)* — both in `MOB.982`, refused in the browser
 - [x] The Assets tab's `All` / `Active` switch — renders, at `All` *(MOB.347)*; while Pump 0102 is `Completed`, `Active` hides it and `All` brings it back *(MOB.353)*
+- [x] A PM route stage's Assets tab *(MOB.366, read-only)* — on `20260929-18-001` (`tools/setup_pm_route.py`: a PM runtime trigger fired once from a workflow that cycles its stage's asset list), the status controls with NO template flag (`pmRoute` alone), the stage's assets taken from the workflow stage's list, and listed in SEQUENCE order — Pump 0144 (1), Pump 0066 (2), Pump 0101 — not by name
 - [x] `No permits` on a work order with none — `20260910-16` *(MOB.394)*
-- [~] A multiline field's VALUE opens in a modal — the arrow beside it (`DetailPage/utils/MultiLineLabel.tsx`) *(MOB.331)*: on the work order's General Info, beside Stage Notes (`DATADOG FIXTURE`) and NOT beside the empty Problem Description, opening exactly the value; the form untouched. Partial: the same component on the work form, stage forms and the create form's `address`/`desc` is not driven
+- [~] A multiline field's VALUE opens in a modal — the arrow beside it (`DetailPage/utils/MultiLineLabel.tsx`) *(MOB.331)*: on the work order's General Info, beside Stage Notes (`DATADOG FIXTURE`) and NOT beside the empty Problem Description, opening exactly the value; the form untouched · on three more forms *(MOB.332, read-only)*: the create form's Problem Description (no arrow while empty), a job note's collection form, and an AV asset's General Info Description — each modal shows the value, read-only. Partial: a work-stage FORM's multiline field (`Forms/FormDetails.tsx:189` — it needs a saved value on a fixture form) and the create form's Address are not driven
 - [x] `Edit Item` on a failure **saves** *(MOB.385)* · self-restoring — Repair Type `MISSED` → `REPAIR` on the first open after a page load, proved over `/graphql` on the failure's id; restored to `MISSED` `always` after a schema-priming open. 🛑 red whenever bugs §42's race is lost (locally 2 of 2) ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] Edit a job note *(MOB.361)* · self-cleaning — adds its own `DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}` note, edits it in the tiptap editor, proved over `/graphql` on that note's id
 - [x] Delete a job note *(MOB.361)* · self-cleaning — owner-authorised (trap 2); `always`, guarded by a server premise (no marker note before the run) and exactly one marker card; the server then holds exactly the pre-run note ids
@@ -400,7 +388,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] Form render *(MOB.355)* — desktop branch on tablet; the mobile branch on phone *(MOB.951)*
 - [x] Fill out an inserted form *(MOB.134)* · self-restoring — the form's integer field: `134` saved on blur, proved over `/graphql`, cleared and proved empty
-- [~] Signature widget *(MOB.135)* — on the tablet's desktop grid a signature field is drawn with the MOBILE control (`.mobile-signature-cell`, `Add Signature`), and its pad opens in a modal and closes untouched with NOTHING saved (proved over `/graphql`). Partial: drawing and saving a signature — a freehand canvas, and a write onto the fixture's form (🟡 BLOCKED, decision). Its host also renders in `MOB.951`'s phone branch
+- [x] Signature widget *(MOB.135, MOB.136)* — on the tablet's desktop grid a signature field is drawn with the MOBILE control (`.mobile-signature-cell`, `Add Signature`); its pad opens in a modal and closes untouched with NOTHING saved (`MOB.135`, proved over `/graphql`) · a stroke drawn with real pointer moves, saved on close as a PNG, the cell showing it and `Update Signature`, then `Clear` saving `null` — each proved over `/graphql`, on the fixture's `🔎 Inspection` form (`MOB.136`, self-restoring, owner 2026-09-29). Its host also renders in `MOB.951`'s phone branch
 
 ## `/asset-verify` — Mobile Jobs list
 
@@ -420,7 +408,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 *`AssetVerification/Job.tsx` — each row expands into `AssetLookupDetails`*
 
 - [x] `Add Existing Asset` never offers an asset the job already has — in its first list, and after a submitted search *(MOB.928, read-only)*. The search's refetch sends `jobId: '??'`, but the lookup also filters the job's own assets out in the browser, so nothing reaches the user
-- [x] From a Mobile Job asset *(MOB.396)*
+- [x] `Add Work` from a Mobile Job asset's full-page detail *(MOB.396)* · residue — the create form with the asset as its default; over `/graphql` the new stage carries this run's description and holds `⚡ Tank 0000`
 - [x] Verify · moves to the Verified tab · counter increments · unverify decrements *(MOB.510)*
 - [x] A refused verify *(MOB.940, in `MOB.982`)* — the refusal reaches the user, no `Asset verified`, the counter and the server unchanged · 🐞 the box stays ticked (bugs §52) and the job's status is sent anyway (bugs §53, refused in the browser too) — the suite pins both
 - [x] Unverified tab shows the asset; Verified tab empty at rest *(MOB.500)*
@@ -428,7 +416,8 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Job status menu *(MOB.536)* · self-restoring — exactly `Mark as COMPLETED`/`CANCELED` from IN PROGRESS; CANCELED shows `This verification job has been canceled.`; back to IN PROGRESS, proved after a reload
 - [x] Filter All / Verified / Unverified *(MOB.500)*
 - [x] Asset card caret expands and collapses *(MOB.520)*
-- [-] Add a new / an existing asset to a job — 🟡 reset decision (Appendix A)
+- [x] Create a NEW asset from a job *(MOB.513, in `MOB.985`)* — `Get New Asset` → a `DD SYNTHETIC MOBILE AV …` asset of a type the job allows → `Asset created and added`; over `/graphql` the job holds it, unverified. 🐞 the job's page is then blank until a module resync (bugs §57) — the suite pins it. Reset after the suite (`reset_av_fixture.py --apply`, owner 2026-09-29)
+- [x] Add an EXISTING asset to a job *(MOB.514, in `MOB.985`)* — `Add Existing Asset` → Pump 0098 ticked → `Add 1 Asset(s)` → `Asset added`; over `/graphql` the job holds it, and the page lists it. Unlinked by the same reset
 - [x] The add-asset modal opens on its `New Asset` tab — the collector's create form *(MOB.928)* — looked at, never submitted
 - [x] Map view toggle on the job asset list *(MOB.585)*
 - [x] Markers carry verification state *(MOB.127, in `MOB.971`)* — the app's pins are SVG page elements (`MapGL/PinSvg.tsx`), one per located job asset, filled `green` when verified and `blue` when not; one asset answered as verified in the browser
@@ -446,11 +435,12 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Failures and Condition forms open on the full-page detail *(MOB.575)* — read-only
 - [x] Without an asset standard / a failure profile, the Condition / Failure tab says so *(MOB.946, in `MOB.982`)* — the two ids emptied in the browser's answers
 - [x] Attributes — edit *(MOB.545)* — `Year Of Manufacture`, self-restoring
+- [x] Attributes — empty *(MOB.544, in `MOB.982`, its own browser)* — Tank 0000's attributes emptied in the answers: `No asset attributes found.`, no crash
 - [x] Header `Tag ID` and its edit button *(MOB.537)* · self-restoring — `None` (A/C Motor) and `0000` (Tank); `0000` → `DD-TAG-EDIT` → back, each proved after a reload; `Desc:`
 - [x] Event Readings — capture *(MOB.550)* · residue
 - [x] Full-page `Attachments` tab (Photos/Docs segmented) *(MOB.546)* — one live panel, Photos↔Docs biconditional
 - [x] Attachments — **AT** (the attachment types are proven on the collector's saved asset, the same `DetailPage/Attachments` — `MOB.933`–`MOB.936`)
-- [-] Editing Asset Type on the AV detail — renders as plain text
+- [~] Asset Type on the AV detail *(MOB.538, characterization, read-only)* — the header shows `Asset Type: <type>` as plain text while `Tag ID` and `Desc` carry edit buttons; the General Info tab lists `Asset Type*` as an ENABLED lookup holding the type (Asset Lookup forces it read-only). Partial: saving a new type is not tested — it would change a fixture asset's type
 
 ## `/asset-collector` — Asset Collector / Lens
 
@@ -466,7 +456,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The create form's `Location` row *(MOB.629)* — `No location captured.`; with stubbed geolocation and Mapbox, `Asset Location` prefilled (`Include GIS` and `Include Address` on), its Submit puts the address over `lat, lng` on the row, `Clear location` puts the placeholder back; form discarded unsent. Applied to a created asset: *(MOB.600)* the address and the coordinates, over `/graphql`, for a Point type · *(MOB.945, read-only)* a type with no geometry — the location captured before the type, `Include GIS` on — sends the address and NO coordinates (the form also disables `Include GIS` once such a type is picked)
 - [x] Collector search *(MOB.610)*
 - [x] Saved-photo menu, `Rotate Image`, and the three attachment panels on a collected asset *(MOB.623)* · residue
-- [x] Collector sort *(MOB.625)* — on our own rows: `Created At` against the server's order, `Name` against `localeCompare`
+- [x] Collector sort *(MOB.625)* — on our own rows: `Created At` against the server's order, `Name` against `localeCompare` · `Created At ▲` is the exact reverse when the newest-first and oldest-first windows share 2+ rows, and otherwise judged by the rows' own dates (the list renders its first rows only, and residue past ~8 assets stopped them overlapping — 2026-09-29)
 - [x] `Collected By Me` *(MOB.625)* — a filter to the test account's rows
 - 🟡 The collector's sort re-sorts the AV job list — bugs §38, `MOB.625` sentinels it
 - [x] Row avatar modal *(MOB.624)* — opens without expanding the row; Photos↔Docs; `Done` closes. Clicks inside toggle the row behind (bugs §35), sentinelled
@@ -503,6 +493,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - 🟡 `Scan Barcode` in a browser does nothing — it asks the native shell for the camera and has no browser branch; `MOB.750` sentinels it
 - 🟡 Tag Lookup ignores the active filters, on the capture and on its X — bugs §51, `MOB.943` pins it
 - [x] `View in Map` on an expanded row *(MOB.735)* — router state, not a URL
+- [x] `Add Work` on an expanded row *(MOB.742, in `MOB.980`)* · residue — the create form with the asset AND its coordinates as defaults; over `/graphql` the new stage carries this run's description, holds Pump 0066, and sits at its x/y
 - [x] `Work History` tab — `WorkLookupDetails` *(MOB.740)*, also the map's `WorkCard`
 - [x] Work-stage attachment panel and image filter *(MOB.741)*
 - [x] "Near Me" proximity *(MOB.730)* and its radius *(MOB.731)*
@@ -544,15 +535,18 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The route renders and titles itself *(MOB.120)*
 - [x] From the Mobile Map *(MOB.122)* — geocoder popup → `Add Work`
 - [x] Map style · layers panel *(MOB.121)* — `data-tooltip-content` flips `Satellite`↔`Street`; the control's `Layers` heading · after a switch to Satellite the panel lists the same groups and layers (5 and 38 on 2026-09-28) — the app re-adds them once the new style loads *(MOB.126)*
-- [~] Zoom in/out *(MOB.121)* — Mapbox publishes no zoom to the DOM; proves the controls and that the canvas survives
+- [x] Zoom in/out *(MOB.121)* — `+` raises the map's zoom one level and `−` returns it, read from the page's Mapbox instance (Mapbox publishes no zoom to the DOM — trap 55)
 - [x] `Switch Map` picker *(MOB.123)* — a pick writes `mobile-map-id` and remounts the map; reopening reads it back; switched back after. Enabled side only (dev has 3 maps)
-- [~] 2D/3D toggle · Home *(MOB.124)* — both work in the app's control column and the map survives; Mapbox exposes neither the pitch nor the centre. 🐞 the tilt label always reads `3D` (bugs §55) — the suite pins it
+- [x] 2D/3D toggle · Home *(MOB.124)* — the tilt takes the map's pitch above 0 and back to 0; after a mouse-drag pan, Home brings the centre back to where the map began — read from the page's Mapbox instance (trap 55). 🐞 the tilt label always reads `3D` (bugs §55) — the suite pins it
 - [x] Geocoder search → suggestion → fly + popup *(MOB.122)* — the popup's `Latitude`/`Longitude`; read-only with Mapbox's geocoding answered in the browser, the popup required ON SCREEN (the map flew there) *(MOB.125)*
 - [x] Create a work order from the map *(MOB.122)*
 - [x] Feature sheet for an asset, reached by router state *(MOB.735)*
 - [x] The change-asset popup on a work stage's card *(MOB.930)* — the work order's "View in Map" opens the stage's card once `My Work: Ready` is shown; `Change Asset` → the question, the warning, both choices, each choice's Add/Replace and Use Map → Back → **Cancel**, every other mutation stopped and the stage's links proven unchanged. The test switches the layer on for the account and always back off, the account's shown layers proven as before over `/graphql` (owner, 2026-09-24)
+- [x] Replace a work stage's assets by picking one on the map *(MOB.128)* — on a test-made work order (owner, 2026-09-29): the card re-opened by a tap on the stage → `Replace existing assets.` → `Use Map`; a tap on a work stage → `Please tap an asset on the map (not a workstage).` and pick mode stays; a tap on Tank 0040 → `You selected … Are you sure?` → `Confirm` → `Assets removed from work stage.`; over `/graphql` the stage holds Tank 0040 alone at its address and coordinates, and only the replace's four mutations went out. Taps are found through the page's Mapbox instance (trap 55)
+- [x] The same replace from the card "View in Map" opens *(MOB.129)* — the replace saves (proven over `/graphql`). 🐞 the overlay never closes: Confirm spins, Cancel and Pick another disabled (bugs §56) — the suite pins it
 - [x] Add an existing asset to a work order from a map card *(MOB.929)* — Tank 0040's card → `Add to Work` → a test-made work order (the picker reaches only the first 50 stages, bugs §50), proven over `/graphql`, and exactly that link removed
 - [x] `Asset not found.` on an asset's map card *(MOB.931)* — the card's `GET_MOBILE_ASSET` answered with no asset in the browser
+- [x] `Your organization has not configured their map settings.` *(MOB.119, its own browser)* — an empty stored map id (the no-map branch) shows only the message; the key removed, the map renders
 - [x] Create a work order and an asset at a dropped point *(MOB.932)* · residue — the point tool is mobile's only drawing tool (no lasso, line or polygon: `mapDrawControl.ts:68-73`); both proven over `/graphql` at the point's coordinates, and a route stops any location update for an asset that is not the run's
 - [-] Get directions · street view — leave the app
 
@@ -570,6 +564,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 *`DevLogs/index.tsx` — hidden unless the env is `development`/`development2`*
 
 - [x] Dev Logs *(MOB.170)* — hidden unless env is `development`/`development2`; contents *(MOB.171)* · self-restoring (`log_level`)
+- [x] Dev Logs' empty state and an error entry *(MOB.172, its own browser)* — `Clear Logs` → `No logs found.`; `Email me the JSON` with its POST aborted in the browser logs `Email Route error`, listed after `Refresh` as `ERROR` with its `Error:` block. 🐞 the block reads `Unknown error` / `{}` — `logger.error` drops what it caught (bugs §58) — the suite pins it
 
 # Reusable blocks
 
@@ -595,16 +590,6 @@ where a client-side filter rejects it (`MOB.741`).
 - [x] HEIC through `Add Photo` — `MOB.936`: taken and stored as `image/heic`, then deleted. A browser cannot show it: the slide's image has `naturalWidth` 0 (the server serves the file as it is). Only a browser picks a HEIC file this way; the phone app goes through the native shell, so it is not a mobile bug ("Custom" is not a mobile attachment type)
 - [-] Capture from camera — native dialog
 
-# Appendix A — Blocked on the AV reset decision
-
-| Item | Why |
-|---|---|
-| **Add Work** from Asset Lookup / AV detail | a permanent work order through `MOB.300`'s form; the only new behaviour is `defaultAsset`. Its residue is pruned by `cleanup_residue.py` |
-| **Add new / existing asset** to a job | grows the fixture job and breaks the `out of 2` assertions |
-
-`reset_av_fixture.py` puts all three back (`cleanup_spec.md` §4); what remains is the owner's
-call — 🟡 BLOCKED.
-
 # Appendix B — Out of scope: needs a desktop harness
 
 | Item | Belongs in |
@@ -622,8 +607,6 @@ The Mobile/Tablet halves of "Web / Mobile / Tablet" items are not extra `device_
 | The browser genuinely offline | Synthetics cannot cut the network. What the app **reads** is reachable: `useNetwork` (window events — `MOB.910`), the queue's gate (window events — `MOB.913`), `navigator.onLine` (an own getter in a step — `MOB.912`) |
 | Camera capture · barcode | device camera / native dialog; tag scan also calls OpenAI |
 | Native shell bridge | Expo only |
-| Map **canvas** interactions | features are hit-tested via `queryRenderedFeatures`, no DOM. Canvas, geocoder, style/layers/zoom are reachable |
-| Signature **strokes** | freehand canvas — the pad itself opens and closes (`MOB.135`) |
 | Directions / street view | navigate out of the app |
 | Colour assertions | assert the label; `getComputedStyle` where needed |
 

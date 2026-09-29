@@ -3,11 +3,13 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertPageContains, click, wait } from '../../support/dd';
+import { FIXTURE_WO } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob330(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the fixture work order", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test work order detail rendered", {}, async () => {
     await assertPageContains(page, `Status:`, DEFAULT_TIMEOUT);

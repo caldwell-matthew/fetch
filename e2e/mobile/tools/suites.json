@@ -8,6 +8,7 @@
       "children": [
         "MOB.150",
         "MOB.300",
+        "MOB.303",
         "MOB.301",
         "MOB.340",
         "MOB.341",
@@ -16,7 +17,7 @@
         "MOB.342",
         "MOB.345"
       ],
-      "about": "`/work`: the list renders, search, sort, map toggle, status ring, row navigation; MOB.300 creates a work order (residue) and MOB.301 opens the insert form's photo picker.",
+      "about": "`/work`: the list renders, search, sort, map toggle, status ring, row navigation; MOB.300 creates a work order (residue), MOB.303 two more with the crew cleared and set to another crew (residue, outside the crew's list), and MOB.301 opens the insert form's photo picker.",
       "order": 4
     },
     {
@@ -27,6 +28,7 @@
         "MOB.310",
         "MOB.330",
         "MOB.331",
+        "MOB.332",
         "MOB.393",
         "MOB.394",
         "MOB.399",
@@ -44,6 +46,7 @@
         "MOB.356",
         "MOB.351",
         "MOB.398",
+        "MOB.367",
         "MOB.911",
         "MOB.912"
       ],
@@ -59,9 +62,10 @@
         "MOB.387",
         "MOB.741",
         "MOB.731",
+        "MOB.366",
         "MOB.358"
       ],
-      "about": "`/work/:workStageId` read-only: the Assets tab and its status controls, the condition edit prefill, lookups, attachments, proximity radius, the asset location form."
+      "about": "`/work/:workStageId` read-only: the Assets tab and its status controls, the condition edit prefill, lookups, attachments, proximity radius, a PM route stage's Assets tab (MOB.366), the asset location form (last: it stubs `fetch`)."
     },
     {
       "id": "MOB.956",
@@ -129,9 +133,10 @@
       "children": [
         "MOB.355",
         "MOB.134",
-        "MOB.135"
+        "MOB.135",
+        "MOB.136"
       ],
-      "about": "`/work/:workStageId/form/:formId`: the form renders; MOB.134 fills an integer field and clears it (self-restoring); MOB.135 opens the Inspection form's signature pad and closes it untouched (read-only).",
+      "about": "`/work/:workStageId/form/:formId`: the form renders; MOB.134 fills an integer field and clears it (self-restoring); MOB.135 opens the Inspection form's signature pad and closes it untouched (read-only); MOB.136 signs it and clears it again, each over `/graphql` (self-restoring).",
       "order": 14
     },
     {
@@ -179,15 +184,28 @@
       "order": 16
     },
     {
+      "id": "MOB.985",
+      "spec": "mobile/suites/MOB.985_AssetVerify_4_Add_Assets_Suite.spec.ts",
+      "writes": true,
+      "children": [
+        "MOB.513",
+        "MOB.514"
+      ],
+      "about": "Grows job Z0EVwQcdJZhMURcBFkp0E0 and leaves it grown (owner, 2026-09-29: run, then reset): a new `DD SYNTHETIC MOBILE AV …` asset created and added, then Pump 0098 added from the existing-asset picker, each proven over `/graphql`.\n- `after` puts the job back: `reset_av_fixture.py --apply` unlinks both and deletes the synthetic asset. Run alone, run it by hand.",
+      "after": ["reset_av_fixture.py", "--apply"],
+      "order": 17
+    },
+    {
       "id": "MOB.964",
       "spec": "mobile/suites/MOB.964_AssetVerify_4_Asset_Detail_Read_Suite.spec.ts",
       "writes": false,
       "children": [
         "MOB.570",
         "MOB.575",
-        "MOB.546"
+        "MOB.546",
+        "MOB.538"
       ],
-      "about": "`/asset-verify/:jobId/asset/:verificationId` read-only: cycling, the failure and condition forms, attachments."
+      "about": "`/asset-verify/:jobId/asset/:verificationId` read-only: cycling, the failure and condition forms, attachments, and the header's plain-text Asset Type (MOB.538, a characterization pin)."
     },
     {
       "id": "MOB.965",
@@ -273,9 +291,10 @@
         "MOB.710",
         "MOB.712",
         "MOB.722",
-        "MOB.944"
+        "MOB.944",
+        "MOB.742"
       ],
-      "about": "`/asset-lookup` writes: a field edit on `Pump 0102` (self-restoring), a System created and a reading captured on a `DD SYNTHETIC MOBILE` asset (residue), and the Attributes tab's add/edit/remove on one (self-cleaning).\n- Separate from MOB.969: the filter/search children leave a term in `asset_lookup_query`, and a search typed on top of it reads `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).",
+      "about": "`/asset-lookup` writes: a field edit on `Pump 0102` (self-restoring), a System created and a reading captured on a `DD SYNTHETIC MOBILE` asset (residue), the Attributes tab's add/edit/remove on one (self-cleaning), and a work order created from Pump 0066's row with its location (residue).\n- Separate from MOB.969: the filter/search children leave a term in `asset_lookup_query`, and a search typed on top of it reads `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).",
       "order": 20
     },
     {
@@ -300,6 +319,7 @@
       "writes": true,
       "children": [
         "MOB.120",
+        "MOB.119",
         "MOB.121",
         "MOB.124",
         "MOB.125",
@@ -309,9 +329,11 @@
         "MOB.122",
         "MOB.929",
         "MOB.930",
+        "MOB.128",
+        "MOB.129",
         "MOB.932"
       ],
-      "about": "`/map`: controls and Switch Map (read-only), then read-only in their own browsers the tilt and Home, the address search's on-screen popup, the layer list across a style switch and an AV job's verification-coloured pins (MOB.124–127), a work order created from the map (residue), then three tests in their own touch browsers: an asset linked to a test-made work order from its map card and that link removed (MOB.929), the change-asset popup opened and cancelled (MOB.930 — it switches the account's `My Work: Ready` layer on and back off), and a dropped point turned into a work order and an asset (MOB.932, residue).\n- MOB.122 before MOB.929: it makes the work order MOB.929 links to.",
+      "about": "`/map`: controls and Switch Map (read-only), then read-only in their own browsers the tilt and Home, the address search's on-screen popup, the layer list across a style switch and an AV job's verification-coloured pins (MOB.124–127), a work order created from the map (residue), then five tests in their own touch browsers: an asset linked to a test-made work order from its map card and that link removed (MOB.929), the change-asset popup opened and cancelled (MOB.930 — it switches the account's `My Work: Ready` layer on and back off), a test-made work order's assets replaced by a pick on the map, from a tapped card (MOB.128) and then from the card \"View in Map\" opens (MOB.129, pins bugs §56) — both switch the layer as MOB.930 does, and a dropped point turned into a work order and an asset (MOB.932, residue).\n- MOB.122 before MOB.929: it makes the work order MOB.929 links to.",
       "order": 24
     },
     {
@@ -324,6 +346,7 @@
         "MOB.910",
         "MOB.170",
         "MOB.171",
+        "MOB.172",
         "MOB.130",
         "MOB.131",
         "MOB.132",
@@ -377,6 +400,7 @@
         "MOB.940",
         "MOB.945",
         "MOB.946",
+        "MOB.544",
         "MOB.947",
         "MOB.948",
         "MOB.949",

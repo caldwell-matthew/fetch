@@ -4,12 +4,13 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, typeText, uploadStandIn, wait } from '../../support/dd';
 import { runId } from '../../support/env';
+import { appUrl } from '../support/session';
 
 export async function mob627(page: Page): Promise<void> {
   const RUNID = runId('numeric', 8);
   const run = new Sequence();
   await run.step("Navigate to the asset collector", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, 30000);

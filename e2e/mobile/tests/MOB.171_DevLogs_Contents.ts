@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, click, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob171(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the Dev Logs screen", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/logz`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}logz`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The Developer Logs heading rendered", {}, async () => {
     await assertPageContains(page, `Developer Logs`, 60000);

@@ -7,11 +7,12 @@
 
 import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, click, press, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob470(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile home page", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the app shell and GET_SESSION settle", {}, async () => {
     await wait(page, 5);

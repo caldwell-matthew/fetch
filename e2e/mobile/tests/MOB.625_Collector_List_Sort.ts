@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertFromJavascript, click, press, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob625(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the Asset Collector", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the collected list load", {}, async () => {
     await wait(page, 5);
@@ -98,7 +99,7 @@ return true;`, 30000);
   await run.step("Let the list re-order", {}, async () => {
     await wait(page, 2);
   });
-  await run.step("\u2b50 CREATED AT \u25b2: exactly the reverse of the server's createdAt-DESC order", {allow: 'soft'}, async () => {
+  await run.step("\u2b50 CREATED AT \u25b2: exactly the reverse of the server's createdAt-DESC order (or, when the two windows share under 2 rows, oldest first by the rows' own dates)", {allow: 'soft'}, async () => {
     await assertFromJavascript(page, `const rows = [...document.querySelectorAll('[class*="mantine-Accordion-item"]')].map(it => {
   const c = it.querySelector('[class*="mantine-Accordion-control"]');
   if (!c) return null;
@@ -117,9 +118,13 @@ const def = window.__ddDefault || [];
 const now = rows.map(r => r.key);
 const inNow = new Set(now), inDef = new Set(def);
 const d = def.filter(k => inNow.has(k)), n = now.filter(k => inDef.has(k));
-if (d.length < 2) return false;
-d.reverse();
-return n.join('\\u0000') === d.join('\\u0000');`, 30000);
+if (d.length >= 2) { d.reverse(); return n.join('\\u0000') === d.join('\\u0000'); }
+// Too few rows in BOTH windows (the list renders the first rows only, and the residue outgrew it): judge the rows by
+// their own created-at dates — non-decreasing, and starting older than the default's newest row.
+const when = k => { const l = k.split('\\u0001')[1] || ''; return Date.parse(l.slice(l.indexOf(', ') + 2)); };
+const t = now.map(when), td = def.map(when);
+if (t.length < 2 || t.some(isNaN) || td.some(isNaN)) return false;
+return t.every((x, i) => i === 0 || t[i - 1] <= x) && t[0] < Math.max(...td);`, 30000);
   });
   await run.step("Open the sort dropdown", {}, async () => {
     await click(page, `//button[.//*[@data-icon="sort-alt" or @data-icon="arrow-down-arrow-up" or contains(concat(" ", normalize-space(@class), " "), " fa-sort-alt ") or contains(concat(" ", normalize-space(@class), " "), " fa-arrow-down-arrow-up ")]]`, 30000);
@@ -304,7 +309,7 @@ return (window.__ddCreators || []).length > new Set(rows.map(r => r.creator)).si
 return !!v && v.id === 'name_DESC';`, 15000);
   });
   await run.step("Navigate to the Asset Verification job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the job list mount (it reads the key on mount)", {allow: 'ignore'}, async () => {
     await wait(page, 5);

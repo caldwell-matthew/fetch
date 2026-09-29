@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, click, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob180(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile home page", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the app shell and GET_SESSION settle", {}, async () => {
     await wait(page, 5);
@@ -60,7 +61,7 @@ return n === 6;`, 30000);
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
   });
   await run.step("Navigate to back to the home page", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("RESTORED: back on Home with its tiles", {}, async () => {
     await assertElementPresent(page, `//img[@alt="icon for Work Orders url"]`, 30000);

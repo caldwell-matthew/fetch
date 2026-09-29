@@ -6,52 +6,43 @@
 |---|---|
 | `testing_checklist.md` | what is left to do, and what has run |
 | `coverage.md` | what a green run proves |
-| **`test_authoring.md`** | how to build a test and prove it (locally, then on Datadog) without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 40 traps |
+| **`test_authoring.md`** | how to build a test and prove it locally without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 57 traps |
 | `bugs_found.md` | what the tests found in the app |
 | `cleanup_spec.md` | test residue: what exists, what can be removed, never-touch fixtures |
 
 🛑 **The traps are the load-bearing part.** Each is a mistake that has already cost at least one
 run. Read the relevant trap *before* debugging a locator.
 
-## The loop — prove it locally, then confirm on Datadog
+## The loop — build it in Playwright, prove it locally
 
-Datadog run credits are limited, so a test is finished locally: **steps 1–4 cost 0 runs**. Step 5
-spends runs and waits for the owner's go-ahead — state the cost when asking.
+The TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source; local runs are free but touch dev's shared
+data, so they run headless, and a data-changing one starts from fixtures at rest. ⛔ Datadog is paused (2026-09-18):
+nothing is pushed or run there, and its tools live in `legacy/` (not used).
 
-| # | step | how | runs |
-|---|---|---|---|
-| 1 | Read the component on `origin/development` | `git show origin/development:client/mobile/…` — its branches, its submit path, what a closing modal really proves (traps 6, 8, 18) | 0 |
-| 2 | Build | `build_*.py` → `set_device.py`. Replacing existing JSON needs `DD_FORCE=1`; run `check_drift.py` first (trap 19) | 0 |
-| 3 | Static checks | `preflight.py` — or one at a time: the bench (a must-fail case for every new JS step, trap 27), `check_literals.py`, `check_drift.py` | 0 |
-| 4 | Replay locally | `local_run.py <test>` until it passes, or is red only where designed (a `soft` bug proof). Before explaining a red, open its screenshot in `legacy/Mobile/local_runs/<test>/` | 0 |
-| 5 | Confirm on Datadog | `verify.py <test>` — pushes only that test and the scratch harness, then runs it | 2 (3 when red) |
-| 6 | Wire | add the child's id to its suite in `suite_plan.py` → `build_module_suites.py` (`DD_FORCE=1`) → `wire_suite.py` → `dd_tools.py push <suite>`. A suite holding `PENDING-WIRE-UP` makes every push fail, and `verify.py` refuses to run after a failed push | 0 |
+| # | step | how |
+|---|---|---|
+| 1 | Read the component on `origin/development` — its branches, its submit path, what a closing modal really proves (traps 6, 8, 18) | `git -C "$MENTORTWO_REPO" show origin/development:client/mobile/…` |
+| 2 | Write the test in `tests/MOB.<n>_<Name>.ts` (an exported `mob<n>(page)` — or `(browser)` when it needs its own browser), and call it from its suite in `suites/`; a new suite also goes into `tools/suites.json` (`writes`, `order`, `after` when it must be reset) | fixture ids from `support/fixtures.ts`, URLs from `appUrl()` — never literals |
+| 3 | Type-check | `cd e2e && npx tsc --noEmit` |
+| 4 | The static checks — every new page-side JS body needs a bench case with a must-fail twin (trap 27) | `node e2e/mobile/tools/check_js_assertions.js` · `.venv/bin/python e2e/mobile/tools/check_literals.py` |
+| 5 | Fixtures at rest, then run it until it is green — or red only where it pins a bug — **twice** | `.venv/bin/python e2e/mobile/tools/fixtures.py` · `cd e2e && npx playwright test mobile/suites/MOB.9xx… -g "MOB.<n>"` |
+| 6 | Read its evidence before describing it: the screenshot it saves in `e2e/results/`, the trace on a red (trap 45) | `npx playwright show-trace e2e/results/artifacts/…/trace.zip` |
+| 7 | Update the docs in place (checklist row, coverage, traps, bugs) | `.venv/bin/python e2e/mobile/tools/check_docs.py` · `source_coverage.py --write` |
 
-- **A local pass is a pre-check, not a verdict.** Datadog's browser, location and timing differ;
-  only step 5 goes into the checklist's 📊 RUN STATUS. A mutating replay writes what a Datadog run
-  writes — `preflight.py` before and after.
-- **Uploads replay with a stand-in file** — Datadog's bytes stay in its storage (trap 12), so `uploadFiles`
-  sets a same-named file from `legacy/Mobile/local_fixtures/` (no such directory today, so in practice always
-  the fallback) or a generated PNG/PDF, and really uploads it — *provided the step that opens the
-  picker is itself replayable* (see the `userLocator` warning below).
-  Replays take `local_runs/.replay.lock`, so two never run against the fixtures at once. ⚠️ That lock
-  is why `local_timing` reads a suite's time from `local_run`'s own clock, not the subprocess wall.
-- 🛑 **A STEP WITH NO `userLocator` CANNOT REPLAY AT ALL, AND THE TEST MAY STILL GO GREEN.**
-  `local_run` needs an xpath; a recorded-element step has none and fails with `no xpath locator on
-  this step`. `MOB.600`'s `Open the photo picker ("Add Asset Photo")` is exactly that, so a local
-  MOB.600 attached NO photo, and its server proof passed on a path the test never meant to take.
-  Before trusting any local green, check the run for `no xpath locator` errors earlier in the test.
-- **What a replay cannot show:** a click Playwright refuses as not actionable is retried forced and flagged, because Datadog clicks it —
-  but a forced click on an element still animating can land without effect (`MOB.951`'s Forms tab at
-  320px stayed on General Info). Read a flagged forced click before trusting the steps after it.
-- **A suite replay shares local variables by name, as Datadog does** — the first definition wins
-  (trap 17), so a clash shows locally too.
-- **`--continue`** runs past a red step (Datadog stops there) — to see every red, or to time a suite.
-- **When a red has a cause the steps cannot show, probe the app locally.** A scratch Playwright
-  script can log in through `local_run` (`Run(page, variables, …).steps(login["steps"])`) and read what
-  no test step can — network traffic, react-hook-form state, the page's Apollo client (reached through
-  React's fiber props). That is how bugs §42 was isolated. Read the server over the API before and
-  after, and restore anything the probe writes.
+- **A write is proven by a server read** (`serverRead`), never by a toast or a closed modal (trap 6). A read-only test
+  proves it sent nothing: a route that stops mutations and counts them (`MOB.930`, `MOB.332`).
+- **A test that changes its browser's state gets its own browser** — offline, routes that answer or refuse requests,
+  a cleared local store, a moved clock: `freshSession(browser, { touch? })` inside the test, closed in `finally`.
+- **Refusals and empty states are made in the browser, never on dev:** `failOperation` refuses one mutation
+  (`support/network.ts`); a route that passes the real answer through with one field changed fakes a rare state
+  (`MOB.946`, `MOB.544`). Refusing one mutation does not make a test read-only (trap 52).
+- **A bug the app has is pinned, not worked around silently:** the test returns the symptom, and the suite calls
+  `test.fail(true, 'bugs §N: …')` and throws when it appears — green by itself once the bug is fixed (`MOB.124`, `MOB.129`).
+- **A pass** is `playwright_pass.py`: the read-only suites, then each data-changing suite alone with the fixture checks
+  before it (and its `after`, e.g. `MOB.985`'s AV reset). Its report and evidence land in `e2e/results/passes/mobile/`.
+- **Probes** — throwaway diagnostics that read what no test does (network, component state, the page's Apollo client or
+  Mapbox map through React's fiber) — go in `mobile/probe/`, run with `E2E_PROBE=1 npx playwright test mobile/probe/<name>`,
+  and are deleted when done unless a bug entry cites one.
 
 ## Fixtures
 
@@ -60,7 +51,9 @@ spends runs and waits for the owner's go-ahead — state the cost when asking.
 | Work order | `EYRpYJ9QYdQ1JFF10JtB0Q` | MOB.134, MOB.310–399, MOB.911/912, MOB.951 | crew `Admin`, status **`Ready`** (`MOB.320` restores it `always`; outside In Progress/On Hold/Ready it leaves the crew's list — bugs §25). `desc` owned by MOB.395, ends every run `DATADOG FIXTURE`. **No `project` — it must stay that way.** General Info resubmits every field, so referencing a project makes the server reject *any* save on this form, and every project on dev has a null account (bugs §46) (`preflight.py work` checks it). Holds ONE permanent condition (`Pump 0102 · Structural · Mounting/Support`, 1/2/3 — `MOB.386` edits Condition Left and restores 2) and ONE failure (`MISSED`) — each the unique key's slot (bugs §40). Its first form's first integer field is empty at rest (`MOB.134` writes `134` and clears it). Address/x/y owned by `MOB.352` (rest `230 North Alexander Street, New Orleans, LA 70119` · -90.1025785 · 29.9782827); its one asset link (`Pump 0102`, `Active`, sequence 1) owned by `MOB.353`; `MOB.354` adds and removes a `Bypass Valve 0001` link |
 | Work order | `RcdI0xcpc8NBV8VoRNNBYM` | MOB.302 | holds the photo `MOB.302` links to `Bypass Valve 0001` |
 | Work order | `xohY0klBZktB9VBRxc8k4J` (`20260910-16`, created by `MOB.396`) | MOB.363, MOB.364, MOB.365 | `Ready`; exactly 8 crews including `Admin`; no schedule entries; no attachments; one asset, `⚡ Tank 0000`; template `All Tabs` with `copyAttachmentToAsset` off. 3 forms at rest — `MOB.364` attaches one and deletes it |
-| Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–590, 536, 537, 913 | crew `Admin`, `IN_PROGRESS`, exactly **2 assets** — `⚡ Tank 0000` (tag `0000`; the symbol is part of the stored name) and `A/C Motor 0002` (no tag) — neither verified. `reset_av_fixture.py --check` asserts it for 0 runs; match names by **containment** (trap 29) |
+| Second work order | `Vg5Qd9VddQJIYNR48Yhk9l` (`20260929-19-001`) | MOB.342, MOB.357 | made by `setup_second_fixture.py` (2026-09-29): a `Datadog Test` work order described `DATADOG FIXTURE 2 …` (no residue marker), **`In Progress`** — the crew's list's second status — holding `DATADOG FIXTURE REQUIRED FORM`, whose one field (`🔢1`) is required and UNFILLED. `fixtures.py second` checks it |
+| PM route stage | `58JgBIYA1cBQxoQVwJ5FRw` (`20260929-18-001`) | MOB.366 | made by `setup_pm_route.py` (2026-09-29): `pmRoute`, `Ready`, its three routed assets (Pump 0144 · 1, Pump 0066 · 2, Pump 0101); its workflow stage's template has `showAssetStatus` OFF. Its trigger is inactive and fired once — re-running the script makes nothing. Read it, never write to it |
+| Mobile job | `Z0EVwQcdJZhMURcBFkp0E0` "DATADOG MOBILE JOB" | MOB.500–590, 536, 537, 913; MOB.513/514 grow it (`MOB.985`, reset after) | crew `Admin`, `READY`, exactly **2 assets** — `⚡ Tank 0000` (tag `0000`; the symbol is part of the stored name) and `A/C Motor 0002` (no tag) — neither verified. `reset_av_fixture.py --check` asserts it for 0 runs; match names by **containment** (trap 29) |
 | Asset | `Pump 0102` | MOB.387, 389–391, 700, 710 | attached to the work order; `desc` owned by MOB.710, ends `DATADOG FIXTURE`. 🛑 **Never touch its attachments** (owner). Address, city and postal code owned by `MOB.359` (restored `always`; lat/long never written) |
 | Asset | `Bypass Valve 0001` (`wFRo1MMwoAMkdxA4hVpIhB`) | MOB.302, MOB.354 | no photos at rest — `MOB.302` links one and unlinks it; no location, and never left linked to a work order (`MOB.354`) |
 | Asset | `⚡ Building 0000` | MOB.721, MOB.914 | zero event readings |
@@ -81,20 +74,22 @@ login-bearing test asserts the role right after login.
   an intermittently empty asset list that survived a 60s guard; clicking the job row works.
 - **Deep-link only where the target queries by id on mount.** `WorkStageDetails` reads
   `useParams` and queries directly, so `/work/<id>` is safe. The AV detail page is `cache-only`
-  (`Job.tsx` bails on a cold cache) — use `av_job_gate`. Work-order lookups are `cache-only` too,
+  (`Job.tsx` bails on a cold cache) — go through the job list and click the row (`MOB.928`'s way). Work-order lookups are `cache-only` too,
   filled only by `prefetchWorkData` on the crew's list — visit `/work` before deep-linking.
-- **Mutating tests self-restore to FIXED values, restore legs `always`.** Datadog can extract a
-  value but not interpolate it into an XPath, so "put back how it was" is inexpressible.
+- **Mutating tests self-restore, in `finally` / `always` legs.** A Playwright test reads the value first and puts it
+  back (`MOB.136`'s signature, `MOB.930`'s layers); the converted tests restore FIXED values, because Datadog could not
+  interpolate a read value into a step.
 - **Crew-scoped data is shared state.** `mobileJobsForCrew` and `workStages(crew: '<SESSION>')`
   are crew-scoped, so anything switching crews changes what other tests see — why `MOB.200` is in
   no suite.
 - **The crew's work list grows with every create run** (~4 work orders per full pass) and virtualises. Anchor on the
   fixture by id; on the list, narrow before measuring (trap 30).
 - **Classify a test by what it leaves on the SERVER**: `read-only` (no server write; a restored
-  sessionStorage toggle still counts), `self-restoring` (writes, puts it back), `leaves-residue`.
-  Classify by reading the steps, not the message. ⚠️ Tags are applied inconsistently (some leaves
-  carry none, others mix `read-only` with `class:*`), so never filter on them for safety — the checklist's suite table is the source of
-  truth. Change tags in generator **and** JSON together (trap 19).
+  sessionStorage toggle still counts), `self-restoring` (writes, puts it back), `leaves-residue`, or `reset after`
+  (its suite's `after`). Classify by reading the code, not the name; `tools/suites.json`'s `writes` and `about` are the
+  record.
+
+**Datadog only** (paused 2026-09-18 — these apply if it resumes):
 - **Deleting a test from Datadog requires un-wiring it first** — the API refuses a test used as a
   subtest. Remove the `playSubTest` step → `push` → delete.
 - **Push and pull only the tests being edited** (owner). `dd_tools.py push` takes test names and refuses
@@ -107,58 +102,39 @@ login-bearing test asserts the role right after login.
 
 ## Tooling
 
+All in `e2e/mobile/tools/`, run from the repo root with `.venv/bin/python` (0 Datadog runs).
+
 | Command | Purpose |
 |---|---|
-| `preflight.py [check …]` | ⭐ every 0-run check in one command, or the named ones — `wiring` (no `PENDING-WIRE-UP`) · `sync` (local↔Datadog by content, plus duplicate test names) · `drift` · `literals` · `bench` · `locals` (suite children declaring one local variable two ways, trap 17) · `av` (AV job at rest) · `work` (fixture work order `Ready`, in the crew's list, **carrying no `project`** — bugs §46) · `mob302` (MOB.302's photo/asset) · `mob39x` (no MOB.390/391 leftovers) · `docs` (no finished OPEN WORK row, no `#N` citing a missing row, Rows line and test counts current). Run before any suite. Skips `drift` while a run is in flight |
-| `local_run.py <test>` | ⭐ **replay a test locally in Playwright — 0 Datadog runs** (the loop, step 4). The same step JSON with Datadog's rules — polling to each timeout, "Multiple elements found", `optional`/`soft`/`always` — globals read from the API, MOB.000's login prefixed, the test's own device (tablet 768×1020, phone 320×550). Headless by default; a failure saves its screenshot and error to `legacy/Mobile/local_runs/<test>/`. `--headed` to watch in a Chromium window · `--continue` past a red step · `--trace` for a replayable timeline (`python -m playwright show-trace`) · `--max-timeout` to iterate fast · `--device large_phone` (430×932, **local only** — no Datadog device) · `LOCAL_RUN_TESTS=<dir>` to replay a sandbox build. `--live` rewrites `local_runs/live.png` each step, but VS Code's image tab does not reload it — watch with `--headed`. Avoid `--slow-mo`: a forced click on a moving element misses |
-| `local_timing.py [suite …]` | every suite locally, one at a time (`--continue`), into `local_runs/timing/summary.md` — runtimes for the weekly schedule (checklist #37). A suite's time comes from `local_run`'s own post-lock clock, because the subprocess wall also counts waiting for `.replay.lock` (measured 2026-09-15: MOB.981 walled 423s for a 313s run). `summary.md` is rebuilt from every stored log, so timing a few suites tops the file up instead of replacing it. Its `DATADOG_LAST` map holds the first full pass's Datadog times (2026-09-16), for a local/Datadog ratio |
-| `full_pass.py [--dry-run] [--from MOB.9xx] [--stage 1\|2]` (`mobile.py pass`) | a manual full pass in the schedule's order: the read-only suites together, then each data-changing suite alone with the fixture checks before it, Session last. After a red it WAITS OUT Datadog's automatic retry — a second full run still editing the fixtures — and stops. The whole preflight must be clean first. ≈158 runs; summary to `local_runs/passes/` |
-| `schedule_probe.py create\|report\|pause` (`mobile.py probe`) | the throwaway live test that measured how Datadog's scheduling windows behave (trap 40). Bills about one run per window while live |
-| `verify.py <test>` | confirm ONE test on Datadog (the loop, step 5) through the `MOB.999_Verify_Scratch` harness — 2 runs (3 when red: Datadog retries once). Pushes only that test and the scratch harness |
-| `dd_tools.py push <test …>` | push ONLY the tests being edited (owner rule) — refuses without names; `--all` is a deliberate full sync. Exits non-zero on failure — chain with `&&` |
-| `dd_tools.py pull <name>` | fetch a test back after a Datadog-UI edit |
-| `dd_tools.py run <suite>` · `report <suite> [n]` | trigger + poll — refuses a named test whose steps differ from Datadog (`--push` pushes the named tests first) · per-step results with run age |
-| `suite_plan.py` | ⭐ **the only place suite membership is kept** — the 24 module suites (MOB.953–975, MOB.980, MOB.981), each child's run order, the standalone leaves (`STANDALONE`) and held-out leaves (`HELD`). `assert_complete()` fails if a leaf is in no suite or in two. `dd_tools.test()` tags every test `module:<slug>` from it |
-| `build_module_suites.py` | writes the module suites from `suite_plan.py` (login once, then the children in order) |
-| `wire_suite.py` | fill in `subtestPublicId` once children exist. Re-run after any suite rebuild |
-| `check_drift.py` | where a generator and its JSON disagree, changing nothing; names what a rebuild would LOSE. Run before any `DD_FORCE=1` |
-| `sweep_strings.py` | the rendered-string sweep: every JSX text child in `client/mobile` that no test's params contain — the source of new OPEN WORK rows. Catches TypeScript fragments too; every hit needs a read |
-| `check_literals.py` | every asserted literal still exists in the served app (`--self-test` after a rule change). Blind to a paraphrase whose words all exist — copy constants verbatim |
-| `node check_js_assertions.js` | the bench: runs every `assertFromJavascript` in jsdom against a DOM modelled on the component source, each with a must-fail case (trap 27) |
-| `audit_assertions.py` | assertions that pass without proving their name — TAUTOLOGY · GENERIC-COUNT · NAME-MISMATCH · VACUOUS-ABSENCE · LOADBEARING-OPT · CRITICAL-DIAG. A heuristic: every hit needs a human read. Exit 1 on any HIGH |
-| `reset_av_fixture.py` | the AV fixture over GraphQL, 0 runs — `--check` asserts, dry run plans, `--apply` acts |
-| `cleanup_residue.py` | prune residue by marker, delete by id — dry run by default (`cleanup_spec.md`) |
-| `set_device.py` | pins every test to `chrome.tablet`, `_Phone_` tests to `chrome.mobile_small`; run after any build |
-| `add_role_guard.py` · `add_crash_guard.py` | patch the shared login prefix (login → boot crash guard → shell → role is exactly `Admin`) into every login-bearing JSON. Builders copy the prefix from `MOB.000_Login_(Dev).json`, so a prefix change goes through these, never one builder |
-| `legacy/fetch.py` `fetch(type="full", dir=…)` | back up every browser test. Names files by test name, so duplicate names overwrite — re-save those by `public_id`. Last full backup: `legacy/dd_tests_backup/2026-08-12_1543_pre-delete/` |
+| `playwright_pass.py [--dry-run] [--stage 1\|2] [--from MOB.9xx] [--keep-going]` | ⭐ a full pass in the safe order (trap 1): read-only suites together, then each data-changing suite alone, `fixtures.py` before each and at the end, a suite's `after` straight after it. Stops at the first red |
+| `suites.json` | ⭐ the suites: spec, children, `writes`, `order`, `held`, `after`, and what each does to dev's data |
+| `fixtures.py [av work mob302 mob39x second pmroute]` | are the shared fixtures at rest? Read-only |
+| `check_docs.py` | OPEN WORK rows open, `#N` citations resolve, the counts current — after any doc or test change |
+| `node check_js_assertions.js` | the bench: every `assertFromJavascript` body run in jsdom against a DOM modelled on the component source, each with a must-fail case (trap 27); `${…}` of a `support/fixtures.ts` constant is filled in, any other refused |
+| `check_literals.py` | every asserted literal still exists in the served app |
+| `source_coverage.py [--write]` | which `.tsx` files a test reaches, by module (`docs/source_coverage.md`); `UNREACHABLE` lists the dead ones |
+| `tighten_waits.py` | drops a fixed wait that only precedes a check which polls anyway |
+| `reset_av_fixture.py [--check\|--apply]` | the Asset Verify fixture job back to rest — `MOB.985`'s `after` |
+| `setup_second_fixture.py [--apply]` · `setup_pm_route.py [--apply]` | make the second fixture work order / the PM route stage — dry run by default, idempotent |
+| `cleanup_residue.py [--apply]` | prune test residue by marker, delete by id, org SMCT2 only — dry run by default (`cleanup_spec.md`) |
 
-**`dd_tools` helpers** — shared so there is one copy; do not hand-roll local versions.
+**Helpers** — shared so there is one copy; do not hand-roll local versions.
 
 | helper | use |
 |---|---|
-| `step(…, optional=, soft=, always=)` | `optional` = `allowFailure`, non-critical · `soft` = `allowFailure` + critical (fails the test, the run continues) · `always` = `alwaysExecute` (runs after an earlier failure; for restore legs and state a later run needs) |
-| `jsassert(name, body)` | a `Run JavaScript` assertion; the body is a function body that `return`s a boolean |
-| `server_assert(name, key, query, variables, predicate, soft=, always=)` | ⭐ **the server read** — one self-refreshing step POSTs a same-origin `/graphql` query and judges `data` with a JS predicate, then clears its `sessionStorage` keys. A predicate compares what the SERVER stores: the enum `NotCompleted`, not the badge's `Not Completed` |
-| `av_job_gate(job_id)` | **the** way into an AV job — clicks the row, gates on the asset ROWS, polls |
-| `work_cache_warm(wait=30)` | visits `/work`, asserts only that the page mounted, then waits blind — warms the work lookup cache before deep-linking a work order (`MOB.134`, `347`, `348`, `351`–`359`, `363`–`365`, `911`); proves no readiness. Anything that acts on the `/work` list, or needs its downloads finished, uses `work_list_gate` instead: the per-stage downloads outrun a blind wait (86s measured, see below). No hand-rolled blind 20s `/work` warm-up is left — the last seven (`MOB.302`, `389`, `393`, `394`, `397`, `398`, `399`) switched to `work_list_gate(require_row=False)` 2026-09-17 |
-| `work_list_gate(wait=20, require_row=True)` | readiness for `/work` — use it before a test's first interaction on the list page. The per-stage detail downloads ran 86s locally on 2026-09-16 (304 `/graphql` requests; residue work orders grow it every pass until pruned), and a Datadog click taken during them timed out (`MOB.301`). `LOADEDALL 3/3` therefore waits up to 180s — only where the test clicks on the list or opens other work orders (trap 49). `require_row=True` when the test needs a work order on the list; `require_row=False` when it only needs `/work` settled — e.g. to warm the lookups before opening the fixture |
-| `work_view_ensure(to)` | switch Scheduled ↔ List only if the item is present (it exists only for a `SCHEDULED` role); persists across a suite — restore `always` |
-| `open_filters_drawer()` | the Filters drawer with the re-click gate; gate on `Add Filter`, never the trigger |
-| `pick_option(url, select_id, label, value)` | a Mantine Select option: open, GATE on the option being VISIBLE (re-opens the select if the click was lost), then pick by exact text. Re-clicks only if the option is STILL hidden 2.5s after the first poll, so a dropdown animating open is never clicked shut. Never click an option after a fixed wait — `MOB.800` failed exactly that way on Datadog under load (2026-09-16) |
-| `menu_item_visible_js(trigger_xpath, item_text)` | the same gate for a Mantine **Menu** item: re-clicks the trigger if the item is still hidden 2.5s on. Use it in place of a presence check after opening a menu (`MOB.352`) |
-| `toasts_gone(always)` | gate: no react-toastify toast is on screen. Put it before any click that follows a save — see trap 6b |
-| `material_list_ready()` | gate for Material Lookup: an `N matches` line shows and no `LoadingOverlay` covers the page — a click before that lands on the overlay. Shared by `MOB.850`/`860`/`865`/`866` in place of a fixed wait |
-| `upload_steps(url, picker=…)` | `[reveal, uploadFiles]`, reading the one working `uploadFiles` step out of `MOB.600`'s JSON (trap 12) |
-| `reveal_file_button(scope=…)` | a Mantine `FileButton`'s hidden input; fails closed on an ambiguous match — always pass `scope` |
-| `stash_record_count` / `prove_record_count` | count the innermost cards in the active panel containing every needle, reload, require exactly +1 — sound for `optimisticResponse` adds (bugs §40), not for writes made straight into the cache (trap 6) |
-| `pick_visible_option_js` *(local copies in `build_tab_tests.py`, `build_condition_edit_save_test.py`, `build_failure_edit_save_test.py`, `build_work_reassign_test.py`)* | click the ONE visible ListFilter option (`offsetParent !== null`) — closed dropdowns stay mounted (trap 3) |
+| `support/fixtures.ts` | every fixture id — the one place a move changes |
+| `appUrl(path)` · `freshSession(browser, { touch?, device?, clock? })` · `serverRead` · `serverReadDirect` · `persistedCacheHas` (`support/session.ts`) | a URL on the configured host · a logged-in throwaway browser · a `/graphql` read with the page's session (`Direct`: from Playwright, works while the page is offline) · whether the persisted Apollo cache holds something yet (trap 41) |
+| `failOperation(page, { field \| operation, variables? }, failure)` · `watchOperations` (`../support/network.ts`) | refuse one GraphQL call in the browser (match a mutation by its FIELD, trap 43) and count the hits · record which operations went out |
+| `waitForPrefetch(page, { ignore? })` (`support/prefetch.ts`) | the list pages' lookup prefetch and downloads finished — before a form that needs cached schemas (bugs §42) |
+| `openAssetCard` · `openWorkStageCard` · `openChangeAsset` · `setLayer` / `shownLayers` / `readMapId` · `attachMap` / `mapView` (`support/map.ts`) | a map card the way a user opens it · a work layer switched and proven over `/graphql` · the page's Mapbox instance and its zoom, pitch and centre (trap 55) |
+| `Sequence` / `run.step(name, { allow, always })` · `assertFromJavascript` … (`../support/dd.ts`) | the converted tests' step runner: `allow: 'ignore'` an optional step, `'soft'` a critical one the test continues past, `always` a restore leg that runs after a failure |
 
 ---
 
 ## Locator & assertion traps
 
 *1–17 are locator/assertion traps; 18–27 process traps (how tooling, fixtures or framing misled);
-28–40 more locator, fixture, offline and scheduling traps.*
+28–57 more locator, fixture, offline, map, API and scheduling traps.*
 
 **1 · Never add a second `device_id`.** Datadog runs each device as a **concurrent** session, and
 the mutating tests share one fixture, so two devices race (caught when a phone session walked the
@@ -197,10 +173,18 @@ alongside a mutating tablet suite.
 - **Asset attributes** (`MOB.944`) — `Remove Attribute` → `Yes` on the ONE attribute this run added, on a
   `DD SYNTHETIC MOBILE` test asset only (owner 2026-09-28). The test reads the asset's attributes first; a route
   refuses any `removeAttributeFromAsset` whose ids are not exactly that one attribute's.
+- **Replace a work stage's assets from the map** (`MOB.128`/`MOB.129`) — `Replace existing assets.` → `Use Map` →
+  `Confirm` removes EVERY asset link on the stage, so only on a Ready `DD SYNTHETIC MOBILE` work order the test
+  account made, never a fixture (owner 2026-09-29). A route lets through only the replace's own four mutations on
+  that stage; the stage ends linked to the picked asset alone, moved back beside it.
 
-**Not a delete, and decided the same day:** the map's change-asset popup (`Replace existing assets` — "cannot
-be undone") is opened and cancelled, never confirmed; the map's drawing tools may **create** work orders and
-assets, marked `DD SYNTHETIC MOBILE`, left as residue for `cleanup_residue.py` (owner 2026-09-23).
+**Not a test's delete — the reset:** `MOB.513`/`514` add assets to the Asset Verify fixture job and leave them;
+`reset_av_fixture.py --apply` unlinks them and deletes the `DD SYNTHETIC MOBILE AV …` one, run by `playwright_pass.py`
+as `MOB.985`'s `after` (owner 2026-09-29: run, then reset).
+
+**Not a delete, decided 2026-09-23:** `MOB.930` opens the change-asset popup (`Replace existing assets` — "cannot
+be undone") on the fixture work order and cancels it; the map's drawing tools may **create** work orders and
+assets, marked `DD SYNTHETIC MOBILE`, left as residue for `cleanup_residue.py`.
 
 Read the server before trusting a delete: `Copy to asset` *links* the same attachment, and
 `destroy` deletes the S3 file when exactly one reference is left. `MOB.302`'s guard (same step as
@@ -529,14 +513,16 @@ run — the app gates only sorting and the prefetch on `loadedAll` (`WorkOrders/
 `MOB.301` and `MOB.937` click the create button after the lookups alone (2026-09-25). A test that leaves the list for
 the fixture waits for the lookups only — the full wait cost 141s in `MOB.135` with 502 stages, and it grows: the crew's list gains about 29 `Ready`
 stages a day from dev's scheduled PM job ("Application Job": 573 of 600 on 2026-09-28, 546 of them from the `High Score
-Maintenance Strategy`'s two daily triggers — `🔧 Repair` and `🗓️ Monthly PM Inspection`), far more than test residue. `MOB.349` (record cycling) waits for every download itself; `MOB.397` keeps its gate (`NEEDS_ALL_DOWNLOADS`
+Maintenance Strategy`'s two daily triggers — `🔧 Repair` and `🗓️ Monthly PM Inspection`), far more than test residue.
+Those two were set inactive on 2026-09-29 (owner; `kJMkQFZNJBFYRV8AxA5twl`, `5cU1xslBNUl1RxUA4ZwVNF` — `active: true`
+undoes it); the ~600 stages they made stay in the list. `MOB.349` (record cycling) waits for every download itself; `MOB.397` keeps its gate (`NEEDS_ALL_DOWNLOADS`
 in the tool). With that and the login's 10s sleep replaced by a wait for the shell, the pass went to 83 min.
 
 **50 · A list read returns ONE page — 500 rows by default.** `workStages(crew: "<SESSION>")` with no `params` returns
 the first 500; the test crew passed 500 stages on 2026-09-24, and `fixtures.py` then read the fixture
 work order (at 501) as "not in the crew's list" when it was. Pass `params: { limit: 1000 }` (a limit of 5000 silently
-comes back as 500) and compare `pageInfo.totalCount` with the rows read. The list keeps growing — about 29 stages a
-day from dev's scheduled PM job, whatever the cleanup does (trap 49) — so it will pass 1000 too.
+comes back as 500) and compare `pageInfo.totalCount` with the rows read. The list grew about 29 stages a day from
+dev's scheduled PM job until its two main triggers were set inactive (trap 49); watch it against the 1000.
 
 **51 · A status change can email people.** Moving a work stage to a status fires its **department's** work
 notifications (`server/…/statusUpdate/deptNotifications.ts`: every active user in the named role, whatever their email
@@ -544,7 +530,8 @@ setting) and, once per stage, its forms' `SEND_NOTIFICATION` triggers (`fireForm
 fixtures sit in the `Admin` department, whose `Complete` notification ("Test Role Trigger") emailed all 14 Admin users
 every time `MOB.320` completed the fixture work order and `MOB.511`'s job completion completed `20260715-9-001`. Since
 2026-09-25 it goes to the role **`Test Notifications Only`** (`dgQh4IMBgwFgYxdVQFMcxA`), which exists only to receive it:
-**keep that role empty**, and never point it back at a role people hold. A new test that moves a stage in another
+**keep that role empty**, and never point it back at a role people hold. It is also a crew since 2026-09-29 (`crew: true`),
+so the create form's `Assign to Crew` offers it: `MOB.303` assigns its work order there, reaching no one. A new test that moves a stage in another
 department, or to another status, reads that department's `departmentWorkNotifications` first. The `Trigger Test` form
 template (the fixture's `⚡Trigger` form) still names `Admin` in two `SEND_NOTIFICATION` triggers: they fire on a stage
 that newly holds the form and reaches `Complete`, which no test does today.
@@ -568,3 +555,24 @@ the page: an asset with no reading types renders its Readings form with no field
 asset.`), and `MOB.722`'s "form mounted" check went red the day the newest test asset was a fresh one (2026-09-28). For
 a container that may be empty, assert it is PRESENT (`toHaveCount(1)`), then assert what should be in it.
 
+**55 · A map icon is pixels on a canvas, and icons hide each other.** To tap an asset or a work stage, find its pixel
+from the page's Mapbox instance: walk React's fiber up from `.mapboxgl-map` to the object with `project` and
+`queryRenderedFeatures` (`support/map.ts`'s `attachMap`; `mapView` reads zoom, pitch and centre — `MOB.121`/`124`), project the feature's coordinates, and keep a pixel only if
+`queryRenderedFeatures(point)` — what the app runs on `touchend` — holds what the tap should select and
+`elementFromPoint` is the canvas (the purple "View in Map" marker, the overlay and the controls sit on top). Tap with a
+touch session; zoom with the map's own `+`/`-` buttons. Icons are not drawn at every zoom (Tank 0040's is absent at 15),
+and Mapbox drops a symbol that collides with one above it: a work stage's icon (work layers sit above asset layers) on
+or next to an asset hides the asset's icon. Two replaced work orders left ON Tank 0040 hid it from `MOB.128` on
+2026-09-29 — a test that moves a stage onto an asset moves it off again.
+
+**56 · Some list conditions are ignored on dev.** `TableQuery` conditions go to the server as given, and some columns are
+silently dropped — the answer is the unfiltered list, not an error: `EQ` on an asset's `name`, on a user's `roleId`, and
+on a work's `workflowTitleId` / `defaultAssetId` all came back unfiltered (2026-09-29). `CONTAINS` on `name` does filter.
+Match the name exactly on the client after a `CONTAINS`, and find a record through something that names it (a
+schedule's `lastWorkOrder`, the crew's list) rather than trusting a filter. `setup_pm_route.py` fired its trigger's check
+twice before this was found.
+
+**57 · A hidden tab panel is `display: none`, not `hidden`.** Mantine renders every tab's panel and hides the inactive ones
+with a style, so `[role=tabpanel]:not([hidden])` is simply the FIRST panel. `MOB.351` looked there for estimate cards and
+reported "none" for weeks while each tab showed its estimate (2026-09-29). Use Playwright's `[role="tabpanel"]:visible`, or
+in page JavaScript the panel whose computed `display` is not `none`.

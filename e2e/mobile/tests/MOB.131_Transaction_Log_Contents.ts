@@ -4,11 +4,12 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
 import { waitForPrefetch } from '../support/prefetch';
+import { appUrl } from '../support/session';
 
 export async function mob131(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -50,7 +51,7 @@ export async function mob131(page: Page): Promise<void> {
     await wait(page, 4);
   });
   await run.step("Navigate to the transaction log", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/transactions`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}transactions`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The log's table headers render", {}, async () => {
     await assertPageContains(page, `Details`, DEFAULT_TIMEOUT);

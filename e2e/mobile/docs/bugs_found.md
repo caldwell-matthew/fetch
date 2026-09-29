@@ -43,6 +43,9 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 52 | A verify the server refused leaves the asset's box ticked | Runtime + Source | ❌ medium · `AssetVerification/VerificationCheckbox.tsx:17` · `MOB.940` pins it |
 | 53 | **A verify the server refused still changes the job's status** | Runtime + Source | ❌ medium–high · `VerificationCheckbox.tsx:40-66` · `MOB.940` pins it |
 | 55 | The map's tilt button always reads `3D`, even while the map is tilted | Runtime + Source | ❌ low · `Map/MapGL/index.tsx:322` · `MOB.124` pins it |
+| 56 | A Use Map replace from the card "View in Map" opens saves, but its overlay never closes | Runtime + Source | ❌ medium · `Map/index.tsx:157-185,291-306` · `MOB.129` pins it |
+| 57 | **After a new asset is created from an Asset Verify job, the job's page is blank** — until a module resync | Runtime + Source | ❌ medium–high · `AssetVerification/Job.tsx:92-96,136` · `MOB.513` pins it |
+| 58 | Every error the app logs is saved as `Unknown error` with its details dropped | Runtime + Source | ❌ low · `utils/Logger.ts:199-214` · `MOB.172` pins it |
 
 ## §25 · How the crew's work list is populated — reference, not a bug
 
@@ -485,4 +488,87 @@ is tilted and the button still offers `3D`, although its next tap flattens it.
 **Fix:** pass the live pitch (the map's `pitch` from its view state, or `map.getPitch()` on `pitchend`) instead of
 the constant.
 **Tests:** `MOB.124` (in `MOB.971`) pins it: the suite expects `3D` while tilted and goes green by itself when fixed.
+
+## §56 · A Use Map replace from the card "View in Map" opens saves, but its overlay never closes
+
+A work order's globe → `View in Map` opens the map, and the map opens the stage's card by itself (`onData`,
+`Map/index.tsx:157-185`). The card's selected feature is built as `{ recordId, recordType, lat, lng, ...feature }` from
+`querySourceFeatures` — a Mapbox feature whose `geometry` is a getter on its prototype, which the spread does not copy.
+Change Asset → `Use Map` → tap an asset → `Confirm` runs `confirmAssetPick` (`:222-326`): it removes the stage's links,
+clears its location, links the asset and sets the stage's address and x/y — then, to re-centre, rewrites the selected
+features with `"Point" === f.geometry.type` (`:291-306`). `f.geometry` is undefined, so it throws; the `catch` (`:325`)
+only logs, and `setAssetPickMode(null)` / `setAssetPickSubmitting(false)` are never reached. A card opened by a TAP on
+the stage copies `geometry` explicitly (`onFeatureTouch`, `:370-392`) and completes.
+
+**Runtime (2026-09-29, local, build 127; `MOB.129` 2 runs of 2):** from the auto-opened card, `Replace existing
+assets.` → `Use Map` → Pump 0098 → `Confirm`: the server held the stage linked to Pump 0098 alone, at its coordinates,
+and the page logged `TypeError: Cannot read properties of undefined (reading 'type')` — at the bundle's
+`e.geometry.type`. The overlay kept `You selected Pump 0098. Are you sure?` with Confirm spinning and `Pick another` /
+`Cancel` disabled (`results/MOB.129-stuck.png`). The same replace from a card opened by a tap (`MOB.128`, Tank 0040)
+closed the overlay and toasted `Asset added to workstage!` (`results/MOB.128-replaced.png`).
+**Not measured:** `Add new assets.` → `Use Map` on a stage with no assets takes the same branch (`hadNoAssetsBefore`) —
+read from the code, not run.
+**User-visible effect:** the replace is done, but the map is stuck in pick mode with a spinner and no way out except
+reloading the app; a user is likely to think it failed and try again.
+**Severity:** medium — the data is right, but the most common way to reach the card leaves the map unusable.
+**Fix:** copy `geometry: feature.geometry` when building the auto-opened selection (as `onFeatureTouch` does), or guard
+`f.geometry?.type`; and reset the pick state in a `finally` so any failure leaves pick mode.
+**Tests:** `MOB.129` (in `MOB.971`) pins it: the suite expects the overlay to stay and goes green by itself when fixed.
+`MOB.128` re-opens the card by a tap so it tests the replace itself.
+
+
+## §57 · After a new asset is created from an Asset Verify job, the job's page is blank — until a module resync
+
+A job's page reads the job with `useQuery(MOBILE_JOB_DETAILS, { fetchPolicy: 'cache-only' })`
+(`AssetVerification/Job.tsx:92-96`) and renders nothing without it (`:136`). The job's + → `Get New Asset` →
+`Create Asset` runs `addNewAssetToJob` (`AssetVerification/utils/createAsset.ts`): the collector's `createAsset`, then
+`addAssetToMobileJob`, whose `update` puts the answer of `ADD_ASSET_TO_MOBILE_JOB` into the job's `assets`. That answer
+selects `ASSET_FIELDS`, attributes and attachments (`queries/index.gql.ts:319-337`); the job query selects each asset
+with `ASSET_LATEST_READINGS` as well (`:87-103`). Inferred: the new asset's cache entry lacks those fields, so the
+cache-only read of the job comes back without data, and the page renders nothing.
+
+**Runtime (2026-09-29, local, build 127; `MOB.513` and `mobile/probe/av_add_blank_probe.spec.ts`):** after `Asset created
+and added`, the server held the job with the new asset linked, and the page showed only its header — `Mobile Jobs` /
+`Mobile Job Asset List`, no asset rows, no error (`results/MOB.513-blank.png`). Back to the job list and into the job
+again: blank. A full reload of the app, then the job: blank. The module resync (`Data synced on` → the sync button),
+then the job: its three assets listed. Adding an EXISTING asset (`Add Existing Asset`, Pump 0098) did not do it — the
+page kept rendering, the asset listed.
+**User-visible effect:** a technician who adds a newly found asset to a verification job loses the job's screen —
+reopening it and restarting the app don't help — until they find the resync button. Nothing says why.
+**Severity:** medium–high — adding assets found in the field is what the job screen is for, and the way back is hidden.
+**Fix:** select the same fields in `ADD_ASSET_TO_MOBILE_JOB`'s answer as the job query does (the job asset fragment,
+readings included); or read the job with `cache-first` / `returnPartialData` so a missing field doesn't blank the page.
+**Tests:** `MOB.513` (in `MOB.985`) pins it: the suite expects the blank page and goes green by itself when fixed; the
+create and the link are proven over `/graphql` either way, and the test recovers with the resync.
+
+## §58 · Every error the app logs is saved as `Unknown error` with its details dropped
+
+`utils/Logger.ts:199-214`:
+
+```js
+public async error(title, err, desc) {
+    let error;
+    if (err instanceof Error) {
+        error = { name: err.name, message: err.message, stack: err.stack };
+    }
+    error = {                                   // no `else`: always runs
+        name: 'Unknown error',
+        stack: '',
+        message: typeof err === 'string' ? err : JSON.stringify(err),
+    };
+    return this.logDevEvent('error', title, desc ?? '', error);
+}
+```
+
+The `Error` branch is overwritten on the next line, so every entry is `Unknown error` with no stack, and for a real `Error`
+the message is `JSON.stringify(err)` — `{}`, since an Error's fields are not enumerable.
+
+**Runtime (2026-09-29, local, build 127, `MOB.172`, 2 runs of 2):** `Email me the JSON` with its POST aborted in the browser
+(its `fetch` rejects — inferred to be Chromium's `TypeError: Failed to fetch`, not captured) logged `Email Route error`; the Dev Logs entry's `Error:` block read
+`{ "name": "Unknown error", "stack": "", "message": "{}" }` (`results/MOB.172-error.png`).
+**User-visible effect:** the Dev Logs screen — and the JSON it emails — never says what went wrong, for any `logger.error`
+call in the app; a developer reading a user's logs learns only that something failed.
+**Severity:** low — diagnostics only, but it blinds every error report from the field.
+**Fix:** `else` before the second assignment (and keep `JSON.stringify` for non-Errors).
+**Tests:** `MOB.172` (in `MOB.972`) pins it: the suite expects `Unknown error` / `{}` and goes green by itself when fixed.
 

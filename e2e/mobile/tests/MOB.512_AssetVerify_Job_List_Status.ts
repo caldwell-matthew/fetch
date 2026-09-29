@@ -4,11 +4,13 @@
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, wait } from '../../support/dd';
 import { waitForPrefetch } from '../support/prefetch';
+import { AV_JOB } from '../support/fixtures';
+import { appUrl } from '../support/session';
 
 export async function mob512(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -54,7 +56,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query DD511Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }", variables: {"id": "Z0EVwQcdJZhMURcBFkp0E0"} }) })
+      body: JSON.stringify({ query: "query DD511Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }", variables: {"id": "${AV_JOB}"} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });
@@ -81,7 +83,7 @@ return true;`, 15000);
     await assertPageContains(page, `2 out of 2 Assets Verified`, DEFAULT_TIMEOUT);
   });
   await run.step("Navigate to the mobile job list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Mobile Jobs\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Mobile Jobs")]`, `Mobile Jobs`, 30000);
@@ -135,7 +137,7 @@ return true;`, 15000);
     await wait(page, 3);
   });
   await run.step("Navigate to the mobile job list", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-verify`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let the page begin rendering", {always: true}, async () => {
     await wait(page, 3);
@@ -202,7 +204,7 @@ if (!sessionStorage.getItem(F) && Date.now() - Number(sessionStorage.getItem(T) 
   sessionStorage.setItem(T, String(Date.now()));
   window.fetch('/graphql', { method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json', 'apollo-require-preflight': '*' },
-      body: JSON.stringify({ query: "query DD511Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }", variables: {"id": "Z0EVwQcdJZhMURcBFkp0E0"} }) })
+      body: JSON.stringify({ query: "query DD511Job($id: ID!) { mobileJob(id: $id) { id status assets { id verified } } }", variables: {"id": "${AV_JOB}"} }) })
     .then(r => r.json())
     .then(j => { sessionStorage.setItem(K, JSON.stringify(j)); sessionStorage.removeItem(F); })
     .catch(e => { sessionStorage.setItem(K, JSON.stringify({ errors: [String(e)] })); sessionStorage.removeItem(F); });

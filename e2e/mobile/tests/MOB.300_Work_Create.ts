@@ -5,18 +5,19 @@
 // `crewassignment.create` permission) starts at the user's crew, and the create sends it as the stage's `roleId` —
 // before, every mobile-made work order went to the user's crew with no choice. The test leaves it as it is, and proves
 // that the create sends the session's crew as `roleId` and the new stage holds it (the server adds it to the
-// crews the workflow assigns itself — `server/…/work/work/create/index.ts:285-308`). Clearing it or picking another crew
-// leaves work outside the crew's list: an owner decision, not made here.
+// crews the workflow assigns itself — `server/…/work/work/create/index.ts:285-308`). ⚠️ The "Datadog Test" workflow
+// assigns `Admin` itself too, so the stage holding it does not show the `roleId` at work — MOB.303 does (cleared, and
+// another crew, each against the workflow's own crews).
 
 import { expect, Page, Response } from '@playwright/test';
-import { serverRead } from '../support/session';
+import { appUrl, serverRead } from '../support/session';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertPageContains, assertPageLacks, click, typeText, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
 
 export async function mob300(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to /work \u2014 the work order list", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);

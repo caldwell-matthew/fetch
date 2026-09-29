@@ -119,7 +119,7 @@ function loadTest(testFile) {
 	const full = path.join(TESTS, file);
 	if (!fs.existsSync(full)) throw new Error(`${file} is not in e2e/mobile/tests - this case's test was not ported `
 		+ '(remove the case, or restore the test)');
-	const src = fs.readFileSync(full, 'utf8');
+	const src = resolveFixtures(fs.readFileSync(full, 'utf8'));
 	const starts = [...src.matchAll(STEP)].map(m => m.index + m[0].length);
 	const steps = starts.map((at, k) => {
 		const [name, afterName] = readLiteral(src, at);
@@ -150,6 +150,19 @@ function loadTest(testFile) {
 	const test = { details: { steps } };
 	parsed.set(file, test);
 	return test;
+}
+
+/**
+ * The fixture ids a test interpolates are fixed values (`support/fixtures.ts`), not runtime ones, so the bench puts them
+ * in before it reads a body: `${FIXTURE_WO}` becomes the id, `${appUrl()}` the dev base URL. Any other `${…}` is still
+ * refused.
+ */
+function resolveFixtures(src) {
+	const fixtures = fs.readFileSync(path.join(TESTS, '..', 'support', 'fixtures.ts'), 'utf8');
+	const values = Object.fromEntries([...fixtures.matchAll(/^export const (\w+) = '([^']*)';/gm)].map(m => [m[1], m[2]]));
+	return src
+		.replace(/\$\{(\w+)\}/g, (all, name) => (name in values ? values[name] : all))
+		.replace(/\$\{appUrl\(\)\}/g, 'https://dev.mentorapm.com/apm-mobile/');
 }
 
 /** Is this case's test in e2e/mobile/tests? A `no` is remembered and reported at the end. */
@@ -1720,6 +1733,14 @@ check('MUST FAIL: premise - every row is mine', runJs(M625.premise, collectorLis
 	check('MUST FAIL: created ▲ - sorted by NAME instead', runJs(M625.caAsc, at([...DD].sort((a, b) => a[0].localeCompare(b[0])))), false);
 	check('created ▲ - a row that paged in between renders is not evidence (trap 30)',
 		runJs(M625.caAsc, at([...asc, ['DD SYNTHETIC MOBILE 99999999', 'Dev Eloper', 'Sep 10, 2026']])), true);
+	// Residue outgrew the rendered window: the default shows the newest rows, ▲ the oldest — they share < 2 rows
+	const OLD = [['DD SYNTHETIC MOBILE 11111111', 'Dev Eloper', 'Aug 7, 2026, 9:00 AM'], ['DD SYNTHETIC MOBILE 22222222', 'Dev Eloper', 'Aug 8, 2026, 9:00 AM'],
+		['DD SYNTHETIC MOBILE 33333333', 'Dev Eloper', 'Aug 9, 2026, 9:00 AM']];
+	check('created ▲ - no overlap: oldest first by the rows\' own dates', runJs(M625.caAsc, at(OLD)), true);
+	check('MUST FAIL: created ▲ - no overlap, and newest first', runJs(M625.caAsc, at([...OLD].reverse())), false);
+	check('MUST FAIL: created ▲ - no overlap, and none older than the default', runJs(M625.caAsc,
+		at([['DD SYNTHETIC MOBILE 44444444', 'Dev Eloper', 'Sep 10, 2026, 9:00 AM'], ['DD SYNTHETIC MOBILE 55555555', 'Dev Eloper', 'Sep 11, 2026, 9:00 AM']])), false);
+	check('MUST FAIL: created ▲ - no overlap, a date that will not parse', runJs(M625.caAsc, at([['DD SYNTHETIC MOBILE 6', 'Dev Eloper', 'yesterday'], ...OLD])), false);
 	check('created ▼ - the server order', runJs(M625.caDesc, at(DD)), true);
 	check('MUST FAIL: created ▼ - reversed', runJs(M625.caDesc, at(asc)), false);
 	check('MUST FAIL: created ▼ - nothing in common with the default (floor)', runJs(M625.caDesc, at(WIDE.slice(0, 2))), false);

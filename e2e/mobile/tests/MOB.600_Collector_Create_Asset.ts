@@ -16,7 +16,7 @@
 // another query. The no-geometry branch is `MOB.945`'s, refused in the browser.)
 
 import { expect, Page } from '@playwright/test';
-import { serverRead } from '../support/session';
+import { appUrl, serverRead } from '../support/session';
 import { DEFAULT_TIMEOUT, Sequence, assertElementPresent, assertFromJavascript, assertPageContains, assertPageLacks, click, press, typeText, wait } from '../../support/dd';
 import { runId } from '../../support/env';
 
@@ -24,7 +24,7 @@ export async function mob600(page: Page): Promise<void> {
   const RUNID = runId('numeric', 8);
   const run = new Sequence();
   await run.step("Navigate to the asset collector", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-collector`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the collector page rendered", {}, async () => {
     await assertElementPresent(page, `//*[@id="page-title"]//h4`, DEFAULT_TIMEOUT);
@@ -106,7 +106,7 @@ export async function mob600(page: Page): Promise<void> {
     await assertPageContains(page, `Asset collected`, DEFAULT_TIMEOUT);
   });
   await run.step("SERVER PROOF: navigate to Asset Lookup (its search is a network-only query)", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Focus the search input", {}, async () => {
     await click(page, `//input[@name="asset-search"]`, 30000);

@@ -6,7 +6,8 @@
 // `CardHeader.tsx:144-151`). Choosing one shows "Adding assets..." / "Replacing assets..." with Add/Replace, Use Map
 // and Back; Cancel closes it.
 //
-// Owner, 2026-09-23: open and CANCEL only — never confirm. So this test opens both choices, backs out of each, and
+// This is the FIXTURE work order, so: open and CANCEL only — never confirm (owner, 2026-09-23; the replace itself is
+// confirmed on test-made work orders by MOB.128/129). The test opens both choices, backs out of each, and
 // cancels. Nothing here should send a mutation at all: every mutation is stopped in the browser and counted, and a
 // server read proves the stage's asset links unchanged.
 //
@@ -18,29 +19,11 @@
 // way, proving over `/graphql` that the account's shown layers end exactly as they began (owner, 2026-09-24). The
 // settings save is the only mutation the guard lets through.
 import { Browser, expect, Page, Route } from '@playwright/test';
+import { MY_WORK_READY, openChangeAsset, openWorkStageCard, readMapId, setLayer, shownLayers } from '../support/map';
 import { appUrl, FIXTURE_WO, freshSession, serverRead } from '../support/session';
 
 const STAGE = 'query($id: ID!) { workStage(id: $id) { _workSequence x y assets { id } } }';
-const SETTINGS = 'query($mapId: ID!) { _mapSettings(mapId: $mapId) { id displayedLayers } }';
-const LAYER = 'My Work: Ready';
-
-async function shownLayers(page: Page, mapId: string): Promise<string[]> {
-  return [...((await serverRead(page, SETTINGS, { mapId }))._mapSettings.displayedLayers ?? [])].sort();
-}
-
-/** Tick or untick one layer in the map's Layers panel — the app's own path, which saves the account's settings. */
-async function setLayer(page: Page, on: boolean): Promise<void> {
-  await page.goto(appUrl('map'), { waitUntil: 'load' }); // fresh: nothing a failed step left open is in the way
-  await expect(page.locator('canvas.mapboxgl-canvas'), 'the map rendered').toBeVisible({ timeout: 60_000 });
-  await page.getByText('Layers', { exact: true }).click();
-  const box = page.getByRole('checkbox', { name: LAYER, exact: true });
-  await expect(box, `the Layers panel lists "${LAYER}"`).toHaveCount(1, { timeout: 30_000 });
-  await box.scrollIntoViewIfNeeded();
-  if ((await box.isChecked()) !== on) await box.click();
-  await expect(box, `"${LAYER}" is ${on ? 'on' : 'off'}`).toBeChecked({ checked: on });
-  await page.getByText('Hide All').locator('xpath=ancestor::*[.//button][1]').locator('button.mantine-CloseButton-root, button[class*="CloseButton"]').first()
-    .click().catch(() => page.keyboard.press('Escape'));
-}
+const LAYER = MY_WORK_READY;
 
 /** In its own browser, with touch (see the top). */
 export async function mob930(browser: Browser): Promise<void> {
@@ -72,48 +55,15 @@ async function openAndCancel(page: Page): Promise<void> {
   // The account's layers as they are, then `My Work: Ready` on.
   await page.goto(appUrl('map'), { waitUntil: 'load' });
   await expect(page.locator('canvas.mapboxgl-canvas'), 'the map rendered').toBeVisible({ timeout: 60_000 });
-  // The map in use is kept in session storage (`Map/index.tsx:61`).
-  const readMapId = () => page.evaluate(() => {
-    const raw = sessionStorage.getItem('mobile-map-id') ?? '';
-    try { return String(JSON.parse(raw) ?? ''); } catch { return raw; }
-  });
-  await expect.poll(readMapId, { message: 'the map has an id', timeout: 30_000 }).not.toBe('');
-  const mapId = await readMapId();
+  const mapId = await readMapId(page);
   const layersBefore = await shownLayers(page, mapId);
   try {
     await setLayer(page, true);
     await expect.poll(async () => (await shownLayers(page, mapId)).length,
       { message: `the server saved "${LAYER}" on for the account`, timeout: 30_000 }).toBe(layersBefore.length + 1);
 
-    // The work order → its globe → "View in Map". Through the list first: its prefetch loads what the detail needs.
-    await page.goto(appUrl('work'), { waitUntil: 'load' });
-    await expect(page.locator('#page-title h4', { hasText: 'Work Orders' })).toBeVisible({ timeout: 60_000 });
-    await page.goto(appUrl(`work/${FIXTURE_WO}`), { waitUntil: 'load' });
-    await expect(page.getByRole('tab').first(), 'the work order opened').toBeVisible({ timeout: 60_000 });
-    await page.locator('button:has([data-icon="globe"])').first().click();
-    await page.locator('.mantine-Menu-item', { hasText: 'View in Map' }).click();
-    await expect(page, 'on the map').toHaveURL(/\/map/, { timeout: 30_000 });
-
-    const gear = page.locator('[aria-label="map-options"]');
-    try {
-      await expect(gear).toBeVisible({ timeout: 20_000 });
-    } catch {
-      const pin = (await page.locator('.mapboxgl-marker').first().boundingBox())!;
-      await page.touchscreen.tap(pin.x + pin.width / 2, pin.y + pin.height + 8);
-    }
-    await expect(gear, 'the work stage card opened, with its options menu').toBeVisible({ timeout: 30_000 });
-    // A work card is titled with the stage's sequence number (`Map/Card/WorkCard.tsx:26`).
-    await expect(page.getByText(stage._workSequence, { exact: true }).first(), `the card is ${stage._workSequence}'s`).toBeVisible();
-
-    // The popup renders only once the card's work stage has loaded (`CardHeader.tsx:216`), so reopen until it shows.
-    // Found by its Cancel button, which both of its states show — the question goes once a choice is made.
-    const popup = page.locator('.mantine-Modal-content').filter({ has: page.getByRole('button', { name: 'Cancel' }) });
-    const question = popup.getByText('How would you like to change the asset information for this work stage?');
-    await expect(async () => {
-      await gear.click();
-      await page.getByRole('menuitem', { name: 'Change Asset' }).click({ timeout: 5_000 });
-      await expect(question).toBeVisible({ timeout: 3_000 });
-    }, 'the Change Asset popup opened').toPass({ timeout: 60_000 });
+    const gear = await openWorkStageCard(page, FIXTURE_WO, stage._workSequence);
+    const popup = await openChangeAsset(page, gear);
 
     await expect(popup.getByText('Warning: This action cannot be undone.'), 'it warns').toBeVisible();
     const add = popup.getByText('Add new assets.', { exact: true });

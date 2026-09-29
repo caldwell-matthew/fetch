@@ -1,14 +1,38 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.351_Work_Charge_Estimates.json. This file is the source now: edit it directly.
 // MOB.351_Work_Charge_Estimates
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, click, wait } from '../../support/dd';
 import { waitForPrefetch, WORKSTAGE_DOWNLOADS } from '../support/prefetch';
+import { appUrl, serverRead } from '../support/session';
+import { FIXTURE_WO } from '../support/fixtures';
+
+// The fixture holds one estimate of each kind — from its workflow, since 2026-08-05. Each ESTIMATES panel must list
+// them, each by name (`WorkOrders/components/*Charges.tsx`, `renderEstimateItem`; material ones grouped by storeroom).
+// Until 2026-09-29 this was a report that always read "none": it looked in the first `[role=tabpanel]:not([hidden])`,
+// but Mantine hides the other tabs with `display: none`, not `hidden`, so that was always General Info.
+const ESTIMATES = `query($id: ID!) { workStage(id: $id) { equipmentEstimates { equipmentId { name } } laborEstimates { craftId { name } }
+  materialEstimates { materialItemId { name } } otherChargeEstimates { chargeId { name } } } }`;
+
+async function expectEstimates(page: Page, kind: string, names: string[]): Promise<void> {
+  expect(names.length, `PREMISE: the fixture holds ${kind} estimates`).toBeGreaterThan(0);
+  const panel = page.locator('[role="tabpanel"]:visible');
+  for (const n of names) {
+    await expect(panel.locator('.mantine-Paper-root').filter({ hasText: n }).first(), `${kind}: an estimate card for ${n}`).toBeVisible({ timeout: 15_000 });
+  }
+}
 
 export async function mob351(page: Page): Promise<void> {
   const run = new Sequence();
+  const est = (await serverRead(page, ESTIMATES, { id: FIXTURE_WO })).workStage;
+  const names: Record<string, string[]> = {
+    Equipment: est.equipmentEstimates.map((e: { equipmentId: { name: string } }) => e.equipmentId.name),
+    Labor: est.laborEstimates.map((e: { craftId: { name: string } }) => e.craftId.name),
+    Material: est.materialEstimates.map((e: { materialItemId: { name: string } }) => e.materialItemId.name),
+    Other: est.otherChargeEstimates.map((e: { chargeId: { name: string } | null }) => e.chargeId?.name ?? ''),
+  };
   await run.step("Navigate to /work \u2014 warm the work lookup cache", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("The \"Work Orders\" page mounted", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Work Orders")]`, `Work Orders`, 30000);
@@ -17,7 +41,7 @@ export async function mob351(page: Page): Promise<void> {
     await waitForPrefetch(page, { ignore: WORKSTAGE_DOWNLOADS });
   });
   await run.step("Navigate to the fixture work order", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/work/EYRpYJ9QYdQ1JFF10JtB0Q`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}work/${FIXTURE_WO}`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("GATE: the detail data arrived (tab strip)", {}, async () => {
     await assertElementPresent(page, `(//*[@role="tab"])[1]`, 60000);
@@ -55,10 +79,8 @@ return !!on && on.value === 'ESTIMATES';`, 30000);
   await run.step("Equipment: \u2b50 on ESTIMATES the `Add` button is GONE \u2014 `{section === 'CHARGES' && InsertForm}` pinned in the other direction. Its positive control is the assertion two steps above, on the same button", {always: true}, async () => {
     await assertFromJavascript(page, `return ![...document.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add');`, 30000);
   });
-  await run.step("\ud83d\udcca REPORT ONLY, never fails \u2014 Equipment: did the ESTIMATES panel render any cards? (green = yes, red = none present. Neither is a defect)", {always: true, allow: 'ignore'}, async () => {
-    await assertFromJavascript(page, `const panel = document.querySelector('[role=tabpanel]:not([hidden])') || document.body;
-const cards = [...panel.querySelectorAll('.mantine-Paper-root')];
-return cards.length > 0;`, 15000);
+  await run.step("\u2b50 Equipment: the ESTIMATES panel lists the stage's equipment estimates, each by the name the server holds", {always: true}, async () => {
+    await expectEstimates(page, 'Equipment', names.Equipment);
   });
   await run.step("Equipment: switch back to CHARGES", {always: true}, async () => {
     await click(page, `//label[normalize-space(.)="CHARGES"]`, 30000);
@@ -99,10 +121,8 @@ return !!on && on.value === 'ESTIMATES';`, 30000);
   await run.step("Labor: \u2b50 on ESTIMATES the `Add` button is GONE \u2014 `{section === 'CHARGES' && InsertForm}` pinned in the other direction. Its positive control is the assertion two steps above, on the same button", {always: true}, async () => {
     await assertFromJavascript(page, `return ![...document.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add');`, 30000);
   });
-  await run.step("\ud83d\udcca REPORT ONLY, never fails \u2014 Labor: did the ESTIMATES panel render any cards? (green = yes, red = none present. Neither is a defect)", {always: true, allow: 'ignore'}, async () => {
-    await assertFromJavascript(page, `const panel = document.querySelector('[role=tabpanel]:not([hidden])') || document.body;
-const cards = [...panel.querySelectorAll('.mantine-Paper-root')];
-return cards.length > 0;`, 15000);
+  await run.step("\u2b50 Labor: the ESTIMATES panel lists the stage's labor estimates, each by the name the server holds", {always: true}, async () => {
+    await expectEstimates(page, 'Labor', names.Labor);
   });
   await run.step("Labor: switch back to CHARGES", {always: true}, async () => {
     await click(page, `//label[normalize-space(.)="CHARGES"]`, 30000);
@@ -143,10 +163,8 @@ return !!on && on.value === 'ESTIMATES';`, 30000);
   await run.step("Material: \u2b50 on ESTIMATES the `Add` button is GONE \u2014 `{section === 'CHARGES' && InsertForm}` pinned in the other direction. Its positive control is the assertion two steps above, on the same button", {always: true}, async () => {
     await assertFromJavascript(page, `return ![...document.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add');`, 30000);
   });
-  await run.step("\ud83d\udcca REPORT ONLY, never fails \u2014 Material: did the ESTIMATES panel render any cards? (green = yes, red = none present. Neither is a defect)", {always: true, allow: 'ignore'}, async () => {
-    await assertFromJavascript(page, `const panel = document.querySelector('[role=tabpanel]:not([hidden])') || document.body;
-const cards = [...panel.querySelectorAll('.mantine-Paper-root')];
-return cards.length > 0;`, 15000);
+  await run.step("\u2b50 Material: the ESTIMATES panel lists the stage's material estimates, each by the name the server holds", {always: true}, async () => {
+    await expectEstimates(page, 'Material', names.Material);
   });
   await run.step("Material: switch back to CHARGES", {always: true}, async () => {
     await click(page, `//label[normalize-space(.)="CHARGES"]`, 30000);
@@ -187,10 +205,8 @@ return !!on && on.value === 'ESTIMATES';`, 30000);
   await run.step("Other: \u2b50 on ESTIMATES the `Add` button is GONE \u2014 `{section === 'CHARGES' && InsertForm}` pinned in the other direction. Its positive control is the assertion two steps above, on the same button", {always: true}, async () => {
     await assertFromJavascript(page, `return ![...document.querySelectorAll('button')].some(b => (b.textContent || '').trim() === 'Add');`, 30000);
   });
-  await run.step("\ud83d\udcca REPORT ONLY, never fails \u2014 Other: did the ESTIMATES panel render any cards? (green = yes, red = none present. Neither is a defect)", {always: true, allow: 'ignore'}, async () => {
-    await assertFromJavascript(page, `const panel = document.querySelector('[role=tabpanel]:not([hidden])') || document.body;
-const cards = [...panel.querySelectorAll('.mantine-Paper-root')];
-return cards.length > 0;`, 15000);
+  await run.step("\u2b50 Other: the ESTIMATES panel lists the stage's other estimates, each by the name the server holds", {always: true}, async () => {
+    await expectEstimates(page, 'Other', names.Other);
   });
   await run.step("Other: switch back to CHARGES", {always: true}, async () => {
     await click(page, `//label[normalize-space(.)="CHARGES"]`, 30000);

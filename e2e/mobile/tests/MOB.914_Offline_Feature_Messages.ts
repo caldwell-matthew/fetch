@@ -3,11 +3,12 @@
 
 import { Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertFromJavascript, click, press, typeText, wait } from '../../support/dd';
+import { appUrl } from '../support/session';
 
 export async function mob914(page: Page): Promise<void> {
   const run = new Sequence();
   await run.step("Navigate to Asset Lookup", {}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Test the \"Asset Lookup\" page rendered", {}, async () => {
     await assertElementContent(page, `//*[@id="page-title"]//h4[contains(normalize-space(.), "Asset Lookup")]`, `Asset Lookup`, 30000);
@@ -280,7 +281,7 @@ return true;`, 15000);
     await press(page, `Escape`);
   });
   await run.step("Reload Asset Lookup so no later subtest inherits an offline `useNetwork`", {always: true}, async () => {
-    await page.goto(`https://dev.mentorapm.com/apm-mobile/asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
+    await page.goto(`${appUrl()}asset-lookup`, { waitUntil: 'load', timeout: DEFAULT_TIMEOUT });
   });
   await run.step("Let it mount", {always: true}, async () => {
     await wait(page, 4);

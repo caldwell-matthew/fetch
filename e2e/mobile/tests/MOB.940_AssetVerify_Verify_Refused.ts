@@ -18,8 +18,9 @@ import { expect, Page } from '@playwright/test';
 import { failOperation } from '../../support/network';
 import { appUrl, serverRead } from '../support/session';
 import { waitForPrefetch } from '../support/prefetch';
+import { AV_JOB } from '../support/fixtures';
 
-const JOB = 'Z0EVwQcdJZhMURcBFkp0E0'; // DATADOG MOBILE JOB
+const JOB = AV_JOB; // DATADOG MOBILE JOB
 const REJECTION = 'DD SYNTHETIC 940: the test refused this verification';
 const JOB_READ = 'query($id: ID!) { mobileJob(id: $id) { status assets { id verified } } }';
 

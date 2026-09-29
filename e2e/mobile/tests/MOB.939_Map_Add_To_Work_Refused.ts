@@ -11,11 +11,12 @@ import { expect, Page } from '@playwright/test';
 import { failOperation } from '../../support/network';
 import { openAssetCard } from '../support/map';
 import { FIXTURE_WO, FORMS_WO, serverRead } from '../support/session';
+import { MOB302_WO } from '../support/fixtures';
 
 const ASSET = 'Tank 0040';
 const MARKER = 'DD SYNTHETIC MOBILE';
 const REJECTION = 'DD SYNTHETIC 939: the test refused this link';
-const NEVER = new Set([FIXTURE_WO, FORMS_WO, 'RcdI0xcpc8NBV8VoRNNBYM']); // cleanup_residue.FIXTURE_STAGES
+const NEVER = new Set([FIXTURE_WO, FORMS_WO, MOB302_WO]); // cleanup_residue.FIXTURE_STAGES
 const LINKS = 'query($id: ID!) { workStage(id: $id) { assets { id } } }';
 // the picker's query (`InsertForm/schemas.ts:27-31`), cut down — its options keep this order (MOB.929)
 const PICKER_STAGES = '{ workStages(crew: "<SESSION>", params: { limit: 50, sortId: "displayName" }) '
