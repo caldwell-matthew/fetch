@@ -8,6 +8,7 @@ import { login } from '../support/login';
 import { mob347 } from '../tests/MOB.347_Work_Asset_Status';
 import { mob389 } from '../tests/MOB.389_Work_Lookup_Case_Insensitive';
 import { mob387 } from '../tests/MOB.387_Work_Condition_Edit_Prefill';
+import { mob384 } from '../tests/MOB.384_Work_Failure_Types_By_Component';
 import { mob741 } from '../tests/MOB.741_Work_Attachments_Docs';
 import { mob731 } from '../tests/MOB.731_AssetLookup_Proximity_Radius';
 import { mob358 } from '../tests/MOB.358_Work_Asset_Geolocate';
@@ -36,6 +37,10 @@ test.describe.serial('MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite', ()
 
   test('MOB.387_Work_Condition_Edit_Prefill', async () => {
     await mob387(page);
+  });
+
+  test('MOB.384_Work_Failure_Types_By_Component', async () => {
+    await mob384(page);
   });
 
   test('MOB.741_Work_Attachments_Docs', async () => {

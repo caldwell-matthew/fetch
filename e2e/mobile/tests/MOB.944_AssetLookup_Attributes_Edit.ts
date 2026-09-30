@@ -21,17 +21,17 @@ import { appUrl, serverRead } from '../support/session';
 
 const ATTRIBUTE = '🔤 string 1'; // a plain text attribute type (not a lookup)
 const ASSETS = 'query($p: TableQuery) { assets(params: $p) { edges { id name typeId { name } attributes { id value attributeId { id name } } } } }';
-type Attr = { id: string; value: string | null; attributeId: { id: string; name: string } };
+export type Attr = { id: string; value: string | null; attributeId: { id: string; name: string } };
 type Asset = { id: string; name: string; typeId: { name: string } | null; attributes: Attr[] };
 
-async function testAsset(page: Page): Promise<Asset> {
+export async function testAsset(page: Page): Promise<Asset> {
   const edges: Asset[] = (await serverRead(page, ASSETS, { p: { limit: 20, query: { connector: 'AND',
     conditions: [{ column: 'name', operator: 'CONTAINS', value: 'DD SYNTHETIC MOBILE' }] } } })).assets.edges;
   const ours = edges.filter((a) => /^DD SYNTHETIC MOBILE \d{8}$/.test(a.name)).sort((a, b) => b.name.localeCompare(a.name));
   expect(ours.length, 'PREMISE: a DD SYNTHETIC MOBILE test asset exists (MOB.600 residue)').toBeGreaterThan(0);
   return ours[0];
 }
-async function attributesOf(page: Page, name: string): Promise<Attr[]> {
+export async function attributesOf(page: Page, name: string): Promise<Attr[]> {
   const edges: Asset[] = (await serverRead(page, ASSETS, { p: { limit: 5, query: { connector: 'AND',
     conditions: [{ column: 'name', operator: 'CONTAINS', value: name }] } } })).assets.edges;
   return edges.filter((a) => a.name === name)[0].attributes;

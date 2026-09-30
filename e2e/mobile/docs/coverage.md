@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**189 tests · 28 suites** · 189 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**191 tests · 28 suites** · 191 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -59,14 +59,14 @@ nobody thought to list).
 | `/` — Home | 000 180 210 910 | 5 | 0 | 0 | 0 |
 | Every route — header, hamburger menu and back arrow | 200 346 400 410 420 430 440 450 460 470 910 913 | 10 | 1 | 0 | 2 |
 | `/work` — Work Orders list | 150 300 301 303 339 340 341 342 343 344 345 346 937 948 | 15 | 0 | 0 | 1 |
-| `/work/:workStageId` — a work order | 300 302 310 320 330 331 332 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 366 367 370 380 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 921 923 924 938 939 947 977 | 47 | 1 | 0 | 1 |
+| `/work/:workStageId` — a work order | 300 302 310 320 330 331 332 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 366 367 370 380 384 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 921 923 924 938 939 947 977 | 48 | 1 | 0 | 1 |
 | `/work/:workStageId/form/:formId` — a work stage form | 134 135 136 355 951 | 3 | 0 | 0 | 0 |
 | `/asset-verify` — Mobile Jobs list | 132 140 342 343 512 530 531 535 560 580 610 700 850 | 7 | 0 | 0 | 1 |
 | `/asset-verify/:jobId` — a mobile job's asset list | 127 396 500 510 511 512 513 514 515 520 531 536 547 551 585 590 720 928 940 | 20 | 0 | 0 | 0 |
 | `/asset-verify/:jobId/asset/:verificationId` — full-page asset data | 537 538 544 545 546 550 570 575 933 936 946 | 9 | 1 | 0 | 0 |
 | `/asset-collector` — Asset Collector / Lens | 160 600 610 620 621 622 623 624 625 626 627 628 629 710 933 945 | 20 | 0 | 0 | 0 |
 | `/asset-collector/:assetId` | — | 0 | 0 | 0 | 1 |
-| `/asset-lookup` — Asset Lookup | 100 550 623 700 710 712 720 721 722 730 731 735 740 741 742 750 800 805 806 807 820 914 922 935 943 944 949 | 24 | 0 | 0 | 2 |
+| `/asset-lookup` — Asset Lookup | 100 550 623 700 710 712 720 721 722 730 731 735 740 741 742 743 750 800 805 806 807 820 914 922 935 943 944 949 | 25 | 0 | 0 | 2 |
 | `/material-lookup` — Material Lookup | 110 370 850 855 860 865 866 870 | 8 | 0 | 0 | 2 |
 | `/map` — The Map | 119 120 121 122 123 124 125 126 128 129 735 929 930 931 932 | 16 | 0 | 0 | 1 |
 | `/transactions` — Transaction Log | 130 131 132 942 | 4 | 0 | 0 | 0 |
@@ -113,7 +113,7 @@ reproduces §42.
 | Photos | ✅ upload to an existing asset `MOB.623` · a HEIC `936` | ✅ rotate `MOB.623` · `Set as Avatar` `627` · tags add/remove `627` · 🟠 tag **create** `627` — red on bugs §44, the created tag never attaches (its sentinel is `optional`) | ✅ `MOB.627`, its own upload |
 | Docs | ✅ one PDF `MOB.628` · PDF, text and video at once `MOB.933` | — | ✅ `MOB.628`, `MOB.933`, `MOB.934`, their own files |
 | Readings on Asset Lookup | ✅ `MOB.722` | — | — |
-| Attributes (the tab's add / edit / remove, build 127) | ✅ `MOB.944` · a refused add shows the error, saves nothing | ✅ `MOB.944` | ✅ `MOB.944`, its own attribute |
+| Attributes (the tab's add / edit / remove, build 127) | ✅ `MOB.944` · a refused add shows the error, saves nothing · a lookup-list value `743` | ✅ `MOB.944` · `743` | ✅ `MOB.944`, `743`, each its own attribute |
 
 **`/material-lookup` · `/map` · every route's header**
 
@@ -162,12 +162,13 @@ charge tests are blind to · `MOB.351` the `ESTIMATES` section on four tabs, eac
 each paired with its online control.
 🛑 Kept separate from `MOB.954`: together they measured 485s local, too close to the ceiling on Datadog.
 
-#### `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` — 7 children · read-only · Datadog 351s
+#### `MOB.955_WorkOrders_4_Detail_Assets_Records_Read_Suite` — 8 children · read-only · Datadog 351s
 **The Assets tab, the record forms opened unsaved, attachments and proximity.**
 
 `MOB.347` Assets tab (🛑 `Mark as …` asserted, never clicked — `MOB.353` writes it; the `All` / `Active` switch renders at `All`) · `MOB.389` the Condition/Failure
 asset lookups ignore case · `MOB.387` `Edit Item` opens the condition form filled with its card's six values, closed
-unsaved; the card's `Stress Decision Score:`/`Notes:` rows and the failure table's `Discovery Code` · `MOB.741` the
+unsaved; the card's `Stress Decision Score:`/`Notes:` rows and the failure table's `Discovery Code` · `MOB.384` the Failure
+form's types following the asset, then a component's failure profile, each pick emptying what depends on it · `MOB.741` the
 work-stage attachment panel and its image filter · `MOB.731` Near Me's radius · `MOB.366` a PM route stage's Assets tab —
 the status controls with no template flag, the routed assets in sequence order · `MOB.358` the asset location form, online
 and — with `navigator.onLine` overridden — its offline state (last: it stubs `fetch`).
@@ -335,14 +336,15 @@ multi-value `enum` (`Failure Curve`, narrows) and `record` (`Asset Type`; sentin
 filter — it did until `02b17aa82e` (2026-09-17), and `MOB.820` now asserts that it survives. All four
 filter tests share `dd_tools.open_filters_drawer` (a bench drift-guard enforces one copy).
 
-#### `MOB.980_AssetLookup_3_Edits_Suite` — 5 children · writes · Datadog 179s with its first 4
+#### `MOB.980_AssetLookup_3_Edits_Suite` — 6 children · writes · Datadog 179s with its first 4
 **Writes on the Asset Lookup route.**
 
 `MOB.710` the per-field pencil (three entry points), self-restoring on `Pump 0102` · `MOB.712` a System created from the
 System field on a `DD SYNTHETIC MOBILE` asset — the System and the asset's link both over `/graphql` (residue: one System
 per run) · `MOB.722` a `Test 1` reading captured on that asset, `CREATE_EVENT` proved over `/graphql` (residue: one
 reading per run) · `MOB.944` the Attributes tab, in its own browser: offline, a refused add, the type filter, then
-`🔤 string 1` added, edited and removed on a `DD SYNTHETIC MOBILE` asset, each over `/graphql` (self-cleaning) ·
+`🔤 string 1` added, edited and removed on a `DD SYNTHETIC MOBILE` asset, each over `/graphql` (self-cleaning) · `MOB.743`
+the same for `🔎 Inspection`, whose value is picked from its lookup list (self-cleaning) ·
 `MOB.742` `Add Work` on Pump 0066's row: the new stage holds the asset at its x/y, over `/graphql` (residue: a work order).
 🛑 Separate from `MOB.969`: its children leave a term in `asset_lookup_query`, and a search typed on top of one reads
 `Pump 0102Pump 0102` (trap 17, measured 2026-09-15).

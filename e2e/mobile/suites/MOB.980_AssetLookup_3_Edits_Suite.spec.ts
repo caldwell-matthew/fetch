@@ -9,6 +9,7 @@ import { mob710 } from '../tests/MOB.710_AssetLookup_Field_Edit';
 import { mob712 } from '../tests/MOB.712_AssetLookup_System_Create';
 import { mob722 } from '../tests/MOB.722_AssetLookup_Reading_Capture';
 import { mob944 } from '../tests/MOB.944_AssetLookup_Attributes_Edit';
+import { mob743 } from '../tests/MOB.743_AssetLookup_Attribute_From_List';
 import { mob742 } from '../tests/MOB.742_AssetLookup_Add_Work';
 import { freshSession } from '../support/session';
 
@@ -42,6 +43,16 @@ test.describe.serial('MOB.980_AssetLookup_3_Edits_Suite', () => {
     const own = await freshSession(browser);
     try {
       await mob944(own);
+    } finally {
+      await own.context().close();
+    }
+  });
+
+  // An attribute whose value comes from a lookup list, on the same test asset; self-cleaning (its own browser, as MOB.944).
+  test('MOB.743_AssetLookup_Attribute_From_List', async ({ browser }) => {
+    const own = await freshSession(browser);
+    try {
+      await mob743(own);
     } finally {
       await own.context().close();
     }
