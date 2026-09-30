@@ -46,6 +46,8 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | 56 | A Use Map replace from the card "View in Map" opens saves, but its overlay never closes | Runtime + Source | ❌ medium · `Map/index.tsx:157-185,291-306` · `MOB.129` pins it |
 | 57 | **After a new asset is created from an Asset Verify job, the job's page is blank** — until a module resync | Runtime + Source | ❌ medium–high · `AssetVerification/Job.tsx:92-96,136` · `MOB.513` pins it |
 | 58 | Every error the app logs is saved as `Unknown error` with its details dropped | Runtime + Source | ❌ low · `utils/Logger.ts:199-214` · `MOB.172` pins it |
+| 59 | The create form's Address is never saved — typed or filled by its locate button | Runtime + Source | ❌ medium · `CreateWorkInput` has no `address`; `sanitizeInputLink.ts:11-36` drops it · `MOB.300` pins it |
+| 60 | A work order created before the list's downloads finish never joins the list; created after, it reloads the whole list | Runtime + Source | ❌ medium · `InsertForm/index.tsx:143-147` writes a query the list does not read · `MOB.300` pins it |
 
 ## §25 · How the crew's work list is populated — reference, not a bug
 
@@ -572,3 +574,51 @@ call in the app; a developer reading a user's logs learns only that something fa
 **Fix:** `else` before the second assignment (and keep `JSON.stringify` for non-Errors).
 **Tests:** `MOB.172` (in `MOB.972`) pins it: the suite expects `Unknown error` / `{}` and goes green by itself when fixed.
 
+## §59 · The create form's Address is never saved — typed or filled by its locate button
+
+The work-order create form shows an `Address` field with a locate button beside it
+(`WorkOrders/components/InsertForm/index.tsx:272-290`). The button fills the field (and the hidden `x`/`y`), and the form
+builds its create input from its schema, `address` included (`client/src/components/work/work/InsertForm/FormSchema.ts:128-133`).
+But the server's `CreateWorkInput` has `x` and `y` and **no `address`**, and the mobile client's `sanitizeLink`
+(`client/src/graphql/links/sanitizeInputLink.ts:11-36`, wired in `mobile/graphql/index.tsx:8`) strips every key an input
+type does not define before the request leaves — so the address is dropped silently, with no error.
+
+**Runtime (2026-09-29, local, build 127, `MOB.300`):** the locate button (position and Mapbox's reverse geocode answered
+in the browser) filled `Address` with `1600 Main Street, Chicago IL, US, 60601`; the `createWork` request's `data` carried
+`x: -87.6298, y: 41.8781` and no `address` (read from the trace); the new stage `20260929-28-001` holds the coordinates
+and `address: null` — still null minutes later.
+**User-visible effect:** a user who types or locates an address when creating a work order sees it in the form, and the
+work order is created without it. The map position (`x`/`y`) does save.
+**Severity:** medium — silent data loss on a field the form asks for.
+**Fix:** either add `address` to `CreateWorkInput` and save it on the work's stages, or drop the field (and keep the
+locate button for the coordinates).
+**Tests:** `MOB.300` (in `MOB.953`) pins it: the suite expects the new stage's address to be empty and goes green by
+itself once the address saves.
+
+## §60 · A work order created before the list's downloads finish never joins the list; created after, it reloads the whole list
+
+On create, the form writes the new stage into the cached work list — but through `MOBILE_WORK_ORDERS`
+(`WorkOrders/components/InsertForm/index.tsx:143-162`), while the screen reads `MOBILE_WORK_LIST`
+(`WorkOrders/index.tsx:54`). Both are the crew's `workStages` (one cache entry, `keyArgs: ['crew']`,
+`graphql/cacheRedirects.ts:30`), but `MOBILE_WORK_ORDERS` asks for every stage's full fields (`MOBILE_WORK_FIELDS`),
+which the cache holds only once each stage's details have downloaded. Until then the read is incomplete, and the code
+skips the write (`if (!curr?.workStages) return curr;`, `:147`). *(The mechanism is read from the code; the effects
+below were observed.)*
+
+**Runtime (2026-09-29, local, build 127):**
+- Created while the stages were still downloading — `MOB.300` (the legend total 631 before and 15 s after) and a probe
+  (`probe/create_lists_early_probe.spec.ts`: `20260929-32-001`, sampled every 5 s for 2 min while the downloads went from
+  33 to 425 of 633): the status legend's total — which counts the list's own data — never moved, and the new stage's row
+  never appeared (newest sort to the top; 7 rows were drawn).
+- Created after every download had finished (283 s) — `probe/create_lists_at_once_probe.spec.ts`: the list threw away
+  what it held and loaded again from page 1 (`100 workstages found`, the progress bar running again, `Data synced`
+  updated, the legend total 100 mid-reload), with the new `20260929-31-001` on top (`results/probe-create-lists.png`).
+  *(Why the reload happens is not traced.)*
+
+**User-visible effect:** for the first minutes on the Work Orders screen (about 5 for the test crew's 630 stages), a work
+order the user creates is missing from their list until a resync; after that, every create reloads the whole list and
+its downloads.
+**Severity:** medium — the user's own new work order is missing from their list, with no hint to resync.
+**Fix:** write the new stage through the list's own query (`MOBILE_WORK_LIST`), or refetch the list's first page.
+**Tests:** `MOB.300` (in `MOB.953`) pins it: the suite expects the legend total unchanged after the create (MOB.300 creates
+before the downloads end) and goes green by itself once the new work order joins the list.

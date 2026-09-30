@@ -12,6 +12,7 @@ import { mob531 } from '../tests/MOB.531_AssetVerify_Asset_Search';
 import { mob547 } from '../tests/MOB.547_AssetVerify_Photo_Tag_Search';
 import { mob551 } from '../tests/MOB.551_AssetVerify_Reading_History';
 import { mob928 } from '../tests/MOB.928_AssetVerify_Add_Existing_Excludes_Job_Assets';
+import { mob515 } from '../tests/MOB.515_AssetVerify_New_Asset_Type_List';
 
 test.describe.serial('MOB.962_AssetVerify_2_Job_Assets_Read_Suite', () => {
   let page: Page;
@@ -52,6 +53,9 @@ test.describe.serial('MOB.962_AssetVerify_2_Job_Assets_Read_Suite', () => {
 
   test('MOB.928_AssetVerify_Add_Existing_Excludes_Job_Assets', async () => {
     await mob928(page);
+  });
+  test('MOB.515_AssetVerify_New_Asset_Type_List', async () => {
+    await mob515(page);
   });
 
 });

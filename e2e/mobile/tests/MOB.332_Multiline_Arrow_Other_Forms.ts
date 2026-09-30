@@ -15,7 +15,7 @@ import { AV_JOB } from '../support/fixtures';
 const ARROW = 'svg[data-icon="square-arrow-up-right"]';
 
 /** Click the arrow in a field's `.form-group` (its label and input — the arrow sits by the label), and prove the modal it opens shows exactly `value`; close it. */
-async function openArrow(page: Page, wrapper: Locator, value: string, where: string): Promise<void> {
+export async function openArrow(page: Page, wrapper: Locator, value: string, where: string): Promise<void> {
   const before = await page.locator('.mantine-Modal-content').count();
   await wrapper.locator(ARROW).first().click();
   const shown = page.locator('.mantine-Modal-content').nth(before);

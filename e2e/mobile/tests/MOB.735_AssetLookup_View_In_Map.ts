@@ -1,9 +1,15 @@
 // Converted on 2026-09-23 from the Datadog test legacy/Mobile/dd_tests_mobile/MOB.735_AssetLookup_View_In_Map.json. This file is the source now: edit it directly.
 // MOB.735_AssetLookup_View_In_Map
+//
+// Ends on the map with the asset MARKED: for an `Asset` handed over by the router, the map sets a purple marker at the
+// asset's coordinates once its work source loads (`Map/index.tsx:156-168`). The marker is checked against the page's
+// Mapbox instance (trap 55): the asset's coordinates, from the server, project to the middle of the pin.
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { DEFAULT_TIMEOUT, Sequence, assertElementContent, assertElementPresent, assertFromJavascript, click, press, typeText, wait } from '../../support/dd';
-import { appUrl } from '../support/session';
+import { appUrl, serverRead } from '../support/session';
+import { PUMP_0102 } from '../support/fixtures';
+import { attachMap } from '../support/map';
 
 export async function mob735(page: Page): Promise<void> {
   const run = new Sequence();
@@ -67,6 +73,28 @@ return s.recordType === 'Asset'
     await assertFromJavascript(page, `const s = history.state.usr;
 const lat = Number(s.lat), lng = Number(s.lng);
 return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);`, 30000);
+  });
+  await run.step("\u2b50 THE MARKER: a purple pin stands on Pump 0102's coordinates, as the server holds them", {}, async () => {
+    const asset = (await serverRead(page, 'query($id: ID!) { asset(id: $id) { latitude longitude } }', { id: PUMP_0102 })).asset;
+    const handed = await page.evaluate(() => (history.state as { usr: { recordId: string; lat: number; lng: number } }).usr);
+    expect(handed.recordId, 'the router handed over Pump 0102').toBe(PUMP_0102);
+    await attachMap(page);
+    const marker = page.locator('.mapboxgl-marker');
+    await expect(marker, 'one marker').toHaveCount(1, { timeout: 30_000 });
+    await expect(marker.locator('path[fill="purple"], [fill="purple"]').first(), 'it is the purple one').toBeAttached();
+    // Where the asset's coordinates fall on screen, against the pin's box: centred across it, and within its height.
+    await expect.poll(async () => {
+      const box = await marker.boundingBox();
+      const at = await page.evaluate(([lng, lat]) => {
+        const m = (window as unknown as { __ddMap: any }).__ddMap;
+        const p = m.project([lng, lat]);
+        const r = m.getContainer().getBoundingClientRect();
+        return { x: r.left + p.x, y: r.top + p.y };
+      }, [asset.longitude, asset.latitude]);
+      if (!box) return 'no box';
+      const dx = Math.abs(box.x + box.width / 2 - at.x);
+      return dx <= 2 && at.y >= box.y && at.y <= box.y + box.height ? 'on the pin' : `off by ${dx.toFixed(1)}px across, y ${at.y.toFixed(0)} vs ${box.y.toFixed(0)}-${(box.y + box.height).toFixed(0)}`;
+    }, { message: "the asset's coordinates project onto the pin", timeout: 30_000 }).toBe('on the pin');
   });
   run.finish();
 }

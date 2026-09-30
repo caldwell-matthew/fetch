@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**187 tests · 28 suites** · 187 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**189 tests · 28 suites** · 189 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -58,11 +58,11 @@ nobody thought to list).
 |---|---|---|---|---|---|
 | `/` — Home | 000 180 210 910 | 5 | 0 | 0 | 0 |
 | Every route — header, hamburger menu and back arrow | 200 346 400 410 420 430 440 450 460 470 910 913 | 10 | 1 | 0 | 2 |
-| `/work` — Work Orders list | 150 300 301 303 340 341 342 343 344 345 346 937 948 | 13 | 0 | 0 | 1 |
-| `/work/:workStageId` — a work order | 302 310 320 330 331 332 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 366 367 370 380 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 921 923 924 938 939 947 977 | 47 | 1 | 0 | 1 |
+| `/work` — Work Orders list | 150 300 301 303 339 340 341 342 343 344 345 346 937 948 | 15 | 0 | 0 | 1 |
+| `/work/:workStageId` — a work order | 300 302 310 320 330 331 332 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 366 367 370 380 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 921 923 924 938 939 947 977 | 47 | 1 | 0 | 1 |
 | `/work/:workStageId/form/:formId` — a work stage form | 134 135 136 355 951 | 3 | 0 | 0 | 0 |
 | `/asset-verify` — Mobile Jobs list | 132 140 342 343 512 530 531 535 560 580 610 700 850 | 7 | 0 | 0 | 1 |
-| `/asset-verify/:jobId` — a mobile job's asset list | 127 396 500 510 511 512 513 514 520 531 536 547 551 585 590 720 928 940 | 19 | 0 | 0 | 0 |
+| `/asset-verify/:jobId` — a mobile job's asset list | 127 396 500 510 511 512 513 514 515 520 531 536 547 551 585 590 720 928 940 | 20 | 0 | 0 | 0 |
 | `/asset-verify/:jobId/asset/:verificationId` — full-page asset data | 537 538 544 545 546 550 570 575 933 936 946 | 9 | 1 | 0 | 0 |
 | `/asset-collector` — Asset Collector / Lens | 160 600 610 620 621 622 623 624 625 626 627 628 629 710 933 945 | 20 | 0 | 0 | 0 |
 | `/asset-collector/:assetId` | — | 0 | 0 | 0 | 1 |
@@ -133,14 +133,15 @@ suite's local time against a ~1071s ceiling (Appendix F); `MOB.959` and `MOB.953
 
 ### Work Orders
 
-#### `MOB.953_WorkOrders_1_List_Suite` — 10 children · writes (`MOB.300` leaves a work order, `MOB.303` two) · Datadog 634s
+#### `MOB.953_WorkOrders_1_List_Suite` — 11 children · writes (`MOB.300` leaves a work order, `MOB.303` two) · Datadog 634s
 **The work-order LIST: create, search, sort, map toggle, status ring, row navigation.**
 
 `MOB.150` the route renders · `MOB.300` create (the create form has no `optimisticResponse`, so its modal closing is a
 server answer; `Assign to Crew` shows the session's crew, the create sends it as `roleId`, and the new stage holds it —
-over `/graphql`) · `MOB.303` two more creates, the crew CLEARED (no `roleId`: exactly the workflow's own crews) and set to
+over `/graphql`; its Address locate button fills the address and coordinates — the stage holds the coordinates, 🐞 not the address (bugs §59, pinned); the new work order
+is NOT in the list at once — 🐞 bugs §60, pinned) · `MOB.303` two more creates, the crew CLEARED (no `roleId`: exactly the workflow's own crews) and set to
 `Test Notifications Only` (the workflow's crews plus it), each over `/graphql` · `MOB.301` a photo in the create form (a local `blob:`, discarded unsent) · `MOB.340` search/sort ·
-`MOB.341` map toggle · `MOB.343` search filters · `MOB.344` row navigation · `MOB.342` status ring and legend, and its exclusion leg (the second fixture In Progress: left out under Ready, shown under In Progress) ·
+`MOB.341` map toggle · `MOB.343` search filters · `MOB.339` search finds by each of its five fields · `MOB.344` row navigation · `MOB.342` status ring and legend, and its exclusion leg (the second fixture In Progress: left out under Ready, shown under In Progress) ·
 `MOB.345` sort applied, persisted and really reversed — narrowed by a search first, and every row rendered in both
 directions must come out reversed, so a row paging in mid-test cannot fail it.
 
@@ -232,11 +233,13 @@ that pad, saved on close as a PNG and proved over `/graphql`, then `Clear` — `
 (`sessionStorage['mobile-MobileJob-sort']`) · `MOB.535` the list really comes out in order, and clears the persisted sort
 on the way out.
 
-#### `MOB.962_AssetVerify_2_Job_Assets_Read_Suite` — 6 children · read-only · Datadog 429s
+#### `MOB.962_AssetVerify_2_Job_Assets_Read_Suite` — 8 children · read-only · Datadog 429s
 **A job's asset list, read.**
 
 `MOB.500` job read · `MOB.520` five data tabs · `MOB.585` map toggle · `MOB.531` in-job search · `MOB.547` the photo tag
-search (the create button is an exclusive-or with an exact match) · `MOB.551` the reading-history popover.
+search (the create button is an exclusive-or with an exact match) · `MOB.551` the reading-history popover · `MOB.928` `Add Existing Asset` never offers
+the job's own assets · `MOB.515` `Get New Asset`'s type list: the org's when the job allows none, exactly the job's
+types when it allows some (given in the browser).
 
 #### `MOB.963_AssetVerify_3_Verify_Status_Queue_Suite` — 6 children · writes (self-restoring) · Datadog 739s
 **The verification workflow and the job's status, putting themselves back.**
@@ -319,7 +322,7 @@ branch proved by a prototype-`click` recorder (one file dialog, rear camera, ima
 Barcode` doing nothing in a browser sentinelled · `MOB.720` Readings and `MOB.721` its empty state · ⭐ `MOB.914` the offline messages — the Readings and
 Work History tabs show `OFFLINE_FEATURE_MESSAGE`, `Add reading types` offline opens it in a popover, and `Get
 Description` on a saved photo, clicked only offline, renders it (recorded — bugs §43) · ⭐ `MOB.740` `WorkLookupDetails`,
-which is also the map's `WorkCard`, and the history rows' `Assigned to:` — the newest row's value checked against the server's `_assignments` for that row · `MOB.735` `View in Map` (router state, not a URL) · `MOB.730` Near Me.
+which is also the map's `WorkCard`, and the history rows' `Assigned to:` — the newest row's value checked against the server's `_assignments` for that row · `MOB.735` `View in Map` (router state, not a URL; the purple pin on the asset's coordinates) · `MOB.730` Near Me.
 `Photos`/`Docs`/`Attributes` content is asserted by `MOB.623` on the collector — the same `AssetLookupDetails` component.
 
 #### `MOB.969_AssetLookup_2_Filters_Sort_Suite` — 5 children · read-only · Datadog 307s

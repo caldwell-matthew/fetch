@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
-| Tests | **187 tests · 28 suites** · 187 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **189 tests · 28 suites** · 189 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 231 `[x]` · 3 `[~]` · 0 `[ ]` · 21 `[-]` — 255 rows. Counts describe *this file*, not the app |
+| Rows | 234 `[x]` · 3 `[~]` · 0 `[ ]` · 21 `[-]` — 258 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -308,10 +308,12 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The route renders and titles itself *(MOB.150)*
 - [x] From the Work Order module *(MOB.300)* — affixed `+` → workflow lookup → submit (a server answer: no `optimisticResponse`)
 - [x] `Assign to Crew` on the create form shows the user's crew; the create sends it as `roleId` and the new stage holds it *(MOB.300)* — the workflow assigns crews of its own too (`Datadog Test`: seven), so it is one of several — and `Admin` is one of the workflow's own, so MOB.303 is what shows `roleId` at work
+- [x] The create form's locate button *(MOB.300)* — the device's position and Mapbox's reverse geocode answered in the browser: Address reads `1600 Main Street, Chicago IL, US, 60601`, and over `/graphql` the new stage holds the coordinates · 🐞 but not the address: the create drops it (bugs §59, pinned)
+- [x] The new work order is in the list at once *(MOB.300)* — read on the status legend, which counts the list's own data · 🐞 created before every stage's details have downloaded, it never joins the list (the total unchanged); created after, the whole list reloads (bugs §60, pinned)
 - [x] `Assign to Crew` CLEARED, and set to ANOTHER crew *(MOB.303)* · residue — cleared sends no `roleId` and the stage holds exactly the workflow's own crews; another crew (`Test Notifications Only`) is sent as `roleId` and the stage holds the workflow's crews plus it — each over `/graphql`, against the workflow's assignments read at run time. The `Datadog Test` workflow assigns `Admin` itself, so both stay in the crew's list
 - [x] A refused create → `Unable to create work order.`, the form still open and sendable, no work order on the server *(MOB.937, in `MOB.982`)*
 - [x] Photos on the insert form *(MOB.301)* — one upload lands as exactly one slide, a `blob:` URL (nothing uploaded before submit); closed with its X, never submitted
-- [x] Search bar opens; Sort Criteria modal opens *(MOB.340)* · search filters the list *(MOB.343)*
+- [x] Search bar opens; Sort Criteria modal opens *(MOB.340)* · search filters the list *(MOB.343)* · each of the five fields it matches finds the fixture — its number, name, asset, address and description, each term in that field alone *(MOB.339, read-only)*
 - [x] Map view toggle *(MOB.341)*
 - [x] Status ring + clickable legend *(MOB.342)* — and the EXCLUSION leg: with the second fixture `20260929-19-001` `In Progress`, `Ready` leaves it out (every row Ready-green) and `In Progress` shows it and leaves the Ready main fixture out
 - [x] Tapping a row opens its work order *(MOB.344)*
@@ -370,7 +372,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] The Assets tab's `All` / `Active` switch — renders, at `All` *(MOB.347)*; while Pump 0102 is `Completed`, `Active` hides it and `All` brings it back *(MOB.353)*
 - [x] A PM route stage's Assets tab *(MOB.366, read-only)* — on `20260929-18-001` (`tools/setup_pm_route.py`: a PM runtime trigger fired once from a workflow that cycles its stage's asset list), the status controls with NO template flag (`pmRoute` alone), the stage's assets taken from the workflow stage's list, and listed in SEQUENCE order — Pump 0144 (1), Pump 0066 (2), Pump 0101 — not by name
 - [x] `No permits` on a work order with none — `20260910-16` *(MOB.394)*
-- [~] A multiline field's VALUE opens in a modal — the arrow beside it (`DetailPage/utils/MultiLineLabel.tsx`) *(MOB.331)*: on the work order's General Info, beside Stage Notes (`DATADOG FIXTURE`) and NOT beside the empty Problem Description, opening exactly the value; the form untouched · on three more forms *(MOB.332, read-only)*: the create form's Problem Description (no arrow while empty), a job note's collection form, and an AV asset's General Info Description — each modal shows the value, read-only. Partial: a work-stage FORM's multiline field (`Forms/FormDetails.tsx:189` — it needs a saved value on a fixture form) and the create form's Address are not driven
+- [~] A multiline field's VALUE opens in a modal — the arrow beside it (`DetailPage/utils/MultiLineLabel.tsx`) *(MOB.331)*: on the work order's General Info, beside Stage Notes (`DATADOG FIXTURE`) and NOT beside the empty Problem Description, opening exactly the value; the form untouched · on three more forms *(MOB.332, read-only)*: the create form's Problem Description (no arrow while empty), a job note's collection form, and an AV asset's General Info Description — each modal shows the value, read-only · the create form's Address, filled by its locate button *(MOB.300)*. Partial: a work-stage FORM's multiline field (`Forms/FormDetails.tsx:189` — it needs a saved value on a fixture form) is not driven
 - [x] `Edit Item` on a failure **saves** *(MOB.385)* · self-restoring — Repair Type `MISSED` → `REPAIR` on the first open after a page load, proved over `/graphql` on the failure's id; restored to `MISSED` `always` after a schema-priming open. 🛑 red whenever bugs §42's race is lost (locally 2 of 2) ⚠️ Does NOT detect bugs §42: in its suite the form opens after `/work`'s prefetch has cached the schema (`MOB.977` is the test that does).
 - [x] Edit a job note *(MOB.361)* · self-cleaning — adds its own `DD SYNTHETIC MOBILE 361 NOTE {{ RUNID }}` note, edits it in the tiptap editor, proved over `/graphql` on that note's id
 - [x] Delete a job note *(MOB.361)* · self-cleaning — owner-authorised (trap 2); `always`, guarded by a server premise (no marker note before the run) and exactly one marker card; the server then holds exactly the pre-run note ids
@@ -416,7 +418,8 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [x] Job status menu *(MOB.536)* · self-restoring — exactly `Mark as COMPLETED`/`CANCELED` from IN PROGRESS; CANCELED shows `This verification job has been canceled.`; back to IN PROGRESS, proved after a reload
 - [x] Filter All / Verified / Unverified *(MOB.500)*
 - [x] Asset card caret expands and collapses *(MOB.520)*
-- [x] Create a NEW asset from a job *(MOB.513, in `MOB.985`)* — `Get New Asset` → a `DD SYNTHETIC MOBILE AV …` asset of a type the job allows → `Asset created and added`; over `/graphql` the job holds it, unverified. 🐞 the job's page is then blank until a module resync (bugs §57) — the suite pins it. Reset after the suite (`reset_av_fixture.py --apply`, owner 2026-09-29)
+- [x] Create a NEW asset from a job *(MOB.513, in `MOB.985`)* — `Get New Asset` → a `DD SYNTHETIC MOBILE AV …` asset of an offered type → `Asset created and added`; over `/graphql` the job holds it, unverified. 🐞 the job's page is then blank until a module resync (bugs §57) — the suite pins it. Reset after the suite (`reset_av_fixture.py --apply`, owner 2026-09-29)
+- [x] `Get New Asset`'s type list is the job's allowed types *(MOB.515, in `MOB.962`, read-only)* — the fixture job allows none, so the real answer gives the org's list (types the job's assets do not have); the same answer given two types in the browser gives exactly those two. Closed unsent, no mutation
 - [x] Add an EXISTING asset to a job *(MOB.514, in `MOB.985`)* — `Add Existing Asset` → Pump 0098 ticked → `Add 1 Asset(s)` → `Asset added`; over `/graphql` the job holds it, and the page lists it. Unlinked by the same reset
 - [x] The add-asset modal opens on its `New Asset` tab — the collector's create form *(MOB.928)* — looked at, never submitted
 - [x] Map view toggle on the job asset list *(MOB.585)*
@@ -492,7 +495,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 - [-] The capture itself — posts to `/api/upload/ai`; native scanner and camera are 🔴 HARNESS
 - 🟡 `Scan Barcode` in a browser does nothing — it asks the native shell for the camera and has no browser branch; `MOB.750` sentinels it
 - 🟡 Tag Lookup ignores the active filters, on the capture and on its X — bugs §51, `MOB.943` pins it
-- [x] `View in Map` on an expanded row *(MOB.735)* — router state, not a URL
+- [x] `View in Map` on an expanded row *(MOB.735)* — router state, not a URL; the map sets a purple pin on the asset's coordinates (the server's, projected through the page's Mapbox instance)
 - [x] `Add Work` on an expanded row *(MOB.742, in `MOB.980`)* · residue — the create form with the asset AND its coordinates as defaults; over `/graphql` the new stage carries this run's description, holds Pump 0066, and sits at its x/y
 - [x] `Work History` tab — `WorkLookupDetails` *(MOB.740)*, also the map's `WorkCard`
 - [x] Work-stage attachment panel and image filter *(MOB.741)*

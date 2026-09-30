@@ -1,7 +1,8 @@
 // MOB.513_AssetVerify_Add_New_Asset — written for Playwright (not converted from Datadog).
 //
 // A job's affixed + opens "Get New Asset" / "Add Existing Asset" (`AssetVerification/NewAssetForm.tsx`). The new tab is
-// the collector's create form, its asset types limited to those the job allows (`mobileJobId`). `Create Asset` runs
+// the collector's create form; with `mobileJobId` its type list is the job's allowed types, or the org's when the job
+// allows none — the fixture job allows none (MOB.515 proves the narrowing). `Create Asset` runs
 // `addNewAssetToJob` (`AssetVerification/utils/createAsset.ts`): the collector's `createAsset`, then
 // `addAssetToMobileJob` — queued behind the create (`waitForKeys`), with an optimistic answer and NOT awaited — and the
 // job toasts `Asset created and added` (`Job.tsx:189-193`) before the server has answered the link. So the proof is a
@@ -58,7 +59,7 @@ export async function mob513(page: Page): Promise<{ blank: boolean }> {
     await form.locator('#desc').fill('Created by the mobile tests (MOB.513) - safe to delete');
     await form.locator('#typeId').click();
     const option = page.getByRole('option').first();
-    await expect(option, "the job's allowed asset types are offered").toBeVisible({ timeout: 30_000 });
+    await expect(option, 'asset types are offered').toBeVisible({ timeout: 30_000 });
     const type = (await option.innerText()).trim();
     await option.click();
     await body.getByRole('button', { name: 'Create Asset' }).click();
