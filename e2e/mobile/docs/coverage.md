@@ -4,7 +4,7 @@
 lately live in `testing_checklist.md` (its 📊 RUN STATUS is the authority on freshness); why a
 test is built as it is lives in its `build_*.py` docstring.*
 
-**191 tests · 28 suites** · 191 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
+**192 tests · 28 suites** · 192 suite children — counted from `e2e/mobile/` by `tools/check_docs.py`.
 
 ## 🛑 Read this before quoting a coverage number
 
@@ -57,7 +57,7 @@ nobody thought to list).
 | route | tests | `[x]` | `[~]` | `[ ]` gaps | `[-]` |
 |---|---|---|---|---|---|
 | `/` — Home | 000 180 210 910 | 5 | 0 | 0 | 0 |
-| Every route — header, hamburger menu and back arrow | 200 346 400 410 420 430 440 450 460 470 910 913 | 10 | 1 | 0 | 2 |
+| Every route — header, hamburger menu and back arrow | 200 346 400 410 420 430 440 441 450 460 470 910 913 | 11 | 1 | 0 | 2 |
 | `/work` — Work Orders list | 150 300 301 303 339 340 341 342 343 344 345 346 937 948 | 15 | 0 | 0 | 1 |
 | `/work/:workStageId` — a work order | 300 302 310 320 330 331 332 347 348 349 350 351 352 353 354 356 357 359 360 361 363 364 365 366 367 370 380 384 385 386 387 388 389 390 391 392 393 394 395 397 398 399 731 741 911 912 921 923 924 938 939 947 977 | 48 | 1 | 0 | 1 |
 | `/work/:workStageId/form/:formId` — a work stage form | 134 135 136 355 951 | 3 | 0 | 0 | 0 |
@@ -222,7 +222,7 @@ page's ⟳ resync — then deleted over `/graphql`, the form ids back to the pre
 
 `MOB.355` form render (desktop branch) · `MOB.134` a work form's integer field saved on blur, proved over `/graphql`, and
 cleared · `MOB.135` the `🔎 Inspection` form's signature field in the tablet's desktop grid — drawn with the MOBILE control, `Add Signature`, its pad opened in a modal and closed untouched, and the server still holding no signature (the pad saves only a pending stroke, on close) · `MOB.136` a stroke drawn on
-that pad, saved on close as a PNG and proved over `/graphql`, then `Clear` — `null` saved and proved (self-restoring).
+that pad, saved on close as a PNG and proved over `/graphql`, `Signed by <the test account>` shown, then `Clear` — `null` saved and proved (self-restoring).
 
 ### Asset Verify
 
@@ -355,7 +355,7 @@ the same for `🔎 Inspection`, whose value is picked from its lookup list (self
 |---|---|---|---|
 | `MOB.970_MaterialLookup_Suite` | 7 · writes | 368s | `MOB.110` the route · `MOB.850` storeroom read and search · `MOB.860` cycle count `+1`/`-1` (self-restoring by construction — neither leg reads the quantity back) · `MOB.870` stocking (**one-way**) · `MOB.855` column sort really reorders, `N matches` vs rows (bugs §33) · `MOB.865` the Photos/Docs segments — the storeroom item's editable attachments above the material item's read-only ones — and the row avatar modal · `MOB.866` uploads a photo and a PDF to the storeroom item and deletes both, each end over `/graphql`, the material item's own attachments proved unchanged |
 | `MOB.971_Map_Suite` | 14 · writes (residue: work orders and an asset; the `My Work: Ready` layer switched on and back off) | 156s with its first 4 children | `MOB.120` the route · `MOB.119` the no-map message (an empty stored map id, its own browser) · `MOB.121` map controls (style, the layers panel and its heading, zoom) · `MOB.124` tilt and Home (pins bugs §55) · `MOB.125` the address search's popup on screen · `MOB.126` the same layers after a style switch · `MOB.127` an AV job's verification-coloured pins · `MOB.123` the `Switch Map` picker (a real switch and back, read from `mobile-map-id`) · `MOB.122` a work order created from the map · `MOB.929` an asset linked to a test-made work order from its map card, and exactly that link removed · `MOB.930` the change-asset popup opened and cancelled · `MOB.128` a test-made work order's assets replaced by a pick on the map, proven over `/graphql` · `MOB.129` the same from the card "View in Map" opens (pins bugs §56) · `MOB.932` a dropped point turned into a work order and an asset |
-| `MOB.972_AppShell_Suite` | 17 · writes (`MOB.131` verifies and un-verifies an AV asset) | 378s | `MOB.180` Home tiles · `MOB.900` a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run · `MOB.910` the offline UI · `MOB.170` route and `MOB.171` Dev Logs · `MOB.172` its empty state and an error entry, in its own browser (pins bugs §58) · `MOB.130` route and `MOB.131`/`132` the Transaction Log · `MOB.942` its 30-day retention, in its own browser · the hamburger menu, resync, back arrow, header status icons (and no gap under the header), crew modal dismissal and its always-shown offline description (`MOB.400` `410` `420` `430` `450` `460` `470` — **not** `MOB.440`, which logs out and is standalone). 🛑 Route checks are shallow by design: the route resolved and titled itself, not that its data loaded — each module's suites cover that |
+| `MOB.972_AppShell_Suite` | 18 · writes (`MOB.131` verifies and un-verifies an AV asset) | 378s | `MOB.180` Home tiles · `MOB.441` `Log Out` asks first, and `Take Me Back` keeps the session (a route stops any `LOG_OUT`) · `MOB.900` a guard that the offline notice and `ErrorBoundary` do **not** appear on a normal run · `MOB.910` the offline UI · `MOB.170` route and `MOB.171` Dev Logs · `MOB.172` its empty state and an error entry, in its own browser (pins bugs §58) · `MOB.130` route and `MOB.131`/`132` the Transaction Log · `MOB.942` its 30-day retention, in its own browser · the hamburger menu, resync, back arrow, header status icons (and no gap under the header), crew modal dismissal and its always-shown offline description (`MOB.400` `410` `420` `430` `450` `460` `470` — **not** `MOB.440`, which logs out and is standalone). 🛑 Route checks are shallow by design: the route resolved and titled itself, not that its data loaded — each module's suites cover that |
 | `MOB.973_Session_RunAlone_Suite` | 2 · writes · **run alone** | 215s | ⭐ `MOB.210` permission gating of the menu · `MOB.220` crew scoping changes the visible job set. ⚠️ never run concurrently — mutates the session crew |
 | `MOB.975_Phone_Suite` | 2 · read-only · `chrome.mobile_small` | 129s | `MOB.951` a work form renders its MOBILE branch (`#senor-work-form`, below `availWidth` 750) and not the desktop one, with its image field's `Upload Photo` exactly when the form has one · `MOB.952` the affixed `+`, the list's search and the burger at phone width; the header crew shortcut is hidden under 450px by design |
 

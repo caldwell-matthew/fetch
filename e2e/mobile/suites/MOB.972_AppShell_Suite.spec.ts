@@ -17,6 +17,7 @@ import { mob132 } from '../tests/MOB.132_TransactionLog_Search';
 import { mob942 } from '../tests/MOB.942_TransactionLog_Retention';
 import { freshSession } from '../support/session';
 import { mob400 } from '../tests/MOB.400_Menu_Open_Close';
+import { mob441 } from '../tests/MOB.441_Logout_Take_Me_Back';
 import { mob410 } from '../tests/MOB.410_Menu_Resync';
 import { mob420 } from '../tests/MOB.420_Menu_Transaction_Log';
 import { mob430 } from '../tests/MOB.430_Crew_Modal_Dismiss';
@@ -92,6 +93,10 @@ test.describe.serial('MOB.972_AppShell_Suite', () => {
 
   test('MOB.400_Menu_Open_Close', async () => {
     await mob400(page);
+  });
+
+  test('MOB.441_Logout_Take_Me_Back', async () => {
+    await mob441(page);
   });
 
   test('MOB.410_Menu_Resync', async () => {

@@ -28,7 +28,7 @@
 | | |
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree; `git fetch origin development` first |
-| **Last synced** | `2f0712fbf3` (2026-09-30) — **served**: dev's mobile page loads `mobile.2026.7.0-128`. Build 128 changed nothing in `client/mobile` (server tests and the version bump only). Since `9fdd47e6fc` (build 123), 11 `client/mobile` commits: **asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, new) — every expanded asset's Attributes tab (Asset Lookup, the collector, Asset Verify jobs, a work order's Assets tab) can edit a value (`Update Attribute`), add one (`Add Attribute`, optionally only the asset type's) and remove one (`Remove Attribute` → `Are you sure you want to remove …?`), online only, each behind its permission, a failure toasting `Unable to save attribute. Please try again.` (`MOB.944`) · **`Form added` waits for the server**, offline `Form queued for sync` (`MOB.924` asserts the refused form shows none) · **an asset row no longer crashes before the Asset schema loads** — the Assets tab queries it and `AssetLookupDetails` tolerates a missing one (checked 4 of 4 in fresh browsers, 2026-09-28) · **trial mode removed** — Home's tiles no longer disable for a trial org, and the server's trial banner is gone. No asserted literal moved. The sync before (`9fdd47e6fc`, build 123) brought `Assign to Crew`, PM routes, mobile-only users, writes that wait for the server and the log retention — all covered but a PM route stage (🟡) |
+| **Last synced** | `68d773df4e` (2026-09-30) — **served**: dev's mobile page loads `mobile.2026.7.0-129`. Builds 128 and 129 changed nothing in `client/mobile` (Jest test changes and the version bumps only). Since `9fdd47e6fc` (build 123), 11 `client/mobile` commits: **asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, new) — every expanded asset's Attributes tab (Asset Lookup, the collector, Asset Verify jobs, a work order's Assets tab) can edit a value (`Update Attribute`), add one (`Add Attribute`, optionally only the asset type's) and remove one (`Remove Attribute` → `Are you sure you want to remove …?`), online only, each behind its permission, a failure toasting `Unable to save attribute. Please try again.` (`MOB.944`) · **`Form added` waits for the server**, offline `Form queued for sync` (`MOB.924` asserts the refused form shows none) · **an asset row no longer crashes before the Asset schema loads** — the Assets tab queries it and `AssetLookupDetails` tolerates a missing one (checked 4 of 4 in fresh browsers, 2026-09-28) · **trial mode removed** — Home's tiles no longer disable for a trial org, and the server's trial banner is gone. No asserted literal moved. The sync before (`9fdd47e6fc`, build 123) brought `Assign to Crew`, PM routes, mobile-only users, writes that wait for the server and the log retention — all covered but a PM route stage (🟡) |
 | **Literal scan** | `check_literals.py` clean against `2f0712fbf3` — 2260 literals, 0 MISSING. `sweep_strings.py` last ran on `2f0712fbf3`: 203 JSX text strings, 166 asserted, 37 in no test |
 
 ```bash
@@ -52,10 +52,10 @@ keys: the two map toggles, `toggle_mobile_v_work`, `mobile-asset-ver-filter`,
 | | |
 |---|---|
 | Status | ⛔ **Datadog is paused** (manager, 2026-09-18, over the bill) and the suites are **being converted to Playwright** (owner, 2026-09-22 — ▶ #37). The TypeScript in `e2e/mobile/` is the source; the converter is retired. **First Datadog pass complete** — 23 of the 24 module suites ✅ on the current build (2026-09-16). The old suites are retired, on Datadog and locally |
-| Tests | **191 tests · 28 suites** · 191 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
+| Tests | **192 tests · 28 suites** · 192 suite children — the Playwright tests in `e2e/mobile/tests/` and `e2e/mobile/suites/`, which are the source (converted from the Datadog JSON on 2026-09-23). Datadog's harness and diagnostic tests were not converted |
 | Source | The Playwright TypeScript in `e2e/mobile/tests/` and `e2e/mobile/suites/` is the source (converted from the Datadog JSON on 2026-09-23). The Datadog copies are frozen and out of date by design; the JSON and its tooling are in `legacy/` |
 | Device | `chrome.tablet`, except the phone tests `MOB.951`/`MOB.952` and their suite `MOB.975_Phone_Suite`, on `chrome.mobile_small` (trap 1) |
-| Rows | 236 `[x]` · 3 `[~]` · 0 `[ ]` · 21 `[-]` — 260 rows. Counts describe *this file*, not the app |
+| Rows | 237 `[x]` · 3 `[~]` · 0 `[ ]` · 21 `[-]` — 261 rows. Counts describe *this file*, not the app |
 | Cost of one full pass | **163 billed runs** — the 24 module suites plus their 139 children; a subtest bills as its own run. **158** as scheduled weekly, with `MOB.967` held (▶ #37). The plan is **1,000 runs a month**; overage bills extra. ⛔ Moot while Datadog is paused; the Playwright pass bills CircleCI minutes instead |
 | Scheduling | ⛔ Nothing is scheduled: every test on Datadog is paused, including three that predate this repo. The concurrency cap is back to **1** (each parallel slot above it bills monthly — test_authoring, trap 1). **Where it is going: a CircleCI job after each dev deploy, running Playwright** (▶ OPEN WORK #37) |
 
@@ -130,23 +130,18 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#101** logout's `Take Me Back`, then **#102** `Signed by` — both small, no new data.
-2. **#103** `No Image Uploaded` — first check a fixture form has an image field.
-3. **#37** CircleCI (held by the owner for later).
+1. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
 | **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 28 suites pass locally against dev** — see 📊 RUN STATUS for the latest full pass (`e2e/mobile/tools/playwright_pass.py`: read-only suites together, data-changing ones one at a time with the fixture checks between them). Every pass, and any plain `npx playwright test`, also gives a **coverage page** (`e2e/mobile/tools/coverage_report.py`): passed / failed / pinned per test with its evidence, the checklist's gaps, the open bugs, the code reached. **Ready for the move into MentorTwo** (`e2e/README.md` → Moving into MentorTwo): `e2e/` is self-contained (own packages, ignores, `requirements.txt`), the login is read from `e2e/.env` first, the source-reading tools read the repo they sit in, and the CI draft waits for dev to serve the deployed build. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go — the draft stores the coverage page as an artifact; a summary comment on the commit would reuse MentorTwo's `reportCircleCiCoverage.mjs` GitHub App); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
-| **101** | **The logout confirmation's `Take Me Back`** (`Layout/TopHeader/LogoutModal.tsx:16,37`) — `Are you sure you want to log out?`, then `Take Me Back` closes it and the session stays (read-only) | buildable |
-| **102** | **A signed signature field's `Signed by` line** (`WorkOrders/components/Forms/SignatureField.tsx:59`) — MOB.136 signs and clears but does not read it; an extension of MOB.136 | buildable |
-| **103** | **An empty image field's `No Image Uploaded`** (`WorkOrders/components/Forms/ImageInput.tsx:70`) on a work-stage form — needs a fixture form with an image field (to check) | needs a check |
 
 **Finding the next ones:** `e2e/mobile/tools/sweep_strings.py` (🔧 check 6) — JSX text children no test's source
 contains, not attributes. Last sweep: `origin/development@2f0712fbf3` — 203 strings, 166 asserted, 37 in no test: 19 are
 TypeScript the regex caught, 13 are classified (⚪ / 🔴 / `[-]` — the Copy Attributes dialog, `Nothing found`, `Delete
-Record`, the Expo-only upload log, the loading placeholders), and 5 are #101–#103.
+Record`, the Expo-only upload log, the loading placeholders, `No Image Uploaded`); the other 4 are now asserted — `Are you sure you want to log out?` / `Take Me Back` (`MOB.441`) and `Signed by` (`MOB.136`).
 
 ### 🟡 BLOCKED — decisions, fixtures and backend
 
@@ -170,7 +165,7 @@ both) · real device GPS ·
 · `UploadLogs` (under
 `UploadStatusIcon`, Expo only) · Transaction Log column sort (`onSort` is `console.log`) · the Home summary widgets (`AssetVerificationSummary`,
 `WorkOrderSummary` — exported, never imported) · loading placeholders (`Loading history...`, `Loading form…`,
-`...loading` — transient) · `Superseded` on the status ring (the crew query never returns one, bugs §25) · `fitMarkersToMap`
+`...loading` — transient) · the image field's `No Image Uploaded` (`Forms/ImageInput.tsx:68`, unreachable: a work form's image field is never disabled — `Forms/utils.ts` sets `disabled` only on calculated fields, `:70`, and `FormDetails.tsx:186` passes each field's config as it is) · `Superseded` on the status ring (the crew query never returns one, bugs §25) · `fitMarkersToMap`
 (`Map/utils.ts`, imported by nothing) · the header's colour.
 
 ### 🔴 HARNESS — needs a different tool
@@ -293,6 +288,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 *`Layout/` — rendered around every route*
 
 - [x] Open / close *(MOB.400)* · ReSync *(MOB.410)* · Transaction Log *(MOB.420)*
+- [x] `Log Out` asks first, and `Take Me Back` keeps the session *(MOB.441, in `MOB.972`)* — `Are you sure you want to log out?` and `Any unsaved data will be lost.` with `Take Me Back` / `Log Out`; `Take Me Back` closes it, the app stays on `/apm-mobile/`, and the session is the same user. A route stops any `LOG_OUT`, and none was sent
 - [x] Switch Crews *(MOB.200, MOB.430)* · Cancel *(MOB.430)* · the modal's offline description *(MOB.430)*
 - [x] Log Out · confirm · Take Me Back *(MOB.440)*
 - [~] Module resync timestamp *(MOB.460)* — resync leaves no durable difference; proves the control and its timestamp
@@ -396,7 +392,7 @@ T3.2 and T3.3's back arrow → Every route · T3.3's search and filters → `/as
 
 - [x] Form render *(MOB.355)* — desktop branch on tablet; the mobile branch on phone *(MOB.951)*
 - [x] Fill out an inserted form *(MOB.134)* · self-restoring — the form's integer field: `134` saved on blur, proved over `/graphql`, cleared and proved empty
-- [x] Signature widget *(MOB.135, MOB.136)* — on the tablet's desktop grid a signature field is drawn with the MOBILE control (`.mobile-signature-cell`, `Add Signature`); its pad opens in a modal and closes untouched with NOTHING saved (`MOB.135`, proved over `/graphql`) · a stroke drawn with real pointer moves, saved on close as a PNG, the cell showing it and `Update Signature`, then `Clear` saving `null` — each proved over `/graphql`, on the fixture's `🔎 Inspection` form (`MOB.136`, self-restoring, owner 2026-09-29). Its host also renders in `MOB.951`'s phone branch
+- [x] Signature widget *(MOB.135, MOB.136)* — on the tablet's desktop grid a signature field is drawn with the MOBILE control (`.mobile-signature-cell`, `Add Signature`); its pad opens in a modal and closes untouched with NOTHING saved (`MOB.135`, proved over `/graphql`) · a stroke drawn with real pointer moves, saved on close as a PNG, the cell showing it and `Update Signature`, once signed, `Signed by <the test account> on <date>` (the signer the server holds), then `Clear` saving `null` — each proved over `/graphql`, on the fixture's `🔎 Inspection` form (`MOB.136`, self-restoring, owner 2026-09-29). Its host also renders in `MOB.951`'s phone branch
 
 ## `/asset-verify` — Mobile Jobs list
 

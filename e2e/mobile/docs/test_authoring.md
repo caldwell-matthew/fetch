@@ -6,7 +6,7 @@
 |---|---|
 | `testing_checklist.md` | what is left to do, and what has run |
 | `coverage.md` | what a green run proves |
-| **`test_authoring.md`** | how to build a test and prove it locally without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 57 traps |
+| **`test_authoring.md`** | how to build a test and prove it locally without repeating a known mistake — the loop, fixtures, operational rules, tooling, the 58 traps |
 | `bugs_found.md` | what the tests found in the app |
 | `cleanup_spec.md` | test residue: what exists, what can be removed, never-touch fixtures |
 
@@ -136,7 +136,7 @@ All in `e2e/mobile/tools/`, run from the repo root with `.venv/bin/python` (0 Da
 ## Locator & assertion traps
 
 *1–17 are locator/assertion traps; 18–27 process traps (how tooling, fixtures or framing misled);
-28–57 more locator, fixture, offline, map, API and scheduling traps.*
+28–58 more locator, fixture, offline, map, API and scheduling traps.*
 
 **1 · Never add a second `device_id`.** Datadog runs each device as a **concurrent** session, and
 the mutating tests share one fixture, so two devices race (caught when a phone session walked the
@@ -578,3 +578,8 @@ twice before this was found.
 with a style, so `[role=tabpanel]:not([hidden])` is simply the FIRST panel. `MOB.351` looked there for estimate cards and
 reported "none" for weeks while each tab showed its estimate (2026-09-29). Use Playwright's `[role="tabpanel"]:visible`, or
 in page JavaScript the panel whose computed `display` is not `none`.
+
+**58 · A modal that is still fading in already counts as visible.** Playwright's `toBeVisible` does not look at opacity,
+and a Mantine modal fades in: `MOB.441` found the logout question visible, read its text and buttons, and its screenshot
+showed the Home screen with no dialog (2026-09-30). Before a screenshot — or a click that must land on the finished
+dialog — wait for `toHaveCSS('opacity', '1')` on the modal's content.

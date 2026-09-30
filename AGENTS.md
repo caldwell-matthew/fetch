@@ -62,7 +62,7 @@ The TypeScript in `e2e/<app>/tests/` and `e2e/<app>/suites/` **is the source** �
 | 1 | Read the component on `origin/development`: its branches, its submit path, what a closing modal really proves | `git -C "$MENTORTWO_REPO" show origin/development:client/mobile/…` |
 | 2 | Write or change the test in `tests/`, and call it from its suite in `suites/` (a new suite also goes into `tools/suites.json`) | — |
 | 3 | Type-check | `cd e2e && npx tsc --noEmit` |
-| 4 | Check the fixtures are at rest, then run the suite locally until it is green — or red only where it pins a bug | `.venv/bin/python e2e/mobile/tools/fixtures.py` · `cd e2e && npx playwright test mobile/suites/MOB.9xx*` |
+| 4 | Check the fixtures are at rest, then run the suite locally until it is green — or red only where it pins a bug | `.venv/bin/python e2e/mobile/tools/fixtures.py` · `cd e2e && npx playwright test mobile/suites/<the suite's full file name>` — the argument is a regex, so `MOB.95*` would also run the neighbouring suites |
 | 5 | Update the docs in place | `.venv/bin/python e2e/mobile/tools/check_docs.py` |
 
 ## Before trusting a result

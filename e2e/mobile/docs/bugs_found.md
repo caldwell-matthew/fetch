@@ -10,7 +10,7 @@ surfaced. **App findings, not test problems** — a finding about a TEST belongs
 | **Source** | read in the code; mechanism clear, not observed failing |
 
 **Rules for this file**
-- Every status was read against `origin/development@2f0712fbf3`. Re-read a row
+- Every status was read against `origin/development@68d773df4e`. Re-read a row
   before acting on it once the sync line in `testing_checklist.md` has moved on.
 - **🔧 fix pending** = a PR is open; delete the entry once it merges and the served code has it.
 - **A fixed finding is DELETED** — entry and index row — and whatever cited it is reworded to

@@ -6,7 +6,8 @@
 // modal. Each stroke's end queues `[id, <PNG data URL>]` and the pad's `Clear` queues `[id, null]`
 // (`MentorInputs/SignatureField/index.tsx:228-249`); only the last queued update is sent, when the modal CLOSES
 // (`closeAndSave`) — `UPDATE_WORKSTAGE_FORM_SIGNATURE` (field `updateWorkstageFormSignature`). The strokes are real
-// pointer moves on the canvas.
+// pointer moves on the canvas. Once signed, the field shows `Signed by <signer> on <date>` (`SignatureField.tsx:54-60`,
+// `data-testid="signature-meta"`) — checked against the signer the server holds, the test account.
 //
 // The restore is the app's own Clear. If the test fails after a save, `finally` sends the same mutation with `null` —
 // exactly what Clear sends — so the fixture is never left signed.
@@ -73,6 +74,12 @@ export async function mob136(page: Page): Promise<void> {
     await expect.poll(async () => !!(await inspectionSignature(page)).signature, { message: 'the server holds the signature', timeout: 30_000 }).toBe(true);
     await expect(cell.locator('[data-testid="signature-image"]'), 'the cell shows it').toBeVisible({ timeout: 30_000 });
     await expect(cell.locator('button[title="Add Signature"]'), 'and offers `Update Signature`').toHaveText('Update Signature');
+    // …and says who signed: the server's signer is the test account, and the cell names it.
+    const account = (await serverRead(page, '{ session { me { name } } }')).session.me.name as string;
+    expect((await inspectionSignature(page)).userId?.name, "the server's signer is the test account").toBe(account);
+    const meta = cell.locator('[data-testid="signature-meta"]');
+    const name = account.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // the account's name, taken literally
+    await expect(meta, '`Signed by <signer> on <date>`').toContainText(new RegExp(`Signed by\\s*${name}\\s*on\\s*\\S`), { timeout: 30_000 });
     await cell.scrollIntoViewIfNeeded();
     await page.screenshot({ path: 'results/MOB.136-signed.png' });
 
