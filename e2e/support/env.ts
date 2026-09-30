@@ -1,13 +1,14 @@
 /**
  * What Datadog used to supply: global variables, and a fresh value per run.
  *
- * The values live in the repo-root `.env` (git-ignored) or in CI variables — see
+ * The values come from CI variables, else `e2e/.env`, else the repo-root `.env` (all git-ignored) — see
  * legacy/dd_tests_backup/<date>/global_variables.json for the names and what each one was for.
  */
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });        // e2e/.env
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });  // the repo-root .env
 
 /** `globals.MOBDEV` — reads process.env, and says which name is missing rather than sending "undefined". */
 export const globals: Record<string, string> = new Proxy(

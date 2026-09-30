@@ -93,8 +93,7 @@ MOBILE = os.path.dirname(HERE)                          # e2e/mobile
 TESTS = os.path.join(MOBILE, "tests")
 LOGIN = os.path.join(MOBILE, "support", "login.ts")
 ALLOWLIST = os.path.join(HERE, "literals_allowlist.txt")
-DEFAULT_REPO = os.path.expanduser("~/GitHub/MentorAPM/MentorTwo")
-DEFAULT_REF = "origin/development"
+from app_source import DEFAULT_REF, DEFAULT_REPO, require_repo  # noqa: E402  (this repo at HEAD once inside MentorTwo)
 SOURCE_DIRS = ["client/mobile", "client/src"]
 STALE_DAYS = 2
 
@@ -143,8 +142,7 @@ def load_source(repo, ref):
     🛑 Both exclusions are load-bearing - see the module docstring. `git grep` prefixes each
     line with `ref:path:`, which is what lets test files be dropped line-by-line.
     """
-    if not os.path.isdir(os.path.join(repo, ".git")):
-        sys.exit(f"not a git repo: {repo}  (pass --repo)")
+    require_repo(repo)
     if subprocess.run(["git", "-C", repo, "rev-parse", "--verify", "--quiet", ref],
                       capture_output=True).returncode:
         sys.exit(f"ref not found: {ref}  (did you `git fetch`?)")
@@ -472,7 +470,7 @@ def self_test(src, allow):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--repo", default=os.environ.get("MENTORTWO_REPO", DEFAULT_REPO))
+    ap.add_argument("--repo", default=DEFAULT_REPO)
     ap.add_argument("--ref", default=DEFAULT_REF)
     ap.add_argument("--all", action="store_true", help="also list COMPOSED hits")
     ap.add_argument("--self-test", action="store_true",

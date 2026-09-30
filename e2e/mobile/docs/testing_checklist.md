@@ -29,7 +29,7 @@
 |---|---|
 | **Serves the tests** | `origin/development` → dev.mentorapm.com. Read source with `git show origin/development:client/mobile/…`, never the working tree; `git fetch origin development` first |
 | **Last synced** | `2f0712fbf3` (2026-09-30) — **served**: dev's mobile page loads `mobile.2026.7.0-128`. Build 128 changed nothing in `client/mobile` (server tests and the version bump only). Since `9fdd47e6fc` (build 123), 11 `client/mobile` commits: **asset attribute editing** (`AssetLookup/AssetLookupDetails/Attributes.tsx`, new) — every expanded asset's Attributes tab (Asset Lookup, the collector, Asset Verify jobs, a work order's Assets tab) can edit a value (`Update Attribute`), add one (`Add Attribute`, optionally only the asset type's) and remove one (`Remove Attribute` → `Are you sure you want to remove …?`), online only, each behind its permission, a failure toasting `Unable to save attribute. Please try again.` (`MOB.944`) · **`Form added` waits for the server**, offline `Form queued for sync` (`MOB.924` asserts the refused form shows none) · **an asset row no longer crashes before the Asset schema loads** — the Assets tab queries it and `AssetLookupDetails` tolerates a missing one (checked 4 of 4 in fresh browsers, 2026-09-28) · **trial mode removed** — Home's tiles no longer disable for a trial org, and the server's trial banner is gone. No asserted literal moved. The sync before (`9fdd47e6fc`, build 123) brought `Assign to Crew`, PM routes, mobile-only users, writes that wait for the server and the log retention — all covered but a PM route stage (🟡) |
-| **Literal scan** | `check_literals.py` clean against `2f0712fbf3` — 2260 literals, 0 MISSING. `sweep_strings.py` last ran on `54406b4b74`: 197 JSX text strings, 135 asserted, 62 in no test |
+| **Literal scan** | `check_literals.py` clean against `2f0712fbf3` — 2260 literals, 0 MISSING. `sweep_strings.py` last ran on `2f0712fbf3`: 203 JSX text strings, 166 asserted, 37 in no test |
 
 ```bash
 cd ~/GitHub/MentorAPM/MentorTwo && git fetch origin development
@@ -113,7 +113,7 @@ type-check → run its suite locally until green (or red only where it pins a bu
 
 | run as | suites · Datadog time | result |
 |---|---|---|
-| Playwright · full pass | stage 1, read-only together: `954` `981` `955` `961` `962` `964` `966` `968` `969` `975` `983` 1662s · stage 2, one at a time: `953` 520s · `956` 465s · `957` 260s · `958` 174s · `959` 629s · `960` 115s · `963` 361s · `985` 102s · `965` 135s · `980` 92s · `970` 159s · `971` 686s · `982` 382s · `984` 27s · `972` 173s · `967` 135s · `973` 98s | ✅ 187 passed, 0 failed, fixtures at rest after · the pins for bugs §48 §49 §51 §52 §53 §55 §56 §57 §58 each red on its own symptom · build 127 · 2026-09-29 |
+| Playwright · full pass | stage 1, read-only together: `954` `981` `955` `961` `962` `964` `966` `968` `969` `975` `983` 1644s · stage 2, one at a time (in five parts, `--only` — a 30-minute limit on background tasks stopped the single run): `953` 492s · `956` 442s · `957` 229s · `958` 124s · `959` 645s · `960` 123s · `963` 353s · `985` 102s · `965` 134s · `980` 119s · `970` 176s · `971` 697s · `982` 437s · `984` 31s · `972` 210s · `967` 143s · `973` 103s | ✅ 191 passed, 0 failed (69 + 122), fixtures at rest before every data-changing suite and after each part · the pins for bugs §48 §49 §51 §52 §53 §55 §56 §57 §58 §59 §60 each red on its own symptom · build 128 · 2026-09-30 |
 | Datadog · read-only, together (cap 10 then) | `954` 294s · `981` 453s · `955` 351s · `961` 322s · `962` 429s · `964` 263s · `966` 356s · `968` 324s · `969` 307s · `975` 129s | ✅ 10/10 · current build · 2026-09-16 |
 | Datadog · writes, one at a time | `953` 634s · `971` 156s · `970` 368s · `980` 179s · `958` 356s · `960` 191s · `959` 682s · `965` 438s · `972` 378s · `963` 739s · `956` 623s · `957` 581s | ✅ 12/12 · current build · 2026-09-16 |
 | Datadog · alone | `973` 215s | ✅ · current build · 2026-09-16 |
@@ -130,18 +130,23 @@ The shared login prefix carries a boot crash guard (`add_crash_guard.py`) in eve
 ## ▶ OPEN WORK — the only "what's next" section
 
 **Next up — the candidates on the table, in a suggested order (the owner decides):**
-1. **#37** CircleCI (held by the owner for later).
+1. **#101** logout's `Take Me Back`, then **#102** `Signed by` — both small, no new data.
+2. **#103** `No Image Uploaded` — first check a fixture form has an image field.
+3. **#37** CircleCI (held by the owner for later).
 
 ### 🟢 BUILDABLE — ranked by yield
 
 | # | item | state |
 |---|---|---|
-| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 23 scheduled suites pass locally against dev** — the 10 read-only 60/60, the 13 data-changing ones one at a time with the fixture checks between them (`e2e/mobile/tools/playwright_pass.py`), the fixtures at rest afterwards. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **37** | **Run the suites automatically — Playwright from CircleCI** (owner, 2026-09-22). ⛔ Datadog is paused by the owner's manager (2026-09-18) after Parallel Testing Slots billed $513 in a month with the concurrency cap at 10; the cap is back to 1 and all 433 tests are paused. **Where it stands:** every suite is converted to Playwright in `e2e/mobile/`, and the TypeScript is the source. **All 28 suites pass locally against dev** — see 📊 RUN STATUS for the latest full pass (`e2e/mobile/tools/playwright_pass.py`: read-only suites together, data-changing ones one at a time with the fixture checks between them). Every pass, and any plain `npx playwright test`, also gives a **coverage page** (`e2e/mobile/tools/coverage_report.py`): passed / failed / pinned per test with its evidence, the checklist's gaps, the open bugs, the code reached. **Ready for the move into MentorTwo** (`e2e/README.md` → Moving into MentorTwo): `e2e/` is self-contained (own packages, ignores, `requirements.txt`), the login is read from `e2e/.env` first, the source-reading tools read the repo they sit in, and the CI draft waits for dev to serve the deployed build. **Left:** the CircleCI job (draft at `e2e/ci/circleci-e2e.yml`; needs: can CircleCI reach dev, which context holds the login, where results go — the draft stores the coverage page as an artifact; a summary comment on the commit would reuse MentorTwo's `reportCircleCiCoverage.mjs` GitHub App); decide when Datadog is switched off for good (its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`) | in progress |
+| **101** | **The logout confirmation's `Take Me Back`** (`Layout/TopHeader/LogoutModal.tsx:16,37`) — `Are you sure you want to log out?`, then `Take Me Back` closes it and the session stays (read-only) | buildable |
+| **102** | **A signed signature field's `Signed by` line** (`WorkOrders/components/Forms/SignatureField.tsx:59`) — MOB.136 signs and clears but does not read it; an extension of MOB.136 | buildable |
+| **103** | **An empty image field's `No Image Uploaded`** (`WorkOrders/components/Forms/ImageInput.tsx:70`) on a work-stage form — needs a fixture form with an image field (to check) | needs a check |
 
-**Finding the next ones:** `sweep_strings.py` (🔧 check 6) — JSX text children no test's params contain,
-not attributes. Last sweep: `origin/development@54406b4b74` — 197 strings, 135 asserted, 62 in no test (some still
-TypeScript the regex caught). The one new since `9d80ad499c` is `No location captured.`, now asserted by `MOB.629`; the rest are rows
-above or classified (⚪ / 🔴 / 🟡 / `[-]`).
+**Finding the next ones:** `e2e/mobile/tools/sweep_strings.py` (🔧 check 6) — JSX text children no test's source
+contains, not attributes. Last sweep: `origin/development@2f0712fbf3` — 203 strings, 166 asserted, 37 in no test: 19 are
+TypeScript the regex caught, 13 are classified (⚪ / 🔴 / `[-]` — the Copy Attributes dialog, `Nothing found`, `Delete
+Record`, the Expo-only upload log, the loading placeholders), and 5 are #101–#103.
 
 ### 🟡 BLOCKED — decisions, fixtures and backend
 
@@ -194,8 +199,8 @@ MentorTwo.
 
 **Other hygiene:**
 - 🧹 **Residue** — `e2e/mobile/tools/cleanup_residue.py` (dry run by default): test-created work orders, notes and
-  assets, newest kept; charges excluded by the owner (`cleanup_spec.md` §2). SMCT2 only. Last applied 2026-09-29:
-  22 work orders, 2 notes and 7 assets deleted; 4 marked work orders the server refuses (scheduled, or with
+  assets, newest kept; charges excluded by the owner (`cleanup_spec.md` §2). SMCT2 only. Last applied 2026-09-30:
+  17 work orders, 1 note and 3 assets deleted; 4 marked work orders the server refuses (3 scheduled, 1 with
   charges) stay in its plan. Run it when the dry run shows more than the kept.
 
 # Tier 1 — Mobile-specific risks, across routes

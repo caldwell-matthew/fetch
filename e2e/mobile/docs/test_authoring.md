@@ -112,6 +112,8 @@ All in `e2e/mobile/tools/`, run from the repo root with `.venv/bin/python` (0 Da
 | `check_docs.py` | OPEN WORK rows open, `#N` citations resolve, the counts current — after any doc or test change |
 | `node check_js_assertions.js` | the bench: every `assertFromJavascript` body run in jsdom against a DOM modelled on the component source, each with a must-fail case (trap 27); `${…}` of a `support/fixtures.ts` constant is filled in, any other refused |
 | `check_literals.py` | every asserted literal still exists in the served app |
+| `coverage_report.py` | the coverage page — each test passed / failed / pinned with its evidence, the checklist's gaps, the open bugs, the code reached; `--open` shows it |
+| `sweep_strings.py` | the app's on-screen text no test contains — each hit read by hand; a gap becomes an OPEN WORK row |
 | `source_coverage.py [--write]` | which `.tsx` files a test reaches, by module (`docs/source_coverage.md`); `UNREACHABLE` lists the dead ones |
 | `tighten_waits.py` | drops a fixed wait that only precedes a check which polls anyway |
 | `reset_av_fixture.py [--check\|--apply]` | the Asset Verify fixture job back to rest — `MOB.985`'s `after` |

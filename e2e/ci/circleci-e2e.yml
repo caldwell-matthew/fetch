@@ -17,9 +17,30 @@
 # ⚠️ Open questions before this can run (checklist ▶ #37):
 #   - Can CircleCI's cloud runners reach dev.mentorapm.com, or does dev only accept known IPs?
 #   - Which context holds DATA_DOG_EMAIL / DATA_DOG_PASSWORD / MOBDEV? (Proposed: `mobile-e2e`.)
-#   - Where do results go — Slack, email, or both?
+#   - Where do results go — Slack, email, or both? The coverage page is an artifact either way; a summary comment on
+#     the commit, as MentorTwo's scripts/ci/reportCircleCiCoverage.mjs posts for Jest, would reuse its GitHub App.
 
 version: 2.1
+
+commands:
+  wait_for_dev_build:
+    description: >-
+      Wait until dev serves the build this pipeline deployed. composer_deploy can finish before dev has restarted on
+      it, and a smoke run against the previous build would report on the wrong code. The mobile page names its bundle
+      after package.json's version, minus `rc.` (`mobile.2026.7.0-128.bundle.js` for `2026.7.0-rc.128`).
+    steps:
+      - run:
+          name: Wait for dev to serve this build
+          command: |
+            set -euo pipefail
+            WANT="mobile.$(node -p "require('./package.json').version.replace('rc.', '')").bundle.js"
+            URL="${MOBDEV:-https://dev.mentorapm.com/apm-mobile/}"
+            for i in $(seq 1 60); do                       # up to 15 minutes
+              if curl -fsS "$URL" | grep -q "$WANT"; then echo "dev serves $WANT"; exit 0; fi
+              sleep 15
+            done
+            echo "dev never served $WANT — not testing the wrong build" >&2
+            exit 1
 
 jobs:
   e2e_smoke:
@@ -32,18 +53,34 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install the e2e packages
-          command: cd e2e && npm ci --no-audit --no-fund
+          name: Install the e2e packages, and Python for the coverage page (standard library only)
+          command: |
+            cd e2e && npm ci --no-audit --no-fund
+            command -v python3 >/dev/null || (apt-get update -qq && apt-get install -y -qq python3 >/dev/null)
+      - wait_for_dev_build
       - run:
           name: Read-only suites against dev
           # workers: 1 comes from playwright.config.ts. Read-only suites could overlap safely, but one
           # at a time keeps dev's load predictable and the logs readable.
           command: |
             cd e2e
-            # the config's own reporters: list to the log, JUnit to results/junit.xml, and HTML
-            npx playwright test mobile/suites/MOB.954* mobile/suites/MOB.961* mobile/suites/MOB.968* mobile/suites/MOB.975*
+            # the config's own reporters: list to the log, JUnit to results/junit.xml, JSON to results/results.json.
+            # FULL file names: Playwright reads each argument as a regex, so `MOB.954*` means "MOB.95, then any 4s" and
+            # would also run the data-changing MOB.95x suites (2026-09-29, a local run did exactly that).
+            npx playwright test \
+              mobile/suites/MOB.954_WorkOrders_2_Detail_Open_Tabs_Suite.spec.ts \
+              mobile/suites/MOB.961_AssetVerify_1_Jobs_List_Suite.spec.ts \
+              mobile/suites/MOB.968_AssetLookup_1_Rows_Tabs_Suite.spec.ts \
+              mobile/suites/MOB.975_Phone_Suite.spec.ts
+      - run:
+          name: The coverage page — passed / failed / pinned, and the gaps
+          when: always              # a red run is when it matters most
+          command: python3 e2e/mobile/tools/coverage_report.py   # stdlib only; writes e2e/results/coverage/index.html
       - store_test_results:
           path: e2e/results/junit.xml
+      - store_artifacts:
+          path: e2e/results/coverage         # open index.html from the job's Artifacts tab
+          destination: coverage-report
       - store_artifacts:
           path: e2e/results/artifacts        # failure screenshots and traces
           destination: e2e
@@ -60,7 +97,8 @@ jobs:
           command: |
             cd e2e && npm ci --no-audit --no-fund && cd ..
             apt-get update -qq && apt-get install -y -qq python3-venv >/dev/null
-            python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt
+            python3 -m venv .venv && .venv/bin/pip install -q -r e2e/requirements.txt
+      - wait_for_dev_build
       - run:
           name: Every suite, in the safe order
           # Stops at the first red (the first failure is the one worth reading). Fixture checks run
@@ -68,6 +106,7 @@ jobs:
           command: .venv/bin/python e2e/mobile/tools/playwright_pass.py
           no_output_timeout: 30m
       - store_artifacts:
+          # the pass's summary, its coverage page (<time>-report.html, written by the pass itself), and the evidence
           path: e2e/results/passes
           destination: passes
 
@@ -88,6 +127,7 @@ workflows:
           serial-group: << pipeline.project.slug >>/e2e-dev
 
   # ---- a separate scheduled workflow: ------------------------------------------------------------
+  # (CircleCI now prefers a scheduled pipeline set in the project's settings to `triggers:`; either runs this workflow.)
   nightly_e2e:
     triggers:
       - schedule:

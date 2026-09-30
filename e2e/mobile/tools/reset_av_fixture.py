@@ -185,17 +185,19 @@ class Session:
 
 
 def credentials():
-    """The test account's email and password: environment variables first (CI), else the repo-root `.env`.
+    """The test account's email and password: environment variables first (CI), else `e2e/.env`, else the repo-root
+    `.env` — the order the tests read them in (playwright.config.ts).
 
     Nothing is printed or written. (The Datadog-era copy of this script read Datadog's global variables
     first; the Playwright suite does not use Datadog.)
     """
-    env = dotenv_values(os.path.join(REPO, ".env"))
-    email = os.environ.get("DATA_DOG_EMAIL") or env.get("DATA_DOG_EMAIL")
-    password = os.environ.get("DATA_DOG_PASSWORD") or env.get("DATA_DOG_PASSWORD")
+    e2e_env = os.path.join(os.path.dirname(os.path.dirname(HERE)), ".env")
+    files = [dotenv_values(e2e_env), dotenv_values(os.path.join(REPO, ".env"))]
+    pick = lambda name: os.environ.get(name) or next((f[name] for f in files if f.get(name)), None)
+    email, password = pick("DATA_DOG_EMAIL"), pick("DATA_DOG_PASSWORD")
     if not email or not password:
-        raise SystemExit("no test-account login: set DATA_DOG_EMAIL and DATA_DOG_PASSWORD in the environment or "
-                         f"in {os.path.join(REPO, '.env')}")
+        raise SystemExit("no test-account login: set DATA_DOG_EMAIL and DATA_DOG_PASSWORD in the environment, "
+                         f"in {e2e_env}, or in {os.path.join(REPO, '.env')}")
     return email, password
 
 

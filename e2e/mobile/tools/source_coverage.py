@@ -41,7 +41,7 @@ UNREACHABLE = {
 HERE = os.path.dirname(os.path.abspath(__file__))
 E2E = os.path.dirname(HERE)
 OUT = os.path.join(E2E, "docs", "source_coverage.md")
-DEFAULT_MENTORTWO = os.environ.get("MENTORTWO_REPO", os.path.expanduser("~/GitHub/MentorAPM/MentorTwo"))
+from app_source import DEFAULT_REF, DEFAULT_REPO as DEFAULT_MENTORTWO, require_repo  # noqa: E402
 
 # What counts as rendered JSX text - the same rule the old sweep used, so the two numbers agree.
 TEXT = re.compile(r">([^<>{}]*[A-Za-z][^<>{}]*)<")
@@ -96,12 +96,11 @@ def seen_in(corpus, value):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--ref", default="origin/development")
+    ap.add_argument("--ref", default=DEFAULT_REF)
     ap.add_argument("--repo", default=DEFAULT_MENTORTWO)
     ap.add_argument("--write", action="store_true", help="write e2e/mobile/docs/source_coverage.md")
     a = ap.parse_args()
-    if not os.path.isdir(os.path.join(a.repo, ".git")):
-        sys.exit(f"not a git repo: {a.repo}  (set MENTORTWO_REPO, or pass --repo)")
+    require_repo(a.repo)
     git = lambda *x: subprocess.run(["git", "-C", a.repo, *x], capture_output=True, text=True, check=True).stdout
     sha = git("rev-parse", "--short", a.ref).strip()
 

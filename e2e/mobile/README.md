@@ -70,7 +70,7 @@ The read-only suites ran as one batch, so they have a combined time rather than 
 | **`fixtures.ts`** | Record names, ids and `DD SYNTHETIC` markers in one file, not spread through the tests |
 | **Rewrite `docs/test_authoring.md`** | Its traps still hold, but its loop describes building Datadog JSON; the loop above replaces it |
 | **Move into MentorTwo** | So a pull request that changes a component can change its test |
-| **Retire Datadog** | Its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`; the values are in the repo-root `.env` |
+| **Retire Datadog** | Its 433 tests and 250 global variables are backed up in `legacy/dd_tests_backup/`; the values are in `.env` (`e2e/.env`, else the repo-root one) |
 
 ## Running it
 
@@ -174,6 +174,6 @@ they would have been red on Datadog too. Both are fixed in the tests' source.
 
 - **`MOB.600`'s photo picker** cannot be driven outside Datadog's browser (see *Held*).
 - **Uploaded file bytes** live in Datadog's storage (trap 12). Upload steps use a stand-in file of the same
-  name, from `legacy/Mobile/local_fixtures/` when one exists.
-- **Global variables** now come from the repo-root `.env`. Their old definitions are in
+  name, from `e2e/fixtures/uploads/` when one exists (`support/dd.ts`).
+- **Global variables** now come from CI variables, else `e2e/.env`, else the repo-root `.env`. Their old definitions are in
   `legacy/dd_tests_backup/<date>/global_variables.json`.

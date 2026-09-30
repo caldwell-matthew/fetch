@@ -63,9 +63,11 @@ def run_suites(names, evidence):
     every run, so with one shared folder the next suite wiped the previous one's failure screenshot
     and trace before anyone read them (2026-09-23, MOB.350)."""
     started = datetime.datetime.now()
-    args = ["npx", "playwright", "test", *[f"mobile/suites/{n}.spec.ts" for n in names], "--reporter=list",
+    # `json` too, into the suite's own evidence folder: tools/coverage_report.py builds the pass's page from them.
+    args = ["npx", "playwright", "test", *[f"mobile/suites/{n}.spec.ts" for n in names], "--reporter=list,json",
             "--output", evidence]
-    proc = subprocess.run(args, cwd=E2E, capture_output=True, text=True)
+    env = {**os.environ, "PLAYWRIGHT_JSON_OUTPUT_NAME": os.path.join(evidence, "results.json")}
+    proc = subprocess.run(args, cwd=E2E, capture_output=True, text=True, env=env)
     out = proc.stdout + proc.stderr
     print(out[-4000:] if len(out) > 4000 else out, flush=True)
     counts = {k: int(m.group(1)) for k in ("passed", "failed", "skipped", "did not run")
@@ -95,6 +97,8 @@ def main():
     ap.add_argument("--stage", choices=["1", "2"], help="only the read-only (1) or data-changing (2) stage")
     ap.add_argument("--from", dest="start", help="resume stage 2 at this suite (MOB.9xx)")
     ap.add_argument("--keep-going", action="store_true", help="do not stop stage 2 at the first red")
+    ap.add_argument("--only", help="just these data-changing suites, comma-separated (MOB.953,MOB.956), in the pass's "
+                                   "order with its fixture checks — for running stage 2 in parts")
     a = ap.parse_args()
 
     read_only, writes = plan()
@@ -103,6 +107,13 @@ def main():
         if not match:
             sys.exit(f"--from {a.start}: not a data-changing suite")
         writes = writes[match[0]:]
+    if a.only:
+        wanted = [x.strip() for x in a.only.split(",") if x.strip()]
+        unknown = [w for w in wanted if not any(n.startswith(w + "_") for n in writes)]
+        if unknown:
+            sys.exit(f"--only: not data-changing suites: {', '.join(unknown)}")
+        writes = [n for n in writes if n.split("_")[0] in wanted]
+        read_only = []
     if a.stage == "1":
         writes = []
     if a.stage == "2":
@@ -166,6 +177,8 @@ def main():
     open(path, "w").write(text + "\n")
     print(f"\nsaved: {os.path.relpath(path, os.path.dirname(E2E))}")
     print(f"evidence (screenshots, traces): {os.path.relpath(evidence_root, os.path.dirname(E2E))}")
+    subprocess.run([sys.executable, os.path.join(HERE, "coverage_report.py"), "--pass", evidence_root,
+                    "--out", os.path.join(OUT, f"{started:%Y-%m-%d_%H%M}-report.html")])
     return 1 if (stopped or red) else 0
 
 

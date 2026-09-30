@@ -2,7 +2,10 @@ import { defineConfig } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-// Credentials and the base URL come from the repo-root .env (git-ignored), or from CI variables.
+// Credentials and the base URL: CI variables, else e2e/.env, else the repo-root .env (all git-ignored). dotenv never
+// overrides a value already set, so the first to hold a name wins. Inside MentorTwo the repo-root .env is the app
+// server's own, so the test login belongs in e2e/.env there.
+dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 export const BASE_URL = process.env.MOBDEV ?? 'https://dev.mentorapm.com/apm-mobile/';
@@ -41,7 +44,8 @@ export default defineConfig({
   // Datadog's default step timeout is 60s; assertions inherit it.
   expect: { timeout: 60_000 },
   timeout: 20 * 60_000,
-  reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'results/junit.xml' }]],
+  reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'results/junit.xml' }],
+    ['json', { outputFile: 'results/results.json' }]], // mobile/tools/coverage_report.py reads it
   outputDir: 'results/artifacts',
   use: {
     baseURL: BASE_URL,
